@@ -29,9 +29,19 @@ public class Main {
         }
 
         Images.initialize();
+        
+        wirePlugins();
 
         CucumberDialog frame = new CucumberDialog();
         frame.setVisible(true);
         frame.letThereBeLight();
+    }
+    
+    private static void wirePlugins() {
+        try {
+            Class.forName("com.trollsahead.qcumberless.plugins.Plugins");
+        } catch (Exception e) {
+            System.out.println("No plugins found!");
+        }
     }
 }

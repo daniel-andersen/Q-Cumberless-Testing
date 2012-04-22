@@ -10,7 +10,7 @@
     <property name="dist.dir" value="dist" />
     <property name="resources" value="resources" />
 
-    <target name="compile" depends="">
+    <target name="compile">
         <echo message="Building ${distributionname} classes..." />
         <delete dir="${build}" />
         <mkdir dir="${build}" />
