@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project name="Q-Cumberless Testing" default="all" basedir=".">
+
+    <property name="build.compiler" value="modern" />
+    <property name="distributionname" value="qcumberless" />
+    <property name="build" value="classes" />
+    <property name="build.test" value="classes.test" />
+    <property name="src" value="src" />
+    <property name="src.test" value="src.test" />
+    <property name="dist.dir" value="dist" />
+    <property name="resources" value="resources" />
+
+    <target name="compile" depends="">
+        <echo message="Building ${distributionname} classes..." />
+        <delete dir="${build}" />
+        <mkdir dir="${build}" />
+        <javac encoding="utf8" target="1.5" srcdir="${src};" destdir="${build}" debug="true" />
+        <copy todir="${build}">
+            <fileset dir="${src}">
+                <include name="**/*.properties" />
+                <include name="**/*.png" />
+                <include name="**/*.jpg" />
+            </fileset>
+        </copy>
+        <jar jarfile="${dist.dir}/${distributionname}.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Main-Class" value="com.trollsahead.qcumberless.Main" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean">
+        <echo message="" />
+        <echo message="Cleaning ${distributionname}..." />
+        <delete dir="${build}" />
+        <delete dir="${dist.dir}" />
+    </target>
+
+    <target name="all" depends="compile"/>
+
+</project>
