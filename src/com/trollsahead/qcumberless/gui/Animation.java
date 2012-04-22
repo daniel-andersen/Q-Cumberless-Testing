@@ -17,7 +17,7 @@ package com.trollsahead.qcumberless.gui;
 
 import java.awt.*;
 
-public class CucumberAnimation {
+public class Animation {
     public static final float FADE_SPEED_DRAG       = 0.05f;
     public static final float FADE_SPEED_ENTRANCE   = 0.02f;
     public static final float FADE_SPEED_FOLD       = 0.05f;
@@ -36,10 +36,10 @@ public class CucumberAnimation {
     public SizeAnimation sizeAnimation = new SizeAnimation();
     public ColorAnimation colorAnimation = new ColorAnimation();
 
-    public CucumberAnimation() {
+    public Animation() {
     }
 
-    public CucumberAnimation(float[] color) {
+    public Animation(float[] color) {
         this.colorAnimation.fromColor = color.clone();
         this.colorAnimation.destColor = color.clone();
         this.colorAnimation.currentColor = color.clone();

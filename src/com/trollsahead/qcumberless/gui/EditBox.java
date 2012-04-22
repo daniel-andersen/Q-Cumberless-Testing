@@ -15,11 +15,11 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 
-import static com.trollsahead.qcumberless.model.CucumberStep.CucumberStepPart;
+import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
-public class CucumberEditBox {
+public class EditBox {
     public static boolean isVisible = false;
 
     private static final int TYPE_ELEMENT = 0;
@@ -28,45 +28,45 @@ public class CucumberEditBox {
 
     private static int editType;
 
-    private static CucumberTextElement element;
+    private static TextElement element;
     private static CucumberStepPart part;
 
     public static void showEditPart(CucumberStepPart part) {
-        CucumberEditBox.part = part;
-        CucumberEditBox.element = null;
-        CucumberEditBox.editType = TYPE_PART;
-        CucumberDialog.elementTextField.setText(part.text);
+        EditBox.part = part;
+        EditBox.element = null;
+        EditBox.editType = TYPE_PART;
+        CucumberlessDialog.elementTextField.setText(part.text);
         show();
     }
     
-    public static void showEditElement(CucumberTextElement element) {
-        CucumberEditBox.element = element;
-        CucumberEditBox.part = null;
-        CucumberEditBox.editType = TYPE_ELEMENT;
-        CucumberDialog.elementTextField.setText(element.step.getFirstPart().text);
+    public static void showEditElement(TextElement element) {
+        EditBox.element = element;
+        EditBox.part = null;
+        EditBox.editType = TYPE_ELEMENT;
+        CucumberlessDialog.elementTextField.setText(element.step.getFirstPart().text);
         show();
     }
 
-    public static void showEditTags(CucumberTextElement element) {
-        CucumberEditBox.element = element;
-        CucumberEditBox.part = null;
-        CucumberEditBox.editType = TYPE_TAGS;
-        CucumberDialog.elementTextField.setText(element.tags.toString());
+    public static void showEditTags(TextElement element) {
+        EditBox.element = element;
+        EditBox.part = null;
+        EditBox.editType = TYPE_TAGS;
+        CucumberlessDialog.elementTextField.setText(element.tags.toString());
         show();
     }
 
     private static void show() {
-        CucumberEditBox.isVisible = true;
-        CucumberDialog.elementTextField.setVisible(true);
-        CucumberDialog.mainPanel.doLayout();
-        CucumberDialog.elementTextField.requestFocus();
+        EditBox.isVisible = true;
+        CucumberlessDialog.elementTextField.setVisible(true);
+        CucumberlessDialog.mainPanel.doLayout();
+        CucumberlessDialog.elementTextField.requestFocus();
     }
 
     public static void hide() {
         isVisible = false;
         element = null;
-        CucumberDialog.elementTextField.setVisible(false);
-        CucumberDialog.mainPanel.doLayout();
+        CucumberlessDialog.elementTextField.setVisible(false);
+        CucumberlessDialog.mainPanel.doLayout();
     }
 
     public static boolean click() {
@@ -106,7 +106,7 @@ public class CucumberEditBox {
     }
 
     public static void setText(String text) {
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             if (!isVisible) {
                 return;
             }
@@ -120,7 +120,7 @@ public class CucumberEditBox {
         }
     }
 
-    public static boolean isEditing(CucumberTextElement cucumberTextElement) {
+    public static boolean isEditing(TextElement cucumberTextElement) {
         return cucumberTextElement == element;
     }
 }

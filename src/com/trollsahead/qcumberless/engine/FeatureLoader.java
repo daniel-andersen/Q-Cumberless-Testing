@@ -13,17 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Q-Cumberless Testing.  If not, see <http://www.gnu.org/licenses/>.
 
-package com.trollsahead.qcumberless.gui;
+package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
-import com.trollsahead.qcumberless.model.CucumberStep;
+import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CucumberFeatureLoader {
+public class FeatureLoader {
     private static final String FEATURE_PATTERN = ".{0,2}Feature: (.*)"; // Take into account encoding characters in start of file!
     private static final Pattern FEATURE_PATTERN_COMPILED = Pattern.compile(FEATURE_PATTERN);
 
@@ -40,7 +41,7 @@ public class CucumberFeatureLoader {
     private static final Pattern COMMENT_PATTERN_COMPILED = Pattern.compile(COMMENT_PATTERN);
 
     public static void parseFeatureFiles(String[] files) {
-        CucumberEngine.resetFeatures();
+        Engine.resetFeatures();
         for (String filename : files) {
             parseFeatureFile(filename);
         }
@@ -51,11 +52,11 @@ public class CucumberFeatureLoader {
             InputStream systemResourceAsStream = new FileInputStream(filename);
             Reader inputStreamReader = new InputStreamReader(systemResourceAsStream);
             BufferedReader in = new BufferedReader(inputStreamReader);
-            CucumberTextElement feature = new CucumberTextElement(CucumberTextElement.TYPE_FEATURE, CucumberTextElement.ROOT_FEATURE_EDITOR);
+            TextElement feature = new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_FEATURE_EDITOR);
             feature.setFilename(filename);
-            CucumberEngine.featuresRoot.addChild(feature);
-            CucumberTextElement scenario = null;
-            CucumberTextElement background = null;
+            Engine.featuresRoot.addChild(feature);
+            TextElement scenario = null;
+            TextElement background = null;
             String line;
             String tags = null;
             String comment = null;
@@ -67,14 +68,14 @@ public class CucumberFeatureLoader {
                     feature.setComment(comment);
                     tags = null;
                 } else if (line.matches(BACKGROUND_PATTERN)) {
-                    background = new CucumberTextElement(CucumberTextElement.TYPE_BACKGROUND, CucumberTextElement.ROOT_FEATURE_EDITOR);
+                    background = new TextElement(TextElement.TYPE_BACKGROUND, TextElement.ROOT_FEATURE_EDITOR);
                     background.setTitle("Background");
                     background.setTags(tags);
                     background.setComment(comment);
                     tags = null;
                     feature.addChild(background);
                 } else if (line.matches(SCENARIO_PATTERN)) {
-                    scenario = new CucumberTextElement(CucumberTextElement.TYPE_SCENARIO, CucumberTextElement.ROOT_FEATURE_EDITOR);
+                    scenario = new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_FEATURE_EDITOR);
                     scenario.setTitle(extractTitle(SCENARIO_PATTERN_COMPILED, line));
                     scenario.setTags(tags);
                     scenario.setComment(comment);
@@ -97,7 +98,7 @@ public class CucumberFeatureLoader {
         }
     }
 
-    private static void addStep(CucumberTextElement feature, CucumberTextElement background, CucumberTextElement scenario, String line) {
+    private static void addStep(TextElement feature, TextElement background, TextElement scenario, String line) {
         if (scenario != null) {
             addStepToScenario(scenario, line);
         } else if (background != null) {
@@ -107,26 +108,26 @@ public class CucumberFeatureLoader {
         }
     }
 
-    private static void addStepToScenario(CucumberTextElement scenario, String line) {
+    private static void addStepToScenario(TextElement scenario, String line) {
         if (scenario == null || Util.isEmpty(line)) {
             return;
         }
-        CucumberTextElement stepElement;
+        TextElement stepElement;
         if (Util.startsWithIgnoreWhitespace(line, "#")) {
-            stepElement = new CucumberTextElement(CucumberTextElement.TYPE_COMMENT, CucumberTextElement.ROOT_FEATURE_EDITOR, Util.removeCommentFromLine(line));
+            stepElement = new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_FEATURE_EDITOR, Util.removeCommentFromLine(line));
         } else {
-            stepElement = new CucumberTextElement(CucumberTextElement.TYPE_STEP, CucumberTextElement.ROOT_FEATURE_EDITOR, line, findMatchingStep(line));
+            stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_FEATURE_EDITOR, line, findMatchingStep(line));
         }
         scenario.addChild(stepElement);
     }
 
-    public static CucumberStep findMatchingStep(String line) {
-        for (CucumberStep step : CucumberEngine.stepDefinitions) {
+    public static Step findMatchingStep(String line) {
+        for (Step step : Engine.stepDefinitions) {
             if (step.matches(line)) {
-                return new CucumberStep(step, line);
+                return new Step(step, line);
             }
         }
-        return new CucumberStep(line, false);
+        return new Step(line, false);
     }
 
     private static String extractComment(String line) {

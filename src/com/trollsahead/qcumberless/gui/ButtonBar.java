@@ -15,9 +15,9 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.device.CucumberDevice;
-import com.trollsahead.qcumberless.engine.CucumberEngine;
-import com.trollsahead.qcumberless.engine.CucumberPlayer;
+import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.Player;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,12 +27,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class CucumberButtonBar {
+public class ButtonBar {
     public static final int TYPE_NORMAL  = 0;
     public static final int TYPE_PLAYING = 1;
 
     public static final int BUTTONBAR_HEIGHT = 30;
-    private static final int BUTTON_PADDING = 10 + CucumberButton.TEXT_BACKGROUND_PADDING_HORIZONTAL * 2;
+    private static final int BUTTON_PADDING = 10 + Button.TEXT_BACKGROUND_PADDING_HORIZONTAL * 2;
     private static final int DEVICE_BUTTON_WIDTH = 30;
 
     private static final float ANIMATION_MOVEMENT_SPEED = 0.8f;
@@ -44,15 +44,15 @@ public class CucumberButtonBar {
 
     private static final String TEXT_NO_DEVICES = "No devices found";
 
-    private CucumberButton importStepsButton;
-    private CucumberButton scratchFeaturesButton;
-    private CucumberButton importFeaturesButton;
-    private CucumberButton exportFeaturesButton;
-    private CucumberButton saveFeaturesButton;
-    private CucumberButton closeButton;
-    private CucumberButton pauseButton;
-    private CucumberButton stopButton;
-    private List<CucumberButton> buttons;
+    private Button importStepsButton;
+    private Button scratchFeaturesButton;
+    private Button importFeaturesButton;
+    private Button exportFeaturesButton;
+    private Button saveFeaturesButton;
+    private Button closeButton;
+    private Button pauseButton;
+    private Button stopButton;
+    private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
 
@@ -61,132 +61,132 @@ public class CucumberButtonBar {
     public int renderWidth;
     public int renderHeight;
 
-    private CucumberAnimation animation;
+    private Animation animation;
 
     private static int type = TYPE_NORMAL;
 
-    public static CucumberButtonBar instance = null;
+    public static ButtonBar instance = null;
 
     private static BufferedImage deviceEnabledImage;
     private static BufferedImage deviceDisabledImage;
 
     static {
         try {
-            deviceEnabledImage = ImageIO.read(CucumberButtonBar.class.getResource("/pictures/device_enabled.png"));
-            deviceDisabledImage = ImageIO.read(CucumberButtonBar.class.getResource("/pictures/device_disabled.png"));
+            deviceEnabledImage = ImageIO.read(ButtonBar.class.getResource("/pictures/device_enabled.png"));
+            deviceDisabledImage = ImageIO.read(ButtonBar.class.getResource("/pictures/device_disabled.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public CucumberButtonBar() {
+    public ButtonBar() {
         instance = this;
-        animation = new CucumberAnimation(COLOR_BACKGROUND_NORMAL);
+        animation = new Animation(COLOR_BACKGROUND_NORMAL);
         deviceButtons = new LinkedList<DeviceButton>();
-        buttons = new LinkedList<CucumberButton>();
-        pauseButton = new CucumberButton(
+        buttons = new LinkedList<Button>();
+        pauseButton = new Button(
                 0, 0,
                 Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL),
                 Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_HIGHLIGHT),
                 Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_BOTTOM,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        if (!CucumberPlayer.isPaused()) {
-                            CucumberPlayer.pause();
+                        if (!Player.isPaused()) {
+                            Player.pause();
                         } else {
-                            CucumberPlayer.resume();
+                            Player.resume();
                         }
                     }
                 },
                 null);
         buttons.add(pauseButton);
-        stopButton = new CucumberButton(
+        stopButton = new Button(
                 0, 0,
                 Images.getImage(Images.IMAGE_STOP, Images.TYPE_NORMAL),
                 Images.getImage(Images.IMAGE_STOP, Images.TYPE_HIGHLIGHT),
                 Images.getImage(Images.IMAGE_STOP, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_BOTTOM,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        CucumberPlayer.stop();
+                        Player.stop();
                     }
                 },
                 null);
         buttons.add(stopButton);
-        importStepsButton = new CucumberButton(
+        importStepsButton = new Button(
                 0, 0,
                 "Import step definitions",
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        CucumberEngine.importSteps();
+                        Engine.importSteps();
                     }
                 },
                 null);
         buttons.add(importStepsButton);
-        scratchFeaturesButton = new CucumberButton(
+        scratchFeaturesButton = new Button(
                 0, 0,
                 "Scratch",
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        if (CucumberEngine.spotlight.visible && "black knight mode".equalsIgnoreCase(CucumberEngine.spotlight.searchString)) {
+                        if (Engine.spotlight.visible && "black knight mode".equalsIgnoreCase(Engine.spotlight.searchString)) {
                             EasterEgg.show();
                         } else {
-                            CucumberEngine.scratchFeatures();
+                            Engine.scratchFeatures();
                         }
                     }
                 },
                 null);
         buttons.add(scratchFeaturesButton);
-        importFeaturesButton = new CucumberButton(
+        importFeaturesButton = new Button(
                 0, 0,
                 "Import",
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        File[] files = CucumberDialog.instance.fileChooser();
+                        File[] files = CucumberlessDialog.instance.fileChooser();
                         if (files != null) {
-                            CucumberEngine.importFeatures(files);
+                            Engine.importFeatures(files);
                         }
                     }
                 },
                 null);
         buttons.add(importFeaturesButton);
-        exportFeaturesButton = new CucumberButton(
+        exportFeaturesButton = new Button(
                 0, 0,
                 "Export",
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        File directory = CucumberDialog.instance.directoryChooser();
+                        File directory = CucumberlessDialog.instance.directoryChooser();
                         if (directory != null) {
-                            CucumberEngine.exportFeatures(directory);
+                            Engine.exportFeatures(directory);
                         }
                     }
                 },
                 null);
         buttons.add(exportFeaturesButton);
-        saveFeaturesButton = new CucumberButton(
+        saveFeaturesButton = new Button(
                 0, 0,
                 "Save",
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        CucumberEngine.saveFeatures();
+                        Engine.saveFeatures();
                     }
                 },
                 null);
         buttons.add(saveFeaturesButton);
-        closeButton = new CucumberButton(
+        closeButton = new Button(
                 0, 0,
                 "Quit",
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        CucumberEngine.stop();
-                        CucumberDialog.instance.setVisible(false);
+                        Engine.stop();
+                        CucumberlessDialog.instance.setVisible(false);
                     }
                 },
                 null);
@@ -211,21 +211,21 @@ public class CucumberButtonBar {
         x += BUTTON_PADDING + fontMetrics.stringWidth(importStepsButton.toString());
         x += BUTTON_PADDING;
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        pauseButton.setPosition((CucumberEngine.canvasWidth / 2) - CucumberEngine.canvasWidth - 30, BUTTONBAR_HEIGHT);
-        stopButton.setPosition((CucumberEngine.canvasWidth / 2) - CucumberEngine.canvasWidth + 30, BUTTONBAR_HEIGHT);
+        pauseButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth - 30, BUTTONBAR_HEIGHT);
+        stopButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth + 30, BUTTONBAR_HEIGHT);
         positionDeviceButtons();
     }
 
-    public void updateDevices(Set<CucumberDevice> devices) {
+    public void updateDevices(Set<Device> devices) {
         deviceButtons = new LinkedList<DeviceButton>();
-        for (final CucumberDevice device : devices) {
+        for (final Device device : devices) {
             DeviceButton button = new DeviceButton(
                     0, 0,
-                    device.getThumbnail(CucumberDevice.ThumbnailState.NORMAL),
-                    device.getThumbnail(CucumberDevice.ThumbnailState.HIGHLIGHTED),
-                    device.getThumbnail(CucumberDevice.ThumbnailState.PRESSED),
-                    CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_CENTER,
-                    new CucumberButton.CucumberButtonNotification() {
+                    device.getThumbnail(Device.ThumbnailState.NORMAL),
+                    device.getThumbnail(Device.ThumbnailState.HIGHLIGHTED),
+                    device.getThumbnail(Device.ThumbnailState.PRESSED),
+                    Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                    new Button.CucumberButtonNotification() {
                         public void onClick() {
                             if (device.isEnabled()) {
                                 device.disable();
@@ -242,8 +242,8 @@ public class CucumberButtonBar {
     }
 
     private void positionDeviceButtons() {
-        int x = CucumberEngine.canvasWidth - BUTTON_PADDING;
-        for (CucumberButton button : deviceButtons) {
+        int x = Engine.canvasWidth - BUTTON_PADDING;
+        for (Button button : deviceButtons) {
             button.setPosition(x - (DEVICE_BUTTON_WIDTH / 2), BUTTONBAR_HEIGHT / 2);
             x -= button.getImageWidth() + BUTTON_PADDING;
         }
@@ -259,37 +259,37 @@ public class CucumberButtonBar {
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
         importStepsButton.setEnabled(isImportStepDefinitionsButtonEnabled());
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             button.update();
         }
-        for (CucumberButton button : deviceButtons) {
+        for (Button button : deviceButtons) {
             button.update();
         }
     }
 
     private boolean isExportFeaturesButtonEnabled() {
-        return CucumberEngine.featuresRoot.children.size() > 0;
+        return Engine.featuresRoot.children.size() > 0;
     }
 
     private boolean isSaveFeaturesButtonEnabled() {
-        return CucumberEngine.featuresRoot.isLoaded;
+        return Engine.featuresRoot.isLoaded;
     }
 
     private boolean isImportStepDefinitionsButtonEnabled() {
-        return CucumberEngine.devices.size() > 0;
+        return Engine.devices.size() > 0;
     }
 
     private void updateType() {
-        if (CucumberPlayer.isRunning() && type == TYPE_NORMAL) {
+        if (Player.isRunning() && type == TYPE_NORMAL) {
             type = TYPE_PLAYING;
-            animation.moveAnimation.setRealPosition(CucumberEngine.canvasWidth, 0, ANIMATION_MOVEMENT_SPEED);
+            animation.moveAnimation.setRealPosition(Engine.canvasWidth, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_PLAYING, ANIMATION_FADE_SPEED);
-        } else if (!CucumberPlayer.isRunning() && type == TYPE_PLAYING) {
+        } else if (!Player.isRunning() && type == TYPE_PLAYING) {
             type = TYPE_NORMAL;
             animation.moveAnimation.setRealPosition(0, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_NORMAL, ANIMATION_FADE_SPEED);
         }
-        if (!CucumberPlayer.isPaused()) {
+        if (!Player.isPaused()) {
             pauseButton.setImages(Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL));
         } else {
             pauseButton.setImages(Images.getImage(Images.IMAGE_RESUME, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_RESUME, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_RESUME, Images.TYPE_NORMAL));
@@ -304,24 +304,24 @@ public class CucumberButtonBar {
     }
 
     private void calculatePosition() {
-        renderWidth = CucumberEngine.canvasWidth;
+        renderWidth = Engine.canvasWidth;
         renderHeight = BUTTONBAR_HEIGHT;
         renderX = (int) animation.moveAnimation.renderX;
-        renderY = CucumberEngine.canvasHeight - renderHeight;
+        renderY = Engine.canvasHeight - renderHeight;
     }
 
     private void renderBackground(Graphics g) {
         g.setColor(animation.colorAnimation.getColor());
         if (!animation.moveAnimation.isMoving()) {
-            g.fillRect(0, renderY, CucumberEngine.canvasWidth, renderHeight);
+            g.fillRect(0, renderY, Engine.canvasWidth, renderHeight);
         } else {
             g.fillRect(0, renderY, renderX, renderHeight);
-            g.fillRect(renderX, renderY, CucumberEngine.canvasWidth - renderX, renderHeight);
+            g.fillRect(renderX, renderY, Engine.canvasWidth - renderX, renderHeight);
         }
     }
 
     private void renderButtons(Graphics g) {
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             button.setOffset(renderX, renderY);
             button.render(g);
         }
@@ -331,7 +331,7 @@ public class CucumberButtonBar {
         if (deviceButtons.size() == 0) {
             FontMetrics fontMetrics = g.getFontMetrics();
             g.setColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
-            g.drawString(TEXT_NO_DEVICES, CucumberEngine.canvasWidth - fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + fontMetrics.getHeight()) / 2) - 3);
+            g.drawString(TEXT_NO_DEVICES, Engine.canvasWidth - fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + fontMetrics.getHeight()) / 2) - 3);
         } else {
             for (DeviceButton button : deviceButtons) {
                 button.setOffset(renderX, renderY);
@@ -345,12 +345,12 @@ public class CucumberButtonBar {
     }
     
     public boolean click() {
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             if (button.click()) {
                 return true;
             }
         }
-        for (CucumberButton button : deviceButtons) {
+        for (Button button : deviceButtons) {
             if (button.click()) {
                 return true;
             }
@@ -362,15 +362,15 @@ public class CucumberButtonBar {
         animation.colorAnimation.setColor(COLOR_BACKGROUND_FAILED, ANIMATION_FADE_SPEED);
     }
 
-    private class DeviceButton extends CucumberButton {
-        private CucumberDevice device;
+    private class DeviceButton extends Button {
+        private Device device;
 
-        public DeviceButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, CucumberDevice device) {
+        public DeviceButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Device device) {
             super(x, y, normalImage, highlightImage, pressedImage, alignment, notification, null);
             this.device = device;
         }
         
-        public CucumberDevice getDevice() {
+        public Device getDevice() {
             return device;
         }
         

@@ -18,13 +18,13 @@ package com.trollsahead.qcumberless.device;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class CucumberDevice {
+public abstract class Device {
     public enum Capability {PLAY, PAUSE, STOP}
     public enum ThumbnailState {NORMAL, HIGHLIGHTED, PRESSED}
 
     private boolean enabled = false;
 
-    public abstract void setDeviceCallback(CucumberDeviceCallback deviceCallback);
+    public abstract void setDeviceCallback(DeviceCallback deviceCallback);
 
     public abstract Set<Capability> getCapabilities();
 

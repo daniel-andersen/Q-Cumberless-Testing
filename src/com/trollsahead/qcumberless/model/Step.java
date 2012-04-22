@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CucumberStep {
+public class Step {
     private static final String PARAMETER_TAG = "\\(\\.\\*\\)";
 
     private String definition;
@@ -36,11 +36,11 @@ public class CucumberStep {
     private List<CucumberStepPart> parts = null;
     private boolean renderKeyword = true;
 
-    public CucumberStep(String definition) {
+    public Step(String definition) {
         this(definition, true);
     }
     
-    public CucumberStep(CucumberStepDefinition stepDefinition) {
+    public Step(StepDefinition stepDefinition) {
         this(stepDefinition.getStepDefinition(), true);
         for (String[] parameter : stepDefinition.getParameters()) {
             validParameters.add(parameter);
@@ -49,12 +49,12 @@ public class CucumberStep {
         parts = null;
     }
 
-    public CucumberStep(String definition, boolean isMatched) {
+    public Step(String definition, boolean isMatched) {
         this.definition = Util.stripLeadingSpaces(definition);
         this.isMatched = isMatched;
     }
 
-    public CucumberStep(CucumberStep step, String line) {
+    public Step(Step step, String line) {
         this.definition = Util.stripLeadingSpaces(step.definition);
         this.validParameters = step.validParameters;
         this.actualParameters = new String[0];
@@ -64,8 +64,8 @@ public class CucumberStep {
         isMatched = true;
     }
 
-    public CucumberStep duplicate() {
-        CucumberStep step = new CucumberStep(definition);
+    public Step duplicate() {
+        Step step = new Step(definition);
         step.validParameters = this.validParameters;
         step.actualParameters = this.actualParameters.clone();
         step.renderKeyword = this.renderKeyword;

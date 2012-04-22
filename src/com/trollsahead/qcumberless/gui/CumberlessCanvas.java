@@ -15,21 +15,21 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
 
-public class CucumberCanvas extends JPanel {
-    public CucumberCanvas() {
+public class CumberlessCanvas extends JPanel {
+    public CumberlessCanvas() {
         setFocusable(true);
         setBackground(Color.BLACK);
     }
 
     public void paintComponent(Graphics g) {
-        synchronized (CucumberEngine.LOCK) {
-            g.drawImage(CucumberEngine.backbuffer, 0, 0, this);
+        synchronized (Engine.LOCK) {
+            g.drawImage(Engine.backbuffer, 0, 0, this);
         }
     }
 

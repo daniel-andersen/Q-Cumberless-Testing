@@ -15,9 +15,9 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
-import com.trollsahead.qcumberless.model.CucumberStep;
-import com.trollsahead.qcumberless.model.CucumberStepDefinition;
+import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.model.Step;
+import com.trollsahead.qcumberless.model.StepDefinition;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,22 +25,22 @@ import java.util.Comparator;
 import java.util.List;
 
 public class CucumberStepDefinitionLoader {
-    public static void parseStepDefinitions(List<CucumberStepDefinition> stepDefinitions) {
-        List<CucumberTextElement> elements = new ArrayList<CucumberTextElement>();
-        CucumberEngine.resetStepDefinitions();
-        for (CucumberStepDefinition stepDefinition : stepDefinitions) {
-            CucumberStep currentStep = new CucumberStep(stepDefinition);
+    public static void parseStepDefinitions(List<StepDefinition> stepDefinitions) {
+        List<TextElement> elements = new ArrayList<TextElement>();
+        Engine.resetStepDefinitions();
+        for (StepDefinition stepDefinition : stepDefinitions) {
+            Step currentStep = new Step(stepDefinition);
             currentStep.setShouldRenderKeyword(false);
-            CucumberEngine.stepDefinitions.add(currentStep);
-            elements.add(new CucumberTextElement(CucumberTextElement.TYPE_STEP, CucumberTextElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
+            Engine.stepDefinitions.add(currentStep);
+            elements.add(new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
         }
-        Collections.sort(elements, new Comparator<CucumberTextElement>() {
-            public int compare(CucumberTextElement element1, CucumberTextElement element2) {
+        Collections.sort(elements, new Comparator<TextElement>() {
+            public int compare(TextElement element1, TextElement element2) {
                 return element1.step.toString().compareTo(element2.step.toString());
             }
         });
-        for (CucumberTextElement element : elements) {
-            CucumberEngine.stepsRoot.addChild(element);
+        for (TextElement element : elements) {
+            Engine.stepsRoot.addChild(element);
         }
     }
 }

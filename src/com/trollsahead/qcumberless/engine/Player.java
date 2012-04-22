@@ -15,16 +15,17 @@
 
 package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.device.CucumberDevice;
-import com.trollsahead.qcumberless.device.CucumberDeviceCallback;
-import com.trollsahead.qcumberless.gui.CucumberTextElement;
-import com.trollsahead.qcumberless.model.CucumberStep;
+import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.device.DeviceCallback;
+import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CucumberPlayer implements CucumberDeviceCallback {
+public class Player implements DeviceCallback {
     private static final long MESSAGE_TIMEOUT_PLAYER = 5L * 1000L;
     private static final long MESSAGE_ANIMATION_SPEED = 300;
     private static final int MESSAGE_WIDTH = 200;
@@ -38,9 +39,9 @@ public class CucumberPlayer implements CucumberDeviceCallback {
 
     public static long messageTimeout = 0;
 
-    public CucumberTextElement currentFeature = null;
-    public CucumberTextElement currentScenario = null;
-    public CucumberTextElement currentStep = null;
+    public TextElement currentFeature = null;
+    public TextElement currentScenario = null;
+    public TextElement currentStep = null;
 
     private int stepIndex;
 
@@ -50,17 +51,17 @@ public class CucumberPlayer implements CucumberDeviceCallback {
 
     private boolean success;
 
-    private CucumberDevice device;
+    private Device device;
 
     private static boolean hasDeviceFailures = false;
 
-    public static Set<CucumberPlayer> players = new HashSet<CucumberPlayer>();
+    public static Set<Player> players = new HashSet<Player>();
 
     public static void prepareRun() {
         hasDeviceFailures = false;
     }
 
-    public CucumberPlayer() {
+    public Player() {
         players.add(this);
         reset();
     }
@@ -75,7 +76,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public static boolean isRunning() {
-        for (CucumberPlayer player : players) {
+        for (Player player : players) {
             if (player.isRunning) {
                 return true;
             }
@@ -84,7 +85,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public static boolean isPaused() {
-        for (CucumberPlayer player : players) {
+        for (Player player : players) {
             if (player.isPaused) {
                 return true;
             }
@@ -93,7 +94,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public static boolean isStopped() {
-        for (CucumberPlayer player : players) {
+        for (Player player : players) {
             if (player.isStopped) {
                 return true;
             }
@@ -101,7 +102,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
         return false;
     }
 
-    public void play(final StringBuilder feature, final CucumberDevice device) {
+    public void play(final StringBuilder feature, final Device device) {
         this.device = device;
         device.setDeviceCallback(this);
         new Thread(new Runnable() {
@@ -114,7 +115,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public static void pause() {
-        for (final CucumberPlayer player : players) {
+        for (final Player player : players) {
             new Thread(new Runnable() {
                 public void run() {
                     player.device.pause();
@@ -124,7 +125,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public static void resume() {
-        for (final CucumberPlayer player : players) {
+        for (final Player player : players) {
             new Thread(new Runnable() {
                 public void run() {
                     player.device.resume();
@@ -134,7 +135,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public static void stop() {
-        for (final CucumberPlayer player : players) {
+        for (final Player player : players) {
             new Thread(new Runnable() {
                 public void run() {
                     player.device.stop();
@@ -153,7 +154,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     private static boolean hasFailures() {
-        for (CucumberPlayer player : players) {
+        for (Player player : players) {
             if (!player.success) {
                 return true;
             }
@@ -173,7 +174,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
         final int WIDTH = MESSAGE_WIDTH;
         final int HEIGHT = MESSAGE_HEIGHT;
 
-        int x = (CucumberEngine.canvasWidth - WIDTH) / 2;
+        int x = (Engine.canvasWidth - WIDTH) / 2;
         int y = 20;
         
         int textX = x + (WIDTH - fontMetrics.stringWidth(text)) / 2;
@@ -196,7 +197,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     public void onPlay() {
         isRunning = true;
         success = true;
-        CucumberEngine.cucumberRoot.clearFailedStatus();
+        Engine.cucumberRoot.clearFailedStatus();
     }
 
     public void onPause() {
@@ -226,7 +227,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     }
 
     public void beforeFeature(String name) {
-        currentFeature = (CucumberTextElement) CucumberEngine.featuresRoot.findChild(name);
+        currentFeature = (TextElement) Engine.featuresRoot.findChild(name);
         System.out.println("Starting feature: '" + name + "'");
     }
 
@@ -240,8 +241,8 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     public void beforeScenario(String name) {
         System.out.println("Starting scenario: '" + name + "'");
         if (currentFeature != null) {
-            currentScenario = (CucumberTextElement) currentFeature.findChild(name);
-            currentStep = (CucumberTextElement) currentFeature.firstChildOfType(CucumberTextElement.TYPE_STEP);
+            currentScenario = (TextElement) currentFeature.findChild(name);
+            currentStep = (TextElement) currentFeature.firstChildOfType(TextElement.TYPE_STEP);
             stepIndex = currentFeature.findChildIndex(currentStep);
         } else {
             currentScenario = null;
@@ -269,7 +270,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     public void beforeStep(String name) {
         System.out.println("Running step: '" + name + "'");
         if (currentScenario != null && !(stepIndex == -1 && "I see that I'm on the \"bank\" page".equals(name))) { // TODO! Background
-            currentStep = (CucumberTextElement) currentScenario.findChildFromIndex(name, stepIndex + 1);
+            currentStep = (TextElement) currentScenario.findChildFromIndex(name, stepIndex + 1);
             stepIndex = currentScenario.findChildIndex(currentStep);
         }
     }
@@ -281,11 +282,11 @@ public class CucumberPlayer implements CucumberDeviceCallback {
         failure(errorMessage);
     }
 
-    public void attachScreenshots(CucumberStep step, Image... screenshots) {
+    public void attachScreenshots(Step step, Image... screenshots) {
         currentStep.setErrorScreenshots(screenshots);
     }
 
-    public CucumberStep getCurrentStep() {
+    public Step getCurrentStep() {
         return currentStep != null ? currentStep.step : null;
     }
 
@@ -296,7 +297,7 @@ public class CucumberPlayer implements CucumberDeviceCallback {
     private void failure(String errorMessage) {
         success = false;
         hasDeviceFailures = true;
-        CucumberEngine.buttonBar.setFailed();
+        Engine.buttonBar.setFailed();
         if (currentStep != null && errorMessage != null) {
             currentStep.setFailed();
             currentStep.setErrorMessage(errorMessage);
@@ -309,8 +310,8 @@ public class CucumberPlayer implements CucumberDeviceCallback {
         }
     }
 
-    public static boolean isCurrentFeature(CucumberTextElement element) {
-        for (CucumberPlayer player : players) {
+    public static boolean isCurrentFeature(TextElement element) {
+        for (Player player : players) {
             if (player.currentFeature == element) {
                 return true;
             }
@@ -318,8 +319,8 @@ public class CucumberPlayer implements CucumberDeviceCallback {
         return false;
     }
 
-    public static boolean isCurrentScenario(CucumberTextElement element) {
-        for (CucumberPlayer player : players) {
+    public static boolean isCurrentScenario(TextElement element) {
+        for (Player player : players) {
             if (player.currentScenario == element) {
                 return true;
             }
@@ -327,8 +328,8 @@ public class CucumberPlayer implements CucumberDeviceCallback {
         return false;
     }
 
-    public static boolean isCurrentStep(CucumberTextElement element) {
-        for (CucumberPlayer player : players) {
+    public static boolean isCurrentStep(TextElement element) {
+        for (Player player : players) {
             if (player.currentStep == element) {
                 return true;
             }

@@ -15,14 +15,14 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 
 import java.awt.*;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CucumberRootElement extends CucumberElement {
+public class RootElement extends Element {
     public static final int TYPE_ROOT = -1;
 
     public static final int PADDING_HORIZONTAL = 20;
@@ -33,7 +33,7 @@ public class CucumberRootElement extends CucumberElement {
     private static final int SCROLLBAR_WIDTH = 10;
     private static final int SCROLLBAR_PADDING_HORIZONTAL = 3;
     private static final int SCROLLBAR_PADDING_VERTICAL = 5;
-    private static final int SCROLLBAR_BOTTOM_PADDING = CucumberButtonBar.BUTTONBAR_HEIGHT;
+    private static final int SCROLLBAR_BOTTOM_PADDING = ButtonBar.BUTTONBAR_HEIGHT;
     private static final int SCROLLBAR_ROUNDING = 7;
 
     private static final float ANIMATION_SPEED_PUSH = 0.8f;
@@ -57,9 +57,9 @@ public class CucumberRootElement extends CucumberElement {
 
     private int verticalGap = 0;
 
-    public CucumberRootElement() {
-        animation.colorAnimation.setAlpha(CucumberAnimation.FADE_ALPHA_DEFAULT, CucumberAnimation.FADE_SPEED_ENTRANCE);
-        animation.moveAnimation.setRenderPosition(0, -100, CucumberAnimation.MOVEMENT_SPEED_ENTRANCE);
+    public RootElement() {
+        animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
+        animation.moveAnimation.setRenderPosition(0, -100, Animation.MOVEMENT_SPEED_ENTRANCE);
         type = TYPE_ROOT;
         rootType = ROOT_NONE;
     }
@@ -106,9 +106,9 @@ public class CucumberRootElement extends CucumberElement {
 
     private void dragScrollbar(int deltaY) {
         isDraggingScrollbar = true;
-        int dragOffset = CucumberMouseListener.mouseY - SCROLLBAR_PADDING_VERTICAL - scrollbarY;
+        int dragOffset = CumberlessMouseListener.mouseY - SCROLLBAR_PADDING_VERTICAL - scrollbarY;
         if (dragOffset < 0 || dragOffset >= scrollbarHeight) {
-            scrollbarY = CucumberMouseListener.mouseY - SCROLLBAR_PADDING_VERTICAL - (scrollbarHeight / 2);
+            scrollbarY = CumberlessMouseListener.mouseY - SCROLLBAR_PADDING_VERTICAL - (scrollbarHeight / 2);
         } else {
             scrollbarY += deltaY;
         }
@@ -129,9 +129,9 @@ public class CucumberRootElement extends CucumberElement {
     public void trashElement() {
     }
 
-    public CucumberElement findGroup(int x, int y, int type) {
-        for (CucumberElement child : children) {
-            CucumberElement foundElement = child.findGroup(x, y, type);
+    public Element findGroup(int x, int y, int type) {
+        for (Element child : children) {
+            Element foundElement = child.findGroup(x, y, type);
             if (foundElement != null) {
                 return foundElement;
             }
@@ -143,7 +143,7 @@ public class CucumberRootElement extends CucumberElement {
     }
 
     protected void renderAfter(Graphics g) {
-        if (this == CucumberEngine.cucumberRoot) {
+        if (this == Engine.cucumberRoot) {
             return;
         }
         renderScrollbar(g);
@@ -155,7 +155,7 @@ public class CucumberRootElement extends CucumberElement {
 
     private void renderScrollbar(Graphics g) {
         scrollbarX = (int) animation.moveAnimation.renderX - PADDING_HORIZONTAL;
-        if (this == CucumberEngine.featuresRoot) {
+        if (this == Engine.featuresRoot) {
             scrollbarX += SCROLLBAR_PADDING_HORIZONTAL;
         } else {
             scrollbarX += renderWidth - SCROLLBAR_PADDING_HORIZONTAL - SCROLLBAR_WIDTH;
@@ -176,7 +176,7 @@ public class CucumberRootElement extends CucumberElement {
     }
 
     protected void calculateRenderPosition(Graphics g) {
-        if (this == CucumberEngine.cucumberRoot) {
+        if (this == Engine.cucumberRoot) {
             return;
         }
         updatePosition();
@@ -195,8 +195,8 @@ public class CucumberRootElement extends CucumberElement {
     }
 
     private boolean isScrollbarTouched() {
-        return (this == CucumberEngine.featuresRoot && CucumberMouseListener.mouseX <= scrollbarX + SCROLLBAR_WIDTH) ||
-               (this == CucumberEngine.stepsRoot && CucumberMouseListener.mouseX >= scrollbarX);
+        return (this == Engine.featuresRoot && CumberlessMouseListener.mouseX <= scrollbarX + SCROLLBAR_WIDTH) ||
+               (this == Engine.stepsRoot && CumberlessMouseListener.mouseX >= scrollbarX);
     }
 
     protected void foldFadeAnimation(float alpha) {
@@ -213,11 +213,11 @@ public class CucumberRootElement extends CucumberElement {
         isDraggingScrollbar = false;
     }
 
-    public void updateElementIndex(CucumberElement cucumberElement, int index) {
+    public void updateElementIndex(Element element, int index) {
     }
 
-    protected CucumberElement duplicate() {
-        return new CucumberRootElement();
+    protected Element duplicate() {
+        return new RootElement();
     }
 
     protected StringBuilder buildFeatureInternal() {
@@ -229,7 +229,7 @@ public class CucumberRootElement extends CucumberElement {
 
     public boolean export(File directory) {
         boolean success = true;
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             success &= child.export(directory);
         }
         return success;
@@ -237,14 +237,14 @@ public class CucumberRootElement extends CucumberElement {
 
     public boolean save() {
         boolean success = true;
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             success &= child.save();
         }
         return success;
     }
 
     public void filterChildren(String regexp) {
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             if (!child.getTitle().matches(regexp)) {
                 child.hide();
             } else {

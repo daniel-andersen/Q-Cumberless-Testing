@@ -15,7 +15,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class CucumberElement {
+public abstract class Element {
     public static final int ROOT_NONE = 0;
     public static final int ROOT_FEATURE_EDITOR = 1;
     public static final int ROOT_STEP_DEFINITIONS = 2;
@@ -52,41 +52,41 @@ public abstract class CucumberElement {
     public String errorMessage = null;
     public Image[] errorScreenshots = null;
 
-    public CucumberAnimation animation = new CucumberAnimation();
+    public Animation animation = new Animation();
 
-    public CucumberElement groupParent;
-    public List<CucumberElement> children = new ArrayList<CucumberElement>();
+    public Element groupParent;
+    public List<Element> children = new ArrayList<Element>();
 
-    public CucumberElement() {
+    public Element() {
     }
 
-    public void addChild(CucumberElement cucumberElement) {
-        children.add(cucumberElement);
-        cucumberElement.groupParent = this;
-        if (this == CucumberEngine.stepsRoot) {
-            cucumberElement.animation.colorAnimation.setAlpha(CucumberAnimation.FADE_ALPHA_DEFAULT, CucumberAnimation.FADE_SPEED_ENTRANCE);
+    public void addChild(Element element) {
+        children.add(element);
+        element.groupParent = this;
+        if (this == Engine.stepsRoot) {
+            element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         }
     }
 
-    public void addChild(CucumberElement element, int index) {
+    public void addChild(Element element, int index) {
         children.add(index, element);
         element.groupParent = this;
     }
 
-    public void removeChild(CucumberElement element) {
+    public void removeChild(Element element) {
         if (element == null) {
             return;
         }
         if (children.contains(element)) {
-            if (this == CucumberEngine.stepsRoot) {
-                CucumberElement stepDefinitionElement = element.duplicate();
-                if (stepDefinitionElement instanceof CucumberTextElement) {
-                    ((CucumberTextElement) stepDefinitionElement).step.setShouldRenderKeyword(false);
+            if (this == Engine.stepsRoot) {
+                Element stepDefinitionElement = element.duplicate();
+                if (stepDefinitionElement instanceof TextElement) {
+                    ((TextElement) stepDefinitionElement).step.setShouldRenderKeyword(false);
                 }
-                if (element instanceof CucumberTextElement) {
-                    ((CucumberTextElement) element).step.setShouldRenderKeyword(true);
+                if (element instanceof TextElement) {
+                    ((TextElement) element).step.setShouldRenderKeyword(true);
                 }
-                CucumberEngine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
+                Engine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
                 element.rootType = ROOT_FEATURE_EDITOR;
                 //element.animation.sizeAnimation.setWidth(CucumberTextElement.calculateRenderWidthFromRoot(ROOT_FEATURE_EDITOR), CucumberAnimation.RESIZE_SPEED); // TODO! Causes flickers when inserting!
@@ -94,12 +94,12 @@ public abstract class CucumberElement {
             children.remove(element);
             return;
         }
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.removeChild(element);
         }
     }
 
-    public int findChildIndex(CucumberElement element) {
+    public int findChildIndex(Element element) {
         if (element == null) {
             return -1;
         }
@@ -111,12 +111,12 @@ public abstract class CucumberElement {
         return -1;
     }
 
-    public CucumberElement findChildFromIndex(String step, int index) {
+    public Element findChildFromIndex(String step, int index) {
         for (int i = 0; i < children.size(); i++) {
             if (i < index) {
                 continue;
             }
-            CucumberElement child = children.get(i);
+            Element child = children.get(i);
             if (child.getTitle().endsWith(step)) {
                 return child;
             }
@@ -124,9 +124,9 @@ public abstract class CucumberElement {
         return null;
     }
 
-    public CucumberElement firstChildOfType(int type) {
+    public Element firstChildOfType(int type) {
         for (int i = 0; i < children.size(); i++) {
-            CucumberElement element = children.get(i);
+            Element element = children.get(i);
             if (element.type == type) {
                 return element;
             }
@@ -137,7 +137,7 @@ public abstract class CucumberElement {
     public void update(long time) {
         animation.update(isBeingDragged());
         updateSelf(time);
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.update(time);
         }
     }
@@ -162,7 +162,7 @@ public abstract class CucumberElement {
             renderBefore(g);
         }
         int selfHeight = groupHeight;
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             if (child.animation.colorAnimation.isVisible()) {
                 child.render(g, dragHighlightMode, isParentDragged || isBeingDragged());
                 groupHeight += child.groupHeight;
@@ -181,7 +181,7 @@ public abstract class CucumberElement {
 
     public void renderHints(Graphics g) {
         renderHintsInternal(g);
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.renderHints(g);
         }
     }
@@ -202,8 +202,8 @@ public abstract class CucumberElement {
 
     public abstract void trashElement();
 
-    public CucumberElement findChild(String title) {
-        for (CucumberElement child : children) {
+    public Element findChild(String title) {
+        for (Element child : children) {
             if (Util.stripPseudoNewLines(child.getTitle().trim()).equals(Util.stripPseudoNewLines(title.trim()))) {
                 return child;
             }
@@ -211,12 +211,12 @@ public abstract class CucumberElement {
         return null;
     }
 
-    public CucumberElement findElement(int x, int y) {
-        if (isInsideRenderRect(x, y) && !(this instanceof CucumberRootElement) && visible) {
+    public Element findElement(int x, int y) {
+        if (isInsideRenderRect(x, y) && !(this instanceof RootElement) && visible) {
             return this;
         } else {
-            for (CucumberElement child : children) {
-                CucumberElement foundElement = child.findElement(x, y);
+            for (Element child : children) {
+                Element foundElement = child.findElement(x, y);
                 if (foundElement != null) {
                     return foundElement;
                 }
@@ -225,12 +225,12 @@ public abstract class CucumberElement {
         }
     }
 
-    public CucumberElement findElementRealPosition(int x, int y) {
-        if (isInsideRealRect(x, y) && !(this instanceof CucumberRootElement) && visible) {
+    public Element findElementRealPosition(int x, int y) {
+        if (isInsideRealRect(x, y) && !(this instanceof RootElement) && visible) {
             return this;
         } else {
-            for (CucumberElement child : children) {
-                CucumberElement foundElement = child.findElementRealPosition(x, y);
+            for (Element child : children) {
+                Element foundElement = child.findElementRealPosition(x, y);
                 if (foundElement != null) {
                     return foundElement;
                 }
@@ -239,10 +239,10 @@ public abstract class CucumberElement {
         }
     }
 
-    public abstract CucumberElement findGroup(int x, int y, int type);
+    public abstract Element findGroup(int x, int y, int type);
 
     protected boolean isInsideGroupRect(int x, int y) {
-        if ((isParentFolded() && !(this instanceof CucumberRootElement)) || !visible) {
+        if ((isParentFolded() && !(this instanceof RootElement)) || !visible) {
             return false;
         }
         return x >= animation.moveAnimation.realX && y >= animation.moveAnimation.realY && x <= animation.moveAnimation.realX + renderWidth && y <= animation.moveAnimation.realY + groupHeight;
@@ -283,7 +283,7 @@ public abstract class CucumberElement {
         isFailed = false;
         errorMessage = null;
         errorScreenshots = null;
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.clearFailedStatus();
         }
     }
@@ -317,8 +317,8 @@ public abstract class CucumberElement {
 
     public void startDrag() {
         isDragged = true;
-        dragOffsetX = (int) animation.moveAnimation.renderX - CucumberMouseListener.mouseX;
-        dragOffsetY = (int) animation.moveAnimation.renderY - CucumberMouseListener.mouseY;
+        dragOffsetX = (int) animation.moveAnimation.renderX - CumberlessMouseListener.mouseX;
+        dragOffsetY = (int) animation.moveAnimation.renderY - CumberlessMouseListener.mouseY;
     }
 
     public void endDrag() {
@@ -326,13 +326,13 @@ public abstract class CucumberElement {
     }
 
     public void applyDragOffset() {
-        animation.moveAnimation.setRenderPosition(CucumberMouseListener.mouseX + dragOffsetX, CucumberMouseListener.mouseY + dragOffsetY);
+        animation.moveAnimation.setRenderPosition(CumberlessMouseListener.mouseX + dragOffsetX, CumberlessMouseListener.mouseY + dragOffsetY);
         stickChildrenToParentRenderPosition(true);
         applyDrag();
     }
 
     public void stickChildrenToParentRenderPosition(boolean shouldStick) {
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.stickToParentRenderPosition(shouldStick);
         }
     }
@@ -342,21 +342,21 @@ public abstract class CucumberElement {
             return;
         }
         this.shouldStickToParentRenderPosition = shouldStick;
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.stickToParentRenderPosition(shouldStick);
         }
     }
 
-    public abstract void updateElementIndex(CucumberElement element, int index);
+    public abstract void updateElementIndex(Element element, int index);
 
-    protected abstract CucumberElement duplicate();
+    protected abstract Element duplicate();
 
     public StringBuilder buildFeature() {
         StringBuilder sb = buildFeatureInternal();
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             sb.append(child.buildFeature());
         }
-        if (type == CucumberTextElement.TYPE_FEATURE || type == CucumberTextElement.TYPE_BACKGROUND || type == CucumberTextElement.TYPE_SCENARIO) {
+        if (type == TextElement.TYPE_FEATURE || type == TextElement.TYPE_BACKGROUND || type == TextElement.TYPE_SCENARIO) {
             sb.append("\n");
         }
         return sb;
@@ -366,7 +366,7 @@ public abstract class CucumberElement {
 
     public void updateSteps() {
         updateStepsInternal();
-        for (CucumberElement child : children) {
+        for (Element child : children) {
             child.updateSteps();
         }
     }
@@ -381,7 +381,7 @@ public abstract class CucumberElement {
             return;
         }
         visible = true;
-        animation.colorAnimation.setAlpha(CucumberAnimation.FADE_ALPHA_DEFAULT, CucumberAnimation.FADE_SPEED_APPEAR);
+        animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
     }
 
     public void hide() {
@@ -389,13 +389,13 @@ public abstract class CucumberElement {
             return;
         }
         visible = false;
-        animation.colorAnimation.setAlpha(0.0f, CucumberAnimation.FADE_SPEED_APPEAR);
+        animation.colorAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
     }
 
     public Set<String> getTags() {
         Set<String> tags = new HashSet<String>();
         tags.addAll(getTagsInternal());
-        for (CucumberElement element : children) {
+        for (Element element : children) {
             tags.addAll(element.getTags());
         }
         return tags;

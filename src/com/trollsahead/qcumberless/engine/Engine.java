@@ -15,12 +15,13 @@
 
 package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.device.CucumberDevice;
-import com.trollsahead.qcumberless.gui.CucumberSpotlight;
+import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.gui.Button;
+import com.trollsahead.qcumberless.gui.Spotlight;
 import com.trollsahead.qcumberless.gui.*;
-import com.trollsahead.qcumberless.model.CucumberStep;
-import com.trollsahead.qcumberless.model.CucumberStepDefinition;
-import com.trollsahead.qcumberless.plugins.CucumberPlugin;
+import com.trollsahead.qcumberless.model.Step;
+import com.trollsahead.qcumberless.model.StepDefinition;
+import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -33,28 +34,28 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-public class CucumberEngine implements Runnable, ComponentListener, KeyListener {
+public class Engine implements Runnable, ComponentListener, KeyListener {
     public static final Object LOCK = new Object();
 
     private static final int FRAME_DELAY = 20;
 
     public static final Font FONT_DEFAULT = new Font("Verdana", Font.PLAIN, 12);
 
-    public static CucumberCanvas canvas;
+    public static CumberlessCanvas canvas;
 
-    public static CucumberRootElement cucumberRoot = null;
-    public static CucumberRootElement featuresRoot = null;
-    public static CucumberRootElement stepsRoot = null;
+    public static RootElement cucumberRoot = null;
+    public static RootElement featuresRoot = null;
+    public static RootElement stepsRoot = null;
 
-    public static List<CucumberStep> stepDefinitions = null;
+    public static List<Step> stepDefinitions = null;
 
-    public static CucumberMouseListener mouseListener;
+    public static CumberlessMouseListener mouseListener;
 
-    private static CucumberElement oldTouchedElement = null;
-    private static CucumberElement touchedElement = null;
-    private static CucumberRootElement touchedRootElement = null;
+    private static Element oldTouchedElement = null;
+    private static Element touchedElement = null;
+    private static RootElement touchedRootElement = null;
 
-    public static CucumberElement lastAddedElement = null;
+    public static Element lastAddedElement = null;
 
     private static int dragSplitterX = 0;
 
@@ -76,8 +77,8 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
 
     private static boolean isRunning;
 
-    public static CucumberButtonBar buttonBar;
-    public static CucumberSpotlight spotlight;
+    public static ButtonBar buttonBar;
+    public static Spotlight spotlight;
 
     public static String featuresBaseDir = null;
 
@@ -85,29 +86,29 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
 
     private static final long POLL_FOR_DEVICES_PERIOD = 1000L * 5;
 
-    public static List<CucumberPlugin> plugins = new LinkedList<CucumberPlugin>();
-    public static Set<CucumberDevice> devices = new HashSet<CucumberDevice>();
+    public static List<Plugin> plugins = new LinkedList<Plugin>();
+    public static Set<Device> devices = new HashSet<Device>();
     public static long lastTimePolledForDevices;
     public static boolean isPollingForDevices;
 
-    public CucumberEngine() {
+    public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         canvasWidth = screenSize.width;
         canvasHeight = screenSize.height;
         createBackbuffer();
         
-        mouseListener = new CucumberMouseListener();
+        mouseListener = new CumberlessMouseListener();
 
-        canvas = new CucumberCanvas();
+        canvas = new CumberlessCanvas();
         canvas.addMouseListener(mouseListener);
         canvas.addMouseMotionListener(mouseListener);
         canvas.addComponentListener(this);
         canvas.addKeyListener(this);
 
-        buttonBar = new CucumberButtonBar();
-        spotlight = new CucumberSpotlight();
+        buttonBar = new ButtonBar();
+        spotlight = new Spotlight();
 
-        cucumberRoot = new CucumberRootElement();
+        cucumberRoot = new RootElement();
         scratchFeatures();
         resetStepDefinitions();
 
@@ -123,14 +124,14 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private void initializePlugins() {
-        for (CucumberPlugin plugin : plugins) {
+        for (Plugin plugin : plugins) {
             plugin.initialize();
         }
         lastTimePolledForDevices = 0;
         isPollingForDevices = false;
     }
 
-    public CucumberCanvas getCanvas() {
+    public CumberlessCanvas getCanvas() {
         return canvas;
     }
 
@@ -153,14 +154,14 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private void update() {
-        CucumberButton.isOneTouched = false;
+        Button.isOneTouched = false;
         pollForDevices();
         updateHighlight();
         buttonBar.update();
         spotlight.update();
         cucumberRoot.update(System.currentTimeMillis());
-        if (CucumberDropDown.isVisible) {
-            CucumberDropDown.update();
+        if (DropDown.isVisible) {
+            DropDown.update();
         }
         EasterEgg.update();
     }
@@ -169,14 +170,14 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
         if (isPollingForDevices || System.currentTimeMillis() < lastTimePolledForDevices + POLL_FOR_DEVICES_PERIOD) {
             return;
         }
-        if (CucumberPlayer.isRunning()) {
+        if (Player.isRunning()) {
             return;
         }
         isPollingForDevices = true;
         new Thread(new Runnable() {
             public void run() {
-                Set<CucumberDevice> newDevices = new HashSet<CucumberDevice>();
-                for (CucumberPlugin plugin : plugins) {
+                Set<Device> newDevices = new HashSet<Device>();
+                for (Plugin plugin : plugins) {
                     newDevices.addAll(plugin.getDevices());
                 }
                 synchronized (LOCK) {
@@ -194,12 +195,12 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
         g.setFont(FONT_DEFAULT);
         canvas.clear(g);
         cucumberRoot.render(g);
-        if (CucumberDropDown.isVisible) {
-            CucumberDropDown.render(g);
+        if (DropDown.isVisible) {
+            DropDown.render(g);
         }
         buttonBar.render(g);
         spotlight.render(g);
-        CucumberPlayer.render(g);
+        Player.render(g);
         cucumberRoot.renderHints(g);
         renderFps(g);
     }
@@ -211,7 +212,7 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
         FontMetrics fontMetrics = g.getFontMetrics();
         String str = "FPS: " + fpsLastCount;
         int x = (canvasWidth - fontMetrics.stringWidth(str)) / 2;
-        int y = canvasHeight - 5 - CucumberButtonBar.BUTTONBAR_HEIGHT;
+        int y = canvasHeight - 5 - ButtonBar.BUTTONBAR_HEIGHT;
         g.setColor(Color.BLACK);
         g.drawString(str, x + 1, y + 1);
         g.setColor(Color.WHITE);
@@ -282,10 +283,10 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
             if (buttonBar.click()) {
                 return;
             }
-            if (CucumberDropDown.click()) {
+            if (DropDown.click()) {
                 return;
             }
-            if (CucumberEditBox.click()) {
+            if (EditBox.click()) {
                 return;
             }
             if (touchedElement != null) {
@@ -295,41 +296,41 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     public static void mousePressed() {
-        if (CucumberDropDown.mousePressed()) {
+        if (DropDown.mousePressed()) {
             return;
         }
-        if (CucumberEditBox.mousePressed()) {
+        if (EditBox.mousePressed()) {
             return;
         }
         startDrag();
     }
 
     public static void mouseReleased() {
-        if (CucumberDropDown.mouseReleased()) {
+        if (DropDown.mouseReleased()) {
             return;
         }
-        if (CucumberEditBox.mouseReleased()) {
+        if (EditBox.mouseReleased()) {
             return;
         }
         endDrag();
     }
 
     public static void mouseDragged() {
-        if (CucumberDropDown.mouseDragged()) {
+        if (DropDown.mouseDragged()) {
             return;
         }
-        if (CucumberEditBox.mouseDragged()) {
+        if (EditBox.mouseDragged()) {
             return;
         }
         updateDrag();
     }
 
     public static void mouseMoved() {
-        if (CucumberDropDown.mouseMoved()) {
+        if (DropDown.mouseMoved()) {
             canvasHasMouseFocus = false;
             return;
         }
-        if (CucumberEditBox.mouseMoved()) {
+        if (EditBox.mouseMoved()) {
             canvasHasMouseFocus = false;
             return;
         }
@@ -338,7 +339,7 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private static void startDrag() {
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             if (touchedElement != null && touchedElement.isDragable()) {
                 touchedElement.startDrag();
             } else if (touchedRootElement != null) {
@@ -348,7 +349,7 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private static void endDrag() {
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             if (touchedElement != null) {
                 touchedElement.endDrag();
             } else if (touchedRootElement != null) {
@@ -358,14 +359,14 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private static void updateDrag() {
-        if (!CucumberMouseListener.isButtonPressed) {
+        if (!CumberlessMouseListener.isButtonPressed) {
             return;
         }
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             if (touchedElement != null && touchedElement.isBeingDragged()) {
                 touchedElement.applyDragOffset();
             } else if (touchedRootElement != null && touchedRootElement.isDragable()) {
-                touchedRootElement.scroll(CucumberMouseListener.mouseY - CucumberMouseListener.oldMouseY);
+                touchedRootElement.scroll(CumberlessMouseListener.mouseY - CumberlessMouseListener.oldMouseY);
             }
         }
     }
@@ -386,36 +387,36 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private static void findTouchedElement() {
-        touchedElement = cucumberRoot.findElement(CucumberMouseListener.mouseX, CucumberMouseListener.mouseY);
-        touchedRootElement = CucumberMouseListener.mouseX < dragSplitterX ? featuresRoot : stepsRoot;
+        touchedElement = cucumberRoot.findElement(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
+        touchedRootElement = CumberlessMouseListener.mouseX < dragSplitterX ? featuresRoot : stepsRoot;
     }
 
-    private static void toggleHighlight(CucumberElement element, boolean highlight) {
+    private static void toggleHighlight(Element element, boolean highlight) {
         if (element != null) {
             element.highlight(highlight);
         }
     }
 
-    public static void runTests(CucumberTextElement cucumberTextElement) {
+    public static void runTests(TextElement cucumberTextElement) {
         final StringBuilder feature = buildFeature(cucumberTextElement);
         System.out.println(feature.toString());
-        CucumberPlayer.prepareRun();
-        for (final CucumberDevice device : devices) {
-            if (device.isEnabled() && device.getCapabilities().contains(CucumberDevice.Capability.PLAY)) {
+        Player.prepareRun();
+        for (final Device device : devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
                 System.out.println("Running tests on device: " + device.name());
-                new CucumberPlayer().play(feature, device);
+                new Player().play(feature, device);
             }
         }
     }
 
-    private static StringBuilder buildFeature(CucumberTextElement cucumberTextElement) {
-        if (cucumberTextElement.type == CucumberTextElement.TYPE_FEATURE) {
+    private static StringBuilder buildFeature(TextElement cucumberTextElement) {
+        if (cucumberTextElement.type == TextElement.TYPE_FEATURE) {
             return cucumberTextElement.buildFeature();
         }
         StringBuilder sb = new StringBuilder();
-        if (cucumberTextElement.type == CucumberTextElement.TYPE_SCENARIO) {
+        if (cucumberTextElement.type == TextElement.TYPE_SCENARIO) {
             sb.append("Feature: " + cucumberTextElement.groupParent.getTitle() + "\n\n");
-            CucumberElement background = findBackgroundElement(cucumberTextElement.groupParent);
+            Element background = findBackgroundElement(cucumberTextElement.groupParent);
             if (background != null) {
                 sb.append(background.buildFeature());
             } else {
@@ -427,9 +428,9 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
         return sb;
     }
 
-    private static CucumberElement findBackgroundElement(CucumberElement element) {
-        for (CucumberElement child : element.children) {
-            if (child.type == CucumberTextElement.TYPE_BACKGROUND) {
+    private static Element findBackgroundElement(Element element) {
+        for (Element child : element.children) {
+            if (child.type == TextElement.TYPE_BACKGROUND) {
                 return child;
             }
         }
@@ -439,7 +440,7 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     public static void importSteps() {
         new Thread(new Runnable() {
             public void run() {
-                List<CucumberStepDefinition> stepDefinitions = plugins.get(0).getStepDefinitions(); // TODO!
+                List<StepDefinition> stepDefinitions = plugins.get(0).getStepDefinitions(); // TODO!
                 synchronized (LOCK) {
                     CucumberStepDefinitionLoader.parseStepDefinitions(stepDefinitions);
                     featuresRoot.updateSteps();
@@ -456,11 +457,11 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
         featuresBaseDir = (files.length == 1 && files[0].isDirectory()) ? files[0].getAbsolutePath() : null;
         synchronized (LOCK) {
             try {
-                CucumberFeatureLoader.parseFeatureFiles(Util.getFeatureFiles(files));
+                FeatureLoader.parseFeatureFiles(Util.getFeatureFiles(files));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            CucumberEngine.featuresRoot.isLoaded = true;
+            Engine.featuresRoot.isLoaded = true;
         }
     }
 
@@ -484,16 +485,16 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
 
     public static void resetStepDefinitions() {
         resetFps();
-        stepDefinitions = new ArrayList<CucumberStep>();
+        stepDefinitions = new ArrayList<Step>();
 
         cucumberRoot.removeChild(stepsRoot);
-        stepsRoot = new CucumberRootElement();
+        stepsRoot = new RootElement();
         cucumberRoot.addChild(stepsRoot, 1);
 
-        stepsRoot.addChild(new CucumberTextElement(CucumberTextElement.TYPE_FEATURE, CucumberTextElement.ROOT_STEP_DEFINITIONS, "Feature"));
-        stepsRoot.addChild(new CucumberTextElement(CucumberTextElement.TYPE_SCENARIO, CucumberTextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
-        stepsRoot.addChild(new CucumberTextElement(CucumberTextElement.TYPE_COMMENT, CucumberTextElement.ROOT_STEP_DEFINITIONS, "Comment"));
-        CucumberTextElement stepElement = new CucumberTextElement(CucumberTextElement.TYPE_STEP, CucumberTextElement.ROOT_STEP_DEFINITIONS, "New step");
+        stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, "Feature"));
+        stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
+        stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, "Comment"));
+        TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, "New step");
         stepElement.step.isMatched = false;
         stepsRoot.addChild(stepElement);
 
@@ -503,17 +504,17 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     public static void resetFeatures() {
         resetFps();
         featuresBaseDir = null;
-        cucumberRoot.removeChild(CucumberEngine.featuresRoot);
-        featuresRoot = new CucumberRootElement();
+        cucumberRoot.removeChild(Engine.featuresRoot);
+        featuresRoot = new RootElement();
         featuresRoot.isLoaded = false;
         cucumberRoot.addChild(featuresRoot, 0);
         updateRootPositions();
     }
 
     private static void addTemplateFeature() {
-        CucumberTextElement scenario = new CucumberTextElement(CucumberTextElement.TYPE_SCENARIO, CucumberTextElement.ROOT_FEATURE_EDITOR, "New Scenario");
+        TextElement scenario = new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_FEATURE_EDITOR, "New Scenario");
         scenario.unfold();
-        CucumberTextElement feature = new CucumberTextElement(CucumberTextElement.TYPE_FEATURE, CucumberTextElement.ROOT_FEATURE_EDITOR, "New Feature");
+        TextElement feature = new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_FEATURE_EDITOR, "New Feature");
         feature.setFilename("noname_" + System.currentTimeMillis() + ".feature");
         feature.addChild(scenario);
         feature.unfold();
@@ -522,8 +523,8 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     private static void updateRootPositions() {
-        dragSplitterX = CucumberTextElement.RENDER_WIDTH_MAX_FEATURE_EDITOR + ((canvasWidth - CucumberTextElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - CucumberTextElement.RENDER_WIDTH_MAX_FEATURE_EDITOR) / 2);
-        int divider = Math.max(dragSplitterX, canvasWidth - CucumberTextElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - CucumberRootElement.PADDING_HORIZONTAL * 2);
+        dragSplitterX = TextElement.RENDER_WIDTH_MAX_FEATURE_EDITOR + ((canvasWidth - TextElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - TextElement.RENDER_WIDTH_MAX_FEATURE_EDITOR) / 2);
+        int divider = Math.max(dragSplitterX, canvasWidth - TextElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - RootElement.PADDING_HORIZONTAL * 2);
         cucumberRoot.setBounds(0, 0, 0, 0);
         if (featuresRoot != null) {
             featuresRoot.setBounds(0, 10, divider - 20, canvasHeight);
@@ -537,7 +538,7 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     public void keyPressed(KeyEvent keyEvent) {
-        if (!CucumberEditBox.isVisible) {
+        if (!EditBox.isVisible) {
             synchronized (LOCK) {
                 spotlight.searchKeyPressed(keyEvent);
             }
@@ -551,15 +552,15 @@ public class CucumberEngine implements Runnable, ComponentListener, KeyListener 
     }
 
     public static boolean isPlayableDeviceEnabled() {
-        for (CucumberDevice device : devices) {
-            if (device.isEnabled() && device.getCapabilities().contains(CucumberDevice.Capability.PLAY)) {
+        for (Device device : devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static void updateLastAddedElement(CucumberElement element) {
+    public static void updateLastAddedElement(Element element) {
         if (element.groupParent != stepsRoot) {
             lastAddedElement = element;
         }

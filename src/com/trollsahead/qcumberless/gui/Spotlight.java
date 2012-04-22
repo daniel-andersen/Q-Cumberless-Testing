@@ -15,20 +15,20 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
-public class CucumberSpotlight {
+public class Spotlight {
     private static final int PADDING_IMAGE_TO_TEXT = 8;
     private static final int PADDING_HORIZONTAL = 16;
     private static final int PADDING_VERTICAL = 10;
 
     private static final int BAR_HEIGHT = 30;
-    private static final int BAR_ROUNDING = CucumberTextElement.BAR_ROUNDING;
+    private static final int BAR_ROUNDING = TextElement.BAR_ROUNDING;
 
     private static final float[] COLOR_BACKGROUND_NORMAL = {0.0f, 0.0f, 0.0f, 0.6f};
     private static final float COLOR_DISAPPEAR_SPEED = 0.1f;
@@ -38,20 +38,20 @@ public class CucumberSpotlight {
     public boolean visible;
     public String searchString;
 
-    private CucumberAnimation animation;
+    private Animation animation;
 
-    public CucumberSpotlight() {
+    public Spotlight() {
         searchString = "";
-        animation = new CucumberAnimation();
+        animation = new Animation();
         clear();
     }
 
     public void clear() {
         visible = false;
         animation.colorAnimation.setAlpha(0.0f, COLOR_DISAPPEAR_SPEED);
-        if (CucumberEngine.stepsRoot != null) {
-            CucumberEngine.stepsRoot.pushToPosition(0);
-            CucumberEngine.stepsRoot.filterChildren(".*");
+        if (Engine.stepsRoot != null) {
+            Engine.stepsRoot.pushToPosition(0);
+            Engine.stepsRoot.filterChildren(".*");
         }
     }
 
@@ -88,7 +88,7 @@ public class CucumberSpotlight {
             regexp += "[" + s.toLowerCase() + s.toUpperCase() + "]";
         }
         regexp += ".*";
-        CucumberEngine.stepsRoot.filterChildren(regexp);
+        Engine.stepsRoot.filterChildren(regexp);
     }
     
     public void addCharacter(char ch) {
@@ -100,9 +100,9 @@ public class CucumberSpotlight {
 
     private void letThereBeLight() {
         searchString = "";
-        animation = new CucumberAnimation(COLOR_BACKGROUND_NORMAL);
+        animation = new Animation(COLOR_BACKGROUND_NORMAL);
         visible = true;
-        CucumberEngine.stepsRoot.pushToPosition(BAR_HEIGHT + PADDING_VERTICAL);
+        Engine.stepsRoot.pushToPosition(BAR_HEIGHT + PADDING_VERTICAL);
     }
 
     public void update() {
@@ -116,7 +116,7 @@ public class CucumberSpotlight {
         BufferedImage spotlightImage = Images.getImage(Images.IMAGE_SPOTLIGHT, Images.TYPE_NORMAL);
         FontMetrics fontMetrics = g.getFontMetrics();
         int width = spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT + fontMetrics.stringWidth(searchString) + (PADDING_HORIZONTAL * 2);
-        int x = (int) CucumberEngine.stepsRoot.animation.moveAnimation.renderX;
+        int x = (int) Engine.stepsRoot.animation.moveAnimation.renderX;
         int y = PADDING_VERTICAL;
 
         g.setColor(animation.colorAnimation.getColor());

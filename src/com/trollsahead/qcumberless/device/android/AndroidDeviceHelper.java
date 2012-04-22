@@ -15,8 +15,8 @@
 
 package com.trollsahead.qcumberless.device.android;
 
-import com.trollsahead.qcumberless.engine.CucumberHelper;
-import com.trollsahead.qcumberless.engine.CucumberLogListener;
+import com.trollsahead.qcumberless.engine.Helper;
+import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
@@ -30,7 +30,7 @@ public class AndroidDeviceHelper {
         try {
             Pattern pattern = Pattern.compile("(.*)\\t(.*)");
             List<String> devices = new LinkedList<String>();
-            List<String> output = CucumberHelper.executeCommand(getPathToAdb() + getAdbExecutable() + " devices");
+            List<String> output = Helper.executeCommand(getPathToAdb() + getAdbExecutable() + " devices");
             for (String s : output) {
                 Matcher matcher = pattern.matcher(s);
                 if (!matcher.matches()) {
@@ -51,7 +51,7 @@ public class AndroidDeviceHelper {
     public static String getDeviceProperty(String deviceId, String key) {
         try {
             Pattern pattern = Pattern.compile("\\[(.*)\\]: \\[(.*)\\]");
-            List<String> output = CucumberHelper.executeCommand(getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell getprop");
+            List<String> output = Helper.executeCommand(getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell getprop");
             for (String s : output) {
                 Matcher matcher = pattern.matcher(s);
                 if (!matcher.matches()) {
@@ -68,8 +68,8 @@ public class AndroidDeviceHelper {
         }
     }
 
-    public static void runTests(String deviceId, StringBuilder feature, String tags, String featureFilename, String testRunners, CucumberLogListener logListener) {
-        CucumberHelper.ExecutorStopper executorStopper = null;
+    public static void runTests(String deviceId, StringBuilder feature, String tags, String featureFilename, String testRunners, LogListener logListener) {
+        Helper.ExecutorStopper executorStopper = null;
         try {
             pushFeatureFile(deviceId, feature, featureFilename);
             cleanDeviceLog(deviceId);
@@ -84,12 +84,12 @@ public class AndroidDeviceHelper {
         }
     }
 
-    private static CucumberHelper.ExecutorStopper monitorLog(final String deviceId, final CucumberLogListener logListener) {
-        final CucumberHelper.ExecutorStopper executorStopper = new CucumberHelper.ExecutorStopper();
+    private static Helper.ExecutorStopper monitorLog(final String deviceId, final LogListener logListener) {
+        final Helper.ExecutorStopper executorStopper = new Helper.ExecutorStopper();
         new Thread(new Runnable() {
             public void run() {
                 String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " logcat -v time";
-                CucumberHelper.executeCommand(command, logListener, executorStopper);
+                Helper.executeCommand(command, logListener, executorStopper);
             }
         }).start();
         return executorStopper;
@@ -97,7 +97,7 @@ public class AndroidDeviceHelper {
 
     private static void runFeature(String deviceId, String testRunners, String tags) {
         String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell am instrument  -w -e tags " + tags + " -e class " + testRunners;
-        CucumberHelper.executeCommand(command);
+        Helper.executeCommand(command);
     }
 
     private static void pushFeatureFile(String deviceId, StringBuilder feature, String featureFilename) throws Exception {
@@ -106,7 +106,7 @@ public class AndroidDeviceHelper {
 
     private static void cleanDeviceLog(String deviceId) throws Exception {
         String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " logcat -c";
-        CucumberHelper.executeCommand(command);
+        Helper.executeCommand(command);
     }
 
     public static void pushPauseFile(String deviceId) throws Exception {
@@ -115,7 +115,7 @@ public class AndroidDeviceHelper {
 
     public static void removePauseFile(String deviceId) {
         String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell rm /sdcard/pause.txt";
-        CucumberHelper.executeCommand(command);
+        Helper.executeCommand(command);
     }
 
     public static void pushStopFile(String deviceId) throws Exception {
@@ -134,7 +134,7 @@ public class AndroidDeviceHelper {
         tempWriter.close();
 
         String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " push " + temp.getAbsolutePath() + " /sdcard/" + filename;
-        CucumberHelper.executeCommand(command);
+        Helper.executeCommand(command);
     }
 
     public static String getPathToAdb() {

@@ -22,10 +22,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CucumberTag {
+public class Tag {
     private String tags = "";
     
-    public CucumberTag(String tags) {
+    public Tag(String tags) {
         this.tags = tags;
         streamlineTags();
     }

@@ -15,7 +15,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -30,7 +30,7 @@ public class EasterEgg {
     public static int animation = 0;
     public static boolean enabled = false;
 
-    private static List<CucumberTextElement> customElements = null;
+    private static List<TextElement> customElements = null;
 
     private static final float STICK_ANGLE_CUTOFF = 0.2f;
 
@@ -76,10 +76,10 @@ public class EasterEgg {
     }
 
     private static void updateElements() {
-        if (CucumberEngine.featuresRoot.children.size() == 0 && customElements.size() == 0) {
+        if (Engine.featuresRoot.children.size() == 0 && customElements.size() == 0) {
             createCustomElements();
         }
-        for (CucumberElement element : customElements) {
+        for (Element element : customElements) {
             element.update(System.currentTimeMillis());
         }
     }
@@ -87,50 +87,50 @@ public class EasterEgg {
     private static void createCustomElements() {
         ballSticky = true;
 
-        customElements = new LinkedList<CucumberTextElement>();
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "You fight with the strength of many men, Sir Knight."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "I am Arthur, King of the Britons."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "I seek the finest and the bravest knights in the land to join me in my court at Camelot."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "You have proved yourself worthy. Will you join me?"));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "You make me sad. So be it. Come, Patsy."));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "I have no quarrel with you, good Sir Knight, but I must cross this bridge."));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "Then you shall die."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "I command you, as King of the Britons, to stand aside!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "I move for no man."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "So be it!"));
+        customElements = new LinkedList<TextElement>();
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You fight with the strength of many men, Sir Knight."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I am Arthur, King of the Britons."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I seek the finest and the bravest knights in the land to join me in my court at Camelot."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You have proved yourself worthy. Will you join me?"));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You make me sad. So be it. Come, Patsy."));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I have no quarrel with you, good Sir Knight, but I must cross this bridge."));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Then you shall die."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I command you, as King of the Britons, to stand aside!"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "I move for no man."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "So be it!"));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_STEP,     0, 0, 200, "Aaah!, hiyaah!"));
+        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Aaah!, hiyaah!"));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "Now stand aside, worthy adversary."));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "'Tis but a scratch."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "A scratch? Your arm's off!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "No, it isn't."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "Well, what's that, then?"));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "I've had worse."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Now stand aside, worthy adversary."));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "'Tis but a scratch."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "A scratch? Your arm's off!"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "No, it isn't."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Well, what's that, then?"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "I've had worse."));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "You liar!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "Come on, you pansy!"));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You liar!"));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Come on, you pansy!"));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_STEP,     0, 0, 200, "Hiyaah!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_STEP,     0, 0, 200, "Aaaaaaaah!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
+        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
+        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Hiyaah!"));
+        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Aaaaaaaah!"));
+        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "Victory is mine!"));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "We thank Thee Lord, that in Thy mer--"));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "Hah!"));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Victory is mine!"));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "We thank Thee Lord, that in Thy mer--"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Hah!"));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "Come on, then."));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "Have at you!"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Come on, then."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Have at you!"));
 
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "Eh. You are indeed brave, Sir Knight, but the fight is mine."));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "Oh, had enough, eh?"));
-        customElements.add(createElement(CucumberTextElement.TYPE_SCENARIO, 0, 0, 200, "Look, you stupid bastard. You've got no arms left."));
-        customElements.add(createElement(CucumberTextElement.TYPE_COMMENT,  0, 0, 200, "Yes, I have."));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Eh. You are indeed brave, Sir Knight, but the fight is mine."));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Oh, had enough, eh?"));
+        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Look, you stupid bastard. You've got no arms left."));
+        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Yes, I have."));
 
         final int COL_WIDTH = 210;
         final int ROW_HEIGHT = 80;
@@ -152,9 +152,9 @@ public class EasterEgg {
         }
     }
 
-    private static CucumberTextElement createElement(int type, int x, int y, int width, String text) {
-        CucumberTextElement element = new CucumberTextElement(type, CucumberTextElement.ROOT_NONE, text);
-        element.animation.colorAnimation.setAlpha(CucumberAnimation.FADE_ALPHA_DEFAULT, CucumberAnimation.FADE_SPEED_REENTRANCE);
+    private static TextElement createElement(int type, int x, int y, int width, String text) {
+        TextElement element = new TextElement(type, TextElement.ROOT_NONE, text);
+        element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(x, y);
         element.animation.moveAnimation.setRenderPosition(x, y);
         element.renderWidth = width;
@@ -171,13 +171,13 @@ public class EasterEgg {
     }
 
     private static void updateStick() {
-        stickX = CucumberEngine.canvasWidth - STICK_WIDTH - 40;
-        stickY = CucumberMouseListener.mouseY;
+        stickX = Engine.canvasWidth - STICK_WIDTH - 40;
+        stickY = CumberlessMouseListener.mouseY;
         if (stickY < 0) {
             stickY = 0;
         }
-        if (stickY + STICK_HEIGHT > CucumberEngine.canvasHeight) {
-            stickY = CucumberEngine.canvasHeight - STICK_HEIGHT;
+        if (stickY + STICK_HEIGHT > Engine.canvasHeight) {
+            stickY = Engine.canvasHeight - STICK_HEIGHT;
         }
     }
 
@@ -185,7 +185,7 @@ public class EasterEgg {
         if (ballSticky) {
             ballX = stickX - (BALL_SIZE / 2);
             ballY = stickY + (STICK_HEIGHT / 2);
-            if (CucumberMouseListener.isButtonPressed) {
+            if (CumberlessMouseListener.isButtonPressed) {
                 ballVelX = (float) -Math.cos(0.3f);
                 ballVelY = (float) -Math.sin(0.3f);
                 ballSticky = false;
@@ -235,15 +235,15 @@ public class EasterEgg {
             ballX = -ballX;
             ballVelX = -ballVelX;
         }
-        if (ballX > CucumberEngine.canvasWidth && ballVelX > 0.0f) {
+        if (ballX > Engine.canvasWidth && ballVelX > 0.0f) {
             hide();
         }
         if (ballY < 0.0f && ballVelY < 0.0f) {
             ballY = -ballY;
             ballVelY = -ballVelY;
         }
-        if (ballY > CucumberEngine.canvasHeight && ballVelY > 0.0f) {
-            ballY = CucumberEngine.canvasHeight - (ballY - CucumberEngine.canvasHeight);
+        if (ballY > Engine.canvasHeight && ballVelY > 0.0f) {
+            ballY = Engine.canvasHeight - (ballY - Engine.canvasHeight);
             ballVelY = -ballVelY;
         }
         if (ballVelX > 0.0f &&
@@ -264,13 +264,13 @@ public class EasterEgg {
         );
     }
 
-    private static CucumberElement bounceOnElement(int ... points) {
+    private static Element bounceOnElement(int ... points) {
         for (int i = 0; i < points.length; i += 2) {
             int deltaX = points[i + 0];
             int deltaY = points[i + 1];
             int x = (int) (ballX + deltaX);
             int y = (int) (ballY + deltaY);
-            CucumberElement element = findElement(x, y);
+            Element element = findElement(x, y);
             if (element != null && element.visible) {
                 if (deltaX < 0 && ballVelX < 0.0f) {
                     ballVelX = -ballVelX;
@@ -291,24 +291,24 @@ public class EasterEgg {
         return null;
     }
 
-    private static void removeElement(CucumberElement element) {
-        if (CucumberEngine.featuresRoot.children.size() > 0) {
+    private static void removeElement(Element element) {
+        if (Engine.featuresRoot.children.size() > 0) {
             if (element.children.size() <= 0) {
                 element.trashElement();
             } else if (element.folded) {
-                ((CucumberTextElement) element).unfold();
+                ((TextElement) element).unfold();
             }
         } else {
-            if (element.type == CucumberTextElement.TYPE_SCENARIO ||
-                (element.type == CucumberTextElement.TYPE_COMMENT && !hasElementLeft(CucumberTextElement.TYPE_SCENARIO)) ||
-                (element.type == CucumberTextElement.TYPE_STEP && !hasElementLeft(CucumberTextElement.TYPE_COMMENT))) {
+            if (element.type == TextElement.TYPE_SCENARIO ||
+                (element.type == TextElement.TYPE_COMMENT && !hasElementLeft(TextElement.TYPE_SCENARIO)) ||
+                (element.type == TextElement.TYPE_STEP && !hasElementLeft(TextElement.TYPE_COMMENT))) {
                 customElements.remove(element);
             }
         }
     }
 
     private static boolean hasElementLeft(int type) {
-        for (CucumberTextElement element : customElements) {
+        for (TextElement element : customElements) {
             if (element.type == type) {
                 return true;
             }
@@ -316,16 +316,16 @@ public class EasterEgg {
         return false;
     }
 
-    private static CucumberElement findElement(int x, int y) {
+    private static Element findElement(int x, int y) {
         if (customElements.size() > 0) {
-            for (CucumberElement element : customElements) {
-                CucumberElement foundElement = element.findElement(x, y);
+            for (Element element : customElements) {
+                Element foundElement = element.findElement(x, y);
                 if (foundElement != null) {
                     return foundElement;
                 }
             }
         } else {
-            return CucumberEngine.cucumberRoot.findElement(x, y);
+            return Engine.cucumberRoot.findElement(x, y);
         }
         return null;
     }
@@ -340,7 +340,7 @@ public class EasterEgg {
     }
 
     private static void drawElements(Graphics g) {
-        for (CucumberElement element : customElements) {
+        for (Element element : customElements) {
             element.render(g);
         }
     }
@@ -365,29 +365,29 @@ public class EasterEgg {
 
     private static void drawBackground(Graphics g) {
         animation += enabled ? 1 : -1;
-        int animationMax = CucumberEngine.canvasHeight * 2 / BACKGROUND_ANIMATION_SIZE;
+        int animationMax = Engine.canvasHeight * 2 / BACKGROUND_ANIMATION_SIZE;
         animation = Math.max(0, Math.min(animation, animationMax));
         backgroundCoveringCanvas = animation >= animationMax;
         g.setColor(Color.BLACK);
         int top = 0;
-        for (int y = 0; y < CucumberEngine.canvasHeight; y += BACKGROUND_ANIMATION_SIZE) {
+        for (int y = 0; y < Engine.canvasHeight; y += BACKGROUND_ANIMATION_SIZE) {
             int height = Math.min(animation - (y / BACKGROUND_ANIMATION_DELAY), BACKGROUND_ANIMATION_SIZE);
             if (height < BACKGROUND_ANIMATION_SIZE) {
                 if (height >= 0) {
-                    g.fillRect(0, top, CucumberEngine.canvasWidth, y - top + height);
+                    g.fillRect(0, top, Engine.canvasWidth, y - top + height);
                 }
                 top = y + BACKGROUND_ANIMATION_SIZE;
             }
         }
-        if (top < CucumberEngine.canvasHeight) {
-            g.fillRect(0, top, CucumberEngine.canvasWidth, CucumberEngine.canvasHeight - top);
+        if (top < Engine.canvasHeight) {
+            g.fillRect(0, top, Engine.canvasWidth, Engine.canvasHeight - top);
         }
     }
 
     public static void show() {
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             enabled = true;
-            customElements = new LinkedList<CucumberTextElement>();
+            customElements = new LinkedList<TextElement>();
             updateTime = System.currentTimeMillis();
             updateCount = 0;
             if (animation <= 0) {
@@ -395,19 +395,19 @@ public class EasterEgg {
                 backgroundCoveringCanvas = false;
             }
             ballSticky = true;
-            CucumberEngine.featuresRoot.scrollToTop();
+            Engine.featuresRoot.scrollToTop();
             BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
             Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
-            savedCursor = CucumberEngine.canvas.getCursor();
-            CucumberEngine.canvas.setCursor(blankCursor);
+            savedCursor = Engine.canvas.getCursor();
+            Engine.canvas.setCursor(blankCursor);
         }
     }
 
     public static void hide() {
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             enabled = false;
-            CucumberEngine.spotlight.clear();
-            CucumberEngine.canvas.setCursor(savedCursor);
+            Engine.spotlight.clear();
+            Engine.canvas.setCursor(savedCursor);
         }
     }
 

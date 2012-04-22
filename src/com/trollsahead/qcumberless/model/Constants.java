@@ -13,12 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Q-Cumberless Testing.  If not, see <http://www.gnu.org/licenses/>.
 
-package com.trollsahead.qcumberless.engine;
+package com.trollsahead.qcumberless.model;
 
-public interface CucumberLogListener {
-    void start();
-    void finish();
-
-    public void logLine(String log);
-    void error(Throwable t);
+public class Constants {
+    public static final String[] STEP_PREFIXS = new String[] {"Given", "When", "Then", "And", "But", "*", "-", "--"};
 }

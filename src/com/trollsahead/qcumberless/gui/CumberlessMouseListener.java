@@ -15,13 +15,13 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-public class CucumberMouseListener implements MouseListener, MouseMotionListener {
+public class CumberlessMouseListener implements MouseListener, MouseMotionListener {
     public static int mouseX = 0;
     public static int mouseY = 0;
     public static int oldMouseX = 0;
@@ -29,12 +29,12 @@ public class CucumberMouseListener implements MouseListener, MouseMotionListener
 
     public static boolean isButtonPressed = false;
 
-    public CucumberMouseListener() {
+    public CumberlessMouseListener() {
     }
 
     public void mouseClicked(MouseEvent mouseEvent) {
         updateMousePosition(mouseEvent);
-        CucumberEngine.click();
+        Engine.click();
     }
 
     public void mousePressed(MouseEvent mouseEvent) {
@@ -43,7 +43,7 @@ public class CucumberMouseListener implements MouseListener, MouseMotionListener
             return;
         }
         isButtonPressed = true;
-        CucumberEngine.mousePressed();
+        Engine.mousePressed();
     }
 
     public void mouseReleased(MouseEvent mouseEvent) {
@@ -52,7 +52,7 @@ public class CucumberMouseListener implements MouseListener, MouseMotionListener
             return;
         }
         isButtonPressed = false;
-        CucumberEngine.mouseReleased();
+        Engine.mouseReleased();
     }
 
     public void mouseEntered(MouseEvent mouseEvent) {
@@ -65,12 +65,12 @@ public class CucumberMouseListener implements MouseListener, MouseMotionListener
 
     public void mouseDragged(MouseEvent mouseEvent) {
         updateMousePosition(mouseEvent);
-        CucumberEngine.mouseDragged();
+        Engine.mouseDragged();
     }
 
     public void mouseMoved(MouseEvent mouseEvent) {
         updateMousePosition(mouseEvent);
-        CucumberEngine.mouseMoved();
+        Engine.mouseMoved();
     }
 
     private void updateMousePosition(MouseEvent mouseEvent) {

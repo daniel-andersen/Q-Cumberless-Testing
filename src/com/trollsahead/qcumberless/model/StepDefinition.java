@@ -18,11 +18,11 @@ package com.trollsahead.qcumberless.model;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CucumberStepDefinition {
+public class StepDefinition {
     private final String stepDefinition;
     private final List<String[]> parameters = new LinkedList<String[]>();
 
-    public CucumberStepDefinition(String stepDefinition) {
+    public StepDefinition(String stepDefinition) {
         this.stepDefinition = stepDefinition;
     }
     

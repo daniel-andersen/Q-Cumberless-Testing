@@ -15,10 +15,11 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
-import com.trollsahead.qcumberless.engine.CucumberPlayer;
-import com.trollsahead.qcumberless.model.CucumberStep;
-import com.trollsahead.qcumberless.model.CucumberTag;
+import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.FeatureLoader;
+import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.model.Step;
+import com.trollsahead.qcumberless.model.Tag;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -31,9 +32,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
-import static com.trollsahead.qcumberless.model.CucumberStep.CucumberStepPart;
+import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
-public class CucumberTextElement extends CucumberElement {
+public class TextElement extends Element {
     public static final int TYPE_FEATURE         = 0;
     public static final int TYPE_BACKGROUND      = 1;
     public static final int TYPE_SCENARIO        = 2;
@@ -96,12 +97,12 @@ public class CucumberTextElement extends CucumberElement {
     private int tagsWidth = 0;
     private int tagsHeight = 0;
 
-    public CucumberStep step;
+    public Step step;
 
     public String title;
     private String filename = null;
     private String comment = null;
-    public CucumberTag tags;
+    public Tag tags;
 
     private static final int IMAGE_BUFFER_COUNT = 20;
     private static final int IMAGE_BUFFER_WIDTH = 620;
@@ -110,12 +111,12 @@ public class CucumberTextElement extends CucumberElement {
     private static BufferedImage[] image = new BufferedImage[IMAGE_BUFFER_COUNT];
     private static Graphics2D[] imageGraphics = new Graphics2D[IMAGE_BUFFER_COUNT];
 
-    private List<CucumberButton> buttons;
-    private CucumberButton trashcanButton;
-    private CucumberButton playButton;
-    private CucumberButton editButton;
-    private CucumberButton tagsAddButton;
-    private CucumberButton tagsRemoveButton;
+    private List<Button> buttons;
+    private Button trashcanButton;
+    private Button playButton;
+    private Button editButton;
+    private Button tagsAddButton;
+    private Button tagsRemoveButton;
 
     private static final int DRAG_HISTORY_LENGTH = 5;
     private static final long DRAG_HISTORY_UPDATE_INTERVAL = 5;
@@ -126,7 +127,7 @@ public class CucumberTextElement extends CucumberElement {
     private long[] dragHistoryTime = new long[DRAG_HISTORY_LENGTH];
     private int dragHistoryIndex = 0;
 
-    private CucumberElement lastBubbledElement = null;
+    private Element lastBubbledElement = null;
     
     private int buttonbarX = 0;
 
@@ -135,37 +136,37 @@ public class CucumberTextElement extends CucumberElement {
             IMAGE_BUFFER_HEIGHT[i] = (i + 1) * 10;
             image[i] = new BufferedImage(IMAGE_BUFFER_WIDTH, IMAGE_BUFFER_HEIGHT[i], BufferedImage.TYPE_INT_ARGB);
             imageGraphics[i] = image[i].createGraphics();
-            imageGraphics[i].setFont(CucumberEngine.FONT_DEFAULT);
+            imageGraphics[i].setFont(Engine.FONT_DEFAULT);
         }
     }
 
-    public CucumberTextElement(int type, int rootType) {
+    public TextElement(int type, int rootType) {
         this(type, rootType, "Untitled");
     }
 
-    public CucumberTextElement(int type, int rootType, String title) {
-        this(type, rootType, calculateRenderWidthFromRoot(rootType), title, new CucumberStep(title));
+    public TextElement(int type, int rootType, String title) {
+        this(type, rootType, calculateRenderWidthFromRoot(rootType), title, new Step(title));
     }
 
-    public CucumberTextElement(int type, int rootType, String title, CucumberStep step) {
+    public TextElement(int type, int rootType, String title, Step step) {
         this(type, rootType, calculateRenderWidthFromRoot(rootType), title, step, "");
     }
 
-    public CucumberTextElement(int type, int rootType, int width, String title, CucumberStep step) {
+    public TextElement(int type, int rootType, int width, String title, Step step) {
         this(type, rootType, width, title, step, "");
     }
     
-    public CucumberTextElement(int type, int rootType, int width, String title, CucumberStep step, String tags) {
+    public TextElement(int type, int rootType, int width, String title, Step step, String tags) {
         super();
         this.type = type;
         this.rootType = rootType;
         this.renderWidth = width;
         this.title = title;
-        this.step = step != null ? step : new CucumberStep(title);
-        this.tags = new CucumberTag(tags);
+        this.step = step != null ? step : new Step(title);
+        this.tags = new Tag(tags);
         folded = type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND;
         if (type == TYPE_FEATURE) {
-            animation.colorAnimation.setAlpha(CucumberAnimation.FADE_ALPHA_DEFAULT, CucumberAnimation.FADE_SPEED_ENTRANCE);
+            animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         }
         animation.sizeAnimation.currentWidth = this.renderWidth;
         animation.sizeAnimation.currentHeight = this.renderHeight;
@@ -173,62 +174,62 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private void addButtons() {
-        buttons = new ArrayList<CucumberButton>();
-        trashcanButton = new CucumberButton(
+        buttons = new ArrayList<Button>();
+        trashcanButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_TRASHCAN, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_TRASHCAN, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_TRASHCAN, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_RIGHT_OF_PARENT | CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_CENTER_OF_PARENT,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_RIGHT_OF_PARENT | Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         trashElement();
                     }
                 },
                 this);
         buttons.add(trashcanButton);
-        playButton = new CucumberButton(
+        playButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_PLAY, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_PLAY, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_PLAY, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_CENTER_OF_PARENT,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         play();
                     }
                 },
                 this);
         buttons.add(playButton);
-        editButton = new CucumberButton(
+        editButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_EDIT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_EDIT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_EDIT, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_CENTER_OF_PARENT,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        CucumberEditBox.showEditElement(CucumberTextElement.this);
+                        EditBox.showEditElement(TextElement.this);
                     }
                     },
                 this);
         buttons.add(editButton);
-        tagsAddButton = new CucumberButton(
+        tagsAddButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_ADD, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        List<String> nonUsedTags = new ArrayList<String>(CucumberEngine.getDefinedTags());
+                        List<String> nonUsedTags = new ArrayList<String>(Engine.getDefinedTags());
                         nonUsedTags.removeAll(tags.toSet());
                         if (!nonUsedTags.isEmpty()) {
                             nonUsedTags.add("*");
-                            CucumberDropDown.show(
+                            DropDown.show(
                                     tagsAddButton.renderX + TEXT_PADDING_HORIZONTAL,
                                     tagsAddButton.renderY + TEXT_PADDING_VERTICAL,
-                                    new CucumberDropDown.DropDownCallback() {
+                                    new DropDown.DropDownCallback() {
                                         public void chooseItem(String item) {
                                             if ("*".equals(item)) {
                                                 editTags();
@@ -245,23 +246,23 @@ public class CucumberTextElement extends CucumberElement {
                 },
                 this);
         buttons.add(tagsAddButton);
-        tagsRemoveButton = new CucumberButton(
+        tagsRemoveButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_MINUS, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_MINUS, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_MINUS, Images.TYPE_NORMAL),
-                CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER,
-                new CucumberButton.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         if (!tags.hasTags()) {
                             return;
                         } else if (tags.toList().size() <= 1) {
-                            tags = new CucumberTag("");
+                            tags = new Tag("");
                         } else {
-                            CucumberDropDown.show(
+                            DropDown.show(
                                     tagsAddButton.renderX + TEXT_PADDING_HORIZONTAL,
                                     tagsAddButton.renderY + TEXT_PADDING_VERTICAL,
-                                    new CucumberDropDown.DropDownCallback() {
+                                    new DropDown.DropDownCallback() {
                                         public void chooseItem(String item) {
                                             tags.remove(item);
                                         }
@@ -273,7 +274,7 @@ public class CucumberTextElement extends CucumberElement {
                 this);
         buttons.add(tagsRemoveButton);
         updateButtonPositions();
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             button.setVisible(false);
         }
     }
@@ -291,11 +292,11 @@ public class CucumberTextElement extends CucumberElement {
         }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
-                tagsAddButton.setAlignment(CucumberButton.ALIGN_HORIZONTAL_LEFT | CucumberButton.ALIGN_VERTICAL_CENTER);
+                tagsAddButton.setAlignment(Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER);
                 tagsAddButton.setPosition((renderWidth + tagsWidth) / 2 + TAGS_BUTTON_PADDING_HORIZONTAL, TAGS_PADDING_VERTICAL + (tagsHeight / 2));
                 tagsRemoveButton.setPosition((renderWidth + tagsWidth) / 2 + (TAGS_BUTTON_PADDING_HORIZONTAL * 2) + BUTTON_WIDTH, TAGS_PADDING_VERTICAL + (tagsHeight / 2));
             } else {
-                tagsAddButton.setAlignment(CucumberButton.ALIGN_HORIZONTAL_CENTER | CucumberButton.ALIGN_VERTICAL_CENTER_OF_PARENT);
+                tagsAddButton.setAlignment(Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT);
                 tagsAddButton.setPosition(buttonbarX, 0);
                 buttonbarX += BUTTON_WIDTH + 4;
             }
@@ -304,7 +305,7 @@ public class CucumberTextElement extends CucumberElement {
 
     public void setTitle(String title) {
         this.title = title;
-        step = CucumberFeatureLoader.findMatchingStep(title);
+        step = FeatureLoader.findMatchingStep(title);
     }
 
     public void setFilename(String filename) {
@@ -312,7 +313,7 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     public void setTags(String tags) {
-        this.tags = new CucumberTag(tags);
+        this.tags = new Tag(tags);
     }
 
     public void setComment(String comment) {
@@ -333,7 +334,7 @@ public class CucumberTextElement extends CucumberElement {
         editButton.setVisible(hasEditButton() && isHighlighted());
         tagsAddButton.setVisible(hasTagsAddButton() && isHighlighted());
         tagsRemoveButton.setVisible(hasTagsAddButton() && isHighlighted() && tags.hasTags());
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             button.update();
         }
     }
@@ -342,8 +343,8 @@ public class CucumberTextElement extends CucumberElement {
         if (groupParent != null) {
             animation.moveAnimation.setRealPosition(groupParent.animation.moveAnimation, !shouldStickToParentRenderPosition);
             animation.moveAnimation.realY += groupParent.groupHeight;
-            if (groupParent instanceof CucumberTextElement) {
-                animation.moveAnimation.realX += PADDING_HORIZONTAL[((CucumberTextElement) groupParent).type];
+            if (groupParent instanceof TextElement) {
+                animation.moveAnimation.realX += PADDING_HORIZONTAL[((TextElement) groupParent).type];
             }
         }
         if (shouldStickToParentRenderPosition || animation.colorAnimation.justBecameVisible) {
@@ -371,13 +372,13 @@ public class CucumberTextElement extends CucumberElement {
     public static int calculateRenderWidthFromRoot(int rootType) {
         int maxPadding = PADDING_HORIZONTAL[TYPE_FEATURE] + PADDING_HORIZONTAL[TYPE_SCENARIO] + PADDING_HORIZONTAL[TYPE_STEP];
         int wantedWidth = RENDER_WIDTH_MAX_FEATURE_EDITOR;
-        int maxWidth = CucumberEngine.canvasWidth;
+        int maxWidth = Engine.canvasWidth;
         if (rootType == ROOT_FEATURE_EDITOR) {
             wantedWidth = RENDER_WIDTH_MAX_FEATURE_EDITOR;
-            maxWidth = CucumberEngine.featuresRoot.renderWidth - (maxPadding - (int) CucumberEngine.featuresRoot.animation.moveAnimation.renderX);
+            maxWidth = Engine.featuresRoot.renderWidth - (maxPadding - (int) Engine.featuresRoot.animation.moveAnimation.renderX);
         } else if (rootType == ROOT_STEP_DEFINITIONS) {
             wantedWidth = RENDER_WIDTH_MAX_STEP_DEFINITIONS;
-            maxWidth = CucumberEngine.stepsRoot.renderWidth - (CucumberRootElement.PADDING_HORIZONTAL * 2);
+            maxWidth = Engine.stepsRoot.renderWidth - (RootElement.PADDING_HORIZONTAL * 2);
         }
         return Math.min(maxWidth, wantedWidth);
     }
@@ -406,21 +407,21 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     public void click() {
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             if (button.click()) {
                 return;
             }
         }
         final CucumberStepPart part = getTouchedPart();
         if (part != null && part.type == CucumberStepPart.PartType.ARGUMENT) {
-            CucumberDropDown.show(
+            DropDown.show(
                     (int) animation.moveAnimation.renderX + part.startX + TEXT_PADDING_HORIZONTAL,
                     (int) animation.moveAnimation.renderY + part.startY + TEXT_PADDING_VERTICAL,
-                    new CucumberDropDown.DropDownCallback() {
+                    new DropDown.DropDownCallback() {
                         public void chooseItem(String item) {
                             part.text = item;
                             if (isEditableParameter(part.text)) {
-                                CucumberEditBox.showEditPart(part);
+                                EditBox.showEditPart(part);
                             }
                         }
                     },
@@ -431,14 +432,14 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private void play() {
-        CucumberEngine.runTests(this);
+        Engine.runTests(this);
     }
 
     public void trashElement() {
-        synchronized (CucumberEngine.LOCK) {
+        synchronized (Engine.LOCK) {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
-                CucumberEngine.cucumberRoot.removeChild(this);
+                Engine.cucumberRoot.removeChild(this);
             }
         }
     }
@@ -460,17 +461,17 @@ public class CucumberTextElement extends CucumberElement {
             return;
         }
         folded = !folded;
-        foldFadeAnimation(folded ? 0.0f : CucumberAnimation.FADE_ALPHA_DEFAULT);
+        foldFadeAnimation(folded ? 0.0f : Animation.FADE_ALPHA_DEFAULT);
     }
 
     public void unfold() {
         folded = false;
-        foldFadeAnimation(CucumberAnimation.FADE_ALPHA_DEFAULT);
+        foldFadeAnimation(Animation.FADE_ALPHA_DEFAULT);
     }
 
     protected void foldFadeAnimation(float alpha) {
-        for (CucumberElement child : children) {
-            child.animation.colorAnimation.setAlpha(alpha, CucumberAnimation.FADE_SPEED_FOLD);
+        for (Element child : children) {
+            child.animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
             if (!child.folded) {
                 child.foldFadeAnimation(alpha);
             }
@@ -479,11 +480,11 @@ public class CucumberTextElement extends CucumberElement {
 
     private void dragFadeAnimation() {
         highlight(false);
-        float alpha = isDragged ? CucumberAnimation.FADE_ALPHA_DRAG : CucumberAnimation.FADE_ALPHA_DEFAULT;
-        animation.colorAnimation.setAlpha(alpha, CucumberAnimation.FADE_SPEED_DRAG);
+        float alpha = isDragged ? Animation.FADE_ALPHA_DRAG : Animation.FADE_ALPHA_DEFAULT;
+        animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_DRAG);
         if (!folded) {
-            for (CucumberElement child : children) {
-                child.animation.colorAnimation.setAlpha(alpha, CucumberAnimation.FADE_SPEED_FOLD);
+            for (Element child : children) {
+                child.animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
             }
         }
     }
@@ -504,10 +505,10 @@ public class CucumberTextElement extends CucumberElement {
         }
         super.endDrag();
         dragFadeAnimation();
-        if (groupParent == CucumberEngine.stepsRoot) {
+        if (groupParent == Engine.stepsRoot) {
             throwElementToFeaturesGroup();
         }
-        CucumberEngine.updateLastAddedElement(this);
+        Engine.updateLastAddedElement(this);
     }
 
     public boolean isDragable() {
@@ -516,12 +517,12 @@ public class CucumberTextElement extends CucumberElement {
 
     protected void applyDrag() {
         updateDragPositionHistory();
-        CucumberElement touchedGroup = CucumberEngine.cucumberRoot.findGroup((int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, type);
-        if (touchedGroup == null || touchedGroup instanceof CucumberRootElement) {
+        Element touchedGroup = Engine.cucumberRoot.findGroup((int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, type);
+        if (touchedGroup == null || touchedGroup instanceof RootElement) {
             lastBubbledElement = null;
             return;
         }
-        CucumberElement touchedElement = CucumberEngine.cucumberRoot.findElementRealPosition(CucumberMouseListener.mouseX, CucumberMouseListener.mouseY);
+        Element touchedElement = Engine.cucumberRoot.findElementRealPosition(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
         if (touchedElement == lastBubbledElement) {
             return;
         }
@@ -533,8 +534,8 @@ public class CucumberTextElement extends CucumberElement {
     private void resetDragPositionHistory() {
         dragHistoryIndex = 0;
         for (int i = 0; i < DRAG_HISTORY_LENGTH; i++) {
-            dragHistoryX[i] = CucumberMouseListener.mouseX;
-            dragHistoryY[i] = CucumberMouseListener.mouseY;
+            dragHistoryX[i] = CumberlessMouseListener.mouseX;
+            dragHistoryY[i] = CumberlessMouseListener.mouseY;
             dragHistoryTime[i] = System.currentTimeMillis();
         }
     }
@@ -544,13 +545,13 @@ public class CucumberTextElement extends CucumberElement {
             return;
         }
         dragHistoryIndex = (dragHistoryIndex + 1) % DRAG_HISTORY_LENGTH;
-        dragHistoryX[dragHistoryIndex] = CucumberMouseListener.mouseX;
-        dragHistoryY[dragHistoryIndex] = CucumberMouseListener.mouseY;
+        dragHistoryX[dragHistoryIndex] = CumberlessMouseListener.mouseX;
+        dragHistoryY[dragHistoryIndex] = CumberlessMouseListener.mouseY;
         dragHistoryTime[dragHistoryIndex] = System.currentTimeMillis();
     }
 
     private void throwElementToFeaturesGroup() {
-        if (CucumberEngine.lastAddedElement == null) {
+        if (Engine.lastAddedElement == null) {
             return;
         }
         int oldestIndex = (dragHistoryIndex + 1) % DRAG_HISTORY_LENGTH;
@@ -564,35 +565,35 @@ public class CucumberTextElement extends CucumberElement {
         if (squaredDist / deltaTime > DRAG_HISTORY_THROW_LIMIT) {
             groupParent.removeChild(this);
             if (type == TYPE_FEATURE) {
-                CucumberEngine.featuresRoot.addChild(this);
+                Engine.featuresRoot.addChild(this);
             } else if (type == TYPE_SCENARIO) {
-                if (CucumberEngine.lastAddedElement.type == TYPE_FEATURE) {
-                    CucumberEngine.featuresRoot.addChild(this);
-                } else if (CucumberEngine.lastAddedElement.type == TYPE_SCENARIO) {
-                    CucumberEngine.lastAddedElement.groupParent.addChild(this);
+                if (Engine.lastAddedElement.type == TYPE_FEATURE) {
+                    Engine.featuresRoot.addChild(this);
+                } else if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
+                    Engine.lastAddedElement.groupParent.addChild(this);
                 } else {
-                    CucumberEngine.lastAddedElement.groupParent.groupParent.addChild(this);
+                    Engine.lastAddedElement.groupParent.groupParent.addChild(this);
                 }
             } else {
-                if (CucumberEngine.lastAddedElement.type == TYPE_FEATURE) {
+                if (Engine.lastAddedElement.type == TYPE_FEATURE) {
                     return;
                 }
-                if (CucumberEngine.lastAddedElement.type == TYPE_SCENARIO) {
-                    CucumberEngine.lastAddedElement.addChild(this);
+                if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
+                    Engine.lastAddedElement.addChild(this);
                 } else {
-                    int index = CucumberEngine.lastAddedElement.groupParent.findChildIndex(CucumberEngine.lastAddedElement);
-                    CucumberEngine.lastAddedElement.groupParent.addChild(this, index + 1);
+                    int index = Engine.lastAddedElement.groupParent.findChildIndex(Engine.lastAddedElement);
+                    Engine.lastAddedElement.groupParent.addChild(this, index + 1);
                 }
             }
         }
     }
 
-    public CucumberElement findGroup(int x, int y, int type) {
+    public Element findGroup(int x, int y, int type) {
         if (isInsideGroupRect(x, y) && isAttachableTo(type)) {
             return this;
         } else {
-            for (CucumberElement child : children) {
-                CucumberElement foundElement = child.findGroup(x, y, type);
+            for (Element child : children) {
+                Element foundElement = child.findGroup(x, y, type);
                 if (foundElement != null) {
                     return foundElement;
                 }
@@ -610,12 +611,12 @@ public class CucumberTextElement extends CucumberElement {
         return false;
     }
 
-    public void updateElementIndex(CucumberElement element, int index) {
+    public void updateElementIndex(Element element, int index) {
         int currentIndex = findChildIndex(element);
         if (currentIndex == index) {
             return;
         }
-        CucumberEngine.cucumberRoot.removeChild(element);
+        Engine.cucumberRoot.removeChild(element);
         if (currentIndex == -1) {
             addChild(element, index);
             return;
@@ -627,9 +628,9 @@ public class CucumberTextElement extends CucumberElement {
         }
     }
 
-    protected CucumberElement duplicate() {
-        CucumberTextElement element = new CucumberTextElement(type, rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
-        element.animation.colorAnimation.setAlpha(CucumberAnimation.FADE_ALPHA_DEFAULT, CucumberAnimation.FADE_SPEED_REENTRANCE);
+    protected Element duplicate() {
+        TextElement element = new TextElement(type, rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
+        element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(animation.moveAnimation, true);
         element.animation.moveAnimation.setRenderPosition(animation.moveAnimation, true);
         element.renderWidth = renderWidth;
@@ -639,12 +640,12 @@ public class CucumberTextElement extends CucumberElement {
         return element;
     }
 
-    private void appendElementToRoot(CucumberElement element) {
-        CucumberEngine.cucumberRoot.addChild(element);
+    private void appendElementToRoot(Element element) {
+        Engine.cucumberRoot.addChild(element);
     }
 
-    private int calculateIndexInList(CucumberElement touchedGroup) {
-        CucumberElement touchedElement = CucumberEngine.cucumberRoot.findElementRealPosition(CucumberMouseListener.mouseX, CucumberMouseListener.mouseY);
+    private int calculateIndexInList(Element touchedGroup) {
+        Element touchedElement = Engine.cucumberRoot.findElementRealPosition(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
         if (touchedElement == touchedGroup) {
             return touchedGroup.folded ? -1 : 0;
         }
@@ -658,7 +659,7 @@ public class CucumberTextElement extends CucumberElement {
         if (!animation.colorAnimation.isVisible()) {
             return;
         }
-        if (animation.moveAnimation.renderX > CucumberEngine.canvasWidth || animation.moveAnimation.renderY > CucumberEngine.canvasHeight ||
+        if (animation.moveAnimation.renderX > Engine.canvasWidth || animation.moveAnimation.renderY > Engine.canvasHeight ||
             animation.moveAnimation.renderX + renderWidth < 0 || animation.moveAnimation.renderY + renderHeight < 0) {
             return;
         }
@@ -671,7 +672,7 @@ public class CucumberTextElement extends CucumberElement {
     private void renderElement(Graphics canvas) {
         int index = Math.min(renderHeight / 10, IMAGE_BUFFER_COUNT - 1);
         Graphics2D g = imageGraphics[index];
-        if (CucumberEngine.fpsDetails != CucumberEngine.DETAILS_NONE) {
+        if (Engine.fpsDetails != Engine.DETAILS_NONE) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         } else {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -694,7 +695,7 @@ public class CucumberTextElement extends CucumberElement {
             drawScreenshot(g);
         }
         if (!Util.isEmpty(errorMessage)) {
-            drawHint(g, errorMessage, CucumberMouseListener.mouseX + 15, CucumberMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
+            drawHint(g, errorMessage, CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
         }
     }
 
@@ -703,7 +704,7 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private void drawButtons(Graphics canvas) {
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             button.render(canvas);
         }
     }
@@ -715,7 +716,7 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private void drawShadow(int index) {
-        if (CucumberEngine.fpsDetails == CucumberEngine.DETAILS_FEWER) {
+        if (Engine.fpsDetails == Engine.DETAILS_FEWER) {
             return;
         }
         Graphics2D g = imageGraphics[index];
@@ -748,7 +749,7 @@ public class CucumberTextElement extends CucumberElement {
         int highlightToIndex = isHighlighted() ? 1 : 0;
         if (type == TYPE_STEP && isFailed) {
             return COLOR_BG_FAILED;
-        } else if (type != TYPE_STEP || step.matchedByStepDefinition() || groupParent == CucumberEngine.stepsRoot) {
+        } else if (type != TYPE_STEP || step.matchedByStepDefinition() || groupParent == Engine.stepsRoot) {
             return COLOR_BG_FILL[type][highlightToIndex];
         } else {
             return COLOR_BG_UNRECOGNIZED_STEP[highlightToIndex];
@@ -756,7 +757,7 @@ public class CucumberTextElement extends CucumberElement {
     }
     
     private boolean renderPlaying(int index) {
-        if (!CucumberPlayer.isRunning()) {
+        if (!Player.isRunning()) {
             return false;
         }
         if (!isRunnable() || !isRunning()) {
@@ -776,7 +777,7 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private boolean renderEditing(int index) {
-        if (!CucumberEditBox.isEditing(this)) {
+        if (!EditBox.isEditing(this)) {
             return false;
         }
         renderBorder(index, new Color(1.0f, 1.0f, 0.5f, 0.8f), 1.5f);
@@ -808,10 +809,10 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private boolean isRunning() {
-        return (type == TYPE_FEATURE && CucumberPlayer.isCurrentFeature(this)) ||
+        return (type == TYPE_FEATURE && Player.isCurrentFeature(this)) ||
                //(type == TYPE_BACKGROUND && CucumberPlayer.currentScenario == null && CucumberPlayer.isCurrentFeature(groupParent)) ||
-               (type == TYPE_SCENARIO && CucumberPlayer.isCurrentScenario(this)) ||
-               (type == TYPE_STEP && CucumberPlayer.isCurrentStep(this));
+               (type == TYPE_SCENARIO && Player.isCurrentScenario(this)) ||
+               (type == TYPE_STEP && Player.isCurrentStep(this));
     }
     
     private boolean isRunnable() {
@@ -841,7 +842,7 @@ public class CucumberTextElement extends CucumberElement {
                 y += fontMetrics.getHeight();
             }
         }
-        g.setFont(CucumberEngine.FONT_DEFAULT);
+        g.setFont(Engine.FONT_DEFAULT);
     }
 
     private void drawTags(int index) {
@@ -903,8 +904,8 @@ public class CucumberTextElement extends CucumberElement {
         if (errorScreenshots == null || errorScreenshots.length == 0 || errorScreenshots[0] == null) {
             return;
         }
-        int x = CucumberMouseListener.mouseX + 15;
-        int y = Math.min(CucumberMouseListener.mouseY + 10, CucumberEngine.canvasHeight - errorScreenshots[0].getHeight(null));
+        int x = CumberlessMouseListener.mouseX + 15;
+        int y = Math.min(CumberlessMouseListener.mouseY + 10, Engine.canvasHeight - errorScreenshots[0].getHeight(null));
 
         g.setColor(new Color(0.0f, 0.0f, 0.0f, 1.0f));
 
@@ -921,8 +922,8 @@ public class CucumberTextElement extends CucumberElement {
 
     private void updatePartTouchState(FontMetrics fontMetrics, CucumberStepPart part, String text, int x, int y) {
         part.isTouched =
-                CucumberMouseListener.mouseX >= x && CucumberMouseListener.mouseX <= x + fontMetrics.stringWidth(text) &&
-                CucumberMouseListener.mouseY >= y && CucumberMouseListener.mouseY <= y + fontMetrics.getHeight();
+                CumberlessMouseListener.mouseX >= x && CumberlessMouseListener.mouseX <= x + fontMetrics.stringWidth(text) &&
+                CumberlessMouseListener.mouseY >= y && CumberlessMouseListener.mouseY <= y + fontMetrics.getHeight();
     }
 
     private int getTextPaddingLeft() {
@@ -938,7 +939,7 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private boolean isButtonTouched() {
-        for (CucumberButton button : buttons) {
+        for (Button button : buttons) {
             if (button.isTouched()) {
                 return true;
             }
@@ -947,19 +948,19 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private boolean hasTrashcanButton() {
-        return groupParent != CucumberEngine.stepsRoot;
+        return groupParent != Engine.stepsRoot;
     }
 
     private boolean hasPlayButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND) && groupParent != CucumberEngine.stepsRoot && CucumberEngine.isPlayableDeviceEnabled();
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND) && groupParent != Engine.stepsRoot && Engine.isPlayableDeviceEnabled();
     }
 
     private boolean hasEditButton() {
-        return (type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition())) && groupParent != CucumberEngine.stepsRoot;
+        return (type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition())) && groupParent != Engine.stepsRoot;
     }
 
     private boolean hasTagsAddButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO) && groupParent != CucumberEngine.stepsRoot;
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO) && groupParent != Engine.stepsRoot;
     }
 
     private boolean shouldRenderTags() {
@@ -1001,7 +1002,7 @@ public class CucumberTextElement extends CucumberElement {
 
     protected void updateStepsInternal() {
         if (type == TYPE_STEP) {
-            step = CucumberFeatureLoader.findMatchingStep(step.toString());
+            step = FeatureLoader.findMatchingStep(step.toString());
         }
     }
 
@@ -1020,8 +1021,8 @@ public class CucumberTextElement extends CucumberElement {
     }
 
     private String getRelativePath(String filename) {
-        if (!Util.isEmpty(CucumberEngine.featuresBaseDir) && filename.startsWith(CucumberEngine.featuresBaseDir)) {
-            return Util.stripLeadingSlash(filename.substring(CucumberEngine.featuresBaseDir.length()));
+        if (!Util.isEmpty(Engine.featuresBaseDir) && filename.startsWith(Engine.featuresBaseDir)) {
+            return Util.stripLeadingSlash(filename.substring(Engine.featuresBaseDir.length()));
         }
         return new File(filename).getName();
     }
@@ -1052,9 +1053,9 @@ public class CucumberTextElement extends CucumberElement {
 
     private void editTags() {
         if (!tags.hasTags()) {
-            tags = new CucumberTag("@");
+            tags = new Tag("@");
         }
-        CucumberEditBox.showEditTags(this);
+        EditBox.showEditTags(this);
     }
 
     public Set<String> getTagsInternal() {

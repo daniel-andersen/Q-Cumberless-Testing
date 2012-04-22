@@ -15,11 +15,11 @@
 
 package com.trollsahead.qcumberless.device;
 
-import com.trollsahead.qcumberless.model.CucumberStep;
+import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
 
-public interface CucumberDeviceCallback {
+public interface DeviceCallback {
     void onPlay();
     void onPause();
     void onResume();
@@ -46,7 +46,7 @@ public interface CucumberDeviceCallback {
     void afterStep(String name);
     void afterStepFailed(String errorMessage);
     
-    void attachScreenshots(CucumberStep step, Image... screenshots);
+    void attachScreenshots(Step step, Image... screenshots);
 
-    CucumberStep getCurrentStep();
+    Step getCurrentStep();
 }

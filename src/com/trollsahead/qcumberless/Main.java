@@ -15,7 +15,7 @@
 
 package com.trollsahead.qcumberless;
 
-import com.trollsahead.qcumberless.gui.CucumberDialog;
+import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.gui.Images;
 
 import javax.swing.*;
@@ -32,7 +32,7 @@ public class Main {
         
         wirePlugins();
 
-        CucumberDialog frame = new CucumberDialog();
+        CucumberlessDialog frame = new CucumberlessDialog();
         frame.setVisible(true);
         frame.letThereBeLight();
     }

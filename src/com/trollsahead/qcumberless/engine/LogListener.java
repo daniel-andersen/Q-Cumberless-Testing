@@ -13,17 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Q-Cumberless Testing.  If not, see <http://www.gnu.org/licenses/>.
 
-package com.trollsahead.qcumberless.plugins;
+package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.device.CucumberDevice;
-import com.trollsahead.qcumberless.model.CucumberStepDefinition;
+public interface LogListener {
+    void start();
+    void finish();
 
-import java.util.*;
-
-public interface CucumberPlugin {
-    void initialize();
-
-    Set<CucumberDevice> getDevices();
-
-    List<CucumberStepDefinition> getStepDefinitions();
+    public void logLine(String log);
+    void error(Throwable t);
 }

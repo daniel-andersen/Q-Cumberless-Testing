@@ -13,8 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Q-Cumberless Testing.  If not, see <http://www.gnu.org/licenses/>.
 
-package com.trollsahead.qcumberless.model;
+package com.trollsahead.qcumberless.plugins;
 
-public class CucumberConstants {
-    public static final String[] STEP_PREFIXS = new String[] {"Given", "When", "Then", "And", "But", "*", "-", "--"};
+import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.model.StepDefinition;
+
+import java.util.*;
+
+public interface Plugin {
+    void initialize();
+
+    Set<Device> getDevices();
+
+    List<StepDefinition> getStepDefinitions();
 }

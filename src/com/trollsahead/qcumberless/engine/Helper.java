@@ -23,10 +23,10 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CucumberHelper {
+public class Helper {
     public static List<String> executeCommand(String command) {
         final List<String> output = new LinkedList<String>();
-        executeCommand(command, null, new CucumberLogListener() {
+        executeCommand(command, null, new LogListener() {
             public void start() {
             }
 
@@ -44,7 +44,7 @@ public class CucumberHelper {
         return output;
     }
 
-    public static void executeCommand(String command, String dir, CucumberLogListener logListener) {
+    public static void executeCommand(String command, String dir, LogListener logListener) {
         System.out.println("Executing: '" + command + (!Util.isEmpty(dir) ? "' from dir '" + dir + "'" : "'"));
         BufferedReader stdin = null;
         try {
@@ -81,11 +81,11 @@ public class CucumberHelper {
         }
     }
 
-    public static void executeCommand(String command, CucumberLogListener logListener, ExecutorStopper executorStopper) {
+    public static void executeCommand(String command, LogListener logListener, ExecutorStopper executorStopper) {
         executeCommand(command, null, logListener, executorStopper);
     }
 
-    public static void executeCommand(String command, String dir, CucumberLogListener logListener, ExecutorStopper executorStopper) {
+    public static void executeCommand(String command, String dir, LogListener logListener, ExecutorStopper executorStopper) {
         System.out.println("Executing with stopper: " + command);
         BufferedReader stdin = null;
         try {

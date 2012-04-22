@@ -15,13 +15,13 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.CucumberEngine;
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class CucumberButton {
+public class Button {
     public static final int STATE_NORMAL    = 0;
     public static final int STATE_HIGHLIGHT = 1;
     public static final int STATE_PRESSED   = 2;
@@ -52,7 +52,7 @@ public class CucumberButton {
     private int offsetX;
     private int offsetY;
     private String text;
-    private CucumberElement parent;
+    private Element parent;
     private int alignment;
     private CucumberButtonNotification notification;
 
@@ -71,22 +71,22 @@ public class CucumberButton {
     public static boolean isOneTouched = false;
     private String hint;
 
-    public CucumberButton(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, CucumberElement parent) {
+    public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Element parent) {
         this(x, y, text, normalImage, highlightImage, pressedImage, alignment, notification);
         this.parent = parent;
     }
 
-    public CucumberButton(int x, int y, String text, int alignment, CucumberButtonNotification notification, CucumberElement parent) {
+    public Button(int x, int y, String text, int alignment, CucumberButtonNotification notification, Element parent) {
         this(x, y, text, null, null, null, alignment, notification);
         this.parent = parent;
     }
 
-    public CucumberButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, CucumberElement parent) {
+    public Button(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Element parent) {
         this(x, y, null, normalImage, highlightImage, pressedImage, alignment, notification);
         this.parent = parent;
     }
 
-    public CucumberButton(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification) {
+    public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification) {
         this.x = x;
         this.y = y;
         this.offsetX = 0;
@@ -132,10 +132,10 @@ public class CucumberButton {
             return;
         }
         if (!isOneTouched &&
-                CucumberMouseListener.mouseX >= renderX && CucumberMouseListener.mouseX <= renderX + renderWidth &&
-                CucumberMouseListener.mouseY >= renderY && CucumberMouseListener.mouseY <= renderY + renderHeight) {
+                CumberlessMouseListener.mouseX >= renderX && CumberlessMouseListener.mouseX <= renderX + renderWidth &&
+                CumberlessMouseListener.mouseY >= renderY && CumberlessMouseListener.mouseY <= renderY + renderHeight) {
             isOneTouched = true;
-            if (CucumberMouseListener.isButtonPressed) {
+            if (CumberlessMouseListener.isButtonPressed) {
                 state = STATE_PRESSED;
             } else {
                 state = STATE_HIGHLIGHT;
@@ -211,8 +211,8 @@ public class CucumberButton {
         int hintWidth = fontMetrics.stringWidth(hint);
         int y = renderY - fontMetrics.getHeight() - (HINT_BACKGROUND_PADDING * 2) - HINT_BACKGROUND_GAP;
         int x = renderX;
-        if (x + hintWidth > CucumberEngine.canvasWidth) {
-            x = CucumberEngine.canvasWidth - hintWidth - TEXT_BACKGROUND_PADDING_HORIZONTAL;
+        if (x + hintWidth > Engine.canvasWidth) {
+            x = Engine.canvasWidth - hintWidth - TEXT_BACKGROUND_PADDING_HORIZONTAL;
         }
         g.setColor(TEXT_BACKGROUND_COLOR_HINT);
         g.fillRoundRect(x - HINT_BACKGROUND_PADDING, y, hintWidth + HINT_BACKGROUND_PADDING * 2, fontMetrics.getHeight() + HINT_BACKGROUND_PADDING * 2, 5, 5);

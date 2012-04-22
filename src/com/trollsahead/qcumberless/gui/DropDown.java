@@ -18,7 +18,7 @@ package com.trollsahead.qcumberless.gui;
 import java.awt.*;
 import java.util.List;
 
-public class CucumberDropDown {
+public class DropDown {
     private static final int PADDING_HORIZONTAL = 5;
     private static final int PADDING_VERTICAL = 5;
 
@@ -42,12 +42,12 @@ public class CucumberDropDown {
     private static int itemHeight;
 
     public static void show(int x, int y, DropDownCallback callbackHandler, List<String> items) {
-        CucumberDropDown.x = x;
-        CucumberDropDown.y = y;
-        CucumberDropDown.callbackHandler = callbackHandler;
-        CucumberDropDown.items = items;
-        CucumberDropDown.isVisible = true;
-        CucumberDropDown.highlightIndex = -1;
+        DropDown.x = x;
+        DropDown.y = y;
+        DropDown.callbackHandler = callbackHandler;
+        DropDown.items = items;
+        DropDown.isVisible = true;
+        DropDown.highlightIndex = -1;
     }
 
     public static void hide() {
@@ -117,8 +117,8 @@ public class CucumberDropDown {
 
     public static boolean isTouched() {
         return isVisible &&
-               CucumberMouseListener.mouseX >= renderX && CucumberMouseListener.mouseX <= renderX + renderWidth &&
-               CucumberMouseListener.mouseY >= renderY && CucumberMouseListener.mouseY <= renderY + renderHeight;
+               CumberlessMouseListener.mouseX >= renderX && CumberlessMouseListener.mouseX <= renderX + renderWidth &&
+               CumberlessMouseListener.mouseY >= renderY && CumberlessMouseListener.mouseY <= renderY + renderHeight;
     }
 
     public static boolean click() {
@@ -160,7 +160,7 @@ public class CucumberDropDown {
             highlightIndex = -1;
             return true;
         }
-        highlightIndex = (CucumberMouseListener.mouseY - renderY - PADDING_VERTICAL) / itemHeight;
+        highlightIndex = (CumberlessMouseListener.mouseY - renderY - PADDING_VERTICAL) / itemHeight;
         if (highlightIndex >= items.size()) {
             highlightIndex = -1;
         }
