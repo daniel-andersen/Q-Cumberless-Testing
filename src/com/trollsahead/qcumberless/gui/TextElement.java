@@ -132,6 +132,7 @@ public class TextElement extends Element {
     private int dragHistoryIndex = 0;
 
     private Element lastBubbledElement = null;
+    private Element lastBubbledPosition = null;
     
     private int buttonbarX = 0;
 
@@ -389,7 +390,6 @@ public class TextElement extends Element {
 
     private int calculateRenderWidth() {
         if (animation.sizeAnimation.isResizing) {
-            System.out.println(animation.sizeAnimation.currentWidth);
             return (int) animation.sizeAnimation.currentWidth;
         }
         if (rootType != ROOT_NONE) {
@@ -501,6 +501,7 @@ public class TextElement extends Element {
         dragFadeAnimation();
         resetDragPositionHistory();
         lastBubbledElement = null;
+        lastBubbledPosition = null;
     }
 
     public void endDrag() {
@@ -620,13 +621,12 @@ public class TextElement extends Element {
         if (currentIndex == index) {
             return;
         }
+        if (index == -1) {
+            return;
+        }
         Engine.cucumberRoot.removeChild(element);
         if (currentIndex == -1) {
             addChild(element, index);
-            return;
-        }
-        if (index == -1) {
-            appendElementToRoot(element);
         } else {
             addChild(element, index);
         }
@@ -642,10 +642,6 @@ public class TextElement extends Element {
         element.animation.sizeAnimation.currentWidth = this.renderWidth;
         element.animation.sizeAnimation.currentHeight = this.renderHeight;
         return element;
-    }
-
-    private void appendElementToRoot(Element element) {
-        Engine.cucumberRoot.addChild(element);
     }
 
     private int calculateIndexInList(Element touchedGroup) {
