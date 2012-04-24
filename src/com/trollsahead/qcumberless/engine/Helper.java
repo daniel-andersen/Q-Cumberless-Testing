@@ -61,20 +61,16 @@ public class Helper {
             stdin = new BufferedReader(new InputStreamReader((exec.getInputStream())));
 
             String line;
-            boolean running = true;
-            while (running) {
-                while ((line = stdin.readLine()) != null) {
-                    logListener.logLine(line);
+            while ((line = stdin.readLine()) != null) {
+                logListener.logLine(line);
+            }
+            try {
+                int res = exec.waitFor();
+                if (res > 0) {
+                    throw new Exception("Process failed with return value: " + res);
                 }
-                try {
-                    int res = exec.exitValue();
-                    running = false;
-                    if (res > 0) {
-                        throw new Exception("Process failed with return value: " + res);
-                    }
-                } catch (IllegalThreadStateException e) {
-                    running = true;
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             logListener.finish();
         } catch (Throwable t) {
