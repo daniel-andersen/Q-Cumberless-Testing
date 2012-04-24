@@ -46,7 +46,7 @@ public class TextElement extends Element {
     public static final int TYPE_COMMENT         = 4;
 
     public static final int[][] TYPE_ATTACHABLE_TO = {
-            {-1},
+            {RootElement.TYPE_ROOT},
             {TYPE_FEATURE},
             {TYPE_FEATURE},
             {TYPE_SCENARIO, TYPE_BACKGROUND},
@@ -132,8 +132,7 @@ public class TextElement extends Element {
     private int dragHistoryIndex = 0;
 
     private Element lastBubbledElement = null;
-    private Element lastBubbledPosition = null;
-    
+
     private int buttonbarX = 0;
 
     static {
@@ -418,18 +417,22 @@ public class TextElement extends Element {
         }
         final CucumberStepPart part = getTouchedPart();
         if (part != null && part.type == CucumberStepPart.PartType.ARGUMENT) {
-            DropDown.show(
-                    (int) animation.moveAnimation.renderX + part.startX + TEXT_PADDING_HORIZONTAL,
-                    (int) animation.moveAnimation.renderY + part.startY + TEXT_PADDING_VERTICAL,
-                    new DropDown.DropDownCallback() {
-                        public void chooseItem(String item) {
-                            part.text = item;
-                            if (isEditableParameter(part.text)) {
-                                EditBox.showEditPart(part);
+            if (part.validParameters.length == 1 && isEditableParameter(part.validParameters[0])) {
+                EditBox.showEditPart(part);
+            } else {
+                DropDown.show(
+                        (int) animation.moveAnimation.renderX + part.startX + TEXT_PADDING_HORIZONTAL,
+                        (int) animation.moveAnimation.renderY + part.startY + TEXT_PADDING_VERTICAL,
+                        new DropDown.DropDownCallback() {
+                            public void chooseItem(String item) {
+                                part.text = item;
+                                if (isEditableParameter(part.text)) {
+                                    EditBox.showEditPart(part);
+                                }
                             }
-                        }
-                    },
-                    Arrays.asList(part.validParameters));
+                        },
+                        Arrays.asList(part.validParameters));
+            }
         } else {
             foldToggle();
         }
@@ -501,7 +504,6 @@ public class TextElement extends Element {
         dragFadeAnimation();
         resetDragPositionHistory();
         lastBubbledElement = null;
-        lastBubbledPosition = null;
     }
 
     public void endDrag() {
@@ -522,7 +524,10 @@ public class TextElement extends Element {
 
     protected void applyDrag() {
         updateDragPositionHistory();
-        Element touchedGroup = Engine.cucumberRoot.findGroup((int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, type);
+        Element touchedGroup = Engine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
+        if (touchedGroup == null && type == TYPE_FEATURE) {
+            touchedGroup = Engine.featuresRoot;
+        }
         if (touchedGroup == null || touchedGroup instanceof RootElement) {
             lastBubbledElement = null;
             return;

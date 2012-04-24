@@ -40,7 +40,6 @@ public class Main {
         wirePlugins();
 
         CucumberlessDialog frame = new CucumberlessDialog();
-        frame.setVisible(true);
         frame.letThereBeLight();
     }
     

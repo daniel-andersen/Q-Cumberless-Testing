@@ -20,6 +20,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,13 +48,11 @@ public class CucumberlessDialog extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(0, 0, screenSize.width, screenSize.height);
         new Thread(engine).start();
+        Util.sleep(1000); // For flicker not to happen
         setVisible(true);
     }
 
 	private void initComponents() {
-        setVisible(false);
-        setBackground(Color.BLACK);
-
         mainPanel = new JPanel();
 
         elementTextField = new JTextField();

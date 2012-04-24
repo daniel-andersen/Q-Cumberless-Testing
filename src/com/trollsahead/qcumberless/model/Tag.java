@@ -62,6 +62,9 @@ public class Tag {
     }
 
     public void add(String tag) {
+        if (Util.isEmpty(tags)) {
+            tags = "";
+        }
         if (!tag.startsWith("@")) {
             tags += " @" + tag;
         } else {
