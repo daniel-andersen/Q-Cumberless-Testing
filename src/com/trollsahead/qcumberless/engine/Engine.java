@@ -182,7 +182,10 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             public void run() {
                 Set<Device> newDevices = new HashSet<Device>();
                 for (Plugin plugin : plugins) {
-                    newDevices.addAll(plugin.getDevices());
+                    Set<Device> devices = plugin.getDevices();
+                    if (devices != null) {
+                        newDevices.addAll(devices);
+                    }
                 }
                 synchronized (LOCK) {
                     devices = newDevices;
