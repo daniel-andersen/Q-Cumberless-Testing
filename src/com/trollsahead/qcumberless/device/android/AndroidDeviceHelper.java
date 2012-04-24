@@ -12,11 +12,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Q-Cumberless Testing.  If not, see <http://www.gnu.org/licenses/>.
+//
+// Copyright 2012
+
+// Daniel Andersen (dani_ande@yahoo.dk)
 
 package com.trollsahead.qcumberless.device.android;
 
 import com.trollsahead.qcumberless.engine.Helper;
 import com.trollsahead.qcumberless.engine.LogListener;
+import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
@@ -26,6 +31,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AndroidDeviceHelper {
+    public static final String PROP_ADB_PATH = "adbPath";
+
     public static List<String> listDevices() {
         try {
             Pattern pattern = Pattern.compile("(.*)\\t(.*)");
@@ -138,7 +145,12 @@ public class AndroidDeviceHelper {
     }
 
     public static String getPathToAdb() {
-        return "";
+        String path = ConfigurationManager.get(PROP_ADB_PATH);
+        if (Util.isEmpty(path)) {
+            return "";
+        } else {
+            return path.endsWith("/") ? path : (path + "/");
+        }
     }
 
     public static String getAdbExecutable() {

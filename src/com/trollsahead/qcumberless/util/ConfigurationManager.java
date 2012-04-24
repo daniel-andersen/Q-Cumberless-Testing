@@ -17,38 +17,38 @@
 
 // Daniel Andersen (dani_ande@yahoo.dk)
 
-package com.trollsahead.qcumberless;
+package com.trollsahead.qcumberless.util;
 
-import com.trollsahead.qcumberless.gui.CucumberlessDialog;
-import com.trollsahead.qcumberless.gui.Images;
-import com.trollsahead.qcumberless.util.ConfigurationManager;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
-import javax.swing.*;
+public class ConfigurationManager {
+    private static final String CONF_FILENAME = "qcumberless.conf";
+    
+    private static Properties properties = new Properties();
 
-public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void loadConfiguration() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            properties.load(new FileInputStream(CONF_FILENAME));
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("No properties found");
         }
-
-        ConfigurationManager.loadConfiguration();
-
-        Images.initialize();
-
-        wirePlugins();
-
-        CucumberlessDialog frame = new CucumberlessDialog();
-        frame.setVisible(true);
-        frame.letThereBeLight();
     }
     
-    private static void wirePlugins() {
+    public static void saveConfiguration() {
         try {
-            Class.forName("com.trollsahead.qcumberless.plugins.Plugins");
+            properties.store(new FileOutputStream(CONF_FILENAME), "Q-Cumberless Testing configuration");
         } catch (Exception e) {
-            System.out.println("No plugins found!");
+            System.out.println("Could not save properties!");
         }
+    }
+
+    public static String get(String key) {
+        return (String) properties.get(key);
+    }
+
+    public static void put(String key, String value) {
+        properties.put(key, value);
     }
 }

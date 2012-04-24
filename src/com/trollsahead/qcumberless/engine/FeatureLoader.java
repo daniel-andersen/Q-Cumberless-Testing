@@ -12,10 +12,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Q-Cumberless Testing.  If not, see <http://www.gnu.org/licenses/>.
+//
+// Copyright 2012
+
+// Daniel Andersen (dani_ande@yahoo.dk)
 
 package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.TextElement;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.Util;
