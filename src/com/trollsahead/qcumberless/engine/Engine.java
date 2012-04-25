@@ -390,6 +390,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             toggleHighlight(oldTouchedElement, false);
             oldTouchedElement = touchedElement;
         }
+        if (CumberlessMouseListener.mouseY > Engine.canvasHeight - ButtonBar.BUTTONBAR_HEIGHT) {
+            return;
+        }
         toggleHighlight(touchedElement, true);
     }
 

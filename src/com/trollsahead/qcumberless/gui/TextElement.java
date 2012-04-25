@@ -296,10 +296,12 @@ public class TextElement extends Element {
         }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
+                tagsAddButton.setImages(Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_ADD, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL));
                 tagsAddButton.setAlignment(Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER);
                 tagsAddButton.setPosition((renderWidth + tagsWidth) / 2 + TAGS_BUTTON_PADDING_HORIZONTAL, TAGS_PADDING_VERTICAL + (tagsHeight / 2));
                 tagsRemoveButton.setPosition((renderWidth + tagsWidth) / 2 + (TAGS_BUTTON_PADDING_HORIZONTAL * 2) + BUTTON_WIDTH, TAGS_PADDING_VERTICAL + (tagsHeight / 2));
             } else {
+                tagsAddButton.setImages(Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_AT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL));
                 tagsAddButton.setAlignment(Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT);
                 tagsAddButton.setPosition(buttonbarX, 0);
                 buttonbarX += BUTTON_WIDTH + 4;
