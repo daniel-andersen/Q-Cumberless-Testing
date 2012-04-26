@@ -148,7 +148,7 @@ public abstract class Element {
 
     protected abstract void updateSelf(long time);
 
-    public void render(Graphics g) {
+    public void render(Graphics2D g) {
         if (!animation.colorAnimation.isVisible()) {
             groupHeight = 0;
             return;
@@ -157,7 +157,7 @@ public abstract class Element {
         render(g, true, false);
     }
 
-    public void render(Graphics g, boolean dragHighlightMode, boolean isParentDragged) {
+    public void render(Graphics2D g, boolean dragHighlightMode, boolean isParentDragged) {
         if (visible) {
             calculateRenderPosition(g);
         }
@@ -183,7 +183,7 @@ public abstract class Element {
         }
     }
 
-    public void renderHints(Graphics g) {
+    public void renderHints(Graphics2D g) {
         renderHintsInternal(g);
         for (Element child : children) {
             child.renderHints(g);
@@ -292,11 +292,11 @@ public abstract class Element {
         }
     }
     
-    protected abstract void renderBefore(Graphics g);
-    protected abstract void renderAfter(Graphics g);
-    protected abstract void renderHintsInternal(Graphics g);
+    protected abstract void renderBefore(Graphics2D g);
+    protected abstract void renderAfter(Graphics2D g);
+    protected abstract void renderHintsInternal(Graphics2D g);
 
-    protected abstract void calculateRenderPosition(Graphics g);
+    protected abstract void calculateRenderPosition(Graphics2D g);
 
     protected abstract void foldFadeAnimation(float alpha);
 

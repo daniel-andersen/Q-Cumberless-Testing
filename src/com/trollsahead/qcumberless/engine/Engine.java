@@ -95,6 +95,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static long lastTimePolledForDevices;
     public static boolean isPollingForDevices;
 
+    private static Graphics2D backbufferGraphics = null;
+
     public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         canvasWidth = screenSize.width;
@@ -174,7 +176,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         if (isPollingForDevices || System.currentTimeMillis() < lastTimePolledForDevices + POLL_FOR_DEVICES_PERIOD) {
             return;
         }
-        if (Player.isRunning()) {
+        if (Player.isPlaying()) {
             return;
         }
         isPollingForDevices = true;
@@ -198,18 +200,17 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void render() {
-        Graphics g = backbuffer.getGraphics();
-        g.setFont(FONT_DEFAULT);
-        canvas.clear(g);
-        cucumberRoot.render(g);
+        backbufferGraphics.setFont(FONT_DEFAULT);
+        canvas.clear(backbufferGraphics);
+        cucumberRoot.render(backbufferGraphics);
         if (DropDown.isVisible) {
-            DropDown.render(g);
+            DropDown.render(backbufferGraphics);
         }
-        buttonBar.render(g);
-        spotlight.render(g);
-        Player.render(g);
-        cucumberRoot.renderHints(g);
-        renderFps(g);
+        buttonBar.render(backbufferGraphics);
+        spotlight.render(backbufferGraphics);
+        Player.render(backbufferGraphics);
+        cucumberRoot.renderHints(backbufferGraphics);
+        renderFps(backbufferGraphics);
     }
 
     private void renderFps(Graphics g) {
@@ -250,9 +251,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private static void createBackbuffer() {
         backbuffer = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics g = backbuffer.getGraphics();
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, canvasWidth + 1, canvasHeight + 1);
+        backbufferGraphics = backbuffer.createGraphics();
+        backbufferGraphics.setColor(Color.BLACK);
+        backbufferGraphics.fillRect(0, 0, canvasWidth + 1, canvasHeight + 1);
     }
 
     public static void setWindowSize(int width, int height) {
@@ -268,8 +269,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         try {
             synchronized (LOCK) {
                 setWindowSize(canvas.getWidth(), canvas.getHeight());
-                Graphics g = backbuffer.getGraphics();
-                buttonBar.resize(g);
+                buttonBar.resize(backbufferGraphics);
             }
         } catch (Exception e) {
             // Ignore!

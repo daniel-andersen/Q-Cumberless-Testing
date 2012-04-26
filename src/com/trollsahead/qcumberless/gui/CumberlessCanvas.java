@@ -37,7 +37,7 @@ public class CumberlessCanvas extends JPanel {
         }
     }
 
-    public void clear(Graphics g) {
+    public void clear(Graphics2D g) {
         if (!EasterEgg.isBackgroundCoveringCanvas()) {
             drawBackgroundPicture(g);
         }

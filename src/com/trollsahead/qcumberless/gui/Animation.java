@@ -40,6 +40,13 @@ public class Animation {
     public SizeAnimation sizeAnimation = new SizeAnimation();
     public ColorAnimation colorAnimation = new ColorAnimation();
 
+    public static Stroke setStrokeAnimation(Graphics2D g, float dashLength, float dashWidth, float speed) {
+        float dashPosition = (dashLength * 2.0f) - (float) (System.currentTimeMillis() % (int) (speed * dashLength * 2.0f)) / speed;
+        Stroke oldStroke = g.getStroke();
+        g.setStroke(new BasicStroke(dashWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, dashLength, new float[] {dashLength}, dashPosition));
+        return oldStroke;
+    }
+    
     public Animation() {
     }
 

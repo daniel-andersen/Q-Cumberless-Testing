@@ -48,6 +48,10 @@ public class ButtonBar {
 
     private static final String TEXT_NO_DEVICES = "No devices found";
 
+    private static final float PLAY_ANIMATION_SPEED = 30.0f;
+    private static final float PLAY_ANIMATION_DASH_LENGTH = 5.0f;
+    private static final float PLAY_ANIMATION_DASH_WIDTH = 2.0f;
+
     private Button importStepsButton;
     private Button scratchFeaturesButton;
     private Button importFeaturesButton;
@@ -232,6 +236,9 @@ public class ButtonBar {
                     new Button.CucumberButtonNotification() {
                         public void onClick() {
                             if (device.isEnabled()) {
+                                if (Player.isDeviceRunning(device)) {
+                                    device.stop();
+                                }
                                 device.disable();
                             } else {
                                 device.enable();
@@ -284,11 +291,11 @@ public class ButtonBar {
     }
 
     private void updateType() {
-        if (Player.isRunning() && type == TYPE_NORMAL) {
+        if (Player.isPlaying() && type == TYPE_NORMAL) {
             type = TYPE_PLAYING;
             animation.moveAnimation.setRealPosition(Engine.canvasWidth, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_PLAYING, ANIMATION_FADE_SPEED);
-        } else if (!Player.isRunning() && type == TYPE_PLAYING) {
+        } else if (!Player.isPlaying() && type == TYPE_PLAYING) {
             type = TYPE_NORMAL;
             animation.moveAnimation.setRealPosition(0, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_NORMAL, ANIMATION_FADE_SPEED);
@@ -300,7 +307,7 @@ public class ButtonBar {
         }
     }
 
-    public void render(Graphics g) {
+    public void render(Graphics2D g) {
         calculatePosition();
         renderBackground(g);
         renderButtons(g);
@@ -331,30 +338,45 @@ public class ButtonBar {
         }
     }
     
-    private void renderDevices(Graphics g) {
+    private void renderDevices(Graphics2D g) {
         if (deviceButtons.size() == 0) {
             FontMetrics fontMetrics = g.getFontMetrics();
             g.setColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
             g.drawString(TEXT_NO_DEVICES, Engine.canvasWidth - fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + fontMetrics.getHeight()) / 2) - 3);
         } else {
             for (DeviceButton button : deviceButtons) {
-                button.setOffset(renderX, renderY);
+                button.setOffset(0, renderY);
                 button.render(g);
-                BufferedImage image = button.getDevice().isEnabled() ? deviceEnabledImage : deviceDisabledImage;
-                int x = button.getRenderX() + button.getImageWidth() - 3 - (image.getWidth() / 2);
-                int y = button.getRenderY() + button.getImageHeight() - 3 - (image.getHeight() / 2);
-                g.drawImage(image, x, y, null);
+                renderDeviceState(g, button);
             }
         }
     }
-    
+
+    private void renderDeviceState(Graphics2D g, DeviceButton button) {
+        BufferedImage deviceStateImage = button.getDevice().isEnabled() ? deviceEnabledImage : deviceDisabledImage;
+        int x = button.getRenderX() + button.getImageWidth() - 3 - (deviceStateImage.getWidth() / 2);
+        int y = button.getRenderY() + button.getImageHeight() - 3 - (deviceStateImage.getHeight() / 2);
+        g.drawImage(deviceStateImage, x, y, null);
+        if (Player.isDeviceRunning(button.getDevice())) {
+            Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPEED);
+            g.setColor(Player.getPlayingColor(button.getDevice()));
+            int width = deviceStateImage.getWidth() + 4;
+            int height = deviceStateImage.getHeight() + 4;
+            g.drawOval(x + ((deviceStateImage.getWidth() - width)  / 2), y + ((deviceStateImage.getHeight() - height) / 2), width, height);
+            g.setStroke(oldStroke);
+        }
+    }
+
     public boolean click() {
         for (Button button : buttons) {
             if (button.click()) {
                 return true;
             }
         }
-        for (Button button : deviceButtons) {
+        for (DeviceButton button : deviceButtons) {
+            if (type == TYPE_PLAYING && (!button.device.isEnabled() || !button.device.getCapabilities().contains(Device.Capability.STOP))) {
+                continue;
+            }
             if (button.click()) {
                 return true;
             }

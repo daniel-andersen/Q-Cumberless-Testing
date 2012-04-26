@@ -334,7 +334,7 @@ public class EasterEgg {
         return null;
     }
 
-    public static void render(Graphics g) {
+    public static void render(Graphics2D g) {
         drawBackground(g);
         if (enabled) {
             drawElements(g);
@@ -343,7 +343,7 @@ public class EasterEgg {
         }
     }
 
-    private static void drawElements(Graphics g) {
+    private static void drawElements(Graphics2D g) {
         for (Element element : customElements) {
             element.render(g);
         }

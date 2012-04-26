@@ -143,10 +143,10 @@ public class RootElement extends Element {
         return null;
     }
 
-    protected void renderBefore(Graphics g) {
+    protected void renderBefore(Graphics2D g) {
     }
 
-    protected void renderAfter(Graphics g) {
+    protected void renderAfter(Graphics2D g) {
         if (this == Engine.cucumberRoot) {
             return;
         }
@@ -154,7 +154,7 @@ public class RootElement extends Element {
         cachedGroupHeight = groupHeight;
     }
 
-    protected void renderHintsInternal(Graphics g) {
+    protected void renderHintsInternal(Graphics2D g) {
     }
 
     private void renderScrollbar(Graphics g) {
@@ -179,7 +179,7 @@ public class RootElement extends Element {
         g.fillRoundRect(scrollbarX + 1, SCROLLBAR_PADDING_VERTICAL + scrollbarY + 1, SCROLLBAR_WIDTH - 2, scrollbarHeight - 2, SCROLLBAR_ROUNDING, SCROLLBAR_ROUNDING);
     }
 
-    protected void calculateRenderPosition(Graphics g) {
+    protected void calculateRenderPosition(Graphics2D g) {
         if (this == Engine.cucumberRoot) {
             return;
         }

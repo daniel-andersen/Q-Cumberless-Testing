@@ -22,7 +22,6 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.gui.TextElement;
-import com.trollsahead.qcumberless.gui.TextElement;
 import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
@@ -30,6 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Player implements DeviceCallback {
+    private static final Set<Color> PLAYING_COLORS = new HashSet<Color>();
+
     private static final long MESSAGE_TIMEOUT_PLAYER = 5L * 1000L;
     private static final long MESSAGE_ANIMATION_SPEED = 300;
     private static final int MESSAGE_WIDTH = 200;
@@ -57,15 +58,24 @@ public class Player implements DeviceCallback {
 
     private Device device;
 
+    private Color runningColor = Color.GRAY;
+
     private static boolean hasDeviceFailures = false;
 
     public static Set<Player> players = new HashSet<Player>();
 
+    static {
+        PLAYING_COLORS.add(Color.WHITE);
+        PLAYING_COLORS.add(Color.YELLOW);
+        PLAYING_COLORS.add(Color.PINK);
+    }
+    
     public static void prepareRun() {
         hasDeviceFailures = false;
     }
 
     public Player() {
+        runningColor = getUnusedPlayingColor();
         players.add(this);
         reset();
     }
@@ -79,7 +89,7 @@ public class Player implements DeviceCallback {
         players.remove(this);
     }
 
-    public static boolean isRunning() {
+    public static boolean isPlaying() {
         for (Player player : players) {
             if (player.isRunning) {
                 return true;
@@ -314,6 +324,13 @@ public class Player implements DeviceCallback {
         }
     }
 
+    private boolean isRunningElement(TextElement element) {
+        return (element.type == TextElement.TYPE_FEATURE && currentFeature == element) ||
+                //(element.type == TextElement.TYPE_BACKGROUND && currentBackground == element) ||
+                (element.type == TextElement.TYPE_SCENARIO && currentScenario == element) ||
+                (element.type == TextElement.TYPE_STEP && currentStep == element);
+    }
+    
     public static boolean isCurrentFeature(TextElement element) {
         for (Player player : players) {
             if (player.currentFeature == element) {
@@ -339,5 +356,45 @@ public class Player implements DeviceCallback {
             }
         }
         return false;
+    }
+
+    public static Color getPlayingColor(TextElement element) {
+        for (Player player : players) {
+            if (player.isRunningElement(element)) {
+                return player.runningColor;
+            }
+        }
+        return Color.GRAY;
+    }
+
+    public static Color getPlayingColor(Device device) {
+        for (Player player : players) {
+            if (player.device == device) {
+                return player.runningColor;
+            }
+        }
+        return Color.GRAY;
+    }
+
+    public static boolean isDeviceRunning(Device device) {
+        for (Player player : players) {
+            if (player.device == device) {
+                return player.isRunning;
+            }
+        }
+        return false;
+    }
+    
+    private static Color getUnusedPlayingColor() {
+        Set<Color> colors = new HashSet<Color>();
+        colors.addAll(PLAYING_COLORS);
+        for (Player player : players) {
+            colors.remove(player.runningColor);
+        }
+        if (colors.size() > 0) {
+            return colors.iterator().next();
+        } else {
+            return PLAYING_COLORS.iterator().next();
+        }
     }
 }

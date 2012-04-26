@@ -97,6 +97,7 @@ public class TextElement extends Element {
 
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
+    public static final float PLAY_ANIMATION_DASH_WIDTH = 1.5f;
 
     private int tagsWidth = 0;
     private int tagsHeight = 0;
@@ -345,7 +346,7 @@ public class TextElement extends Element {
         }
     }
 
-    protected void calculateRenderPosition(Graphics g) {
+    protected void calculateRenderPosition(Graphics2D g) {
         if (groupParent != null) {
             animation.moveAnimation.setRealPosition(groupParent.animation.moveAnimation, !shouldStickToParentRenderPosition);
             animation.moveAnimation.realY += groupParent.groupHeight;
@@ -662,7 +663,7 @@ public class TextElement extends Element {
         return touchedGroup.findChildIndex(touchedElement);
     }
 
-    protected void renderBefore(Graphics g) {
+    protected void renderBefore(Graphics2D g) {
         if (!animation.colorAnimation.isVisible()) {
             return;
         }
@@ -673,7 +674,7 @@ public class TextElement extends Element {
         renderElement(g);
     }
 
-    protected void renderAfter(Graphics g) {
+    protected void renderAfter(Graphics2D g) {
     }
 
     private void renderElement(Graphics canvas) {
@@ -694,7 +695,7 @@ public class TextElement extends Element {
         drawButtons(canvas);
     }
     
-    protected void renderHintsInternal(Graphics g) {
+    protected void renderHintsInternal(Graphics2D g) {
         if (!isHighlighted()) {
             return;
         }
@@ -764,14 +765,14 @@ public class TextElement extends Element {
     }
     
     private boolean renderPlaying(int index) {
-        if (!Player.isRunning()) {
+        if (!Player.isPlaying()) {
             return false;
         }
         if (!isRunnable() || !isRunning()) {
             return false;
         }
         renderBorder(index, new Color(0.0f, 0.0f, 0.0f, 0.4f), 1.5f);
-        renderAnimatedBorder(index, new Color(1.0f, 1.0f, 1.0f, 0.8f), 1.5f);
+        renderAnimatedBorder(index);
         return true;
     }
 
@@ -802,17 +803,12 @@ public class TextElement extends Element {
         g.setStroke(stroke);
     }
 
-    private void renderAnimatedBorder(int index, Color color, float width) {
-        float dashPosition = (PLAY_ANIMATION_DASH_LENGTH * 2.0f) - (float) (System.currentTimeMillis() % (int) (PLAY_ANIMATION_SPEED * PLAY_ANIMATION_DASH_LENGTH * 2.0f)) / PLAY_ANIMATION_SPEED;
-
+    private void renderAnimatedBorder(int index) {
         Graphics2D g = imageGraphics[index];
-        Stroke stroke = g.getStroke();
-
-        g.setColor(color);
-        g.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, PLAY_ANIMATION_DASH_LENGTH, new float[] {PLAY_ANIMATION_DASH_LENGTH}, dashPosition));
+        Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPEED);
+        g.setColor(Player.getPlayingColor(this));
         g.drawRoundRect(1, 1, renderWidth - 3, renderHeight - 3, BAR_ROUNDING, BAR_ROUNDING);
-
-        g.setStroke(stroke);
+        g.setStroke(oldStroke);
     }
 
     private boolean isRunning() {
