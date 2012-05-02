@@ -19,8 +19,10 @@
 
 package com.trollsahead.qcumberless;
 
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.gui.Images;
+import com.trollsahead.qcumberless.plugins.generic.GenericDevicePlugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 
 import javax.swing.*;
@@ -44,6 +46,7 @@ public class Main {
     }
     
     private static void wirePlugins() {
+        Engine.plugins.add(new GenericDevicePlugin());
         try {
             Class.forName("com.trollsahead.qcumberless.plugins.Plugins");
         } catch (Exception e) {

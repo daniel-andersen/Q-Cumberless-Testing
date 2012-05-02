@@ -64,13 +64,14 @@ public class Helper {
             while ((line = stdin.readLine()) != null) {
                 logListener.logLine(line);
             }
+            int res = 1;
             try {
-                int res = exec.waitFor();
-                if (res > 0) {
-                    throw new Exception("Process failed with return value: " + res);
-                }
+                res = exec.waitFor();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+            if (res > 0) {
+                throw new RuntimeException("Process failed with return value: " + res);
             }
             logListener.finish();
         } catch (Throwable t) {
@@ -107,7 +108,7 @@ public class Helper {
                     int res = exec.exitValue();
                     running = false;
                     if (res > 0) {
-                        throw new Exception("Process failed with return value: " + res);
+                        throw new RuntimeException("Process failed with return value: " + res);
                     }
                 } catch (IllegalThreadStateException e) {
                     running = true;
