@@ -434,16 +434,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             Element background = findBackgroundElement(cucumberTextElement.groupParent);
             if (background != null) {
                 sb.append(background.buildFeature());
-            } else {
-                sb.append("Background:\n");
-                sb.append("\tWhen I see that I'm on the \"bank\" page\n\n");
             }
         }
         sb.append(cucumberTextElement.buildFeature());
         return sb;
     }
 
-    private static Element findBackgroundElement(Element element) {
+    public static Element findBackgroundElement(Element element) {
         for (Element child : element.children) {
             if (child.type == TextElement.TYPE_BACKGROUND) {
                 return child;

@@ -21,6 +21,7 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
+import com.trollsahead.qcumberless.gui.Element;
 import com.trollsahead.qcumberless.gui.TextElement;
 import com.trollsahead.qcumberless.model.Step;
 
@@ -283,9 +284,12 @@ public class Player implements DeviceCallback {
 
     public void beforeStep(String name) {
         System.out.println("Running step: '" + name + "'");
-        if (currentScenario != null && !(stepIndex == -1 && "I see that I'm on the \"bank\" page".equals(name))) { // TODO! Background
-            currentStep = (TextElement) currentScenario.findChildFromIndex(name, stepIndex + 1);
-            stepIndex = currentScenario.findChildIndex(currentStep);
+        if (currentScenario != null) {
+            Element background = Engine.findBackgroundElement(currentScenario.groupParent);
+            if (!(stepIndex == -1 && background != null && name.equals(background.toString()))) {
+                currentStep = (TextElement) currentScenario.findChildFromIndex(name, stepIndex + 1);
+                stepIndex = currentScenario.findChildIndex(currentStep);
+            }
         }
     }
 

@@ -18,12 +18,8 @@ public class GenericDevice extends Device {
     private static final Pattern patternStartingBackground = Pattern.compile("(\\s*)Background: (.*)");
     private static final Pattern patternStartingScenario = Pattern.compile("(.*)Scenario: (.*)(\\s*)#(.*)");
     private static final Pattern patternRunningStep = Pattern.compile("(\\s*)Step: (.*)");
-
-    private static final Pattern patternFeatureFailed = Pattern.compile("(.*)\\+\\+\\+ Feature failed");
-    private static final Pattern patternScenarioFailed = Pattern.compile("(.*)\\+\\+\\+ Scenario failed");
-    private static final Pattern patternMissingStep = Pattern.compile("(.*)\\+\\+\\+ Missing step: (.*)");
-    private static final Pattern patternStepFailedErrorMessage = Pattern.compile("(.*)\\+\\+\\+ Step failed with error message: (.*)");
-    private static final Pattern patternScreenshotMessage = Pattern.compile("(.*)\\+\\+\\+ Screenshot: (.*)");
+    private static final Pattern patternStepFailed = Pattern.compile("(\\s*)Step failed: (.*)");
+    private static final Pattern patternScreenshotMessage = Pattern.compile("(\\s*)Screenshot: (.*)");
 
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
@@ -113,10 +109,7 @@ public class GenericDevice extends Device {
             notifyStartingBackground(log);
             notifyStartingScenario(log);
             notifyRunningStep(log);
-            notifyFeatureFailed(log);
-            notifyScenarioFailed(log);
-            notifyMissingStep(log);
-            notifyStepFailedErrorMessage(log);
+            notifyStepFailed(log);
             notifyScreenshotTaken(log);
         }
 
@@ -159,28 +152,8 @@ public class GenericDevice extends Device {
             }
         }
 
-        private void notifyFeatureFailed(String log) {
-            Matcher matcher = patternFeatureFailed.matcher(log);
-            if (matcher.matches()) {
-                deviceCallback.afterFeatureFailed();
-            }
-        }
-
-        private void notifyScenarioFailed(String log) {
-            Matcher matcher = patternScenarioFailed.matcher(log);
-            if (matcher.matches()) {
-                deviceCallback.afterScenarioFailed();
-            }
-        }
-
-        private void notifyMissingStep(String log) {
-            Matcher matcher = patternMissingStep.matcher(log);
-            if (matcher.find()) {
-            }
-        }
-
-        private void notifyStepFailedErrorMessage(String log) {
-            Matcher matcher = patternStepFailedErrorMessage.matcher(log);
+        private void notifyStepFailed(String log) {
+            Matcher matcher = patternStepFailed.matcher(log);
             if (matcher.find()) {
                 deviceCallback.afterStepFailed(matcher.group(2));
             }

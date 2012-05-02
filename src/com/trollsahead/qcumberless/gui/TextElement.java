@@ -856,7 +856,10 @@ public class TextElement extends Element {
         Graphics2D g = imageGraphics[index];
         Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPEED);
         g.setColor(Player.getPlayingColor(this));
-        g.drawRoundRect(1, 1, renderWidth - 3, renderHeight - 3, BAR_ROUNDING, BAR_ROUNDING);
+        g.drawRoundRect(1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, BAR_ROUNDING);
+        if (buttonGroupVisible) {
+            g.drawRoundRect(1, 1, buttonGroupWidth - 2, renderHeight - 10, BAR_ROUNDING, BAR_ROUNDING);
+        }
         g.setStroke(oldStroke);
     }
 

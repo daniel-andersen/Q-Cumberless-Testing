@@ -13,27 +13,26 @@ public class GenericDeviceHelper {
     public static void runTests(StringBuilder feature, String featureFilename, LogListener logListener) {
         File tempFile = createFeatureFile(feature, featureFilename);
         String command = showEnterCommandDialog();
-        command = command
-                .replaceAll("\\$1", tempFile.getAbsolutePath())
-                .replaceAll("\\\\", "/");
+        command = command.replaceAll("\\\\", "/");
         String executable = command;
         String path = null;
         if (command.contains("/")) {
-            path = command.substring(0, command.indexOf("/"));
-            executable = command.substring(command.indexOf("/") + 1);
+            path = command.substring(0, command.lastIndexOf("/"));
+            executable = "./" + command.substring(command.lastIndexOf("/") + 1);
         }
+        executable = executable.replaceAll("\\$1", tempFile.getAbsolutePath());
         Helper.executeCommand(executable, path, logListener);
     }
 
     private static String showEnterCommandDialog() {
         return (String) JOptionPane.showInputDialog(
                 CucumberlessDialog.instance,
-                "Enter command to run",
+                "Enter command to run. $1 will be substituted with the feature file",
                 "Run Tests",
                 JOptionPane.PLAIN_MESSAGE,
                 null,
                 null,
-                "mvn package -Pintegration-test");
+                "/tmp/runtests.sh -f $1");
     }
 
     private static File createFeatureFile(StringBuilder feature, String featureFilename) {
