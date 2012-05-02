@@ -74,8 +74,10 @@ public class Tag {
     }
 
     public void remove(String tag) {
-        tag = !tag.startsWith("@") ? "@" + tag : tag;
-        tags = tags.replaceAll(tag, "");
+        tag = !tag.startsWith("@") ? ("@" + tag) : tag;
+        tags = tags
+                .replaceFirst(tag + "$", "")
+                .replaceFirst(tag + "\\s@", "@");
         streamlineTags();
     }
 
