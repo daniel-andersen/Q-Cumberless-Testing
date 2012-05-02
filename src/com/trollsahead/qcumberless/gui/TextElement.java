@@ -383,8 +383,7 @@ public class TextElement extends Element {
     }
 
     private boolean expandAreaIsTouched() {
-        return CumberlessMouseListener.mouseX < expandButton.renderX + expandButton.renderWidth ||
-                (CumberlessMouseListener.mouseX < animation.moveAnimation.renderX + buttonGroupWidth && CumberlessMouseListener.mouseY < animation.moveAnimation.renderY + buttonGroupHeight);
+        return CumberlessMouseListener.mouseX < animation.moveAnimation.renderX + buttonGroupWidth;
     }
 
     private void toggleButtonGroup(boolean visible) {
@@ -733,6 +732,7 @@ public class TextElement extends Element {
     }
 
     protected void renderAfter(Graphics2D g) {
+        groupHeight -= buttonGroupHeight;
     }
 
     private void renderElement(Graphics2D canvas) {
@@ -794,10 +794,15 @@ public class TextElement extends Element {
             GuiUtil.drawBorder(imageGraphics[index], x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
         }
         GuiUtil.drawShadow(imageGraphics[index], x, y, width + 1, height + 1, BAR_ROUNDING);
-        GuiUtil.drawBarFilling(imageGraphics[index], x, y, width, height, BAR_ROUNDING, getBackgroundColor());
         GuiUtil.drawBarBorder(imageGraphics[index], x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
-        if (!renderPlaying(index) && !renderEditing(index)) {
-            renderPlayFailures(index);
+        boolean renderedBorder = false;
+        renderedBorder |= renderPlaying(index);
+        renderedBorder |= renderEditing(index);
+        renderedBorder |= renderPlayFailures(index);
+        int space = renderedBorder ? 1 : 0;
+        GuiUtil.drawBarFilling(imageGraphics[index], x + 1 + space, y + 1 + space, width - 1 - (space * 2), height - 1 - (space * 2), BAR_ROUNDING, getBackgroundColor());
+        if (buttonGroupVisible) {
+            GuiUtil.drawBarFilling(imageGraphics[index], x + 1 + space, 1 + space, buttonGroupWidth - 1 - (space * 2), renderHeight - 8, BAR_ROUNDING, getBackgroundColor());
         }
     }
 
@@ -824,11 +829,12 @@ public class TextElement extends Element {
         return true;
     }
 
-    private void renderPlayFailures(int index) {
+    private boolean renderPlayFailures(int index) {
         if (!isRunnable() || !isFailed) {
-            return;
+            return false;
         }
         renderBorder(index, COLOR_BORDER_FAILURE, 1.5f);
+        return true;
     }
 
     private boolean renderEditing(int index) {
@@ -841,6 +847,9 @@ public class TextElement extends Element {
 
     private void renderBorder(int index, Color color, float width) {
         GuiUtil.drawBorder(imageGraphics[index], 1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, color, width);
+        if (buttonGroupVisible) {
+            GuiUtil.drawBorder(imageGraphics[index], 1, 1, buttonGroupWidth - 2, renderHeight - 10, BAR_ROUNDING, color, width);
+        }
     }
 
     private void renderAnimatedBorder(int index) {
