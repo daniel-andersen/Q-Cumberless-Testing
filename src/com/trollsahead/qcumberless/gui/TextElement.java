@@ -58,9 +58,11 @@ public class TextElement extends Element {
     public static final Color COLOR_TEXT_ERROR_MESSAGE = new Color(0x000000);
     public static final Color COLOR_TEXT_TAGS          = new Color(0x000000);
 
-    public static final Color COLOR_BG_FAILED            = new Color(0xFF0000);
-    public static final Color COLOR_BG_ERROR_MESSAGE     = new Color(0.8f, 0.8f, 0.4f, 0.8f);
-    public static final Color COLOR_BG_TAGS              = new Color(0.0f, 0.0f, 0.0f, 0.05f);
+    public static final Color COLOR_BG_FAILED          = new Color(0xFF0000);
+    public static final Color COLOR_BG_ERROR_MESSAGE   = new Color(0.8f, 0.8f, 0.4f, 0.8f);
+    public static final Color COLOR_BG_TAGS            = new Color(0.0f, 0.0f, 0.0f, 0.05f);
+    public static final Color COLOR_BG_CLEAR           = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+    public static final Color COLOR_BG_HINT            = new Color(0.0f, 0.0f, 0.0f, 0.8f);
 
     public static final Color[] COLOR_BG_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
 
@@ -71,6 +73,11 @@ public class TextElement extends Element {
             {new Color(0xFF6666), new Color(0xDD9999)},
             {new Color(0xAAAAAA), new Color(0xBBBBBB)},
     };
+
+    private static final Color COLOR_BORDER_SHADOW = new Color(0.0f, 0.0f, 0.0f, 0.8f);
+    private static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
+    private static final Color COLOR_BORDER_FAILURE = new Color(1.0f, 0.0f, 0.0f, 0.8f);
+    private static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
 
     public static final int RENDER_WIDTH_MAX_FEATURE_EDITOR = 600;
     public static final int RENDER_WIDTH_MAX_STEP_DEFINITIONS = 400;
@@ -91,9 +98,13 @@ public class TextElement extends Element {
     private static final int TAGS_PADDING_VERTICAL = 4;
 
     public static final int BUTTON_PADDING_HORIZONTAL = 15;
-    public static final int TAGS_BUTTON_PADDING_HORIZONTAL = 6;
+    public static final int BUTTON_SPACE_HORIZONTAL = 6;
+    public static final int BUTTON_SPACE_VERTICAL = 4;
 
     public static final int BUTTON_WIDTH  = 15;
+    public static final int BUTTON_HEIGHT = 15;
+
+    private static final int BUTTON_GROUP_HEIGHT = BUTTON_HEIGHT + BUTTON_SPACE_VERTICAL;
 
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
@@ -111,16 +122,19 @@ public class TextElement extends Element {
 
     private static final int IMAGE_BUFFER_COUNT = 20;
     private static final int IMAGE_BUFFER_WIDTH = 620;
+    private static final int IMAGE_BUFFER_STEP_SIZE = 10;
     private static final int[] IMAGE_BUFFER_HEIGHT = new int[IMAGE_BUFFER_COUNT];
 
     private static BufferedImage[] image = new BufferedImage[IMAGE_BUFFER_COUNT];
     private static Graphics2D[] imageGraphics = new Graphics2D[IMAGE_BUFFER_COUNT];
 
     private List<Button> buttons;
+    private Button expandButton;
     private Button trashcanButton;
     private Button playButton;
     private Button editButton;
     private Button tagsAddButton;
+    private Button tagsNewButton;
     private Button tagsRemoveButton;
 
     private static final int DRAG_HISTORY_LENGTH = 5;
@@ -132,13 +146,17 @@ public class TextElement extends Element {
     private long[] dragHistoryTime = new long[DRAG_HISTORY_LENGTH];
     private int dragHistoryIndex = 0;
 
-    private Element lastBubbledElement = null;
+    private int buttonGroupHeight = 0;
+    private boolean buttonGroupVisible = false;
+    private boolean buttonGroupVisibleOld = false;
+    private int buttonGroupWidth = 0;
+    private boolean buttonGroupHasButtons = false;
 
-    private int buttonbarX = 0;
+    private Element lastBubbledElement = null;
 
     static {
         for (int i = 0; i < IMAGE_BUFFER_COUNT; i++) {
-            IMAGE_BUFFER_HEIGHT[i] = (i + 1) * 10;
+            IMAGE_BUFFER_HEIGHT[i] = (i + 1) * IMAGE_BUFFER_STEP_SIZE;
             image[i] = new BufferedImage(IMAGE_BUFFER_WIDTH, IMAGE_BUFFER_HEIGHT[i], BufferedImage.TYPE_INT_ARGB);
             imageGraphics[i] = image[i].createGraphics();
             imageGraphics[i].setFont(Engine.FONT_DEFAULT);
@@ -180,6 +198,18 @@ public class TextElement extends Element {
 
     private void addButtons() {
         buttons = new ArrayList<Button>();
+        expandButton = new Button(
+                0,
+                0,
+                null,
+                Images.getImage(Images.IMAGE_EXPAND, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_EXPAND, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_EXPAND, Images.TYPE_NORMAL),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                    }
+                },
+                this);
+        buttons.add(expandButton);
         trashcanButton = new Button(
                 0,
                 0,
@@ -198,7 +228,7 @@ public class TextElement extends Element {
                 0,
                 null,
                 Images.getImage(Images.IMAGE_PLAY, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_PLAY, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_PLAY, Images.TYPE_NORMAL),
-                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
                         play();
@@ -211,12 +241,12 @@ public class TextElement extends Element {
                 0,
                 null,
                 Images.getImage(Images.IMAGE_EDIT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_EDIT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_EDIT, Images.TYPE_NORMAL),
-                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
                         EditBox.showEditElement(TextElement.this);
                     }
-                    },
+                },
                 this);
         buttons.add(editButton);
         tagsAddButton = new Button(
@@ -227,30 +257,24 @@ public class TextElement extends Element {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        List<String> nonUsedTags = new ArrayList<String>(Engine.getDefinedTags());
-                        nonUsedTags.removeAll(tags.toSet());
-                        if (!nonUsedTags.isEmpty()) {
-                            nonUsedTags.add("*");
-                            DropDown.show(
-                                    tagsAddButton.renderX + TEXT_PADDING_HORIZONTAL,
-                                    tagsAddButton.renderY + TEXT_PADDING_VERTICAL,
-                                    new DropDown.DropDownCallback() {
-                                        public void chooseItem(String item) {
-                                            if ("*".equals(item)) {
-                                                editTags();
-                                            } else {
-                                                tags.add(item);
-                                            }
-                                        }
-                                    },
-                                    Util.sortedTagList(nonUsedTags));
-                        } else {
-                            editTags();
-                        }
+                        addTags(false);
                     }
                 },
                 this);
         buttons.add(tagsAddButton);
+        tagsNewButton = new Button(
+                0,
+                0,
+                null,
+                Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_AT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                        addTags(true);
+                    }
+                },
+                this);
+        buttons.add(tagsNewButton);
         tagsRemoveButton = new Button(
                 0,
                 0,
@@ -259,21 +283,7 @@ public class TextElement extends Element {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        if (!tags.hasTags()) {
-                            return;
-                        } else if (tags.toList().size() <= 1) {
-                            tags = new Tag("");
-                        } else {
-                            DropDown.show(
-                                    tagsAddButton.renderX + TEXT_PADDING_HORIZONTAL,
-                                    tagsAddButton.renderY + TEXT_PADDING_VERTICAL,
-                                    new DropDown.DropDownCallback() {
-                                        public void chooseItem(String item) {
-                                            tags.remove(item);
-                                        }
-                                    },
-                                    Util.sortedTagList(tags.toList()));
-                        }
+                        removeTags();
                     }
                 },
                 this);
@@ -285,29 +295,34 @@ public class TextElement extends Element {
     }
 
     private void updateButtonPositions() {
-        trashcanButton.setPosition(BUTTON_PADDING_HORIZONTAL, 0);
-        buttonbarX = BUTTON_PADDING_HORIZONTAL;
+        buttonGroupHasButtons = false;
+        trashcanButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
+        expandButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
+        if (!isHighlighted()) {
+            return;
+        }
+        buttonGroupWidth = BUTTON_PADDING_HORIZONTAL;
         if (hasPlayButton()) {
-            playButton.setPosition(buttonbarX, 0);
-            buttonbarX += BUTTON_WIDTH + 4;
+            buttonGroupWidth = addGroupButton(playButton, buttonGroupWidth);
         }
         if (hasEditButton()) {
-            editButton.setPosition(buttonbarX, 0);
-            buttonbarX += BUTTON_WIDTH + 4;
+            buttonGroupWidth = addGroupButton(editButton, buttonGroupWidth);
         }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
-                tagsAddButton.setImages(Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_ADD, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL));
-                tagsAddButton.setAlignment(Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER);
-                tagsAddButton.setPosition((renderWidth + tagsWidth) / 2 + TAGS_BUTTON_PADDING_HORIZONTAL, TAGS_PADDING_VERTICAL + (tagsHeight / 2));
-                tagsRemoveButton.setPosition((renderWidth + tagsWidth) / 2 + (TAGS_BUTTON_PADDING_HORIZONTAL * 2) + BUTTON_WIDTH, TAGS_PADDING_VERTICAL + (tagsHeight / 2));
+                tagsAddButton.setPosition((renderWidth + tagsWidth) / 2 + BUTTON_SPACE_HORIZONTAL, TAGS_PADDING_VERTICAL + (tagsHeight / 2) + buttonGroupHeight);
+                tagsRemoveButton.setPosition((renderWidth + tagsWidth) / 2 + (BUTTON_SPACE_HORIZONTAL * 2) + BUTTON_WIDTH, TAGS_PADDING_VERTICAL + (tagsHeight / 2) + buttonGroupHeight);
             } else {
-                tagsAddButton.setImages(Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_AT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL));
-                tagsAddButton.setAlignment(Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT);
-                tagsAddButton.setPosition(buttonbarX, 0);
-                buttonbarX += BUTTON_WIDTH + 4;
+                buttonGroupWidth = addGroupButton(tagsNewButton, buttonGroupWidth);
             }
         }
+        buttonGroupWidth -= BUTTON_SPACE_HORIZONTAL;
+    }
+    
+    private int addGroupButton(Button button, int x) {
+        button.setPosition(x, BUTTON_SPACE_VERTICAL + (BUTTON_HEIGHT / 2));
+        buttonGroupHasButtons = true;
+        return x + BUTTON_WIDTH + BUTTON_SPACE_HORIZONTAL;
     }
 
     public void setTitle(String title) {
@@ -336,14 +351,45 @@ public class TextElement extends Element {
     }
 
     private void updateButtons() {
-        trashcanButton.setVisible(hasTrashcanButton() && isHighlighted());
-        playButton.setVisible(hasPlayButton() && isHighlighted());
-        editButton.setVisible(hasEditButton() && isHighlighted());
-        tagsAddButton.setVisible(hasTagsAddButton() && isHighlighted());
-        tagsRemoveButton.setVisible(hasTagsAddButton() && isHighlighted() && tags.hasTags());
+        if (groupParent == Engine.stepsRoot) {
+            return;
+        }
+        for (Button button : buttons) {
+            button.setVisible(false);
+        }
+        if (!isHighlighted()) {
+            toggleButtonGroup(false);
+            return;
+        }
+        expandButton.setVisible(buttonGroupHasButtons);
+        updateButtonGroupState();
+        trashcanButton.setVisible(true);
+        tagsRemoveButton.setVisible(hasTagsAddButton() && tags.hasTags());
+        tagsAddButton.setVisible(hasTagsAddButton() && tags.hasTags());
+        tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
+        playButton.setVisible(hasPlayButton() && buttonGroupVisible);
+        editButton.setVisible(hasEditButton() && buttonGroupVisible);
         for (Button button : buttons) {
             button.update();
         }
+    }
+
+    private void updateButtonGroupState() {
+        if (expandButton.isTouched()) {
+            toggleButtonGroup(true);
+        } else if (!buttonGroupHasButtons || !expandAreaIsTouched()) {
+            toggleButtonGroup(false);
+        }
+    }
+
+    private boolean expandAreaIsTouched() {
+        return CumberlessMouseListener.mouseX < expandButton.renderX + expandButton.renderWidth ||
+                (CumberlessMouseListener.mouseX < animation.moveAnimation.renderX + buttonGroupWidth && CumberlessMouseListener.mouseY < animation.moveAnimation.renderY + buttonGroupHeight);
+    }
+
+    private void toggleButtonGroup(boolean visible) {
+        buttonGroupVisibleOld = buttonGroupVisible;
+        buttonGroupVisible = visible;
     }
 
     protected void calculateRenderPosition(Graphics2D g) {
@@ -357,6 +403,7 @@ public class TextElement extends Element {
         if (shouldStickToParentRenderPosition || animation.colorAnimation.justBecameVisible) {
             animation.moveAnimation.setRenderPosition(animation.moveAnimation, false);
         }
+        calculateButtonGroupHeight();
         calculateTagsPosition(g);
         int elementHeight = calculatePartPositions(g);
         renderWidth = calculateRenderWidth();
@@ -364,6 +411,17 @@ public class TextElement extends Element {
         paddingHeight = PADDING_VERTICAL[type];
         groupHeight = renderHeight + paddingHeight;
         updateButtonPositions();
+    }
+
+    private void calculateButtonGroupHeight() {
+        buttonGroupHeight = buttonGroupVisible ? BUTTON_GROUP_HEIGHT : 0;
+        animation.moveAnimation.realY -= buttonGroupHeight;
+        if (buttonGroupVisible != buttonGroupVisibleOld) {
+            animation.moveAnimation.renderY = animation.moveAnimation.realY;
+            if (buttonGroupVisible && animation.moveAnimation.realY < 0) {
+                Engine.featuresRoot.scroll(-animation.moveAnimation.realY);
+            }
+        }
     }
 
     private void calculateTagsPosition(Graphics g) {
@@ -403,7 +461,7 @@ public class TextElement extends Element {
     private int calculatePartPositions(Graphics g) {
         FontMetrics fontMetrics = g.getFontMetrics();
         int x = 0;
-        int y = tagsHeight;
+        int y = tagsHeight + buttonGroupHeight;
         for (CucumberStepPart part : step.getParts()) {
             part.wrapText(fontMetrics, x, y, renderWidth - (getTextPaddingLeft() + getTextPaddingRight()));
             x = part.endX;
@@ -677,8 +735,8 @@ public class TextElement extends Element {
     protected void renderAfter(Graphics2D g) {
     }
 
-    private void renderElement(Graphics canvas) {
-        int index = Math.min(renderHeight / 10, IMAGE_BUFFER_COUNT - 1);
+    private void renderElement(Graphics2D canvas) {
+        int index = calculateImageIndex();
         Graphics2D g = imageGraphics[index];
         if (Engine.fpsDetails != Engine.DETAILS_NONE) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -687,14 +745,17 @@ public class TextElement extends Element {
         }
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
         clear(index);
-        drawShadow(index);
         drawBar(index);
         drawText(index);
         drawTags(index);
         canvas.drawImage(image[index], (int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, null);
         drawButtons(canvas);
     }
-    
+
+    private int calculateImageIndex() {
+        return Math.min(renderHeight / IMAGE_BUFFER_STEP_SIZE, IMAGE_BUFFER_COUNT - 1);
+    }
+
     protected void renderHintsInternal(Graphics2D g) {
         if (!isHighlighted()) {
             return;
@@ -711,7 +772,7 @@ public class TextElement extends Element {
         return tags.hasTags() ? tags.toString() : "@";
     }
 
-    private void drawButtons(Graphics canvas) {
+    private void drawButtons(Graphics2D canvas) {
         for (Button button : buttons) {
             button.render(canvas);
         }
@@ -719,41 +780,28 @@ public class TextElement extends Element {
 
     private void clear(int index) {
         Graphics2D g = imageGraphics[index];
-        g.setColor(new Color(1.0f, 1.0f, 1.0f, 0.0f));
+        g.setColor(COLOR_BG_CLEAR);
         g.fillRect(0, 0, IMAGE_BUFFER_WIDTH, IMAGE_BUFFER_HEIGHT[index]);
     }
 
-    private void drawShadow(int index) {
-        if (Engine.fpsDetails == Engine.DETAILS_FEWER) {
-            return;
-        }
-        Graphics2D g = imageGraphics[index];
-
-        g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.2f));
-        g.fillRoundRect(3, 3, renderWidth - 1, renderHeight - 1, BAR_ROUNDING, BAR_ROUNDING);
-
-        g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f));
-        g.fillRoundRect(2, 2, renderWidth - 1, renderHeight - 1, BAR_ROUNDING, BAR_ROUNDING);
-
-        g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.6f));
-        g.fillRoundRect(1, 1, renderWidth - 1, renderHeight - 1, BAR_ROUNDING, BAR_ROUNDING);
-    }
-
     private void drawBar(int index) {
-        Graphics2D g = imageGraphics[index];
-
-        g.setColor(getBackgroundColor());
-        g.fillRoundRect(0, 0, renderWidth - 1, renderHeight - 1, BAR_ROUNDING, BAR_ROUNDING);
-
-        g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.8f));
-        g.drawRoundRect(0, 0, renderWidth - 1, renderHeight - 1, BAR_ROUNDING, BAR_ROUNDING);
-
+        int x = 0;
+        int y = buttonGroupHeight;
+        int width = renderWidth - 1;
+        int height = renderHeight - 1 - buttonGroupHeight;
+        if (buttonGroupVisible) {
+            GuiUtil.drawShadow(imageGraphics[index], x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING);
+            GuiUtil.drawBorder(imageGraphics[index], x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
+        }
+        GuiUtil.drawShadow(imageGraphics[index], x, y, width + 1, height + 1, BAR_ROUNDING);
+        GuiUtil.drawBarFilling(imageGraphics[index], x, y, width, height, BAR_ROUNDING, getBackgroundColor());
+        GuiUtil.drawBarBorder(imageGraphics[index], x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
         if (!renderPlaying(index) && !renderEditing(index)) {
             renderPlayFailures(index);
         }
     }
 
-    private Color getBackgroundColor() {
+    public Color getBackgroundColor() {
         int highlightToIndex = isHighlighted() ? 1 : 0;
         if (type == TYPE_STEP && isFailed) {
             return COLOR_BG_FAILED;
@@ -763,7 +811,7 @@ public class TextElement extends Element {
             return COLOR_BG_UNRECOGNIZED_STEP[highlightToIndex];
         }
     }
-    
+
     private boolean renderPlaying(int index) {
         if (!Player.isPlaying()) {
             return false;
@@ -771,36 +819,28 @@ public class TextElement extends Element {
         if (!isRunnable() || !isRunning()) {
             return false;
         }
-        renderBorder(index, new Color(0.0f, 0.0f, 0.0f, 0.4f), 1.5f);
+        renderBorder(index, COLOR_BORDER_PLAYING, 1.5f);
         renderAnimatedBorder(index);
         return true;
     }
 
-    private boolean renderPlayFailures(int index) {
+    private void renderPlayFailures(int index) {
         if (!isRunnable() || !isFailed) {
-            return false;
+            return;
         }
-        renderBorder(index, new Color(1.0f, 0.0f, 0.0f, 0.8f), 1.5f);
-        return true;
+        renderBorder(index, COLOR_BORDER_FAILURE, 1.5f);
     }
 
     private boolean renderEditing(int index) {
         if (!EditBox.isEditing(this)) {
             return false;
         }
-        renderBorder(index, new Color(1.0f, 1.0f, 0.5f, 0.8f), 1.5f);
+        renderBorder(index, COLOR_BORDER_EDITING, 1.5f);
         return true;
     }
 
     private void renderBorder(int index, Color color, float width) {
-        Graphics2D g = imageGraphics[index];
-        Stroke stroke = g.getStroke();
-
-        g.setColor(color);
-        g.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-        g.drawRoundRect(1, 1, renderWidth - 3, renderHeight - 3, BAR_ROUNDING, BAR_ROUNDING);
-
-        g.setStroke(stroke);
+        GuiUtil.drawBorder(imageGraphics[index], 1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, color, width);
     }
 
     private void renderAnimatedBorder(int index) {
@@ -859,7 +899,7 @@ public class TextElement extends Element {
         int height = fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
 
         int x = (renderWidth - width) / 2;
-        int y = TAGS_PADDING_VERTICAL;
+        int y = TAGS_PADDING_VERTICAL + buttonGroupHeight;
 
         g.setColor(Util.blendColor(getBackgroundColor(), COLOR_BG_TAGS));
         g.fillRoundRect(x, y, width - 1, height - 1, HINT_ROUNDING, HINT_ROUNDING);
@@ -870,7 +910,7 @@ public class TextElement extends Element {
     }
 
     private void drawHint(Graphics g, String hint, int x, int y, Color textColor, Color bgColor) {
-        drawHint(g, hint, x, y, textColor, bgColor, new Color(0.0f, 0.0f, 0.0f, 0.8f), false, true, true);
+        drawHint(g, hint, x, y, textColor, bgColor, COLOR_BG_HINT, false, true, true);
     }
     
     private void drawHint(Graphics g, String hint, int x, int y, Color textColor, Color bgColor, Color borderColor, boolean centerAligned, boolean bottomAligned, boolean forceOnScreen) {
@@ -910,7 +950,7 @@ public class TextElement extends Element {
         int x = CumberlessMouseListener.mouseX + 15;
         int y = Math.min(CumberlessMouseListener.mouseY + 10, Engine.canvasHeight - errorScreenshots[0].getHeight(null));
 
-        g.setColor(new Color(0.0f, 0.0f, 0.0f, 1.0f));
+        g.setColor(Color.BLACK);
 
         g.fillRect(x - 1, y - 1, errorScreenshots[0].getWidth(null) + 2, errorScreenshots[0].getHeight(null) + 2);
         g.drawImage(errorScreenshots[0], x, y, null);
@@ -930,15 +970,11 @@ public class TextElement extends Element {
     }
 
     private int getTextPaddingLeft() {
-        return buttonbarX;
+        return BUTTON_WIDTH + BUTTON_PADDING_HORIZONTAL;
     }
 
     private int getTextPaddingRight() {
-        if (hasTrashcanButton()) {
-            return TEXT_PADDING_HORIZONTAL + BUTTON_WIDTH;
-        } else {
-            return TEXT_PADDING_HORIZONTAL;
-        }
+        return TEXT_PADDING_HORIZONTAL + BUTTON_WIDTH;
     }
 
     private boolean isButtonTouched() {
@@ -950,20 +986,16 @@ public class TextElement extends Element {
         return false;
     }
 
-    private boolean hasTrashcanButton() {
-        return groupParent != Engine.stepsRoot;
-    }
-
     private boolean hasPlayButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND) && groupParent != Engine.stepsRoot && Engine.isPlayableDeviceEnabled();
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled();
     }
 
     private boolean hasEditButton() {
-        return (type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition())) && groupParent != Engine.stepsRoot;
+        return type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition());
     }
 
     private boolean hasTagsAddButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO) && groupParent != Engine.stepsRoot;
+        return type == TYPE_FEATURE || type == TYPE_SCENARIO;
     }
 
     private boolean shouldRenderTags() {
@@ -1052,6 +1084,47 @@ public class TextElement extends Element {
 
     private static boolean isEditableParameter(String text) {
         return "ResourceKey".equals(text) || "*".equals(text);
+    }
+
+    private void addTags(boolean isNewButton) {
+        List<String> nonUsedTags = new ArrayList<String>(Engine.getDefinedTags());
+        nonUsedTags.removeAll(tags.toSet());
+        if (!nonUsedTags.isEmpty()) {
+            nonUsedTags.add("*");
+            DropDown.show(
+                    (isNewButton ? tagsNewButton.renderX : tagsAddButton.renderX),
+                    (isNewButton ? tagsNewButton.renderY : tagsAddButton.renderY) + TEXT_PADDING_VERTICAL,
+                    new DropDown.DropDownCallback() {
+                        public void chooseItem(String item) {
+                            if ("*".equals(item)) {
+                                editTags();
+                            } else {
+                                tags.add(item);
+                            }
+                        }
+                    },
+                    Util.sortedTagList(nonUsedTags));
+        } else {
+            editTags();
+        }
+    }
+
+    private void removeTags() {
+        if (!tags.hasTags()) {
+            return;
+        } else if (tags.toList().size() <= 1) {
+            tags = new Tag("");
+        } else {
+            DropDown.show(
+                    tagsAddButton.renderX + TEXT_PADDING_HORIZONTAL,
+                    tagsAddButton.renderY + TEXT_PADDING_VERTICAL,
+                    new DropDown.DropDownCallback() {
+                        public void chooseItem(String item) {
+                            tags.remove(item);
+                        }
+                    },
+                    Util.sortedTagList(tags.toList()));
+        }
     }
 
     private void editTags() {

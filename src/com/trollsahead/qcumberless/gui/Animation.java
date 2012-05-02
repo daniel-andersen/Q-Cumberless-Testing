@@ -203,6 +203,18 @@ public class Animation {
             this.isResizing = true;
         }
 
+        public void setWidth(int width, float speed) {
+            this.destWidth = width;
+            this.speed = speed;
+            this.isResizing = true;
+        }
+
+        public void setHeight(int height, float speed) {
+            this.destHeight = height;
+            this.speed = speed;
+            this.isResizing = true;
+        }
+
         public void update() {
             if (!isResizing) {
                 return;
@@ -226,12 +238,6 @@ public class Animation {
             if ((int) currentWidth == (int) destWidth && (int) currentHeight == (int) destHeight) {
                 isResizing = false;
             }
-        }
-
-        public void setWidth(int width, float speed) {
-            this.destWidth = width;
-            this.speed = speed;
-            this.isResizing = true;
         }
     }
 }

@@ -36,10 +36,11 @@ public class Images {
     public static int IMAGE_MINUS = 4;
     public static int IMAGE_AT = 5;
     public static int IMAGE_EDIT = 6;
-    public static int IMAGE_PAUSE = 7;
-    public static int IMAGE_RESUME = 8;
-    public static int IMAGE_STOP = 9;
-    public static int IMAGE_SPOTLIGHT = 10;
+    public static int IMAGE_EXPAND = 7;
+    public static int IMAGE_PAUSE = 8;
+    public static int IMAGE_RESUME = 9;
+    public static int IMAGE_STOP = 10;
+    public static int IMAGE_SPOTLIGHT = 11;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -72,6 +73,10 @@ public class Images {
         images.put(IMAGE_EDIT, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/pictures/edit_normal.png")),
                 ImageIO.read(Images.class.getResource("/pictures/edit_highlight.png"))
+        });
+        images.put(IMAGE_EXPAND, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/pictures/expand_normal.png")),
+                ImageIO.read(Images.class.getResource("/pictures/expand_highlight.png"))
         });
         images.put(IMAGE_PAUSE, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/pictures/pause_normal.png")),

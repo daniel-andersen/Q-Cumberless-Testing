@@ -103,9 +103,6 @@ public class RootElement extends Element {
     private void dragCanvas(int deltaY) {
         isDraggingScrollbar = false;
         offsetY += deltaY;
-        if (offsetY > 0) {
-            offsetY = 0;
-        }
     }
 
     private void dragScrollbar(int deltaY) {
@@ -169,7 +166,11 @@ public class RootElement extends Element {
         scrollbarHeight = scrollbarMaxHeight * renderHeight / Math.max(Math.max(renderHeight, cachedGroupHeight), 1);
 
         if (!isDraggingScrollbar) {
-            scrollbarY = (scrollbarMaxHeight - scrollbarHeight) * (-offsetY) / Math.max(cachedGroupHeight - renderHeight, -offsetY + 1);
+            if (offsetY < 0) {
+                scrollbarY = (scrollbarMaxHeight - scrollbarHeight) * (-offsetY) / Math.max(cachedGroupHeight - renderHeight, -offsetY);
+            } else {
+                scrollbarY = 0;
+            }
         }
 
         g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.5f));

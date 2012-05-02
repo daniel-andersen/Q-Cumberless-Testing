@@ -64,10 +64,10 @@ public class Button {
 
     private Image[] image = new BufferedImage[3];
 
-    protected int renderX;
-    protected int renderY;
-    protected int renderWidth;
-    protected int renderHeight;
+    public int renderX;
+    public int renderY;
+    public int renderWidth;
+    public int renderHeight;
 
     private int state;
     private boolean enabled = true;
@@ -124,7 +124,15 @@ public class Button {
         this.offsetX = x;
         this.offsetY = y;
     }
+    
+    public int getOffsetX() {
+        return offsetX;
+    }
 
+    public int getOffsetY() {
+        return offsetY;
+    }
+    
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
@@ -226,12 +234,12 @@ public class Button {
 
     private void calculatePosition(Graphics g) {
         FontMetrics fontMetrics = g.getFontMetrics();
-        
+
         renderX = x + offsetX;
         renderY = y + offsetY;
 
-        renderWidth = (text != null ? fontMetrics.stringWidth(text) : 0) + (image[state] != null ? image[state].getWidth(null) : 0);
-        renderHeight = Math.max((text != null ? fontMetrics.getHeight() : 0), (image[state] != null ? image[state].getHeight(null) : 0));
+        renderWidth = (text != null && fontMetrics != null ? fontMetrics.stringWidth(text) : 0) + (image[state] != null ? image[state].getWidth(null) : 0);
+        renderHeight = Math.max((text != null && fontMetrics != null ? fontMetrics.getHeight() : 0), (image[state] != null ? image[state].getHeight(null) : 0));
 
         if (isAlignType(ALIGN_HORIZONTAL_RIGHT_OF_PARENT)) {
             renderX = parent.renderWidth - x;

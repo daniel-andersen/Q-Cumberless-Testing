@@ -397,7 +397,12 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void findTouchedElement() {
-        touchedElement = cucumberRoot.findElement(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
+        if (touchedElement != null) {
+            touchedElement = touchedElement.findElement(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
+        }
+        if (touchedElement == null) {
+            touchedElement = cucumberRoot.findElement(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
+        }
         touchedRootElement = CumberlessMouseListener.mouseX < dragSplitterX ? featuresRoot : stepsRoot;
     }
 
