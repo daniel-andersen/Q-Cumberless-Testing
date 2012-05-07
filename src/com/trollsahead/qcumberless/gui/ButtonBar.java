@@ -80,8 +80,8 @@ public class ButtonBar {
 
     static {
         try {
-            deviceEnabledImage = ImageIO.read(ButtonBar.class.getResource("/pictures/device_enabled.png"));
-            deviceDisabledImage = ImageIO.read(ButtonBar.class.getResource("/pictures/device_disabled.png"));
+            deviceEnabledImage = ImageIO.read(ButtonBar.class.getResource("/resources/pictures/device_enabled.png"));
+            deviceDisabledImage = ImageIO.read(ButtonBar.class.getResource("/resources/pictures/device_disabled.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -25,30 +25,41 @@ import java.util.Properties;
 
 public class ConfigurationManager {
     private static final String CONF_FILENAME = "qcumberless.conf";
-    
-    private static Properties properties = new Properties();
+
+    private static Properties internProperties = new Properties();
+    private static Properties externProperties = new Properties();
 
     public static void loadConfiguration() {
         try {
-            properties.load(new FileInputStream(CONF_FILENAME));
+            internProperties.load(ConfigurationManager.class.getResourceAsStream("/resources/" + CONF_FILENAME));
         } catch (Exception e) {
-            System.out.println("No properties found");
+            System.out.println("No internal properties found");
+        }
+        try {
+            externProperties.load(new FileInputStream(CONF_FILENAME));
+        } catch (Exception e) {
+            System.out.println("No external properties found");
         }
     }
     
     public static void saveConfiguration() {
         try {
-            properties.store(new FileOutputStream(CONF_FILENAME), "Q-Cumberless Testing configuration");
+            externProperties.store(new FileOutputStream(CONF_FILENAME), "Q-Cumberless Testing configuration");
         } catch (Exception e) {
             System.out.println("Could not save properties!");
         }
     }
 
     public static String get(String key) {
-        return (String) properties.get(key);
+        String externValue = (String) externProperties.get(key);
+        if (!Util.isEmpty(externValue)) {
+            return externValue;
+        } else {
+            return (String) internProperties.get(key);
+        }
     }
 
     public static void put(String key, String value) {
-        properties.put(key, value);
+        externProperties.put(key, value);
     }
 }

@@ -32,9 +32,9 @@ public class GenericDevice extends Device {
 
     static {
         try {
-            thumbnailNormal = ImageIO.read(GenericDevice.class.getResource("/pictures/generic_device_normal.png"));
-            thumbnailHighlight = ImageIO.read(GenericDevice.class.getResource("/pictures/generic_device_highlight.png"));
-            thumbnailPressed = ImageIO.read(GenericDevice.class.getResource("/pictures/generic_device_pressed.png"));
+            thumbnailNormal = ImageIO.read(GenericDevice.class.getResource("/resources/pictures/generic_device_normal.png"));
+            thumbnailHighlight = ImageIO.read(GenericDevice.class.getResource("/resources/pictures/generic_device_highlight.png"));
+            thumbnailPressed = ImageIO.read(GenericDevice.class.getResource("/resources/pictures/generic_device_pressed.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }

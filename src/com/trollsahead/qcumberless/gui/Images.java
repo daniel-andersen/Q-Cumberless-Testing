@@ -48,50 +48,50 @@ public class Images {
     public static void initialize() throws Exception {
         images = new HashMap<Integer, BufferedImage[]>();
         images.put(IMAGE_BACKGROUND, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/background.jpg"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/background.jpg"))
         });
         images.put(IMAGE_TRASHCAN, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/trashcan_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/trashcan_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/trashcan_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/trashcan_highlight.png"))
         });
         images.put(IMAGE_PLAY, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/play_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/play_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/play_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/play_highlight.png"))
         });
         images.put(IMAGE_ADD, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/add_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/add_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/add_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/add_highlight.png"))
         });
         images.put(IMAGE_MINUS, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/minus_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/minus_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/minus_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/minus_highlight.png"))
         });
         images.put(IMAGE_AT, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/at_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/at_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/at_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/at_highlight.png"))
         });
         images.put(IMAGE_EDIT, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/edit_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/edit_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/edit_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/edit_highlight.png"))
         });
         images.put(IMAGE_EXPAND, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/expand_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/expand_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/expand_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/expand_highlight.png"))
         });
         images.put(IMAGE_PAUSE, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/pause_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/pause_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/pause_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/pause_highlight.png"))
         });
         images.put(IMAGE_RESUME, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/resume_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/resume_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/resume_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/resume_highlight.png"))
         });
         images.put(IMAGE_STOP, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/stop_normal.png")),
-                ImageIO.read(Images.class.getResource("/pictures/stop_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/stop_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/stop_highlight.png"))
         });
         images.put(IMAGE_SPOTLIGHT, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/pictures/spotlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/spotlight.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {

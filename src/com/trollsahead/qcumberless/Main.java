@@ -22,8 +22,9 @@ package com.trollsahead.qcumberless;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.gui.Images;
-import com.trollsahead.qcumberless.plugins.generic.GenericDevicePlugin;
+import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
 
@@ -46,9 +47,16 @@ public class Main {
     }
     
     private static void wirePlugins() {
-        Engine.plugins.add(new GenericDevicePlugin());
+        String pluginStr = ConfigurationManager.get("plugins");
+        if (Util.isEmpty(pluginStr)) {
+            return;
+        }
+        String[] plugins = pluginStr.split("\\:");
         try {
-            Class.forName("com.trollsahead.qcumberless.plugins.Plugins");
+            for (String plugin : plugins) {
+                Class<Plugin> cls = (Class<Plugin>) Class.forName(plugin);
+                Engine.plugins.add(cls.newInstance());
+            }
         } catch (Exception e) {
             System.out.println("No plugins found!");
         }

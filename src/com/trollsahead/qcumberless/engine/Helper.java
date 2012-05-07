@@ -62,7 +62,6 @@ public class Helper {
 
             String line;
             while ((line = stdin.readLine()) != null) {
-                System.out.println("--> " + line);
                 logListener.logLine(line);
             }
             int res = 1;

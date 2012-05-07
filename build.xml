@@ -18,6 +18,7 @@
         <copy todir="${build}">
             <fileset dir="${src}">
                 <include name="**/*.properties" />
+                <include name="**/*.conf" />
                 <include name="**/*.png" />
                 <include name="**/*.jpg" />
             </fileset>
