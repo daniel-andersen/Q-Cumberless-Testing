@@ -36,7 +36,7 @@ public abstract class Device {
 
     public abstract String name();
 
-    public abstract void play(StringBuilder feature);
+    public abstract void play(StringBuilder feature, Set<String> tags);
     public abstract void pause();
     public abstract void resume();
     public abstract void stop();

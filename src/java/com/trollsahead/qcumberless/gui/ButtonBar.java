@@ -22,6 +22,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -52,7 +53,7 @@ public class ButtonBar {
     private static final float PLAY_ANIMATION_DASH_LENGTH = 5.0f;
     private static final float PLAY_ANIMATION_DASH_WIDTH = 2.0f;
 
-    private Button importStepsButton;
+    private Button importStepDefinitionsButton;
     private Button scratchFeaturesButton;
     private Button importFeaturesButton;
     private Button exportFeaturesButton;
@@ -60,6 +61,7 @@ public class ButtonBar {
     private Button closeButton;
     private Button pauseButton;
     private Button stopButton;
+    private Button tagsButton;
     private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
@@ -122,17 +124,6 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(stopButton);
-        importStepsButton = new Button(
-                0, 0,
-                "Import step definitions",
-                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
-                    public void onClick() {
-                        Engine.importSteps();
-                    }
-                },
-                null);
-        buttons.add(importStepsButton);
         scratchFeaturesButton = new Button(
                 0, 0,
                 "Scratch",
@@ -198,8 +189,56 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(closeButton);
+        tagsButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_AT, Images.TYPE_HIGHLIGHT),
+                Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                        showTagsDropDown();
+                    }
+                },
+                null);
+        buttons.add(tagsButton);
+        importStepDefinitionsButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_IMPORT_STEP_DEFINITIONS, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_IMPORT_STEP_DEFINITIONS, Images.TYPE_HIGHLIGHT),
+                Images.getImage(Images.IMAGE_IMPORT_STEP_DEFINITIONS, Images.TYPE_PRESSED),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                        Engine.importSteps();
+                    }
+                },
+                null);
+        buttons.add(importStepDefinitionsButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
+    }
+
+    private void showTagsDropDown() {
+        DropDown.showInToggleMode(
+                tagsButton.renderX,
+                tagsButton.renderY - tagsButton.getImageHeight(),
+                new DropDown.DropDownToggleModeCallback() {
+                    public void toggleItem(String item) {
+                        Engine.toggleRunTag("@" + item);
+                    }
+
+                    public BufferedImage getToggledImage(String item) {
+                        if (Engine.isRunTagEnabled(Util.negatedTag("@" + item))) {
+                            return Images.getImage(Images.IMAGE_MINUS, Images.TYPE_NORMAL);
+                        } else if (Engine.isRunTagEnabled("@" + item)) {
+                            return Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL);
+                        } else {
+                            return null;
+                        }
+                    }
+                },
+                Engine.getDefinedTags());
     }
 
     public void resize(Graphics g) {
@@ -214,10 +253,12 @@ public class ButtonBar {
         saveFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + fontMetrics.stringWidth(saveFeaturesButton.toString());
         x += BUTTON_PADDING;
-        importStepsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(importStepsButton.toString());
-        x += BUTTON_PADDING;
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + fontMetrics.stringWidth(closeButton.toString());
+        x += BUTTON_PADDING;
+        tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING;
+        importStepDefinitionsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         pauseButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth - 30, BUTTONBAR_HEIGHT);
         stopButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth + 30, BUTTONBAR_HEIGHT);
         positionDeviceButtons();
@@ -268,7 +309,8 @@ public class ButtonBar {
     private void updateButtons() {
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
-        importStepsButton.setEnabled(isImportStepDefinitionsButtonEnabled());
+        tagsButton.setVisible(isTagsButtonVisible());
+        importStepDefinitionsButton.setVisible(isImportStepDefinitionsButtonVisible());
         for (Button button : buttons) {
             button.update();
         }
@@ -285,8 +327,12 @@ public class ButtonBar {
         return Engine.featuresRoot.isLoaded;
     }
 
-    private boolean isImportStepDefinitionsButtonEnabled() {
+    private boolean isImportStepDefinitionsButtonVisible() {
         return Engine.devices.size() > 0;
+    }
+
+    private boolean isTagsButtonVisible() {
+        return !Util.isEmpty(Engine.getDefinedTags());
     }
 
     private void updateType() {

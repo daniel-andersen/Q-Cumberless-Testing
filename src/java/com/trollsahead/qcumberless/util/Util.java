@@ -22,9 +22,7 @@ package com.trollsahead.qcumberless.util;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +45,10 @@ public class Util {
     
     public static boolean isEmpty(String str) {
         return str == null || "".equals(str.trim());
+    }
+
+    public static boolean isEmpty(List list) {
+        return list == null || list.size() == 0;
     }
 
     public static boolean startsWithIgnoreWhitespace(String str, String prefix) {
@@ -166,5 +168,22 @@ public class Util {
             }
         });
         return Arrays.asList(array);
+    }
+
+    public static String tagsToString(Set<String> tagSet) {
+        if (tagSet == null) {
+            return "";
+        }
+        String tags = "";
+        String delimiter = "";
+        for (String tag : tagSet) {
+            tags += delimiter + tag;
+            delimiter = ",";
+        }
+        return tags;
+    }
+
+    public static String negatedTag(String tag) {
+        return tag.startsWith("~") ? tag.substring(1) : ("~" + tag);
     }
 }

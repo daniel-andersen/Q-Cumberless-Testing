@@ -72,14 +72,14 @@ public class GenericDevice extends Device {
         return "Generic Device";
     }
 
-    public void play(StringBuilder feature) {
+    public void play(StringBuilder feature, Set<String> tags) {
         if (isRunning) {
             return;
         }
         try {
             reset();
             deviceCallback.onPlay();
-            GenericDeviceHelper.runTests(feature, "singlerun.feature", deviceLogListener);
+            GenericDeviceHelper.runTests(feature, "singlerun.feature", tags, deviceLogListener);
             deviceCallback.afterPlayed();
         } catch (Exception e) {
             e.printStackTrace();

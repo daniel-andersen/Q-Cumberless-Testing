@@ -117,13 +117,13 @@ public class Player implements DeviceCallback {
         return false;
     }
 
-    public void play(final StringBuilder feature, final Device device) {
+    public void play(final StringBuilder feature, final Device device, final Set<String> tags) {
         this.device = device;
         device.setDeviceCallback(this);
         new Thread(new Runnable() {
             public void run() {
                 success = true;
-                device.play(feature);
+                device.play(feature, tags);
                 cleanup();
             }
         }).start();

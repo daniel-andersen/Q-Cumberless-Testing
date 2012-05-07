@@ -20,11 +20,14 @@
 package com.trollsahead.qcumberless.gui;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class DropDown {
     private static final int PADDING_HORIZONTAL = 5;
     private static final int PADDING_VERTICAL = 5;
+
+    private static final int TOGGLE_OFFSET_X = 16 + PADDING_HORIZONTAL;
 
     private static final Color COLOR_NORMAL = new Color(0.8f, 0.8f, 0.8f, 1.0f);
     private static final Color COLOR_HIGHLIGHTED = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -37,6 +40,7 @@ public class DropDown {
     private static int y;
 
     private static DropDownCallback callbackHandler;
+    private static DropDownToggleModeCallback toggledModeCallbackHandler;
     private static List<String> items;
     
     private static int renderX;
@@ -44,6 +48,8 @@ public class DropDown {
     private static int renderWidth;
     private static int renderHeight;
     private static int itemHeight;
+    private static boolean toggleMode;
+    private static boolean alignTop;
 
     public static void show(int x, int y, DropDownCallback callbackHandler, List<String> items) {
         DropDown.x = x;
@@ -52,6 +58,19 @@ public class DropDown {
         DropDown.items = items;
         DropDown.isVisible = true;
         DropDown.highlightIndex = -1;
+        DropDown.toggleMode = false;
+        DropDown.alignTop = true;
+    }
+
+    public static void showInToggleMode(int x, int y, DropDownToggleModeCallback toggledModeCallbackHandler, List<String> items) {
+        DropDown.x = x;
+        DropDown.y = y;
+        DropDown.toggledModeCallbackHandler = toggledModeCallbackHandler;
+        DropDown.items = items;
+        DropDown.isVisible = true;
+        DropDown.highlightIndex = -1;
+        DropDown.toggleMode = true;
+        DropDown.alignTop = false;
     }
 
     public static void hide() {
@@ -66,6 +85,9 @@ public class DropDown {
         renderY = calculateY(g);
         renderWidth = calculateWidth(g);
         renderHeight = calculateHeight(g);
+        if (!alignTop) {
+            renderY = Math.max(0, renderY - renderHeight);
+        }
         itemHeight = calculateItemHeight(g);
         drawBackground(g);
         drawText(g);
@@ -89,7 +111,8 @@ public class DropDown {
                 maxWidth = width;
             }
         }
-        return maxWidth + (PADDING_HORIZONTAL * 2);
+        int toggleWidth = toggleMode ? TOGGLE_OFFSET_X : 0;
+        return maxWidth + (PADDING_HORIZONTAL * 2) + toggleWidth;
     }
 
     private static int calculateHeight(Graphics g) {
@@ -109,13 +132,23 @@ public class DropDown {
 
     private static void drawText(Graphics g) {
         FontMetrics fontMetrics = g.getFontMetrics();
+        int offsetX = toggleMode ? TOGGLE_OFFSET_X : 0;
         for (int i = 0; i < items.size(); i++) {
+            String item = items.get(i);
+            int x = renderX + PADDING_HORIZONTAL;
+            int y = renderY + PADDING_VERTICAL + (fontMetrics.getHeight() * (i + 1));
+            if (toggleMode) {
+                BufferedImage image = toggledModeCallbackHandler.getToggledImage(item);
+                if (image != null) {
+                    g.drawImage(image, x, y - ((fontMetrics.getHeight() + image.getHeight()) / 2), null);
+                }
+            }
             if (i == highlightIndex) {
                 g.setColor(COLOR_HIGHLIGHTED);
             } else {
                 g.setColor(COLOR_NORMAL);
             }
-            g.drawString(items.get(i), renderX + PADDING_HORIZONTAL, renderY + PADDING_VERTICAL + (fontMetrics.getHeight() * (i + 1)) - 3);
+            g.drawString(item, x + offsetX, y - 3);
         }
     }
 
@@ -130,7 +163,12 @@ public class DropDown {
             return false;
         }
         if (highlightIndex >= 0 && highlightIndex < items.size()) {
-            callbackHandler.chooseItem(items.get(highlightIndex));
+            if (!toggleMode) {
+                callbackHandler.chooseItem(items.get(highlightIndex));
+            } else {
+                toggledModeCallbackHandler.toggleItem(items.get(highlightIndex));
+                return false;
+            }
         }
         hide();
         return true;
@@ -177,5 +215,10 @@ public class DropDown {
 
     public interface DropDownCallback {
         void chooseItem(String item);
+    }
+
+    public interface DropDownToggleModeCallback {
+        void toggleItem(String item);
+        BufferedImage getToggledImage(String item);
     }
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 public class Images {
     public static int TYPE_NORMAL = 0;
     public static int TYPE_HIGHLIGHT = 1;
+    public static int TYPE_PRESSED = 2;
 
     public static int IMAGE_BACKGROUND = 0;
     public static int IMAGE_TRASHCAN = 1;
@@ -41,6 +42,7 @@ public class Images {
     public static int IMAGE_RESUME = 9;
     public static int IMAGE_STOP = 10;
     public static int IMAGE_SPOTLIGHT = 11;
+    public static int IMAGE_IMPORT_STEP_DEFINITIONS = 12;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -92,6 +94,11 @@ public class Images {
         });
         images.put(IMAGE_SPOTLIGHT, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/spotlight.png"))
+        });
+        images.put(IMAGE_IMPORT_STEP_DEFINITIONS, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/import_step_def_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/import_step_def_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/import_step_def_pressed.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {

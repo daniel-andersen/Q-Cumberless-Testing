@@ -95,6 +95,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static long lastTimePolledForDevices;
     public static boolean isPollingForDevices;
 
+    private static Set<String> runTags = new HashSet<String>();
+
     private static Graphics2D backbufferGraphics = null;
 
     public Engine() {
@@ -420,7 +422,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         for (final Device device : devices) {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
                 System.out.println("Running tests on device: " + device.name());
-                new Player().play(feature, device);
+                new Player().play(feature, device, runTags);
             }
         }
     }
@@ -581,5 +583,21 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static List<String> getDefinedTags() {
         return Arrays.asList(featuresRoot.getTags().toArray(new String[0]));
+    }
+
+    public static void toggleRunTag(String tag) {
+        String negatedTag = Util.negatedTag(tag);
+        if (runTags.contains(tag)) {
+            runTags.remove(tag);
+            runTags.add(negatedTag);
+        } else if (runTags.contains(negatedTag)) {
+            runTags.remove(negatedTag);
+        } else {
+            runTags.add(tag);
+        }
+    }
+
+    public static boolean isRunTagEnabled(String tag) {
+        return runTags.contains(tag);
     }
 }
