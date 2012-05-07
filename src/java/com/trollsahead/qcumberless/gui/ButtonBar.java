@@ -194,7 +194,6 @@ public class ButtonBar {
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
                         Engine.stop();
-                        CucumberlessDialog.instance.setVisible(false);
                     }
                 },
                 null);

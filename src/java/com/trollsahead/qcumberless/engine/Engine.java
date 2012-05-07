@@ -143,6 +143,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static void stop() {
         isRunning = false;
+        CucumberlessDialog.close();
     }
 
     public void run() {

@@ -20,12 +20,15 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 
 public class CucumberlessDialog extends JFrame {
@@ -47,12 +50,21 @@ public class CucumberlessDialog extends JFrame {
     public void letThereBeLight() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(0, 0, screenSize.width, screenSize.height);
+        setExtendedState(MAXIMIZED_BOTH);
         new Thread(engine).start();
         Util.sleep(1000); // For flicker not to happen
         setVisible(true);
     }
 
 	private void initComponents() {
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                ConfigurationManager.saveConfiguration();
+                System.out.println("Bye!");
+                System.exit(0);
+            }
+        });
+
         mainPanel = new JPanel();
 
         elementTextField = new JTextField();
@@ -111,6 +123,13 @@ public class CucumberlessDialog extends JFrame {
             return fileChooser.getSelectedFile();
         } else {
             return null;
+        }
+    }
+
+    public static void close() {
+        if (instance != null) {
+            WindowEvent windowClosing = new WindowEvent(instance, WindowEvent.WINDOW_CLOSING);
+            instance.dispatchEvent(windowClosing);
         }
     }
 }

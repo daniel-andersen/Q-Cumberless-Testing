@@ -43,7 +43,11 @@ public class ConfigurationManager {
     }
     
     public static void saveConfiguration() {
+        if (externProperties == null || externProperties.size() == 0) {
+            return;
+        }
         try {
+            System.out.println("Saving external properties");
             externProperties.store(new FileOutputStream(CONF_FILENAME), "Q-Cumberless Testing configuration");
         } catch (Exception e) {
             System.out.println("Could not save properties!");
