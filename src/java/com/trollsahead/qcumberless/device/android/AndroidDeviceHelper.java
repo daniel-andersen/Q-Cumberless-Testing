@@ -37,7 +37,7 @@ public class AndroidDeviceHelper {
         try {
             Pattern pattern = Pattern.compile("(.*)\\t(.*)");
             List<String> devices = new LinkedList<String>();
-            List<String> output = Helper.executeCommand(getPathToAdb() + getAdbExecutable() + " devices");
+            List<String> output = Helper.executeCommand(getPathToAdb() + " devices");
             for (String s : output) {
                 Matcher matcher = pattern.matcher(s);
                 if (!matcher.matches()) {
@@ -58,7 +58,7 @@ public class AndroidDeviceHelper {
     public static String getDeviceProperty(String deviceId, String key) {
         try {
             Pattern pattern = Pattern.compile("\\[(.*)\\]: \\[(.*)\\]");
-            List<String> output = Helper.executeCommand(getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell getprop");
+            List<String> output = Helper.executeCommand(getPathToAdb() + " -s " + deviceId + " shell getprop");
             for (String s : output) {
                 Matcher matcher = pattern.matcher(s);
                 if (!matcher.matches()) {
@@ -95,7 +95,7 @@ public class AndroidDeviceHelper {
         final Helper.ExecutorStopper executorStopper = new Helper.ExecutorStopper();
         new Thread(new Runnable() {
             public void run() {
-                String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " logcat -v time";
+                String command = getPathToAdb() + " -s " + deviceId + " logcat -v time";
                 Helper.executeCommand(command, logListener, executorStopper);
             }
         }).start();
@@ -103,7 +103,7 @@ public class AndroidDeviceHelper {
     }
 
     private static void runFeature(String deviceId, String testRunners, String tags) {
-        String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell am instrument  -w -e tags " + tags + " -e class " + testRunners;
+        String command = getPathToAdb() + " -s " + deviceId + " shell am instrument  -w -e tags " + tags + " -e class " + testRunners;
         Helper.executeCommand(command);
     }
 
@@ -112,7 +112,7 @@ public class AndroidDeviceHelper {
     }
 
     private static void cleanDeviceLog(String deviceId) throws Exception {
-        String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " logcat -c";
+        String command = getPathToAdb() + " -s " + deviceId + " logcat -c";
         Helper.executeCommand(command);
     }
 
@@ -121,7 +121,7 @@ public class AndroidDeviceHelper {
     }
 
     public static void removePauseFile(String deviceId) {
-        String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " shell rm /sdcard/pause.txt";
+        String command = getPathToAdb() + " -s " + deviceId + " shell rm /sdcard/pause.txt";
         Helper.executeCommand(command);
     }
 
@@ -140,20 +140,24 @@ public class AndroidDeviceHelper {
         tempWriter.write(content.toString());
         tempWriter.close();
 
-        String command = getPathToAdb() + getAdbExecutable() + " -s " + deviceId + " push " + temp.getAbsolutePath() + " /sdcard/" + filename;
+        String command = getPathToAdb() + " -s " + deviceId + " push " + temp.getAbsolutePath() + " /sdcard/" + filename;
         Helper.executeCommand(command);
     }
 
     public static String getPathToAdb() {
         String path = ConfigurationManager.get(PROP_ADB_PATH);
         if (Util.isEmpty(path)) {
-            return "";
-        } else {
-            return path.endsWith("/") ? path : (path + "/");
+            return getAdbExecutable();
         }
+        path = path.replaceAll("\\\\", "/");
+        File file = new File(path);
+        if (file.isFile()) {
+            return path;
+        }
+        return Util.addSlashToPath(path) + getAdbExecutable();
     }
 
-    public static String getAdbExecutable() {
+    private static String getAdbExecutable() {
         return Util.isMac() ? "adb" : "adb.exe";
     }
 }

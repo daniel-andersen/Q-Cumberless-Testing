@@ -111,6 +111,14 @@ public class Util {
         return filename.substring(0, filename.lastIndexOf("/"));
     }
 
+    public static String addSlashToPath(String path) {
+        if (Util.isEmpty(path)) {
+            return "";
+        } else {
+            return path.endsWith("/") ? path : (path + "/");
+        }
+    }
+    
     public static String stripPseudoNewLines(String str) {
         if (isEmpty(str)) {
             return str;
