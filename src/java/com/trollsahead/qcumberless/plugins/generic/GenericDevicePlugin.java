@@ -3,11 +3,11 @@ package com.trollsahead.qcumberless.plugins.generic;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.generic.GenericDevice;
 import com.trollsahead.qcumberless.model.StepDefinition;
+import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
+import com.trollsahead.qcumberless.plugins.ElementMethodCallback;
 import com.trollsahead.qcumberless.plugins.Plugin;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GenericDevicePlugin implements Plugin {
     private GenericDevice genericDevice;
@@ -24,5 +24,15 @@ public class GenericDevicePlugin implements Plugin {
 
     public List<StepDefinition> getStepDefinitions() {
         return null;
+    }
+
+    public List<ElementMethodCallback> getElementMethodsApplicableFor(int type) {
+        return null;
+    }
+
+    public List<ButtonBarMethodCallback> getButtonBarMethods() {
+        List<ButtonBarMethodCallback> list = new LinkedList<ButtonBarMethodCallback>();
+        list.add(new GenericDeviceSettings());
+        return list;
     }
 }

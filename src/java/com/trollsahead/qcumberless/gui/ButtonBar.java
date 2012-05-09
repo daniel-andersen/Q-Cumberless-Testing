@@ -22,7 +22,11 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
+import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.Util;
+
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -65,11 +69,14 @@ public class ButtonBar {
     private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
+    private List<PluginButton> pluginButtons;
 
     public int renderX;
     public int renderY;
     public int renderWidth;
     public int renderHeight;
+
+    private int pluginButtonsX;
 
     private Animation animation;
 
@@ -92,6 +99,7 @@ public class ButtonBar {
     public ButtonBar() {
         instance = this;
         animation = new Animation(COLOR_BACKGROUND_NORMAL);
+        addPluginButtons();
         deviceButtons = new LinkedList<DeviceButton>();
         buttons = new LinkedList<Button>();
         pauseButton = new Button(
@@ -219,6 +227,32 @@ public class ButtonBar {
         animation.moveAnimation.setRenderPosition(0, 0);
     }
 
+    private void addPluginButtons() {
+        pluginButtons = new LinkedList<PluginButton>();
+        for (Plugin plugin : Engine.plugins) {
+            List<ButtonBarMethodCallback> callbacks = plugin.getButtonBarMethods();
+            if (Util.isEmpty(callbacks)) {
+                continue;
+            }
+            for (final ButtonBarMethodCallback callback : callbacks) {
+                PluginButton button = new PluginButton(
+                        0, 0,
+                        callback.getThumbnail(ThumbnailState.NORMAL),
+                        callback.getThumbnail(ThumbnailState.HIGHLIGHTED),
+                        callback.getThumbnail(ThumbnailState.PRESSED),
+                        Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                        new Button.CucumberButtonNotification() {
+                            public void onClick() {
+                                callback.trigger();
+                            }
+                        },
+                        callback);
+                button.setHint(callback.getTooltip());
+                pluginButtons.add(button);
+            }
+        }
+    }
+
     private void showTagsDropDown() {
         DropDown.showInToggleMode(
                 tagsButton.renderX,
@@ -259,8 +293,11 @@ public class ButtonBar {
         tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING;
         importStepDefinitionsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING * 2;
+        pluginButtonsX = x;
         pauseButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth - 30, BUTTONBAR_HEIGHT);
         stopButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth + 30, BUTTONBAR_HEIGHT);
+        positionPluginButtons();
         positionDeviceButtons();
     }
 
@@ -269,9 +306,9 @@ public class ButtonBar {
         for (final Device device : devices) {
             DeviceButton button = new DeviceButton(
                     0, 0,
-                    device.getThumbnail(Device.ThumbnailState.NORMAL),
-                    device.getThumbnail(Device.ThumbnailState.HIGHLIGHTED),
-                    device.getThumbnail(Device.ThumbnailState.PRESSED),
+                    device.getThumbnail(ThumbnailState.NORMAL),
+                    device.getThumbnail(ThumbnailState.HIGHLIGHTED),
+                    device.getThumbnail(ThumbnailState.PRESSED),
                     Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                     new Button.CucumberButtonNotification() {
                         public void onClick() {
@@ -290,6 +327,14 @@ public class ButtonBar {
             deviceButtons.add(button);
         }
         positionDeviceButtons();
+    }
+
+    private void positionPluginButtons() {
+        int x = pluginButtonsX;
+        for (Button button : pluginButtons) {
+            button.setPosition(x + (DEVICE_BUTTON_WIDTH / 2), BUTTONBAR_HEIGHT / 2);
+            x += button.getImageWidth() + BUTTON_PADDING;
+        }
     }
 
     private void positionDeviceButtons() {
@@ -312,6 +357,9 @@ public class ButtonBar {
         tagsButton.setVisible(isTagsButtonVisible());
         importStepDefinitionsButton.setVisible(isImportStepDefinitionsButtonVisible());
         for (Button button : buttons) {
+            button.update();
+        }
+        for (Button button : pluginButtons) {
             button.update();
         }
         for (Button button : deviceButtons) {
@@ -381,6 +429,10 @@ public class ButtonBar {
             button.setOffset(renderX, renderY);
             button.render(g);
         }
+        for (Button button : pluginButtons) {
+            button.setOffset(renderX, renderY);
+            button.render(g);
+        }
     }
     
     private void renderDevices(Graphics2D g) {
@@ -418,6 +470,11 @@ public class ButtonBar {
                 return true;
             }
         }
+        for (Button button : pluginButtons) {
+            if (button.click()) {
+                return true;
+            }
+        }
         for (DeviceButton button : deviceButtons) {
             if (type == TYPE_PLAYING && (!button.device.isEnabled() || !button.device.getCapabilities().contains(Device.Capability.STOP))) {
                 continue;
@@ -445,6 +502,27 @@ public class ButtonBar {
             return device;
         }
         
+        public int getRenderX() {
+            return super.renderX;
+        }
+
+        public int getRenderY() {
+            return super.renderY;
+        }
+    }
+
+    private class PluginButton extends Button {
+        private ButtonBarMethodCallback callback;
+
+        public PluginButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, ButtonBarMethodCallback callback) {
+            super(x, y, normalImage, highlightImage, pressedImage, alignment, notification, null);
+            this.callback = callback;
+        }
+
+        public ButtonBarMethodCallback getCallback() {
+            return callback;
+        }
+
         public int getRenderX() {
             return super.renderX;
         }

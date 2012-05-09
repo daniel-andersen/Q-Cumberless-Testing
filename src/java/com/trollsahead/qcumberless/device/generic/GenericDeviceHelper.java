@@ -3,6 +3,7 @@ package com.trollsahead.qcumberless.device.generic;
 import com.trollsahead.qcumberless.engine.Helper;
 import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
+import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
@@ -14,7 +15,7 @@ import java.util.Set;
 public class GenericDeviceHelper {
     public static void runTests(StringBuilder feature, String featureFilename, Set<String> tags, LogListener logListener) {
         File tempFile = createFeatureFile(feature, featureFilename);
-        String command = showEnterCommandDialog();
+        String command = getCommand();
         command = command.replaceAll("\\\\", "/");
         String executable = command;
         String path = null;
@@ -27,8 +28,16 @@ public class GenericDeviceHelper {
         Helper.executeCommand(executable, path, logListener);
     }
 
-    private static String showEnterCommandDialog() {
-        return (String) JOptionPane.showInputDialog(
+    private static String getCommand() {
+        String command = ConfigurationManager.get("genericDeviceCommand");
+        if (Util.isEmpty(command)) {
+            return showEnterCommandDialog();
+        }
+        return command;
+    }
+
+    public static String showEnterCommandDialog() {
+        String command = (String) JOptionPane.showInputDialog(
                 CucumberlessDialog.instance,
                 "Enter command to run. $1 will be substituted with the feature file and $2 with the tags to run",
                 "Run Tests",
@@ -36,6 +45,8 @@ public class GenericDeviceHelper {
                 null,
                 null,
                 "cucumber $1 --format QCumberless::Formatter --tags $2");
+        ConfigurationManager.put("genericDeviceCommand", command);
+        return command;
     }
 
     private static File createFeatureFile(StringBuilder feature, String featureFilename) {

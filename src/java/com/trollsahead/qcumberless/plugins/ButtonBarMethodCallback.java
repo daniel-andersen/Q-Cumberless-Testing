@@ -19,8 +19,12 @@
 
 package com.trollsahead.qcumberless.plugins;
 
-import com.trollsahead.qcumberless.gui.Element;
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+
+import java.awt.*;
 
 public interface ButtonBarMethodCallback {
-    void onTrigger(Element element);
+    void trigger();
+    Image getThumbnail(ThumbnailState thumbnailState);
+    String getTooltip();
 }

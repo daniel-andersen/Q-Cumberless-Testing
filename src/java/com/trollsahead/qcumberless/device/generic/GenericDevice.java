@@ -4,6 +4,8 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.engine.LogListener;
 
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Images {
+    public enum ThumbnailState {NORMAL, HIGHLIGHTED, PRESSED}
+
     public static int TYPE_NORMAL = 0;
     public static int TYPE_HIGHLIGHT = 1;
     public static int TYPE_PRESSED = 2;

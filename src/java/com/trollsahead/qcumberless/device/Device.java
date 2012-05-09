@@ -19,12 +19,13 @@
 
 package com.trollsahead.qcumberless.device;
 
+import com.trollsahead.qcumberless.gui.Images;
+
 import java.awt.*;
 import java.util.Set;
 
 public abstract class Device {
     public enum Capability {PLAY, PAUSE, STOP}
-    public enum ThumbnailState {NORMAL, HIGHLIGHTED, PRESSED}
 
     private boolean enabled = false;
 
@@ -32,7 +33,7 @@ public abstract class Device {
 
     public abstract Set<Capability> getCapabilities();
 
-    public abstract Image getThumbnail(ThumbnailState thumbnailState);
+    public abstract Image getThumbnail(Images.ThumbnailState thumbnailState);
 
     public abstract String name();
 

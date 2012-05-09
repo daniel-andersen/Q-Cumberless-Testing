@@ -19,6 +19,14 @@
 
 package com.trollsahead.qcumberless.plugins;
 
-public interface ElementMethodCallback {
+import com.trollsahead.qcumberless.gui.Element;
 
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+
+import java.awt.*;
+
+public interface ElementMethodCallback {
+    void trigger(Element element);
+    Image getThumbnail(ThumbnailState thumbnailState);
+    String getTooltip();
 }
