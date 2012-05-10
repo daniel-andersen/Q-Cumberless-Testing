@@ -31,6 +31,6 @@ public interface Plugin {
 
     List<StepDefinition> getStepDefinitions();
 
-    List<ElementMethodCallback> getElementMethodsApplicableFor(int type);
+    List<ElementMethodCallback> getDefinedElementMethodsApplicableFor(int type);
     List<ButtonBarMethodCallback> getButtonBarMethods();
 }

@@ -27,6 +27,7 @@ import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -69,7 +70,7 @@ public class ButtonBar {
     private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
-    private List<PluginButton> pluginButtons;
+    private List<Button> pluginButtons;
 
     public int renderX;
     public int renderY;
@@ -222,20 +223,21 @@ public class ButtonBar {
                     }
                 },
                 null);
+        importFeaturesButton.setHint("Import Step Definitions");
         buttons.add(importStepDefinitionsButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
     }
 
     private void addPluginButtons() {
-        pluginButtons = new LinkedList<PluginButton>();
+        pluginButtons = new LinkedList<Button>();
         for (Plugin plugin : Engine.plugins) {
             List<ButtonBarMethodCallback> callbacks = plugin.getButtonBarMethods();
             if (Util.isEmpty(callbacks)) {
                 continue;
             }
             for (final ButtonBarMethodCallback callback : callbacks) {
-                PluginButton button = new PluginButton(
+                Button button = new Button(
                         0, 0,
                         callback.getThumbnail(ThumbnailState.NORMAL),
                         callback.getThumbnail(ThumbnailState.HIGHLIGHTED),
@@ -246,7 +248,7 @@ public class ButtonBar {
                                 callback.trigger();
                             }
                         },
-                        callback);
+                        null);
                 button.setHint(callback.getTooltip());
                 pluginButtons.add(button);
             }
@@ -476,7 +478,7 @@ public class ButtonBar {
             }
         }
         for (DeviceButton button : deviceButtons) {
-            if (type == TYPE_PLAYING && (!button.device.isEnabled() || !button.device.getCapabilities().contains(Device.Capability.STOP))) {
+            if (type == TYPE_PLAYING && (!button.getDevice().isEnabled() || !button.getDevice().getCapabilities().contains(Device.Capability.STOP))) {
                 continue;
             }
             if (button.click()) {
@@ -488,47 +490,5 @@ public class ButtonBar {
 
     public void setFailed() {
         animation.colorAnimation.setColor(COLOR_BACKGROUND_FAILED, ANIMATION_FADE_SPEED);
-    }
-
-    private class DeviceButton extends Button {
-        private Device device;
-
-        public DeviceButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Device device) {
-            super(x, y, normalImage, highlightImage, pressedImage, alignment, notification, null);
-            this.device = device;
-        }
-        
-        public Device getDevice() {
-            return device;
-        }
-        
-        public int getRenderX() {
-            return super.renderX;
-        }
-
-        public int getRenderY() {
-            return super.renderY;
-        }
-    }
-
-    private class PluginButton extends Button {
-        private ButtonBarMethodCallback callback;
-
-        public PluginButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, ButtonBarMethodCallback callback) {
-            super(x, y, normalImage, highlightImage, pressedImage, alignment, notification, null);
-            this.callback = callback;
-        }
-
-        public ButtonBarMethodCallback getCallback() {
-            return callback;
-        }
-
-        public int getRenderX() {
-            return super.renderX;
-        }
-
-        public int getRenderY() {
-            return super.renderY;
-        }
     }
 }

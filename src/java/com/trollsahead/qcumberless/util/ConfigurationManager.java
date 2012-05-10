@@ -64,6 +64,9 @@ public class ConfigurationManager {
     }
 
     public static void put(String key, String value) {
+        if (Util.isEmpty(key) || Util.isEmpty(value)) {
+            return;
+        }
         externProperties.put(key, value);
     }
 }

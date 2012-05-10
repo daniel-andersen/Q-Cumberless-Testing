@@ -120,8 +120,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         scratchFeatures();
         resetStepDefinitions();
 
-        initializePlugins();
-
         resetFps();
     }
 
@@ -131,7 +129,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         fpsLastCount = 0;
     }
 
-    private void initializePlugins() {
+    public static void initializePlugins() {
         for (Plugin plugin : plugins) {
             plugin.initialize();
         }

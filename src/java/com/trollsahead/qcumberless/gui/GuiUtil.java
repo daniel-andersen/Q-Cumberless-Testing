@@ -20,8 +20,16 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.plugins.ElementMethodCallback;
+import com.trollsahead.qcumberless.plugins.Plugin;
+import com.trollsahead.qcumberless.util.Util;
+
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
 
 import java.awt.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GuiUtil {
     public static final Color[] SHADOW_COLOR = {new Color(0.0f, 0.0f, 0.0f, 0.2f), new Color(0.0f, 0.0f, 0.0f, 0.4f), new Color(0.0f, 0.0f, 0.0f, 0.6f)};
@@ -58,5 +66,31 @@ public class GuiUtil {
     public static void drawBarBorder(Graphics2D g, int x, int y, int width, int height, int rounding, Color color) {
         g.setColor(color);
         g.drawRoundRect(x, y, width, height, rounding, rounding);
+    }
+
+    public static List<ElementPluginButton> getPluginButtonsForElement(final Element element) {
+        List<ElementPluginButton> buttons = new LinkedList<ElementPluginButton>();
+        for (Plugin plugin : Engine.plugins) {
+            List<ElementMethodCallback> callbacks = plugin.getDefinedElementMethodsApplicableFor(element.type);
+            if (Util.isEmpty(callbacks)) {
+                continue;
+            }
+            for (final ElementMethodCallback callback : callbacks) {
+                buttons.add(new ElementPluginButton(
+                        0,
+                        0,
+                        callback.getThumbnail(ThumbnailState.NORMAL), callback.getThumbnail(ThumbnailState.HIGHLIGHTED), callback.getThumbnail(ThumbnailState.PRESSED),
+                        Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                        new Button.CucumberButtonNotification() {
+                            public void onClick() {
+                                callback.trigger(element);
+                            }
+                        },
+                        element,
+                        callback)
+                );
+            }
+        }
+        return buttons;
     }
 }

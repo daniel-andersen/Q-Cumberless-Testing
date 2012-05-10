@@ -27,6 +27,7 @@ import java.awt.*;
 
 public interface ElementMethodCallback {
     void trigger(Element element);
+    boolean isVisibleForElement(Element element);
     Image getThumbnail(ThumbnailState thumbnailState);
     String getTooltip();
 }

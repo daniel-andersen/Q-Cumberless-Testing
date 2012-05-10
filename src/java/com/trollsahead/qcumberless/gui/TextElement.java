@@ -26,6 +26,8 @@ import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.Tag;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
@@ -129,6 +131,7 @@ public class TextElement extends Element {
     private static Graphics2D[] imageGraphics = new Graphics2D[IMAGE_BUFFER_COUNT];
 
     private List<Button> buttons;
+    private List<ElementPluginButton> pluginButtons;
     private Button expandButton;
     private Button trashcanButton;
     private Button playButton;
@@ -288,8 +291,12 @@ public class TextElement extends Element {
                 },
                 this);
         buttons.add(tagsRemoveButton);
+        pluginButtons = GuiUtil.getPluginButtonsForElement(this);
         updateButtonPositions();
         for (Button button : buttons) {
+            button.setVisible(false);
+        }
+        for (ElementPluginButton button : pluginButtons) {
             button.setVisible(false);
         }
     }
@@ -315,6 +322,12 @@ public class TextElement extends Element {
             } else {
                 buttonGroupWidth = addGroupButton(tagsNewButton, buttonGroupWidth);
             }
+        }
+        for (ElementPluginButton button : pluginButtons) {
+            if (!button.getCallback().isVisibleForElement(this)) {
+                continue;
+            }
+            buttonGroupWidth = addGroupButton(button, buttonGroupWidth);
         }
         buttonGroupWidth -= BUTTON_SPACE_HORIZONTAL;
     }
@@ -357,6 +370,9 @@ public class TextElement extends Element {
         for (Button button : buttons) {
             button.setVisible(false);
         }
+        for (ElementPluginButton button : pluginButtons) {
+            button.setVisible(false);
+        }
         if (!isHighlighted()) {
             toggleButtonGroup(false);
             return;
@@ -370,6 +386,10 @@ public class TextElement extends Element {
         playButton.setVisible(hasPlayButton() && buttonGroupVisible);
         editButton.setVisible(hasEditButton() && buttonGroupVisible);
         for (Button button : buttons) {
+            button.update();
+        }
+        for (ElementPluginButton button : pluginButtons) {
+            button.setVisible(button.getCallback().isVisibleForElement(this) && buttonGroupVisible);
             button.update();
         }
     }
@@ -471,6 +491,11 @@ public class TextElement extends Element {
 
     public void click() {
         for (Button button : buttons) {
+            if (button.click()) {
+                return;
+            }
+        }
+        for (ElementPluginButton button : pluginButtons) {
             if (button.click()) {
                 return;
             }
@@ -776,6 +801,9 @@ public class TextElement extends Element {
         for (Button button : buttons) {
             button.render(canvas);
         }
+        for (ElementPluginButton button : pluginButtons) {
+            button.render(canvas);
+        }
     }
 
     private void clear(int index) {
@@ -991,6 +1019,11 @@ public class TextElement extends Element {
 
     private boolean isButtonTouched() {
         for (Button button : buttons) {
+            if (button.isTouched()) {
+                return true;
+            }
+        }
+        for (ElementPluginButton button : pluginButtons) {
             if (button.isTouched()) {
                 return true;
             }

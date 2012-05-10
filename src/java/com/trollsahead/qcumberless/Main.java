@@ -60,5 +60,6 @@ public class Main {
         } catch (Exception e) {
             System.out.println("No plugins found!");
         }
+        Engine.initializePlugins();
     }
 }
