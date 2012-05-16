@@ -223,7 +223,7 @@ public class ButtonBar {
                     }
                 },
                 null);
-        importFeaturesButton.setHint("Import Step Definitions");
+        importStepDefinitionsButton.setHint("Import Step Definitions");
         buttons.add(importStepDefinitionsButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
