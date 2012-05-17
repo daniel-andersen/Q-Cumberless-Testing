@@ -22,12 +22,15 @@ package com.trollsahead.qcumberless.device.generic;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.engine.LogListener;
+import com.trollsahead.qcumberless.gui.Element;
+import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -40,7 +43,8 @@ public class GenericDevice extends Device {
     private static final Pattern patternStartingScenario = Pattern.compile("(.*)Scenario: (.*)(\\s*)#(.*)");
     private static final Pattern patternRunningStep = Pattern.compile("(\\s*)Step: (.*)");
     private static final Pattern patternStepFailed = Pattern.compile("(\\s*)Step failed: (.*)");
-    private static final Pattern patternScreenshotMessage = Pattern.compile("(\\s*)Screenshot: (.*)");
+    private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(\\s*)Taking screenshoot to (.*) from device(.*)");
+    private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(\\s*)Screenshot taken(.*)");
 
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
@@ -49,6 +53,9 @@ public class GenericDevice extends Device {
     private final Set<Capability> capabilities;
     private DeviceCallback deviceCallback;
 
+    private String screenshotFilename = "";
+    private Element screenshotElement = null;
+    
     private boolean isRunning = false;
 
     static {
@@ -125,12 +132,14 @@ public class GenericDevice extends Device {
         }
 
         public void logLine(String log) {
+            System.out.println("LOG: " + log);
             notifyStarting(log);
             notifyStartingFeature(log);
             notifyStartingBackground(log);
             notifyStartingScenario(log);
             notifyRunningStep(log);
             notifyStepFailed(log);
+            notifyScreenshotBeingTaken(log);
             notifyScreenshotTaken(log);
         }
 
@@ -180,11 +189,41 @@ public class GenericDevice extends Device {
             }
         }
 
-        private void notifyScreenshotTaken(String log) {
-            Matcher matcher = patternScreenshotMessage.matcher(log);
-            if (matcher.find()) {
-                //downloadScreenshots(matcher.group(2));
+        private void notifyScreenshotBeingTaken(String log) {
+            final Element currentElement = deviceCallback.getCurrentElement();
+            if (currentElement == null) {
+                return;
             }
+            Matcher matcher = patternScreenshotBeingTakenMessage.matcher(log);
+            if (matcher.find()) {
+                screenshotFilename = matcher.group(2);
+                screenshotElement = currentElement;
+            }
+        }
+
+        private void notifyScreenshotTaken(String log) {
+            Matcher matcher = patternScreenshotTakenMessage.matcher(log);
+            if (matcher.find()) {
+                downloadScreenshots();
+            }
+        }
+
+        private void downloadScreenshots() {
+            final Element element = screenshotElement;
+            if (element == null) {
+                return;
+            }
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Image screenshot = ImageIO.read(new File(Util.addSlashToPath(GenericDeviceHelper.getPath()) + screenshotFilename));
+                        deviceCallback.attachScreenshots(element, screenshot);
+                    } catch (Exception e) {
+                        System.out.println("Error while loading screenshots!");
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     };
 

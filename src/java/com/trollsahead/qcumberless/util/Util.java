@@ -120,7 +120,7 @@ public class Util {
             return path.endsWith("/") ? path : (path + "/");
         }
     }
-    
+
     public static String stripPseudoNewLines(String str) {
         if (isEmpty(str)) {
             return str;

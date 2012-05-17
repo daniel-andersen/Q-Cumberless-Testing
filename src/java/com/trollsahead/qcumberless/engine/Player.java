@@ -300,12 +300,12 @@ public class Player implements DeviceCallback {
         failure(errorMessage);
     }
 
-    public void attachScreenshots(Step step, Image... screenshots) {
-        currentStep.setErrorScreenshots(screenshots);
+    public void attachScreenshots(Element element, Image... screenshots) {
+        element.setErrorScreenshots(screenshots);
     }
 
-    public Step getCurrentStep() {
-        return currentStep != null ? currentStep.step : null;
+    public Element getCurrentElement() {
+        return currentStep != null ? currentStep : null;
     }
 
     private void failure() {

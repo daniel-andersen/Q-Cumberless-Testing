@@ -35,22 +35,25 @@ public class GenericDeviceHelper {
     public static void runTests(StringBuilder feature, String featureFilename, Set<String> tags, LogListener logListener) {
         File tempFile = createFeatureFile(feature, featureFilename);
         String command = getCommand();
+        String path = getPath();
         command = command.replaceAll("\\\\", "/");
-        String executable = command;
-        String path = null;
-        if (command.contains("/")) {
-            path = command.substring(0, command.lastIndexOf("/"));
-            executable = "./" + command.substring(command.lastIndexOf("/") + 1);
-        }
-        executable = executable.replaceAll("\\$1", tempFile.getAbsolutePath());
-        executable = executable.replaceAll("\\$2", Util.tagsToString(tags));
-        Helper.executeCommand(executable, path, logListener);
+        command = command.replaceAll("\\$1", tempFile.getAbsolutePath());
+        command = command.replaceAll("\\$2", Util.tagsToString(tags));
+        Helper.executeCommand(command, path, logListener);
     }
 
-    private static String getCommand() {
+    public static String getCommand() {
         String command = ConfigurationManager.get("genericDeviceCommand");
         if (Util.isEmpty(command)) {
             return showEnterCommandDialog();
+        }
+        return command;
+    }
+
+    public static String getPath() {
+        String command = ConfigurationManager.get("genericDevicePath");
+        if (Util.isEmpty(command)) {
+            return showEnterPathDialog();
         }
         return command;
     }
@@ -59,13 +62,26 @@ public class GenericDeviceHelper {
         String command = (String) JOptionPane.showInputDialog(
                 CucumberlessDialog.instance,
                 "Enter command to run. $1 will be substituted with the feature file and $2 with the tags to run",
-                "Run Tests",
+                "Specify Command",
                 JOptionPane.PLAIN_MESSAGE,
                 null,
                 null,
                 "cucumber $1 --format QCumberless::Formatter --tags $2");
         ConfigurationManager.put("genericDeviceCommand", command);
         return command;
+    }
+
+    public static String showEnterPathDialog() {
+        String path = (String) JOptionPane.showInputDialog(
+                CucumberlessDialog.instance,
+                "Enter working directory",
+                "Specify Directory",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "example");
+        ConfigurationManager.put("genericDevicePath", path);
+        return path;
     }
 
     private static File createFeatureFile(StringBuilder feature, String featureFilename) {

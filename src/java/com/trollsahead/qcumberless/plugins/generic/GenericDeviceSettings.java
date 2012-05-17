@@ -46,6 +46,7 @@ public class GenericDeviceSettings implements ButtonBarMethodCallback {
 
     public void trigger() {
         GenericDeviceHelper.showEnterCommandDialog();
+        GenericDeviceHelper.showEnterPathDialog();
     }
 
     public Image getThumbnail(ThumbnailState thumbnailState) {

@@ -19,7 +19,7 @@
 
 package com.trollsahead.qcumberless.device;
 
-import com.trollsahead.qcumberless.model.Step;
+import com.trollsahead.qcumberless.gui.Element;
 
 import java.awt.*;
 
@@ -50,7 +50,7 @@ public interface DeviceCallback {
     void afterStep(String name);
     void afterStepFailed(String errorMessage);
     
-    void attachScreenshots(Step step, Image... screenshots);
+    void attachScreenshots(Element element, Image... screenshots);
 
-    Step getCurrentStep();
+    Element getCurrentElement();
 }
