@@ -132,7 +132,6 @@ public class GenericDevice extends Device {
         }
 
         public void logLine(String log) {
-            System.out.println("LOG: " + log);
             notifyStarting(log);
             notifyStartingFeature(log);
             notifyStartingBackground(log);
