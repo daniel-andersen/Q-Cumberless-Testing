@@ -112,12 +112,15 @@ public class GenericDevice extends Device {
         }
         try {
             reset();
+            isRunning = true;
             deviceCallback.onPlay();
             GenericDeviceHelper.runTests(feature, "singlerun.feature", tags, deviceLogListener);
             deviceCallback.afterPlayed();
         } catch (Exception e) {
             e.printStackTrace();
             deviceCallback.afterPlayFailed(e.getMessage());
+        } finally {
+            isRunning = false;
         }
     }
 
