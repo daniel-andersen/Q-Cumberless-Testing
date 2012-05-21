@@ -15,6 +15,7 @@ module QCumberless
         @io.printf(exception)
         @io.printf("\n")
       end
+      @io.flush
       super
     end
   end
