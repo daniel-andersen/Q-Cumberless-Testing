@@ -102,7 +102,7 @@ public class CucumberlessDialog extends JFrame {
 
     public File[] fileChooser() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(fileChooserPath == null ? new File(".") : fileChooserPath);
+        fileChooser.setCurrentDirectory(new File(getFeaturesPath()));
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setMultiSelectionEnabled(true);
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -115,7 +115,7 @@ public class CucumberlessDialog extends JFrame {
 
     public File directoryChooser() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(fileChooserPath == null ? new File(".") : fileChooserPath);
+        fileChooser.setCurrentDirectory(new File(getFeaturesPath()));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setMultiSelectionEnabled(false);
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -126,6 +126,11 @@ public class CucumberlessDialog extends JFrame {
         }
     }
 
+    private static String getFeaturesPath() {
+        String path = ConfigurationManager.get("featuresPath");
+        return !Util.isEmpty(path) ? path : ".";
+    }
+    
     public static void close() {
         if (instance != null) {
             WindowEvent windowClosing = new WindowEvent(instance, WindowEvent.WINDOW_CLOSING);
