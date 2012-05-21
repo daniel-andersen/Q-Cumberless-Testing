@@ -315,13 +315,11 @@ public class Player implements DeviceCallback {
     }
 
     private void failure() {
-        failure(null);
+        setFailed();
     }
     
     private void failure(String errorMessage) {
-        success = false;
-        hasDeviceFailures = true;
-        Engine.buttonBar.setFailed();
+        setFailed();
         if (currentStep != null && errorMessage != null) {
             currentStep.setFailed();
             currentStep.setErrorMessage(errorMessage);
@@ -332,6 +330,12 @@ public class Player implements DeviceCallback {
         if (currentFeature != null) {
             currentFeature.setFailed();
         }
+    }
+
+    private void setFailed() {
+        success = false;
+        hasDeviceFailures = true;
+        Engine.buttonBar.setFailed();
     }
 
     private boolean isRunningElement(TextElement element) {
