@@ -453,7 +453,7 @@ public class ButtonBar {
 
     private void renderDeviceState(Graphics2D g, DeviceButton button) {
         BufferedImage deviceStateImage = button.getDevice().isEnabled() ? deviceEnabledImage : deviceDisabledImage;
-        int x = button.getRenderX() + button.getImageWidth() - 3 - (deviceStateImage.getWidth() / 2);
+        int x = button.getRenderX() - (deviceStateImage.getWidth() / 2);
         int y = button.getRenderY() + button.getImageHeight() - 3 - (deviceStateImage.getHeight() / 2);
         g.drawImage(deviceStateImage, x, y, null);
         if (Player.isDeviceRunning(button.getDevice())) {
