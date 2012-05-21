@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.gui.Images;
+import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
@@ -47,11 +48,12 @@ public class Main {
         Images.initialize();
 
         wirePlugins();
+        setLanguage();
 
         CucumberlessDialog frame = new CucumberlessDialog();
         frame.letThereBeLight();
     }
-    
+
     private static void wirePlugins() {
         String pluginStr = ConfigurationManager.get("plugins");
         if (Util.isEmpty(pluginStr)) {
@@ -68,5 +70,14 @@ public class Main {
             System.out.println("No plugins found - using generic plugin!");
         }
         Engine.initializePlugins();
+    }
+
+    private static void setLanguage() {
+        String locale = ConfigurationManager.get("locale");
+        if (Util.isEmpty(locale)) {
+            return;
+        }
+        System.out.println("Setting locale to: " + locale);
+        Locale.setLocale(locale);
     }
 }

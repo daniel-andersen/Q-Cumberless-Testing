@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -34,21 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FeatureLoader {
-    private static final String FEATURE_PATTERN = ".{0,2}Feature: (.*)"; // Take into account encoding characters in start of file!
-    private static final Pattern FEATURE_PATTERN_COMPILED = Pattern.compile(FEATURE_PATTERN);
-
-    private static final String SCENARIO_PATTERN = ".{0,2}Scenario: (.*)"; // Take into account encoding characters in start of file!
-    private static final Pattern SCENARIO_PATTERN_COMPILED = Pattern.compile(SCENARIO_PATTERN);
-
-    private static final String BACKGROUND_PATTERN = ".{0,2}Background:"; // Take into account encoding characters in start of file!
-    private static final Pattern BACKGROUND_PATTERN_COMPILED = Pattern.compile(BACKGROUND_PATTERN);
-
-    private static final String TAG_PATTERN = "[^@]*(((@[^@\\s]*)\\s*)+)"; // Take into account encoding characters in start of file!
-    private static final Pattern TAG_PATTERN_COMPILED = Pattern.compile(TAG_PATTERN);
-
-    private static final String COMMENT_PATTERN = "\\t*(#.*)";
-    private static final Pattern COMMENT_PATTERN_COMPILED = Pattern.compile(COMMENT_PATTERN);
-
     public static void parseFeatureFiles(String[] files) {
         Engine.resetFeatures();
         for (String filename : files) {
@@ -71,28 +57,28 @@ public class FeatureLoader {
             String comment = null;
             while ((line = in.readLine()) != null) {
                 line = Util.removeTrailingSpaces(line);
-                if (line.matches(FEATURE_PATTERN)) {
-                    feature.setTitle(extractTitle(FEATURE_PATTERN_COMPILED, line));
+                if (line.matches(getFeaturePattern())) {
+                    feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
                     feature.setTags(tags);
                     feature.setComment(comment);
                     tags = null;
-                } else if (line.matches(BACKGROUND_PATTERN)) {
+                } else if (line.matches(getBackgroundPattern())) {
                     background = new TextElement(TextElement.TYPE_BACKGROUND, TextElement.ROOT_FEATURE_EDITOR);
                     background.setTitle("Background");
                     background.setTags(tags);
                     background.setComment(comment);
                     tags = null;
                     feature.addChild(background);
-                } else if (line.matches(SCENARIO_PATTERN)) {
+                } else if (line.matches(getScenarioPattern())) {
                     scenario = new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_FEATURE_EDITOR);
-                    scenario.setTitle(extractTitle(SCENARIO_PATTERN_COMPILED, line));
+                    scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
                     scenario.setTags(tags);
                     scenario.setComment(comment);
                     tags = null;
                     feature.addChild(scenario);
-                } else if (line.matches(TAG_PATTERN)) {
+                } else if (line.matches(getTagPattern())) {
                     tags = extractTags(line);
-                } else if (line.matches(COMMENT_PATTERN)) {
+                } else if (line.matches(getCommentPattern())) {
                     if (line.startsWith("\t")) {
                         addStep(feature, background, scenario, line);
                     } else {
@@ -140,13 +126,13 @@ public class FeatureLoader {
     }
 
     private static String extractComment(String line) {
-        Matcher matcher = COMMENT_PATTERN_COMPILED.matcher(line);
+        Matcher matcher = Pattern.compile(getCommentPattern()).matcher(line);
         matcher.find();
         return matcher.group(1);
     }
 
     private static String extractTags(String line) {
-        Matcher matcher = TAG_PATTERN_COMPILED.matcher(line);
+        Matcher matcher = Pattern.compile(getTagPattern()).matcher(line);
         matcher.find();
         return matcher.group(1);
     }
@@ -155,5 +141,25 @@ public class FeatureLoader {
         Matcher matcher = pattern.matcher(line);
         matcher.find();
         return matcher.group(1);
+    }
+
+    private static String getFeaturePattern() {
+        return Locale.getString("feature") + ": (.*)";
+    }
+
+    private static String getScenarioPattern() {
+        return "\\s*" + Locale.getString("scenario") + ": (.*)";
+    }
+
+    private static String getBackgroundPattern() {
+        return "\\s*" + Locale.getString("background") + ":";
+    }
+
+    private static String getTagPattern() {
+        return "[^@]*(((@[^@\\s]*)\\s*)+)";
+    }
+
+    private static String getCommentPattern() {
+        return "\\s*(#.*)";
     }
 }
