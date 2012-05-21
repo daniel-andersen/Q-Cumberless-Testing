@@ -54,11 +54,12 @@ public class Main {
         String[] plugins = pluginStr.split("\\:");
         try {
             for (String plugin : plugins) {
+                System.out.println("Adding plugin: " + plugin);
                 Class<Plugin> cls = (Class<Plugin>) Class.forName(plugin);
                 Engine.plugins.add(cls.newInstance());
             }
         } catch (Exception e) {
-            System.out.println("No plugins found!");
+            System.out.println("No plugins found - using generic plugin!");
         }
         Engine.initializePlugins();
     }
