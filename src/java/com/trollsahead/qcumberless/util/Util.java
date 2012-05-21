@@ -25,6 +25,8 @@
 
 package com.trollsahead.qcumberless.util;
 
+import com.trollsahead.qcumberless.model.Locale;
+
 import java.awt.*;
 import java.io.Closeable;
 import java.io.File;
@@ -191,5 +193,10 @@ public class Util {
 
     public static String negatedTag(String tag) {
         return tag.startsWith("~") ? tag.substring(1) : ("~" + tag);
+    }
+    
+    public static StringBuilder insertTagIntoFeature(StringBuilder feature, String tag) {
+        String featureText = Locale.getString("feature") + ": ";
+        return new StringBuilder(feature.toString().replace(featureText, tag + "\n" + featureText));
     }
 }
