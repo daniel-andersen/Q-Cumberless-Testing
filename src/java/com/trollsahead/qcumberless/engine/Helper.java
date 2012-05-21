@@ -55,45 +55,15 @@ public class Helper {
     }
 
     public static void executeCommand(String command, String dir, LogListener logListener) {
+        executeCommand(command, dir, logListener, new ExecutionStopper());
+    }
+
+    public static void executeCommand(String command, LogListener logListener, ExecutionStopper executionStopper) {
+        executeCommand(command, null, logListener, executionStopper);
+    }
+
+    public static void executeCommand(String command, String dir, LogListener logListener, ExecutionStopper executionStopper) {
         System.out.println("Executing: '" + command + (!Util.isEmpty(dir) ? "' from dir '" + dir + "'" : "'"));
-        BufferedReader stdin = null;
-        try {
-            logListener.start();
-
-            Process exec = dir != null ? 
-                    Runtime.getRuntime().exec(command, null, new File(dir)) :
-                    Runtime.getRuntime().exec(command);
-
-            stdin = new BufferedReader(new InputStreamReader((exec.getInputStream())));
-
-            String line;
-            while ((line = stdin.readLine()) != null) {
-                logListener.logLine(line);
-            }
-            int res = 1;
-            try {
-                res = exec.waitFor();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (res > 0) {
-                throw new RuntimeException("Process failed with return value: " + res);
-            }
-            logListener.finish();
-        } catch (Throwable t) {
-            t.printStackTrace();
-            logListener.error(t);
-        } finally {
-            Util.close(stdin);
-        }
-    }
-
-    public static void executeCommand(String command, LogListener logListener, ExecutorStopper executorStopper) {
-        executeCommand(command, null, logListener, executorStopper);
-    }
-
-    public static void executeCommand(String command, String dir, LogListener logListener, ExecutorStopper executorStopper) {
-        System.out.println("Executing with stopper: " + command);
         BufferedReader stdin = null;
         try {
             logListener.start();
@@ -105,20 +75,22 @@ public class Helper {
             stdin = new BufferedReader(new InputStreamReader((exec.getInputStream())));
 
             String line;
-            boolean running = true;
-            while (running && !executorStopper.isStopped()) {
-                while ((line = stdin.readLine()) != null && running && !executorStopper.isStopped()) {
-                    logListener.logLine(line);
-                }
+            while ((line = stdin.readLine()) != null && !executionStopper.isStopped()) {
+                logListener.logLine(line);
+            }
+            if (!executionStopper.isStopped()) {
+                int res = 1;
                 try {
-                    int res = exec.exitValue();
-                    running = false;
-                    if (res > 0) {
-                        throw new RuntimeException("Process failed with return value: " + res);
-                    }
-                } catch (IllegalThreadStateException e) {
-                    running = true;
+                    res = exec.waitFor();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                if (res > 0) {
+                    throw new RuntimeException("Process failed with return value: " + res);
+                }
+            } else {
+                exec.destroy();
+                logListener.error(new RuntimeException("Stopped by user!"));
             }
             logListener.finish();
         } catch (Throwable t) {
@@ -129,7 +101,7 @@ public class Helper {
         }
     }
 
-    public static class ExecutorStopper {
+    public static class ExecutionStopper {
         private boolean stopped = false;
 
         public void stop() {
