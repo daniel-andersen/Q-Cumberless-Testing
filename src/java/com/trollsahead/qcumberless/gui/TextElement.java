@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.FeatureLoader;
 import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.Tag;
 import com.trollsahead.qcumberless.util.Util;
@@ -1065,13 +1066,13 @@ public class TextElement extends Element {
             }
         }
         if (type == TYPE_FEATURE) {
-            sb.append("Feature: ").append(convertNewlines(title)).append("\n\n");
+            sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
         }
         if (type == TYPE_BACKGROUND) {
-            sb.append("Background:\n");
+            sb.append(Locale.getString("background")).append(":\n");
         }
         if (type == TYPE_SCENARIO) {
-            sb.append("Scenario: ").append(title).append("\n\n");
+            sb.append(Locale.getString("scenario")).append(": ").append(title).append("\n\n");
         }
         if (type == TYPE_STEP) {
             sb.append("\t").append(step.toString()).append("\n");
