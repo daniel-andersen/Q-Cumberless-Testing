@@ -231,13 +231,4 @@ public class GenericDevice extends Device {
             }).start();
         }
     };
-
-    public void starting() {
-    }
-
-    public void ending() {
-    }
-
-    public void errorOccurred(String msg, Throwable t) {
-    }
 }
