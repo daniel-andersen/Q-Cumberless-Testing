@@ -1,13 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="Hello World, HelloWorld"
-    />
-</LinearLayout>
+<ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:orientation="vertical"
+            android:layout_height="fill_parent">
 
+        <TextView
+                android:id="@+id/HelloWorldTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/helloWorldText"
+                android:textSize="10pt">
+        </TextView>
+
+        <EditText
+                android:id="@+id/HelloWorldEditText"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:layout_width="fill_parent">
+        </EditText>
+
+        <Spinner
+                android:id="@+id/SpinnerType"
+                android:layout_height="wrap_content"
+                android:prompt="@string/spinnerTitle"
+                android:layout_width="fill_parent"
+                android:entries="@array/spinnerList">
+        </Spinner>
+
+        <Button
+                android:id="@+id/ButtonSayHello"
+                android:layout_height="wrap_content"
+                android:text="@string/sayHelloButton"
+                android:onClick="sayHello"
+                android:layout_width="fill_parent">
+        </Button>
+
+    </LinearLayout>
+</ScrollView>
