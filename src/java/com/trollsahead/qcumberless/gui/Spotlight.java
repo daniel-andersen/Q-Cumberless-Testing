@@ -83,6 +83,9 @@ public class Spotlight {
         isCharValid |= ch >= 'a' && ch <= 'z';
         isCharValid |= ch >= 'A' && ch <= 'Z';
         isCharValid |= ch >= '0' && ch <= '9';
+        isCharValid |= ch == 'æ' || ch == 'Æ';
+        isCharValid |= ch == 'ø' || ch == 'Ø';
+        isCharValid |= ch == 'å' || ch == 'Å';
         isCharValid |= ch == '+' || ch == '-';
         isCharValid |= ch == ' ' || ch == '\'';
         if (isCharValid) {
