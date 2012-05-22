@@ -54,11 +54,19 @@ public class SimpleRubyStepDefinitionParser {
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
             String line;
+            String parameters = null;
             while ((line = in.readLine()) != null) {
-                StepDefinition stepDefinition = parseLine(line);
+                String newParameters = parseParameters(line);
+                if (!Util.isEmpty(newParameters)) {
+                    System.out.println("Found parameters: " + newParameters);
+                    parameters = newParameters;
+                    continue;
+                }
+                StepDefinition stepDefinition = parseLine(line, parameters);
                 if (stepDefinition != null) {
                     stepDefinitions.add(stepDefinition);
                 }
+                parameters = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,7 +77,18 @@ public class SimpleRubyStepDefinitionParser {
         return stepDefinitions;
     }
 
-    private static StepDefinition parseLine(String line) {
+    private static String parseParameters(String line) {
+        String commentPattern = "# qcumberless (.*)";
+        if (!line.matches(commentPattern)) {
+            return null;
+        } else {
+            Matcher matcher = Pattern.compile(commentPattern).matcher(line);
+            matcher.find();
+            return matcher.group(1);
+        }
+    }
+
+    private static StepDefinition parseLine(String line, String parameters) {
         if (Util.isEmpty(line)) {
             return null;
         }
@@ -81,19 +100,37 @@ public class SimpleRubyStepDefinitionParser {
             if (line.matches(pattern)) {
                 Matcher matcher = Pattern.compile(pattern).matcher(line);
                 matcher.find();
-                return parseStepDefinition(matcher.group(1), matcher.group(2));
+                return parseStepDefinition(matcher.group(1), parameters);
             }
         }
         return null;
     }
 
-    private static StepDefinition parseStepDefinition(String keyword, String definition) {
+    private static StepDefinition parseStepDefinition(String definition, String parameters) {
         StepDefinition stepDefinition = new StepDefinition("(.*) " + convertGroups(definition));
         stepDefinition.addParameter(Constants.getStepPrefixs());
-        for (String[] parameter : getParametersFromDefinition(definition)) {
-            stepDefinition.addParameter(parameter);
+        if (Util.isEmpty(parameters)) {
+            for (String[] parameter : getParametersFromDefinition(definition)) {
+                stepDefinition.addParameter(parameter);
+            }
+        } else {
+            for (String[] parameter : getParametersFromComment(parameters)) {
+                stepDefinition.addParameter(parameter);
+            }
         }
         return stepDefinition;
+    }
+
+    private static List<String[]> getParametersFromComment(String parameters) {
+        List<String[]> parameterList = new LinkedList<String[]>();
+        int start;
+        while ((start = parameters.indexOf("(")) != -1) {
+            int end = parameters.indexOf(")");
+            String params = parameters.substring(start + 1, end);
+            parameterList.add(params.split("\\|"));
+            parameters = parameters.substring(end + 1);
+        }
+        return parameterList;
     }
 
     private static List<String[]> getParametersFromDefinition(String definition) {
@@ -118,6 +155,6 @@ public class SimpleRubyStepDefinitionParser {
     }
 
     private static String buildStepDefinitionPattern(String keyword) {
-        return "(" + keyword + ") /\\^(.*)\\$/.*";
+        return keyword + " /\\^(.*)\\$/.*";
     }
 }
