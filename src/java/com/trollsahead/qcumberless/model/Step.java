@@ -149,7 +149,10 @@ public class Step {
     }
 
     private void updateRenderKeyword() {
-        if (!renderKeyword && parts != null) {
+        if (parts == null) {
+            return;
+        }
+        if (!renderKeyword) {
             boolean shouldRender = false;
             for (CucumberStepPart part : parts) {
                 if (part.type == CucumberStepPart.PartType.ARGUMENT) {
@@ -158,6 +161,10 @@ public class Step {
                 } else {
                     part.render = true;
                 }
+            }
+        } else {
+            for (CucumberStepPart part : parts) {
+                part.render = true;
             }
         }
     }
