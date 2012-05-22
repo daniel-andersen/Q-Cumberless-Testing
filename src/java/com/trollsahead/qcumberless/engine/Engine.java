@@ -31,6 +31,7 @@ import com.trollsahead.qcumberless.gui.Spotlight;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.StepDefinition;
+import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -437,7 +438,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
         StringBuilder sb = new StringBuilder();
         if (cucumberTextElement.type == TextElement.TYPE_SCENARIO) {
-            sb.append("Feature: " + cucumberTextElement.groupParent.getTitle() + "\n\n");
+            sb.append(Locale.getString("feature")).append(": ").append(cucumberTextElement.groupParent.getTitle()).append("\n\n");
             Element background = findBackgroundElement(cucumberTextElement.groupParent);
             if (background != null) {
                 sb.append(background.buildFeature());
