@@ -1,4 +1,4 @@
-Feature: Login feature
+Feature: Hello World
 
     Scenario: I see "What to say?" when I launch the app
         Given My app is running
