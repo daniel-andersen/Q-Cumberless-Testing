@@ -57,17 +57,22 @@ public class FeatureLoader {
             String comment = null;
             while ((line = in.readLine()) != null) {
                 line = Util.removeTrailingSpaces(line);
+                if (Util.isEmptyOrContainsOnlyTabs(line)) {
+                    continue;
+                }
                 if (line.matches(getFeaturePattern())) {
                     feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
                     feature.setTags(tags);
                     feature.setComment(comment);
                     tags = null;
+                    comment = null;
                 } else if (line.matches(getBackgroundPattern())) {
                     background = new TextElement(TextElement.TYPE_BACKGROUND, TextElement.ROOT_FEATURE_EDITOR);
                     background.setTitle("Background");
                     background.setTags(tags);
                     background.setComment(comment);
                     tags = null;
+                    comment = null;
                     feature.addChild(background);
                 } else if (line.matches(getScenarioPattern())) {
                     scenario = new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_FEATURE_EDITOR);
@@ -75,17 +80,19 @@ public class FeatureLoader {
                     scenario.setTags(tags);
                     scenario.setComment(comment);
                     tags = null;
+                    comment = null;
                     feature.addChild(scenario);
                 } else if (line.matches(getTagPattern())) {
                     tags = extractTags(line);
                 } else if (line.matches(getCommentPattern())) {
-                    if (line.startsWith("\t")) {
-                        addStep(feature, background, scenario, line);
-                    } else {
-                        comment = extractComment(line);
-                    }
+                    comment = extractComment(line);
                 } else {
+                    if (comment != null) {
+                        addStep(feature, background, scenario, comment);
+                    }
                     addStep(feature, background, scenario, line);
+                    tags = null;
+                    comment = null;
                 }
             }
         } catch (Exception e) {
