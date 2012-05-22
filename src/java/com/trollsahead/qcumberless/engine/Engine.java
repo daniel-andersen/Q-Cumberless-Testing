@@ -150,14 +150,16 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public void show() {
-        scratchFeatures(true);
-        resetStepDefinitions(true);
-
         if (!Util.isEmpty(ConfigurationManager.get("importFeaturesOnStartup"))) {
             importFeatures(new File[] {new File(ConfigurationManager.get("featuresPath"))});
+        } else {
+            scratchFeatures(true);
         }
+
         if (!Util.isEmpty(ConfigurationManager.get("importStepDefinitionsOnStartup"))) {
             importSteps(plugins.get(0));
+        } else {
+            resetStepDefinitions(true);
         }
     }
 
@@ -517,32 +519,34 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void scratchFeatures(boolean addTemplate) {
-        resetFps();
         synchronized (LOCK) {
             resetFeatures();
             if (addTemplate) {
                 addTemplateFeature();
             }
         }
+        resetFps();
     }
 
     public static void resetStepDefinitions(boolean addTemplate) {
-        stepDefinitions = new ArrayList<Step>();
+        synchronized (LOCK) {
+            stepDefinitions = new ArrayList<Step>();
 
-        cucumberRoot.removeChild(stepsRoot);
-        stepsRoot = new RootElement();
-        cucumberRoot.addChild(stepsRoot, 1);
+            cucumberRoot.removeChild(stepsRoot);
+            stepsRoot = new RootElement();
+            cucumberRoot.addChild(stepsRoot, 1);
 
-        if (addTemplate) {
-            stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, "Feature"));
-            stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
-            stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, "Comment"));
-            TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, "New step");
-            stepElement.step.isMatched = false;
-            stepsRoot.addChild(stepElement);
+            if (addTemplate) {
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, "Feature"));
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, "Comment"));
+                TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, "New step");
+                stepElement.step.isMatched = false;
+                stepsRoot.addChild(stepElement);
+            }
+
+            updateRootPositions();
         }
-
-        updateRootPositions();
         resetFps();
     }
 
