@@ -70,7 +70,7 @@ public class Helper {
                     Runtime.getRuntime().exec(command, null, new File(dir)) :
                     Runtime.getRuntime().exec(command);
 
-            stdin = new BufferedReader(new InputStreamReader((exec.getInputStream())));
+            stdin = new BufferedReader(new InputStreamReader((exec.getInputStream()), "UTF8"));
 
             String line;
             while ((line = stdin.readLine()) != null && !executionStopper.isStopped()) {
