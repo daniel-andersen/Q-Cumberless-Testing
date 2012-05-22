@@ -37,9 +37,7 @@ import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
@@ -1129,15 +1127,15 @@ public class TextElement extends Element {
         if (Util.isEmpty(filename)) {
             return false;
         }
-        BufferedWriter bufferedWriter = null;
+        BufferedWriter out = null;
         try {
-            bufferedWriter = new BufferedWriter(new FileWriter(new File(filename)));
-            bufferedWriter.append(buildFeature().toString());
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF8"));
+            out.append(buildFeature().toString());
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         } finally {
-            Util.close(bufferedWriter);
+            Util.close(out);
         }
         return true;
     }
