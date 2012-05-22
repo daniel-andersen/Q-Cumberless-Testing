@@ -18,15 +18,9 @@
                 android:textSize="10pt">
         </TextView>
 
-        <EditText
-                android:id="@+id/HelloWorldEditText"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:layout_width="fill_parent">
-        </EditText>
-
         <Spinner
                 android:id="@+id/SpinnerType"
+                android:contentDescription="whatToSaySpinner"
                 android:layout_height="wrap_content"
                 android:prompt="@string/spinnerTitle"
                 android:layout_width="fill_parent"
@@ -34,10 +28,10 @@
         </Spinner>
 
         <Button
-                android:id="@+id/ButtonSayHello"
+                android:id="@+id/ButtonSayIt"
                 android:layout_height="wrap_content"
-                android:text="@string/sayHelloButton"
-                android:onClick="sayHello"
+                android:text="@string/sayItButton"
+                android:onClick="sayIt"
                 android:layout_width="fill_parent">
         </Button>
 

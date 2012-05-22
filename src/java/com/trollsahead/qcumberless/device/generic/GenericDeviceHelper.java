@@ -38,17 +38,29 @@ import java.io.File;
 import java.util.Set;
 
 public class GenericDeviceHelper {
-    public static void runTests(StringBuilder feature, String featureFilename, Set<String> tags, LogListener logListener, ExecutionStopper executionStopper) {
-        File tempFile = Helper.writeFeatureToTemporaryFile(feature, featureFilename);
-        String command = getCommand();
-        String path = getPath();
-        command = command.replaceAll("\\\\", "/");
-        command = command.replaceAll("\\$1", tempFile.getAbsolutePath());
-        command = command.replaceAll("\\$2", Util.tagsToString(tags));
-        Helper.executeCommand(command, path, logListener, executionStopper);
+    private static final String FEATURE_FILENAME = "qcumberless_singlerun.feature";
+    private static final String QCUMBERLESS_TAG = "@qcumberless";
+
+    public static void runTests(StringBuilder feature, Set<String> tags, LogListener logListener, ExecutionStopper executionStopper) {
+        File file = Helper.writeFeatureToFile(Util.insertTagIntoFeature(feature, QCUMBERLESS_TAG), Util.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME);
+        try {
+            String command = getCommand();
+            String path = getPath();
+            command = command.replaceAll("\\\\", "/");
+            command = command.replaceAll("\\$1", file.getAbsolutePath());
+            command = command.replaceAll("\\$2", getTags(Util.tagsToString(tags)));
+            Helper.executeCommand(command, path, logListener, executionStopper);
+        } finally {
+            file.delete();
+        }
+    }
+
+    private static String getTags(String tags) {
+        return "--tags=" + QCUMBERLESS_TAG + (!Util.isEmpty(tags) ? " " + tags : "");
     }
 
     public static String getCommand() {
+        // calabash-android run --format QCumberless::Formatter $2 $1
         String command = ConfigurationManager.get("genericDeviceCommand");
         if (Util.isEmpty(command)) {
             return showEnterCommandDialog();

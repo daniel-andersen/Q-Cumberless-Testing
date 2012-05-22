@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">HelloWorld</string>
     <string name="helloWorldText">What to say?</string>
-    <string name="sayHelloButton">Say Hello!</string>
-    <string name="spinnerTitle">Choose one</string>
-    <string name="spinnerText1">Hello</string>
-    <string name="spinnerText2">World</string>
+    <string name="sayItButton">Say it!</string>
+    <string name="spinnerTitle">What to say?</string>
+    <string name="spinnerText1">Hello World!</string>
+    <string name="spinnerText2">Test Q-Cumberless!</string>
 </resources>
