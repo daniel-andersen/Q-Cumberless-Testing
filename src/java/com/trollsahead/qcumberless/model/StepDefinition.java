@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.model;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,11 @@ public class StepDefinition {
         this.stepDefinition = stepDefinition;
     }
     
+    public StepDefinition(String stepDefinition, String[][] parameters) {
+        this.stepDefinition = stepDefinition;
+        this.parameters.addAll(Arrays.asList(parameters));
+    }
+
     public void addParameter(String[] parameter) {
         parameters.add(parameter);
     }
