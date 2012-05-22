@@ -44,8 +44,6 @@ public class CucumberlessDialog extends JFrame {
 
     public static CucumberlessDialog instance = null;
 
-    private File fileChooserPath = null;
-
 	public CucumberlessDialog() {
 		super();
         instance = this;
@@ -113,7 +111,7 @@ public class CucumberlessDialog extends JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setMultiSelectionEnabled(true);
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            fileChooserPath = fileChooser.getCurrentDirectory();
+            ConfigurationManager.put("featuresPath", fileChooser.getCurrentDirectory().getAbsolutePath());
             return fileChooser.getSelectedFiles();
         } else {
             return null;
@@ -126,7 +124,7 @@ public class CucumberlessDialog extends JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setMultiSelectionEnabled(false);
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            fileChooserPath = fileChooser.getCurrentDirectory();
+            ConfigurationManager.put("featuresPath", fileChooser.getCurrentDirectory().getAbsolutePath());
             return fileChooser.getSelectedFile();
         } else {
             return null;
