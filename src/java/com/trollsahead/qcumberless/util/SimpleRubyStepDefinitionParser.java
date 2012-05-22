@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RubyStepDefinitionParser {
+public class SimpleRubyStepDefinitionParser {
     public static List<StepDefinition> parseFiles(String[] filenames) {
         List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
         for (String filename : filenames) {
@@ -113,7 +113,7 @@ public class RubyStepDefinitionParser {
 
     private static String convertGroups(String definition) {
         return definition
-                .replaceAll("\\([^\\)]*\\)", "§§§")
+                .replaceAll("\\([^\\)]*\\)[\\?\\+\\*]?", "§§§")
                 .replaceAll("§§§", "(.*)");
     }
 
