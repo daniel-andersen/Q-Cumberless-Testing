@@ -127,6 +127,8 @@ public class TextElement extends Element {
     private String comment = null;
     public Tag tags;
 
+    private static final String EXPORT_INDENT = "    ";
+
     private static final int IMAGE_BUFFER_COUNT = 20;
     private static final int IMAGE_BUFFER_WIDTH = 620;
     private static final int IMAGE_BUFFER_STEP_SIZE = 10;
@@ -1066,25 +1068,25 @@ public class TextElement extends Element {
             sb.append(comment).append("\n");
         }
         if (!Util.isEmpty(tags.toString())) {
-            sb.append(tags.toString()).append("\n");
-            if (type == TYPE_FEATURE) {
-                sb.append("\n");
+            if (type == TYPE_SCENARIO) {
+                sb.append(EXPORT_INDENT);
             }
+            sb.append(tags.toString()).append("\n");
         }
         if (type == TYPE_FEATURE) {
             sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
         }
         if (type == TYPE_BACKGROUND) {
-            sb.append(Locale.getString("background")).append(":\n");
+            sb.append(EXPORT_INDENT).append(Locale.getString("background")).append(":\n");
         }
         if (type == TYPE_SCENARIO) {
-            sb.append(Locale.getString("scenario")).append(": ").append(title).append("\n");
+            sb.append(EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
         }
         if (type == TYPE_STEP) {
-            sb.append("\t").append(step.toString()).append("\n");
+            sb.append(EXPORT_INDENT).append(EXPORT_INDENT).append(step.toString()).append("\n");
         }
         if (type == TYPE_COMMENT) {
-            sb.append("\t").append("# ").append(title).append("\n");
+            sb.append(EXPORT_INDENT).append(EXPORT_INDENT).append("# ").append(title).append("\n");
         }
         return sb;
     }
