@@ -58,7 +58,6 @@ public class SimpleRubyStepDefinitionParser {
             while ((line = in.readLine()) != null) {
                 String newParameters = parseParameters(line);
                 if (!Util.isEmpty(newParameters)) {
-                    System.out.println("Found parameters: " + newParameters);
                     parameters = newParameters;
                     continue;
                 }
