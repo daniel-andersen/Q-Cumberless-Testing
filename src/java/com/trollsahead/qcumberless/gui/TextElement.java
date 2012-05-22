@@ -362,6 +362,10 @@ public class TextElement extends Element {
         this.comment = comment;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
     public void updateSelf(long time) {
         updateButtons();
     }
@@ -456,7 +460,7 @@ public class TextElement extends Element {
             return;
         }
         FontMetrics fontMetrics = g.getFontMetrics();
-        tagsWidth = fontMetrics.stringWidth(getTagsString()) + (HINT_PADDING_HORIZONTAL * 2);
+        tagsWidth = fontMetrics.stringWidth(getTagsStringOrAtIfEmpty()) + (HINT_PADDING_HORIZONTAL * 2);
         tagsHeight = fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
     }
 
@@ -800,7 +804,11 @@ public class TextElement extends Element {
         }
     }
 
-    private String getTagsString() {
+    public String getTagsString() {
+        return tags.hasTags() ? tags.toString() : "";
+    }
+
+    private String getTagsStringOrAtIfEmpty() {
         return tags.hasTags() ? tags.toString() : "@";
     }
 
@@ -1072,7 +1080,7 @@ public class TextElement extends Element {
             sb.append(Locale.getString("background")).append(":\n");
         }
         if (type == TYPE_SCENARIO) {
-            sb.append(Locale.getString("scenario")).append(": ").append(title).append("\n\n");
+            sb.append(Locale.getString("scenario")).append(": ").append(title).append("\n");
         }
         if (type == TYPE_STEP) {
             sb.append("\t").append(step.toString()).append("\n");

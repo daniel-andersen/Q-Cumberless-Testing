@@ -438,8 +438,15 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
         StringBuilder sb = new StringBuilder();
         if (cucumberTextElement.type == TextElement.TYPE_SCENARIO) {
-            sb.append(Locale.getString("feature")).append(": ").append(cucumberTextElement.groupParent.getTitle()).append("\n\n");
-            Element background = findBackgroundElement(cucumberTextElement.groupParent);
+            TextElement parentTextElement = (TextElement) cucumberTextElement.groupParent;
+            if (!Util.isEmpty(parentTextElement.getComment())) {
+                sb.append(parentTextElement.getComment()).append("\n");
+            }
+            if (!Util.isEmpty(parentTextElement.getTagsString())) {
+                sb.append(parentTextElement.getTagsString()).append("\n");
+            }
+            sb.append(Locale.getString("feature")).append(": ").append(parentTextElement.getTitle()).append("\n\n");
+            Element background = findBackgroundElement(parentTextElement);
             if (background != null) {
                 sb.append(background.buildFeature());
             }

@@ -59,6 +59,10 @@ public class Util {
         return list == null || list.size() == 0;
     }
 
+    public static boolean isEmptyOrContainsOnlyTabs(String str) {
+        return str == null || "".equals(str.replaceAll("\\t", "").trim());
+    }
+
     public static boolean startsWithIgnoreWhitespace(String str, String prefix) {
         return str.matches("(\\s|\\t)*" + prefix + ".*");
     }
