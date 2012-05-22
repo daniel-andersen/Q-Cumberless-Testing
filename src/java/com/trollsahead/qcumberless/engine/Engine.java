@@ -33,6 +33,7 @@ import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.StepDefinition;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.plugins.Plugin;
+import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -124,8 +125,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         spotlight = new Spotlight();
 
         cucumberRoot = new RootElement();
-        scratchFeatures();
-        resetStepDefinitions();
+        scratchFeatures(false);
+        resetStepDefinitions(false);
 
         resetFps();
     }
@@ -146,6 +147,18 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public CumberlessCanvas getCanvas() {
         return canvas;
+    }
+
+    public void show() {
+        scratchFeatures(true);
+        resetStepDefinitions(true);
+
+        if (!Util.isEmpty(ConfigurationManager.get("importFeaturesOnStartup"))) {
+            importFeatures(new File[] {new File(ConfigurationManager.get("featuresPath"))});
+        }
+        if (!Util.isEmpty(ConfigurationManager.get("importStepDefinitionsOnStartup"))) {
+            importSteps();
+        }
     }
 
     public static void stop() {
@@ -477,8 +490,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void importFeatures(File[] files) {
-        resetFps();
         if (files == null || files.length == 0) {
+            resetFps();
             return;
         }
         featuresBaseDir = (files.length == 1 && files[0].isDirectory()) ? files[0].getAbsolutePath() : null;
@@ -489,53 +502,58 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 e.printStackTrace();
             }
             Engine.featuresRoot.isLoaded = true;
+            resetFps();
         }
     }
 
     public static void exportFeatures(File directory) {
-        resetFps();
         featuresRoot.export(directory);
+        resetFps();
     }
 
     public static void saveFeatures() {
-        resetFps();
         featuresRoot.save();
+        resetFps();
     }
 
-    public static void scratchFeatures() {
+    public static void scratchFeatures(boolean addTemplate) {
         resetFps();
         synchronized (LOCK) {
             resetFeatures();
-            addTemplateFeature();
+            if (addTemplate) {
+                addTemplateFeature();
+            }
         }
     }
 
-    public static void resetStepDefinitions() {
-        resetFps();
+    public static void resetStepDefinitions(boolean addTemplate) {
         stepDefinitions = new ArrayList<Step>();
 
         cucumberRoot.removeChild(stepsRoot);
         stepsRoot = new RootElement();
         cucumberRoot.addChild(stepsRoot, 1);
 
-        stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, "Feature"));
-        stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
-        stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, "Comment"));
-        TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, "New step");
-        stepElement.step.isMatched = false;
-        stepsRoot.addChild(stepElement);
+        if (addTemplate) {
+            stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, "Feature"));
+            stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
+            stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, "Comment"));
+            TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, "New step");
+            stepElement.step.isMatched = false;
+            stepsRoot.addChild(stepElement);
+        }
 
         updateRootPositions();
+        resetFps();
     }
 
     public static void resetFeatures() {
-        resetFps();
         featuresBaseDir = null;
         cucumberRoot.removeChild(Engine.featuresRoot);
         featuresRoot = new RootElement();
         featuresRoot.isLoaded = false;
         cucumberRoot.addChild(featuresRoot, 0);
         updateRootPositions();
+        resetFps();
     }
 
     private static void addTemplateFeature() {

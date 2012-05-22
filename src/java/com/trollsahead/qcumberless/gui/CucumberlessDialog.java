@@ -60,6 +60,7 @@ public class CucumberlessDialog extends JFrame {
         new Thread(engine).start();
         Util.sleep(1000); // For flicker not to happen
         setVisible(true);
+        engine.show();
     }
 
 	private void initComponents() {

@@ -37,7 +37,7 @@ import java.util.List;
 public class CucumberStepDefinitionLoader {
     public static void parseStepDefinitions(List<StepDefinition> stepDefinitions) {
         List<TextElement> elements = new ArrayList<TextElement>();
-        Engine.resetStepDefinitions();
+        Engine.resetStepDefinitions(true);
         for (StepDefinition stepDefinition : stepDefinitions) {
             Step currentStep = new Step(stepDefinition);
             currentStep.setShouldRenderKeyword(false);

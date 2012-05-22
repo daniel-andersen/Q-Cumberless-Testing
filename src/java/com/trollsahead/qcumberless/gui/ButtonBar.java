@@ -148,7 +148,7 @@ public class ButtonBar {
                         if (Engine.spotlight.visible && "black knight mode".equalsIgnoreCase(Engine.spotlight.searchString)) {
                             EasterEgg.show();
                         } else {
-                            Engine.scratchFeatures();
+                            Engine.scratchFeatures(true);
                         }
                     }
                 },
