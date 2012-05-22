@@ -27,9 +27,7 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.util.Util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -101,6 +99,41 @@ public class Helper {
         }
     }
 
+    public static File writeFeatureToTemporaryFile(StringBuilder feature, String filename) {
+        BufferedWriter out = null;
+        try {
+            String prefix = filename.substring(0, filename.lastIndexOf("."));
+            String suffix = filename.substring(filename.lastIndexOf(".") + 1);
+
+            File file = File.createTempFile(prefix, suffix);
+            file.deleteOnExit();
+
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+            out.write(feature.toString());
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            Util.close(out);
+        }
+    }
+
+    public static File writeFeatureToFile(StringBuilder feature, String filename) {
+        BufferedWriter out = null;
+        try {
+            File file = new File(filename);
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+            out.write(feature.toString());
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            Util.close(out);
+        }
+    }
+    
     public static class ExecutionStopper {
         private boolean stopped = false;
 

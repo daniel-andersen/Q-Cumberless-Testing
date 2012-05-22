@@ -32,14 +32,12 @@ import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.Set;
 
 public class GenericDeviceHelper {
     public static void runTests(StringBuilder feature, String featureFilename, Set<String> tags, LogListener logListener) {
-        File tempFile = createFeatureFile(feature, featureFilename);
+        File tempFile = Helper.writeFeatureToTemporaryFile(feature, featureFilename);
         String command = getCommand();
         String path = getPath();
         command = command.replaceAll("\\\\", "/");
@@ -88,24 +86,5 @@ public class GenericDeviceHelper {
                 "example");
         ConfigurationManager.put("genericDevicePath", path);
         return path;
-    }
-
-    private static File createFeatureFile(StringBuilder feature, String featureFilename) {
-        try {
-            String prefix = featureFilename.substring(0, featureFilename.lastIndexOf("."));
-            String suffix = featureFilename.substring(featureFilename.lastIndexOf(".") + 1);
-
-            File tempFile = File.createTempFile(prefix, suffix);
-            tempFile.deleteOnExit();
-
-            BufferedWriter tempWriter = new BufferedWriter(new FileWriter(tempFile));
-            tempWriter.write(feature.toString());
-            tempWriter.close();
-
-            return tempFile;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

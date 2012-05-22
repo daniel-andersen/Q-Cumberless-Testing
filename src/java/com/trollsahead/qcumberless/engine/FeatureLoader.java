@@ -44,7 +44,7 @@ public class FeatureLoader {
 
     private static void parseFeatureFile(String filename) {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
             TextElement feature = new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_FEATURE_EDITOR);
             feature.setFilename(filename);
             Engine.featuresRoot.addChild(feature);
