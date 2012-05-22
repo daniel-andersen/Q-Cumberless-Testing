@@ -64,7 +64,6 @@ public class ButtonBar {
     private static final float PLAY_ANIMATION_DASH_LENGTH = 5.0f;
     private static final float PLAY_ANIMATION_DASH_WIDTH = 2.0f;
 
-    private Button importStepDefinitionsButton;
     private Button scratchFeaturesButton;
     private Button importFeaturesButton;
     private Button exportFeaturesButton;
@@ -217,20 +216,6 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(tagsButton);
-        importStepDefinitionsButton = new Button(
-                0, 0,
-                Images.getImage(Images.IMAGE_IMPORT_STEP_DEFINITIONS, Images.TYPE_NORMAL),
-                Images.getImage(Images.IMAGE_IMPORT_STEP_DEFINITIONS, Images.TYPE_HIGHLIGHT),
-                Images.getImage(Images.IMAGE_IMPORT_STEP_DEFINITIONS, Images.TYPE_PRESSED),
-                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
-                    public void onClick() {
-                        Engine.importSteps();
-                    }
-                },
-                null);
-        importStepDefinitionsButton.setHint("Import Step Definitions");
-        buttons.add(importStepDefinitionsButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
     }
@@ -300,8 +285,6 @@ public class ButtonBar {
         x += BUTTON_PADDING;
         tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING;
-        importStepDefinitionsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING * 2;
         pluginButtonsX = x;
         pauseButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth - 30, BUTTONBAR_HEIGHT);
         stopButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth + 30, BUTTONBAR_HEIGHT);
@@ -363,7 +346,6 @@ public class ButtonBar {
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
         tagsButton.setVisible(isTagsButtonVisible());
-        importStepDefinitionsButton.setVisible(isImportStepDefinitionsButtonVisible());
         for (Button button : buttons) {
             button.update();
         }

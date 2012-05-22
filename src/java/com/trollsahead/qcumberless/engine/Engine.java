@@ -157,7 +157,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             importFeatures(new File[] {new File(ConfigurationManager.get("featuresPath"))});
         }
         if (!Util.isEmpty(ConfigurationManager.get("importStepDefinitionsOnStartup"))) {
-            importSteps();
+            importSteps(plugins.get(0));
         }
     }
 
@@ -477,10 +477,10 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         return null;
     }
 
-    public static void importSteps() {
+    public static void importSteps(final Plugin plugin) {
         new Thread(new Runnable() {
             public void run() {
-                List<StepDefinition> stepDefinitions = plugins.get(0).getStepDefinitions(); // TODO!
+                List<StepDefinition> stepDefinitions = plugin.getStepDefinitions();
                 synchronized (LOCK) {
                     CucumberStepDefinitionLoader.parseStepDefinitions(stepDefinitions);
                     featuresRoot.updateSteps();

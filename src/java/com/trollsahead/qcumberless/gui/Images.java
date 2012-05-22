@@ -103,11 +103,6 @@ public class Images {
         images.put(IMAGE_SPOTLIGHT, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/spotlight.png"))
         });
-        images.put(IMAGE_IMPORT_STEP_DEFINITIONS, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/resources/pictures/import_step_def_normal.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/import_step_def_highlight.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/import_step_def_pressed.png"))
-        });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {
             BufferedImage[] imageArray = images.get(key);
