@@ -88,19 +88,20 @@ public class Util {
             // Ignore!
         }
     }
+
     public static String[] getFeatureFiles(File[] files) {
-        return traverseDirectory(files).toArray(new String[0]);
+        return traverseDirectory(files, ".feature").toArray(new String[0]);
     }
 
-    private static List<String> traverseDirectory(File[] files) {
+    public static List<String> traverseDirectory(File[] files, String suffix) {
         List<String> foundFiles = new LinkedList<String>();
         if (files == null) {
             return foundFiles;
         }
         for (File file : files) {
             if (file.isDirectory()) {
-                foundFiles.addAll(traverseDirectory(file.listFiles()));
-            } else if (file.getAbsolutePath().endsWith(".feature")) {
+                foundFiles.addAll(traverseDirectory(file.listFiles(), suffix));
+            } else if (file.getAbsolutePath().endsWith(suffix)) {
                 foundFiles.add(file.getAbsolutePath());
             }
         }
