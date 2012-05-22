@@ -151,13 +151,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public void show() {
         if (!Util.isEmpty(ConfigurationManager.get("importFeaturesOnStartup"))) {
-            importFeatures(new File[] {new File(ConfigurationManager.get("featuresPath"))});
+            importFeatures(new File[]{new File(ConfigurationManager.get("featuresPath"))});
         } else {
             scratchFeatures(true);
         }
 
         if (!Util.isEmpty(ConfigurationManager.get("importStepDefinitionsOnStartup"))) {
-            importSteps(plugins.get(0));
+            importStepDefinitions(plugins.get(0));
         } else {
             resetStepDefinitions(true);
         }
@@ -479,7 +479,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         return null;
     }
 
-    public static void importSteps(final Plugin plugin) {
+    public static void importStepDefinitions(final Plugin plugin) {
         new Thread(new Runnable() {
             public void run() {
                 List<StepDefinition> stepDefinitions = plugin.getStepDefinitions();

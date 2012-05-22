@@ -31,6 +31,7 @@ import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.Element;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.engine.Helper.ExecutionStopper;
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 import javax.imageio.ImageIO;
@@ -49,8 +50,8 @@ public class GenericDevice extends Device {
     private static final Pattern patternStartingScenario = Pattern.compile("(.*)Scenario: (.*)(\\s*)#(.*)");
     private static final Pattern patternRunningStep = Pattern.compile("(\\s*)Step: (.*)");
     private static final Pattern patternStepFailed = Pattern.compile("(\\s*)Step failed: (.*)");
-    private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(\\s*)Taking screenshoot to (.*) from device(.*)");
-    private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(\\s*)Screenshot taken(.*)");
+    private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
+    private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(.*)Screenshot taken(.*)");
 
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
@@ -61,6 +62,8 @@ public class GenericDevice extends Device {
 
     private String screenshotFilename = "";
     private Element screenshotElement = null;
+    
+    private ExecutionStopper executionStopper = new ExecutionStopper();
     
     private boolean isRunning = false;
 
@@ -82,6 +85,7 @@ public class GenericDevice extends Device {
 
     private void reset() {
         isRunning = false;
+        executionStopper = new ExecutionStopper();
     }
 
     public void setDeviceCallback(DeviceCallback deviceCallback) {
@@ -114,7 +118,7 @@ public class GenericDevice extends Device {
             reset();
             isRunning = true;
             deviceCallback.onPlay();
-            GenericDeviceHelper.runTests(feature, "singlerun.feature", tags, deviceLogListener);
+            GenericDeviceHelper.runTests(feature, "singlerun.feature", tags, deviceLogListener, executionStopper);
             deviceCallback.afterPlayed();
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,6 +135,7 @@ public class GenericDevice extends Device {
     }
 
     public void stop() {
+        executionStopper.stop();
     }
 
     private final LogListener deviceLogListener = new LogListener() {

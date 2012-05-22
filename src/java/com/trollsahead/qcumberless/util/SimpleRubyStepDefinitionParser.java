@@ -32,7 +32,9 @@ import static com.trollsahead.qcumberless.model.Locale.Language;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -42,17 +44,34 @@ public class SimpleRubyStepDefinitionParser {
     public static List<StepDefinition> parseFiles(String[] filenames) {
         List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
         for (String filename : filenames) {
-            stepDefinitions.addAll(parseFile(filename));
+            System.out.println("Parsing ruby file: " + filename);
+            try {
+                stepDefinitions.addAll(parseFile(new FileInputStream(filename)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return stepDefinitions;
     }
 
-    private static List<StepDefinition> parseFile(String filename) {
-        System.out.println("Parsing ruby file: " + filename);
+    public static List<StepDefinition> parseFiles(URL[] urls) {
+        List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
+        for (URL url : urls) {
+            System.out.println("Parsing URL: " + url.toString());
+            try {
+                stepDefinitions.addAll(parseFile(url.openStream()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return stepDefinitions;
+    }
+
+    private static List<StepDefinition> parseFile(InputStream inputStream) {
         List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
         BufferedReader in = null;
         try {
-            in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
+            in = new BufferedReader(new InputStreamReader(inputStream, "UTF8"));
             String line;
             String parameters = null;
             while ((line = in.readLine()) != null) {

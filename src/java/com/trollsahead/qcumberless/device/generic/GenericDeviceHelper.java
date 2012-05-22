@@ -31,19 +31,21 @@ import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.engine.Helper.ExecutionStopper;
+
 import javax.swing.*;
 import java.io.File;
 import java.util.Set;
 
 public class GenericDeviceHelper {
-    public static void runTests(StringBuilder feature, String featureFilename, Set<String> tags, LogListener logListener) {
+    public static void runTests(StringBuilder feature, String featureFilename, Set<String> tags, LogListener logListener, ExecutionStopper executionStopper) {
         File tempFile = Helper.writeFeatureToTemporaryFile(feature, featureFilename);
         String command = getCommand();
         String path = getPath();
         command = command.replaceAll("\\\\", "/");
         command = command.replaceAll("\\$1", tempFile.getAbsolutePath());
         command = command.replaceAll("\\$2", Util.tagsToString(tags));
-        Helper.executeCommand(command, path, logListener);
+        Helper.executeCommand(command, path, logListener, executionStopper);
     }
 
     public static String getCommand() {
@@ -55,11 +57,19 @@ public class GenericDeviceHelper {
     }
 
     public static String getPath() {
-        String command = ConfigurationManager.get("genericDevicePath");
-        if (Util.isEmpty(command)) {
+        String path = ConfigurationManager.get("genericDevicePath");
+        if (Util.isEmpty(path)) {
             return showEnterPathDialog();
         }
-        return command;
+        return path;
+    }
+
+    public static String getStepDefinitionPath() {
+        String path = ConfigurationManager.get("genericDeviceStepDefinitionPath");
+        if (Util.isEmpty(path)) {
+            return showEnterStepDefinitionPathDialog();
+        }
+        return path;
     }
 
     public static String showEnterCommandDialog() {
@@ -85,6 +95,19 @@ public class GenericDeviceHelper {
                 null,
                 "example");
         ConfigurationManager.put("genericDevicePath", path);
+        return path;
+    }
+
+    public static String showEnterStepDefinitionPathDialog() {
+        String path = (String) JOptionPane.showInputDialog(
+                CucumberlessDialog.instance,
+                "Enter step definition directory",
+                "Specify Directory",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "example/features/step_definitions");
+        ConfigurationManager.put("genericDeviceStepDefinitionPath", path);
         return path;
     }
 }
