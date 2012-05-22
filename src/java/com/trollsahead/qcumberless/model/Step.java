@@ -105,7 +105,7 @@ public class Step {
         return parts;
     }
 
-    public void resetParametersToDefault() {
+    private void resetParametersToDefault() {
         actualParameters = new String[validParameters.size()];
         for (int i = 0; i < validParameters.size(); i++) {
             actualParameters[i] = validParameters.get(i)[0];
@@ -113,12 +113,14 @@ public class Step {
         updateRenderKeyword();
     }
 
-    public void findParts() {
+    private void findParts() {
         parts = new ArrayList<CucumberStepPart>();
         String[] strings = definition.split(PARAMETER_TAG);
         int parameterIdx = 0;
         for (String str : strings) {
-            parts.add(new CucumberStepPart(CucumberStepPart.PartType.TEXT, str));
+            if (!Util.isEmpty(str)) {
+                parts.add(new CucumberStepPart(CucumberStepPart.PartType.TEXT, str));
+            }
             if (parameterIdx < validParameters.size()) {
                 parts.add(new CucumberStepPart(CucumberStepPart.PartType.ARGUMENT, actualParameters[parameterIdx], validParameters.get(parameterIdx)));
                 parameterIdx++;
@@ -134,7 +136,7 @@ public class Step {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (CucumberStepPart part : getParts()) {
-            sb.append(part.text);
+            sb.append(part.getText());
         }
         return sb.toString();
     }
@@ -154,17 +156,23 @@ public class Step {
         }
         if (!renderKeyword) {
             boolean shouldRender = false;
+            int partCount = 0;
             for (CucumberStepPart part : parts) {
+                part.isFirstPart = partCount < 2;
                 if (part.type == CucumberStepPart.PartType.ARGUMENT) {
                     part.render = shouldRender;
                     shouldRender = true;
                 } else {
                     part.render = true;
                 }
+                partCount++;
             }
         } else {
+            boolean firstPart = true;
             for (CucumberStepPart part : parts) {
                 part.render = true;
+                part.isFirstPart = firstPart;
+                firstPart = false;
             }
         }
     }
@@ -172,10 +180,11 @@ public class Step {
     public static class CucumberStepPart {
         public static enum PartType {TEXT, ARGUMENT}
         public PartType type = PartType.TEXT;
-        public String text;
+        private String text;
         public String[] validParameters;
 
         public boolean isTouched = false;
+        public boolean isFirstPart = false;
 
         public List<String> wrappedText;
 
@@ -210,7 +219,7 @@ public class Step {
                 this.endX += fontMetrics.stringWidth(" ");
                 return;
             }
-            String[] words = type == PartType.TEXT ? text.split(" ") : new String[] {text};
+            String[] words = type == PartType.TEXT ? getText().split(" ") : new String[] {getText()};
             int offsetX = startX;
             for (String word : words) {
                 offsetX = addWordToWrappedText(fontMetrics, word, width, offsetX);
@@ -235,6 +244,14 @@ public class Step {
                 wrappedText.add(word + " ");
                 return 0;
             }
+        }
+
+        public String getText() {
+            return isFirstPart ? Util.firstCharUpperCase(text) : text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
         }
     }
 }

@@ -45,7 +45,7 @@ public class EditBox {
         EditBox.part = part;
         EditBox.element = null;
         EditBox.editType = TYPE_PART;
-        CucumberlessDialog.elementTextField.setText(part.text);
+        CucumberlessDialog.elementTextField.setText(part.getText());
         show();
     }
     
@@ -53,7 +53,7 @@ public class EditBox {
         EditBox.element = element;
         EditBox.part = null;
         EditBox.editType = TYPE_ELEMENT;
-        CucumberlessDialog.elementTextField.setText(element.step.getFirstPart().text);
+        CucumberlessDialog.elementTextField.setText(element.step.getFirstPart().getText());
         show();
     }
 
@@ -123,7 +123,7 @@ public class EditBox {
             if (editType == TYPE_ELEMENT) {
                 element.setTitle(text);
             } else if (editType == TYPE_PART) {
-                part.text = text;
+                part.setText(text);
             } else if (editType == TYPE_TAGS) {
                 element.setTags(text);
             }

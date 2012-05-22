@@ -203,4 +203,13 @@ public class Util {
         String featureText = Locale.getString("feature") + ": ";
         return new StringBuilder(feature.toString().replace(featureText, tag + "\n" + featureText));
     }
+
+    public static String firstCharUpperCase(String str) {
+        str = Util.removeLeadingSpaces(str);
+        if (str.length() == 0) {
+            return str;
+        } else {
+            return str.substring(0, 1).toUpperCase() + (str.length() > 1 ? str.substring(1) : "");
+        }
+    }
 }
