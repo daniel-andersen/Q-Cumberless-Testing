@@ -117,7 +117,7 @@ public class Animation {
             this.speed = speed;
         }
 
-        private void update(boolean retainRenderPosition) {
+        public void update(boolean retainRenderPosition) {
             if (retainRenderPosition) {
                 return;
             }

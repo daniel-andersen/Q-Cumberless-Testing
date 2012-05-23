@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.util;
 
+import com.trollsahead.qcumberless.gui.ProgressBar;
 import com.trollsahead.qcumberless.model.Constants;
 import com.trollsahead.qcumberless.model.StepDefinition;
 
@@ -42,27 +43,45 @@ import java.util.regex.Pattern;
 
 public class SimpleRubyStepDefinitionParser {
     public static List<StepDefinition> parseFiles(String[] filenames) {
+        return parseFiles(filenames, null);
+    }
+
+    public static List<StepDefinition> parseFiles(String[] filenames, ProgressBar progressBar) {
         List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
+        int count = 0;
         for (String filename : filenames) {
             System.out.println("Parsing ruby file: " + filename);
+            if (progressBar != null) {
+                progressBar.setProcess(((float) count / (float) filenames.length) * 100.0f);
+            }
             try {
                 stepDefinitions.addAll(parseFile(new FileInputStream(filename)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            count++;
         }
         return stepDefinitions;
     }
 
     public static List<StepDefinition> parseFiles(URL[] urls) {
+        return parseFiles(urls, null);
+    }
+
+    public static List<StepDefinition> parseFiles(URL[] urls, ProgressBar progressBar) {
         List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
+        int count = 0;
         for (URL url : urls) {
             System.out.println("Parsing URL: " + url.toString());
+            if (progressBar != null) {
+                progressBar.setProcess(((float) count / (float) urls.length) * 100.0f);
+            }
             try {
                 stepDefinitions.addAll(parseFile(url.openStream()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            count++;
         }
         return stepDefinitions;
     }

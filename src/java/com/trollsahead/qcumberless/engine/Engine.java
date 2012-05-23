@@ -112,7 +112,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         canvasWidth = screenSize.width;
         canvasHeight = screenSize.height;
         createBackbuffer();
-        
+
+        ProgressBarManager.initialize();
+
         mouseListener = new CumberlessMouseListener();
 
         canvas = new CumberlessCanvas();
@@ -193,6 +195,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             DropDown.update();
         }
         EasterEgg.update();
+        ProgressBarManager.update();
     }
 
     private void pollForDevices() {
@@ -232,6 +235,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         buttonBar.render(backbufferGraphics);
         spotlight.render(backbufferGraphics);
         Player.render(backbufferGraphics);
+        ProgressBarManager.render(backbufferGraphics);
         cucumberRoot.renderHints(backbufferGraphics);
         renderFps(backbufferGraphics);
     }
