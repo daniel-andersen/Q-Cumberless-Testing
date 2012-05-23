@@ -65,9 +65,9 @@ public class ButtonBar {
     private static final float PLAY_ANIMATION_DASH_WIDTH = 2.0f;
 
     private Button scratchFeaturesButton;
-    private Button importFeaturesButton;
-    private Button exportFeaturesButton;
+    private Button loadFeaturesButton;
     private Button saveFeaturesButton;
+    private Button exportFeaturesButton;
     private Button closeButton;
     private Button pauseButton;
     private Button stopButton;
@@ -153,9 +153,9 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(scratchFeaturesButton);
-        importFeaturesButton = new Button(
+        loadFeaturesButton = new Button(
                 0, 0,
-                "Import",
+                "Load",
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -166,7 +166,18 @@ public class ButtonBar {
                     }
                 },
                 null);
-        buttons.add(importFeaturesButton);
+        buttons.add(loadFeaturesButton);
+        saveFeaturesButton = new Button(
+                0, 0,
+                "Save",
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                        Engine.saveFeatures();
+                    }
+                },
+                null);
+        buttons.add(saveFeaturesButton);
         exportFeaturesButton = new Button(
                 0, 0,
                 "Export",
@@ -181,17 +192,6 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(exportFeaturesButton);
-        saveFeaturesButton = new Button(
-                0, 0,
-                "Save",
-                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
-                    public void onClick() {
-                        Engine.saveFeatures();
-                    }
-                },
-                null);
-        buttons.add(saveFeaturesButton);
         closeButton = new Button(
                 0, 0,
                 "Quit",
@@ -273,12 +273,12 @@ public class ButtonBar {
         int x = BUTTON_PADDING;
         scratchFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + fontMetrics.stringWidth(scratchFeaturesButton.toString());
-        importFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(importFeaturesButton.toString());
-        exportFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(exportFeaturesButton.toString());
+        loadFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + fontMetrics.stringWidth(loadFeaturesButton.toString());
         saveFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + fontMetrics.stringWidth(saveFeaturesButton.toString());
+        exportFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + fontMetrics.stringWidth(exportFeaturesButton.toString());
         x += BUTTON_PADDING;
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + fontMetrics.stringWidth(closeButton.toString());
