@@ -1,7 +1,20 @@
 Q-Cumberless Testing
 --------------------
 
-Copyright 2012
+Q-Cumberless Testing is a graphical user interface for writing and executing Cucumber tests. It is easily extendable as it allows third-parties to write their own plugins and can thus be used in any test setup based on Cucumber.
 
-Daniel Andersen
-dani_ande@yahoo.dk
+Up and Running
+--------------
+
+Fetch a release or a nightly build from github and run the jar-file. This should run Q-Cumberless Testing with the generic device plugin.
+
+Look at the wiki for more information, including a custom plugin integrating with calabash-android.
+
+Legal notice
+------------
+
+Q-Cumberless Testing is licensed under a BSD-style license. See license.txt for further information.
+
+Copyright (c) 2012
+Daniel Andersen (dani_ande@yahoo.dk)
+
