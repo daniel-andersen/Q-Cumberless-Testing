@@ -23,40 +23,57 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.plugins.generic;
+package com.trollsahead.qcumberless.device.calabash;
 
-import com.trollsahead.qcumberless.engine.Engine;
-import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
+import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.device.DeviceCallback;
+import com.trollsahead.qcumberless.device.generic.GenericDevice;
+import com.trollsahead.qcumberless.device.generic.GenericDeviceHelper;
+import com.trollsahead.qcumberless.engine.LogListener;
+import com.trollsahead.qcumberless.gui.Element;
+import com.trollsahead.qcumberless.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.trollsahead.qcumberless.engine.Helper.ExecutionStopper;
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
-public class GenericDeviceImportStepDefinitions implements ButtonBarMethodCallback {
+public class CalabashAndroidDevice extends GenericDevice {
+    private static final Pattern patternStarting = Pattern.compile("Running the cucumber tests");
+    private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
+    private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(.*)Screenshot taken(.*)");
+
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
     private static BufferedImage thumbnailPressed;
 
-    private GenericDevicePlugin plugin;
+    private final Set<Capability> capabilities;
 
     static {
         try {
-            thumbnailNormal = ImageIO.read(GenericDeviceImportStepDefinitions.class.getResource("/resources/pictures/generic_device_import_step_defs_normal.png"));
-            thumbnailHighlight = ImageIO.read(GenericDeviceImportStepDefinitions.class.getResource("/resources/pictures/generic_device_import_step_defs_highlight.png"));
-            thumbnailPressed = ImageIO.read(GenericDeviceImportStepDefinitions.class.getResource("/resources/pictures/generic_device_import_step_defs_pressed.png"));
+            thumbnailNormal = ImageIO.read(CalabashAndroidDevice.class.getResource("/resources/pictures/calabash_android_device_normal.png"));
+            thumbnailHighlight = ImageIO.read(CalabashAndroidDevice.class.getResource("/resources/pictures/calabash_android_device_highlight.png"));
+            thumbnailPressed = ImageIO.read(CalabashAndroidDevice.class.getResource("/resources/pictures/calabash_android_device_pressed.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public GenericDeviceImportStepDefinitions(GenericDevicePlugin plugin) {
-        this.plugin = plugin;
+    public CalabashAndroidDevice() {
+        super();
+        capabilities = new HashSet<Capability>();
+        capabilities.add(Capability.PLAY);
     }
 
-    public void trigger() {
-        Engine.importStepDefinitions(plugin);
+    public Set<Capability> getCapabilities() {
+        return capabilities;
     }
 
     public Image getThumbnail(ThumbnailState thumbnailState) {
@@ -69,7 +86,19 @@ public class GenericDeviceImportStepDefinitions implements ButtonBarMethodCallba
         }
     }
 
-    public String getTooltip() {
-        return "Import Step Definitions";
+    public String name() {
+        return "Calabash Android";
+    }
+
+    protected Pattern getPatternStarting() {
+        return patternStarting;
+    }
+    
+    protected Pattern getPatternScreenshotBeingTakenMessage() {
+        return patternScreenshotBeingTakenMessage;
+    }
+    
+    protected Pattern getPatternScreenshotTakenMessage() {
+        return patternScreenshotTakenMessage;
     }
 }

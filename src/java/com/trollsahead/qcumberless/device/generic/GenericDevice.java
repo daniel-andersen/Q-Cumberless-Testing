@@ -44,7 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GenericDevice extends Device {
-    private static final Pattern patternStarting = Pattern.compile("Running the cucumber tests");
+    private static final Pattern patternStarting = Pattern.compile("Executing tasks");
     private static final Pattern patternStartingFeature = Pattern.compile("(\\s*)Feature: (.*)");
     private static final Pattern patternStartingBackground = Pattern.compile("(\\s*)Background: (.*)");
     private static final Pattern patternStartingScenario = Pattern.compile("(.*)Scenario: (.*)(\\s*)#(.*)");
@@ -146,97 +146,129 @@ public class GenericDevice extends Device {
         }
 
         public void logLine(String log) {
-            notifyStarting(log);
-            notifyStartingFeature(log);
-            notifyStartingBackground(log);
-            notifyStartingScenario(log);
-            notifyRunningStep(log);
-            notifyStepFailed(log);
-            notifyScreenshotBeingTaken(log);
-            notifyScreenshotTaken(log);
+            checkStarting(log);
+            checkStartingFeature(log);
+            checkStartingBackground(log);
+            checkStartingScenario(log);
+            checkRunningStep(log);
+            checkStepFailed(log);
+            checkScreenshotBeingTaken(log);
+            checkScreenshotTaken(log);
         }
 
         public void error(Throwable t) {
             deviceCallback.afterPlayFailed(t.getMessage());
         }
-
-        private void notifyStarting(String log) {
-            Matcher matcher = patternStarting.matcher(log);
-            if (matcher.find()) {
-                deviceCallback.beforeFeatures();
-            }
-        }
-
-        private void notifyStartingFeature(String log) {
-            Matcher matcher = patternStartingFeature.matcher(log);
-            if (matcher.find()) {
-                deviceCallback.beforeFeature(matcher.group(2).trim());
-            }
-        }
-
-        private void notifyStartingBackground(String log) {
-            Matcher matcher = patternStartingBackground.matcher(log);
-            if (matcher.find()) {
-                deviceCallback.beforeBackground(matcher.group(2).trim());
-            }
-        }
-
-        private void notifyStartingScenario(String log) {
-            Matcher matcher = patternStartingScenario.matcher(log);
-            if (matcher.find()) {
-                deviceCallback.beforeScenario(matcher.group(2).trim());
-            }
-        }
-
-        private void notifyRunningStep(String log) {
-            Matcher matcher = patternRunningStep.matcher(log);
-            if (matcher.find()) {
-                deviceCallback.beforeStep(matcher.group(2).trim());
-            }
-        }
-
-        private void notifyStepFailed(String log) {
-            Matcher matcher = patternStepFailed.matcher(log);
-            if (matcher.find()) {
-                deviceCallback.afterStepFailed(matcher.group(2));
-            }
-        }
-
-        private void notifyScreenshotBeingTaken(String log) {
-            final Element currentElement = deviceCallback.getCurrentElement();
-            if (currentElement == null) {
-                return;
-            }
-            Matcher matcher = patternScreenshotBeingTakenMessage.matcher(log);
-            if (matcher.find()) {
-                screenshotFilename = matcher.group(2);
-                screenshotElement = currentElement;
-            }
-        }
-
-        private void notifyScreenshotTaken(String log) {
-            Matcher matcher = patternScreenshotTakenMessage.matcher(log);
-            if (matcher.find()) {
-                downloadScreenshots();
-            }
-        }
-
-        private void downloadScreenshots() {
-            final Element element = screenshotElement;
-            if (element == null) {
-                return;
-            }
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Image screenshot = ImageIO.read(new File(Util.addSlashToPath(GenericDeviceHelper.getPath()) + screenshotFilename));
-                        deviceCallback.attachScreenshots(element, screenshot);
-                    } catch (Exception e) {
-                        System.out.println("Error while loading screenshots!");
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
     };
+
+    protected void checkStarting(String log) {
+        Matcher matcher = getPatternStarting().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeFeatures();
+        }
+    }
+
+    protected void checkStartingFeature(String log) {
+        Matcher matcher = getPatternStartingFeature().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeFeature(matcher.group(2).trim());
+        }
+    }
+
+    protected void checkStartingBackground(String log) {
+        Matcher matcher = getPatternStartingBackground().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeBackground(matcher.group(2).trim());
+        }
+    }
+
+    protected void checkStartingScenario(String log) {
+        Matcher matcher = getPatternStartingScenario().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeScenario(matcher.group(2).trim());
+        }
+    }
+
+    protected void checkRunningStep(String log) {
+        Matcher matcher = getPatternRunningStep().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeStep(matcher.group(2).trim());
+        }
+    }
+
+    protected void checkStepFailed(String log) {
+        Matcher matcher = getPatternStepFailed().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.afterStepFailed(matcher.group(2));
+        }
+    }
+
+    protected void checkScreenshotBeingTaken(String log) {
+        final Element currentElement = deviceCallback.getCurrentElement();
+        if (currentElement == null) {
+            return;
+        }
+        Matcher matcher = getPatternScreenshotBeingTakenMessage().matcher(log);
+        if (matcher.find()) {
+            screenshotFilename = matcher.group(2);
+            screenshotElement = currentElement;
+        }
+    }
+
+    protected void checkScreenshotTaken(String log) {
+        Matcher matcher = getPatternScreenshotTakenMessage().matcher(log);
+        if (matcher.find()) {
+            downloadScreenshots();
+        }
+    }
+
+    protected void downloadScreenshots() {
+        final Element element = screenshotElement;
+        if (element == null) {
+            return;
+        }
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Image screenshot = ImageIO.read(new File(Util.addSlashToPath(GenericDeviceHelper.getPath()) + screenshotFilename));
+                    deviceCallback.attachScreenshots(element, screenshot);
+                } catch (Exception e) {
+                    System.out.println("Error while loading screenshots!");
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    protected Pattern getPatternStarting() {
+        return patternStarting;
+    }
+
+    protected Pattern getPatternStartingFeature() {
+        return patternStartingFeature;
+    }
+
+    protected Pattern getPatternStartingBackground() {
+        return patternStartingBackground;
+    }
+
+    protected Pattern getPatternStartingScenario() {
+        return patternStartingScenario;
+    }
+
+    protected Pattern getPatternRunningStep() {
+        return patternRunningStep;
+    }
+
+    protected Pattern getPatternStepFailed() {
+        return patternStepFailed;
+    }
+
+    protected Pattern getPatternScreenshotBeingTakenMessage() {
+        return patternScreenshotBeingTakenMessage;
+    }
+
+    protected Pattern getPatternScreenshotTakenMessage() {
+        return patternScreenshotTakenMessage;
+    }
 }

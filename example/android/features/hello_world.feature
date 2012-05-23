@@ -18,4 +18,9 @@ Feature: Hello World
         Then I see "Test Q-Cumberless!"
         And I don't see "Hello World!"
 
+    @bug
+    Scenario: I see "Tis' nothing but a scratch!"
+        Given My app is running
+        Then I see "Tis' nothing but a scratch!"
+
 

@@ -56,11 +56,10 @@ public class GenericDeviceHelper {
     }
 
     private static String getTags(String tags) {
-        return "--tags=" + QCUMBERLESS_TAG + (!Util.isEmpty(tags) ? " " + tags : "");
+        return "--tags=" + QCUMBERLESS_TAG + (!Util.isEmpty(tags) ? " --tags=" + tags : "");
     }
 
     public static String getCommand() {
-        // calabash-android run --format QCumberless::Formatter $2 $1
         String command = ConfigurationManager.get("genericDeviceCommand");
         if (Util.isEmpty(command)) {
             return showEnterCommandDialog();
@@ -72,14 +71,6 @@ public class GenericDeviceHelper {
         String path = ConfigurationManager.get("genericDevicePath");
         if (Util.isEmpty(path)) {
             return showEnterPathDialog();
-        }
-        return path;
-    }
-
-    public static String getStepDefinitionPath() {
-        String path = ConfigurationManager.get("genericDeviceStepDefinitionPath");
-        if (Util.isEmpty(path)) {
-            return showEnterStepDefinitionPathDialog();
         }
         return path;
     }
@@ -107,19 +98,6 @@ public class GenericDeviceHelper {
                 null,
                 "example");
         ConfigurationManager.put("genericDevicePath", path);
-        return path;
-    }
-
-    public static String showEnterStepDefinitionPathDialog() {
-        String path = (String) JOptionPane.showInputDialog(
-                CucumberlessDialog.instance,
-                "Enter step definition directory",
-                "Specify Directory",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                "example/features/step_definitions");
-        ConfigurationManager.put("genericDeviceStepDefinitionPath", path);
         return path;
     }
 }

@@ -31,9 +31,7 @@ import com.trollsahead.qcumberless.model.StepDefinition;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
 import com.trollsahead.qcumberless.plugins.ElementMethodCallback;
 import com.trollsahead.qcumberless.plugins.Plugin;
-import com.trollsahead.qcumberless.util.SimpleRubyStepDefinitionParser;
 
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -51,29 +49,7 @@ public class GenericDevicePlugin implements Plugin {
     }
 
     public List<StepDefinition> getStepDefinitions() {
-        try {
-            final URL[] urls = new URL[] {
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/additions_manual_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/app_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/assert_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/check_box_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/context_menu_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/date_picker_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/enter_text_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/location_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/navigation_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/press_button_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/progress_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/rotation_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/screenshot_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/spinner_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/time_picker_steps.rb")
-            };
-            return SimpleRubyStepDefinitionParser.parseFiles(urls);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return null;
     }
 
     public List<ElementMethodCallback> getDefinedElementMethodsApplicableFor(int type) {
@@ -83,7 +59,6 @@ public class GenericDevicePlugin implements Plugin {
     public List<ButtonBarMethodCallback> getButtonBarMethods() {
         List<ButtonBarMethodCallback> list = new LinkedList<ButtonBarMethodCallback>();
         list.add(new GenericDeviceSettings());
-        list.add(new GenericDeviceImportStepDefinitions(this));
         return list;
     }
 }

@@ -23,36 +23,41 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.plugins.generic;
+package com.trollsahead.qcumberless.device.calabash;
 
-import com.trollsahead.qcumberless.device.generic.GenericDeviceHelper;
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
+import com.trollsahead.qcumberless.plugins.calabash.CalabashAndroidPlugin;
 
 import javax.imageio.ImageIO;
-
-import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class GenericDeviceSettings implements ButtonBarMethodCallback {
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+
+public class CalabashAndroidDeviceImportStepDefinitions implements ButtonBarMethodCallback {
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
     private static BufferedImage thumbnailPressed;
 
+    private CalabashAndroidPlugin plugin;
+
     static {
         try {
-            thumbnailNormal = ImageIO.read(GenericDeviceSettings.class.getResource("/resources/pictures/generic_device_settings_normal.png"));
-            thumbnailHighlight = ImageIO.read(GenericDeviceSettings.class.getResource("/resources/pictures/generic_device_settings_highlight.png"));
-            thumbnailPressed = ImageIO.read(GenericDeviceSettings.class.getResource("/resources/pictures/generic_device_settings_pressed.png"));
+            thumbnailNormal = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_normal.png"));
+            thumbnailHighlight = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_highlight.png"));
+            thumbnailPressed = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_pressed.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public CalabashAndroidDeviceImportStepDefinitions(CalabashAndroidPlugin plugin) {
+        this.plugin = plugin;
+    }
+
     public void trigger() {
-        GenericDeviceHelper.showEnterCommandDialog();
-        GenericDeviceHelper.showEnterPathDialog();
+        Engine.importStepDefinitions(plugin);
     }
 
     public Image getThumbnail(ThumbnailState thumbnailState) {
@@ -66,6 +71,6 @@ public class GenericDeviceSettings implements ButtonBarMethodCallback {
     }
 
     public String getTooltip() {
-        return "Generic Device Settings";
+        return "Import Step Definitions";
     }
 }
