@@ -1,7 +1,7 @@
-Example plugin
-==============
+Example project
+===============
 
-This example illustrates how to write your own custom plugin for Q-Cumberless Testing. It uses the [calabash-android](https://github.com/calabash/calabash-android) framework to enable testing on Android-devices.
+This example illustrates testing of an Android application, including how to write your own custom plugin for Q-Cumberless Testing. It uses the [calabash-android](https://github.com/calabash/calabash-android) framework to enable testing on Android-devices.
 
 Up and Running
 ==============
