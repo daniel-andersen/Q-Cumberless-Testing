@@ -27,6 +27,7 @@ package com.trollsahead.qcumberless.util;
 
 import com.trollsahead.qcumberless.gui.ProgressBar;
 import com.trollsahead.qcumberless.model.Constants;
+import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.StepDefinition;
 
 import static com.trollsahead.qcumberless.model.Locale.Language;
@@ -36,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -137,15 +139,15 @@ public class SimpleRubyStepDefinitionParser {
             if (line.matches(pattern)) {
                 Matcher matcher = Pattern.compile(pattern).matcher(line);
                 matcher.find();
-                return parseStepDefinition(matcher.group(1), parameters);
+                return parseStepDefinition(keyword, matcher.group(1), parameters);
             }
         }
         return null;
     }
 
-    private static StepDefinition parseStepDefinition(String definition, String parameters) {
+    private static StepDefinition parseStepDefinition(String keyword, String definition, String parameters) {
         StepDefinition stepDefinition = new StepDefinition("(.*) " + convertGroups(definition));
-        stepDefinition.addParameter(Constants.getStepPrefixs());
+        stepDefinition.addParameter(orderStepPrefixes(Locale.getString(keyword)));
         if (Util.isEmpty(parameters)) {
             for (String[] parameter : getParametersFromDefinition(definition)) {
                 stepDefinition.addParameter(parameter);
@@ -156,6 +158,14 @@ public class SimpleRubyStepDefinitionParser {
             }
         }
         return stepDefinition;
+    }
+
+    private static String[] orderStepPrefixes(String keyword) {
+        List<String> keywords = new LinkedList<String>();
+        keywords.addAll(Arrays.asList(Constants.getStepPrefixs()));
+        keywords.remove(keyword);
+        keywords.add(0, keyword);
+        return keywords.toArray(new String[] {});
     }
 
     private static List<String[]> getParametersFromComment(String parameters) {

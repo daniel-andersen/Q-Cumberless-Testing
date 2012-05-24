@@ -25,8 +25,6 @@
 
 package com.trollsahead.qcumberless.model;
 
-import com.trollsahead.qcumberless.util.Util;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,12 +45,22 @@ public class Locale {
         en.put("feature", "Feature");
         en.put("scenario", "Scenario");
         en.put("background", "Background");
+        en.put("Given", "Given");
+        en.put("When", "When");
+        en.put("Then", "Then");
+        en.put("And", "And");
+        en.put("But", "But");
         localeMap.put(Language.EN, en);
 
         Map<String, String> dk = new HashMap<String, String>();
         dk.put("feature", "Egenskab");
         dk.put("scenario", "Scenarie");
         dk.put("background", "Baggrund");
+        dk.put("Given", "Givet");
+        dk.put("When", "Når");
+        dk.put("Then", "Så");
+        dk.put("And", "Og");
+        dk.put("But", "Men");
         localeMap.put(Language.DK, dk);
     }
 
