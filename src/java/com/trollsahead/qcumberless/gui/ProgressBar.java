@@ -44,7 +44,7 @@ public class ProgressBar {
 
     private static final Color TEXT_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     private static final Color BACKGROUND_COLOR = new Color(0.2f, 0.2f, 0.2f, 0.6f);
-    private static final Color PROGRESS_BAR_COLOR = new Color(1.0f, 1.0f, 0.2f, 0.8f);
+    private static final Color PROGRESS_BAR_COLOR = new Color(0.8f, 0.8f, 0.4f, 0.6f);
     private static final Color PROGRESS_BAR_BACKGROUND_COLOR = new Color(0.2f, 0.2f, 0.2f, 0.6f);
 
     private String title;
