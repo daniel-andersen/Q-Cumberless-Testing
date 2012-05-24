@@ -31,7 +31,7 @@ import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.Element;
 import com.trollsahead.qcumberless.util.Util;
 
-import static com.trollsahead.qcumberless.engine.Helper.ExecutionStopper;
+import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 import javax.imageio.ImageIO;

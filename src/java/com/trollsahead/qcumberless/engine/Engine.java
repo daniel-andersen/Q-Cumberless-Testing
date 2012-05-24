@@ -157,11 +157,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         } else {
             scratchFeatures(true);
         }
-
         if (!Util.isEmpty(ConfigurationManager.get("importStepDefinitionsOnStartup"))) {
             importStepDefinitions(plugins.get(0));
         } else {
             resetStepDefinitions(true);
+        }
+        if (!Util.isEmpty(ConfigurationManager.get("enableDeviceOnStartup"))) {
+            DeviceManager.enableDeviceWithName(ConfigurationManager.get("enableDeviceOnStartup"));
         }
     }
 

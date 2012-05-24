@@ -25,24 +25,15 @@
 
 package com.trollsahead.qcumberless.device.calabash;
 
-import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.device.generic.GenericDevice;
-import com.trollsahead.qcumberless.device.generic.GenericDeviceHelper;
-import com.trollsahead.qcumberless.engine.LogListener;
-import com.trollsahead.qcumberless.gui.Element;
-import com.trollsahead.qcumberless.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.trollsahead.qcumberless.engine.Helper.ExecutionStopper;
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 public class CalabashAndroidDevice extends GenericDevice {

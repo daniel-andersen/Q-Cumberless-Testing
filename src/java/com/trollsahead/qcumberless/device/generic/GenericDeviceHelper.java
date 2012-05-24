@@ -25,13 +25,13 @@
 
 package com.trollsahead.qcumberless.device.generic;
 
-import com.trollsahead.qcumberless.engine.Helper;
+import com.trollsahead.qcumberless.engine.ExecutionHelper;
 import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
 
-import static com.trollsahead.qcumberless.engine.Helper.ExecutionStopper;
+import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;
 
 import javax.swing.*;
 import java.io.File;
@@ -42,14 +42,14 @@ public class GenericDeviceHelper {
     private static final String QCUMBERLESS_TAG = "@qcumberless";
 
     public static void runTests(StringBuilder feature, Set<String> tags, LogListener logListener, ExecutionStopper executionStopper) {
-        File file = Helper.writeFeatureToFile(Util.insertTagIntoFeature(feature, QCUMBERLESS_TAG), Util.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME);
+        File file = ExecutionHelper.writeFeatureToFile(Util.insertTagIntoFeature(feature, QCUMBERLESS_TAG), Util.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME);
         try {
             String command = getCommand();
             String path = getPath();
             command = command.replaceAll("\\\\", "/");
             command = command.replaceAll("\\$1", file.getAbsolutePath());
             command = command.replaceAll("\\$2", getTags(Util.tagsToString(tags)));
-            Helper.executeCommand(command, path, logListener, executionStopper);
+            ExecutionHelper.executeCommand(command, path, logListener, executionStopper);
         } finally {
             file.delete();
         }

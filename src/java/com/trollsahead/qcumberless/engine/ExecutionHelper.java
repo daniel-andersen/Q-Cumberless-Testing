@@ -31,7 +31,7 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Helper {
+public class ExecutionHelper {
     public static List<String> executeCommand(String command) {
         final List<String> output = new LinkedList<String>();
         executeCommand(command, null, new LogListener() {
