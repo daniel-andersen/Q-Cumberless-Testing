@@ -66,11 +66,13 @@ public class ExecutionHelper {
         try {
             logListener.start();
 
-            Process exec = dir != null ?
+            Process process = dir != null ?
                     Runtime.getRuntime().exec(command, null, new File(dir)) :
                     Runtime.getRuntime().exec(command);
 
-            stdin = new BufferedReader(new InputStreamReader((exec.getInputStream()), "UTF8"));
+            executionStopper.setProcess(process);
+
+            stdin = new BufferedReader(new InputStreamReader((process.getInputStream()), "UTF8"));
 
             String line;
             while ((line = stdin.readLine()) != null && !executionStopper.isStopped()) {
@@ -79,7 +81,7 @@ public class ExecutionHelper {
             if (!executionStopper.isStopped()) {
                 int res = 1;
                 try {
-                    res = exec.waitFor();
+                    res = process.waitFor();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -87,7 +89,6 @@ public class ExecutionHelper {
                     throw new RuntimeException("Process failed with return value: " + res);
                 }
             } else {
-                exec.destroy();
                 logListener.error(new RuntimeException("Stopped by user!"));
             }
             logListener.finish();
@@ -136,13 +137,21 @@ public class ExecutionHelper {
     
     public static class ExecutionStopper {
         private boolean stopped = false;
+        private Process process = null;
 
         public void stop() {
+            if (process != null) {
+                process.destroy();
+            }
             stopped = true;
         }
 
         public boolean isStopped() {
             return stopped;
+        }
+
+        public void setProcess(Process process) {
+            this.process = process;
         }
     }
 }
