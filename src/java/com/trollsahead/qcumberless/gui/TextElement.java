@@ -829,24 +829,26 @@ public class TextElement extends Element {
     }
 
     private void drawBar(int index) {
+        Graphics2D g = imageGraphics[index];
         int x = 0;
         int y = buttonGroupHeight;
         int width = renderWidth - 1;
         int height = renderHeight - 1 - buttonGroupHeight;
         if (buttonGroupVisible) {
-            GuiUtil.drawShadow(imageGraphics[index], x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING);
-            GuiUtil.drawBorder(imageGraphics[index], x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
+            GuiUtil.drawShadow(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING);
+            GuiUtil.drawBorder(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
         }
-        GuiUtil.drawShadow(imageGraphics[index], x, y, width + 1, height + 1, BAR_ROUNDING);
-        GuiUtil.drawBarBorder(imageGraphics[index], x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
+        BufferedImage barImage = BarOptimizer.getBarTemplate(width, height, getBackgroundColor());
+        GuiUtil.drawShadow(g, x, y, width + 1, height + 1, BAR_ROUNDING);
+        GuiUtil.drawBarBorder(g, x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
         boolean renderedBorder = false;
         renderedBorder |= renderPlaying(index);
         renderedBorder |= renderEditing(index);
         renderedBorder |= renderPlayFailures(index);
         int space = renderedBorder ? 1 : 0;
-        GuiUtil.drawBarFilling(imageGraphics[index], x + 1 + space, y + 1 + space, width - 1 - (space * 2), height - 1 - (space * 2), BAR_ROUNDING, getBackgroundColor());
+        GuiUtil.drawBarFilling(g, x + 1 + space, y + 1 + space, width - 1 - (space * 2), height - 1 - (space * 2), BAR_ROUNDING, getBackgroundColor());
         if (buttonGroupVisible) {
-            GuiUtil.drawBarFilling(imageGraphics[index], x + 1 + space, 1 + space, buttonGroupWidth - 1 - (space * 2), renderHeight - 8, BAR_ROUNDING, getBackgroundColor());
+            GuiUtil.drawBarFilling(g, x + 1 + space, 1 + space, buttonGroupWidth - 1 - (space * 2), renderHeight - 8, BAR_ROUNDING, getBackgroundColor());
         }
     }
 

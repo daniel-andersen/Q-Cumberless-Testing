@@ -113,6 +113,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         canvasHeight = screenSize.height;
         createBackbuffer();
 
+        BarOptimizer.reset();
+
         ProgressBarManager.initialize();
 
         mouseListener = new CumberlessMouseListener();
@@ -189,6 +191,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private void update() {
         Button.isOneTouched = false;
         pollForDevices();
+        BarOptimizer.update();
         updateHighlight();
         buttonBar.update();
         spotlight.update();
@@ -288,6 +291,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static void setWindowSize(int width, int height) {
         canvasWidth = width;
         canvasHeight = height;
+        BarOptimizer.reset();
         if (width > backbuffer.getWidth() || height > backbuffer.getHeight()) {
             createBackbuffer();
         }
