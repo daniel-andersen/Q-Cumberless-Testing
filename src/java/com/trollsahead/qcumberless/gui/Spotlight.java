@@ -28,6 +28,8 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -126,7 +128,7 @@ public class Spotlight {
         if (!visible && !animation.colorAnimation.isVisible()) {
             return;
         }
-        BufferedImage spotlightImage = Images.getImage(Images.IMAGE_SPOTLIGHT, Images.TYPE_NORMAL);
+        BufferedImage spotlightImage = Images.getImage(Images.IMAGE_SPOTLIGHT, ThumbnailState.NORMAL.ordinal());
         FontMetrics fontMetrics = g.getFontMetrics();
         int width = spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT + fontMetrics.stringWidth(searchString) + (PADDING_HORIZONTAL * 2);
         int x = (int) Engine.stepsRoot.animation.moveAnimation.renderX;

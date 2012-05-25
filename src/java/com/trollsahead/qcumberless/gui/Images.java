@@ -32,11 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Images {
-    public enum ThumbnailState {NORMAL, HIGHLIGHTED, PRESSED}
-
-    public static int TYPE_NORMAL = 0;
-    public static int TYPE_HIGHLIGHT = 1;
-    public static int TYPE_PRESSED = 2;
+    public enum ThumbnailState {NORMAL, HIGHLIGHTED, PRESSED, DISABLED}
 
     public static int IMAGE_BACKGROUND = 0;
     public static int IMAGE_TRASHCAN = 1;
@@ -90,15 +86,20 @@ public class Images {
         });
         images.put(IMAGE_PAUSE, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/pause_normal.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/pause_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/pause_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/pause_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/pause_disabled.png"))
         });
         images.put(IMAGE_RESUME, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/resume_normal.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/resume_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/resume_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/resume_normal.png"))
         });
         images.put(IMAGE_STOP, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/stop_normal.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/stop_highlight.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/stop_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/stop_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/stop_disabled.png"))
         });
         images.put(IMAGE_SPOTLIGHT, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/spotlight.png"))

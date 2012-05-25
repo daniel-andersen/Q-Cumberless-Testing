@@ -111,9 +111,9 @@ public class ButtonBar {
         buttons = new LinkedList<Button>();
         pauseButton = new Button(
                 0, 0,
-                Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL),
-                Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_HIGHLIGHT),
-                Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -128,9 +128,9 @@ public class ButtonBar {
         buttons.add(pauseButton);
         stopButton = new Button(
                 0, 0,
-                Images.getImage(Images.IMAGE_STOP, Images.TYPE_NORMAL),
-                Images.getImage(Images.IMAGE_STOP, Images.TYPE_HIGHLIGHT),
-                Images.getImage(Images.IMAGE_STOP, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_STOP, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_STOP, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_STOP, ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -206,9 +206,9 @@ public class ButtonBar {
         buttons.add(closeButton);
         tagsButton = new Button(
                 0, 0,
-                Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL),
-                Images.getImage(Images.IMAGE_AT, Images.TYPE_HIGHLIGHT),
-                Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_AT, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -258,9 +258,9 @@ public class ButtonBar {
 
                     public BufferedImage getToggledImage(String item) {
                         if (Engine.isRunTagEnabled(Util.negatedTag("@" + item))) {
-                            return Images.getImage(Images.IMAGE_MINUS, Images.TYPE_NORMAL);
+                            return Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal());
                         } else if (Engine.isRunTagEnabled("@" + item)) {
-                            return Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL);
+                            return Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal());
                         } else {
                             return null;
                         }
@@ -366,10 +366,6 @@ public class ButtonBar {
         return Engine.featuresRoot.isLoaded;
     }
 
-    private boolean isImportStepDefinitionsButtonVisible() {
-        return Engine.devices.size() > 0;
-    }
-
     private boolean isTagsButtonVisible() {
         return !Util.isEmpty(Engine.getDefinedTags());
     }
@@ -384,10 +380,19 @@ public class ButtonBar {
             animation.moveAnimation.setRealPosition(0, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_NORMAL, ANIMATION_FADE_SPEED);
         }
-        if (!Player.isPaused()) {
-            pauseButton.setImages(Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_PAUSE, Images.TYPE_NORMAL));
+        if (Player.isNotifiedStopped()) {
+            pauseButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()));
         } else {
-            pauseButton.setImages(Images.getImage(Images.IMAGE_RESUME, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_RESUME, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_RESUME, Images.TYPE_NORMAL));
+            pauseButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.PRESSED.ordinal()));
+        }
+        if (Player.isPaused()) {
+            pauseButton.setImages(Images.getImage(Images.IMAGE_RESUME, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_RESUME, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_RESUME, ThumbnailState.PRESSED.ordinal()));
+        } else {
+            if (Player.isPausable()) {
+                pauseButton.setImages(Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.PRESSED.ordinal()));
+            } else {
+                pauseButton.setImages(Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.DISABLED.ordinal()));
+            }
         }
     }
 

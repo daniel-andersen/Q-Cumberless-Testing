@@ -34,6 +34,7 @@ import com.trollsahead.qcumberless.model.Tag;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -212,7 +213,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_EXPAND, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_EXPAND, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_EXPAND, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -224,7 +225,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_TRASHCAN, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_TRASHCAN, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_TRASHCAN, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_RIGHT_OF_PARENT | Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -237,7 +238,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_PLAY, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_PLAY, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_PLAY, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_PLAY, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -250,7 +251,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_EDIT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_EDIT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_EDIT, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_EDIT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EDIT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EDIT, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -263,7 +264,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_ADD, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_ADD, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_ADD, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -276,7 +277,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_AT, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_AT, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_AT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
@@ -289,7 +290,7 @@ public class TextElement extends Element {
                 0,
                 0,
                 null,
-                Images.getImage(Images.IMAGE_MINUS, Images.TYPE_NORMAL), Images.getImage(Images.IMAGE_MINUS, Images.TYPE_HIGHLIGHT), Images.getImage(Images.IMAGE_MINUS, Images.TYPE_NORMAL),
+                Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_MINUS, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {

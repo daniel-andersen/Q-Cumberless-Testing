@@ -61,6 +61,8 @@ public class Player implements DeviceCallback {
     public boolean paused;
     public boolean stopped;
 
+    private static boolean notifiedStopped;
+
     private boolean success;
 
     private Device device;
@@ -79,6 +81,7 @@ public class Player implements DeviceCallback {
     
     public static void prepareRun() {
         hasDeviceFailures = false;
+        notifiedStopped = false;
     }
 
     public Player() {
@@ -132,6 +135,10 @@ public class Player implements DeviceCallback {
         return false;
     }
 
+    public static boolean isNotifiedStopped() {
+        return notifiedStopped;
+    }
+
     public void play(final StringBuilder feature, final Device device, final Set<String> tags) {
         this.device = device;
         device.setDeviceCallback(this);
@@ -166,6 +173,7 @@ public class Player implements DeviceCallback {
     }
 
     public static void stop() {
+        notifiedStopped = true;
         for (final Player player : players) {
             new Thread(new Runnable() {
                 public void run() {
@@ -429,5 +437,14 @@ public class Player implements DeviceCallback {
         } else {
             return PLAYING_COLORS.iterator().next();
         }
+    }
+
+    public static boolean isPausable() {
+        for (Player player : players) {
+            if (player.device.getCapabilities().contains(Device.Capability.PAUSE)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

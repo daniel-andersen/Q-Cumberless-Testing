@@ -27,6 +27,8 @@ package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
 
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -53,7 +55,7 @@ public class CumberlessCanvas extends JPanel {
     }
 
     public void drawBackgroundPicture(Graphics g) {
-        BufferedImage backgroundImage = Images.getImage(Images.IMAGE_BACKGROUND, Images.TYPE_NORMAL);
+        BufferedImage backgroundImage = Images.getImage(Images.IMAGE_BACKGROUND, ThumbnailState.NORMAL.ordinal());
         for (int y = 0; y <= getHeight() / backgroundImage.getHeight(); y++) {
             for (int x = 0; x <= getWidth() / backgroundImage.getWidth(); x++) {
                 g.drawImage(backgroundImage, x * backgroundImage.getWidth(), y * backgroundImage.getHeight(), null);
