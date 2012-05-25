@@ -48,11 +48,19 @@ public class Animation {
 
     public static Stroke setStrokeAnimation(Graphics2D g, float dashLength, float dashWidth, float speed) {
         float dashPosition = (dashLength * 2.0f) - (float) (System.currentTimeMillis() % (int) (speed * dashLength * 2.0f)) / speed;
+        return setStroke(g, dashLength, dashWidth, dashPosition);
+    }
+
+    public static Stroke setStroke(Graphics2D g, float dashLength, float dashWidth) {
+        return setStroke(g, dashLength, dashWidth, 0.0f);
+    }
+
+    public static Stroke setStroke(Graphics2D g, float dashLength, float dashWidth, float dashPosition) {
         Stroke oldStroke = g.getStroke();
         g.setStroke(new BasicStroke(dashWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, dashLength, new float[] {dashLength}, dashPosition));
         return oldStroke;
     }
-    
+
     public Animation() {
     }
 

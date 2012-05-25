@@ -60,7 +60,8 @@ public class ButtonBar {
 
     private static final String TEXT_NO_DEVICES = "No devices found";
 
-    private static final float PLAY_ANIMATION_SPEED = 30.0f;
+    private static final float PLAY_ANIMATION_SPIN_SPEED = 30.0f;
+    private static final long PLAY_ANIMATION_BLINK_SPEED = 500;
     private static final float PLAY_ANIMATION_DASH_LENGTH = 5.0f;
     private static final float PLAY_ANIMATION_DASH_WIDTH = 2.0f;
 
@@ -304,7 +305,7 @@ public class ButtonBar {
                     new Button.CucumberButtonNotification() {
                         public void onClick() {
                             if (device.isEnabled()) {
-                                if (Player.isDeviceRunning(device)) {
+                                if (Player.isDeviceStarted(device)) {
                                     device.stop();
                                 }
                                 device.disable();
@@ -374,11 +375,11 @@ public class ButtonBar {
     }
 
     private void updateType() {
-        if (Player.isPlaying() && type == TYPE_NORMAL) {
+        if (Player.isStarted() && type == TYPE_NORMAL) {
             type = TYPE_PLAYING;
             animation.moveAnimation.setRealPosition(Engine.canvasWidth, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_PLAYING, ANIMATION_FADE_SPEED);
-        } else if (!Player.isPlaying() && type == TYPE_PLAYING) {
+        } else if (!Player.isStarted() && type == TYPE_PLAYING) {
             type = TYPE_NORMAL;
             animation.moveAnimation.setRealPosition(0, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_NORMAL, ANIMATION_FADE_SPEED);
@@ -444,8 +445,17 @@ public class ButtonBar {
         int x = button.getRenderX() - (deviceStateImage.getWidth() / 2);
         int y = button.getRenderY() + button.getImageHeight() - 3 - (deviceStateImage.getHeight() / 2);
         g.drawImage(deviceStateImage, x, y, null);
-        if (Player.isDeviceRunning(button.getDevice())) {
-            Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPEED);
+        if (Player.isDeviceStarted(button.getDevice())) {
+            Stroke oldStroke;
+            if (Player.isDeviceRunning(button.getDevice())) {
+                oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPIN_SPEED);
+            } else {
+                if ((System.currentTimeMillis() % PLAY_ANIMATION_BLINK_SPEED) < (PLAY_ANIMATION_BLINK_SPEED / 2)) {
+                    oldStroke = Animation.setStroke(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH);
+                } else {
+                    return;
+                }
+            }
             g.setColor(Player.getPlayingColor(button.getDevice()));
             int width = deviceStateImage.getWidth() + 4;
             int height = deviceStateImage.getHeight() + 4;

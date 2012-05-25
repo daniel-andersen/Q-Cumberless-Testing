@@ -29,7 +29,6 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.gui.Element;
 import com.trollsahead.qcumberless.gui.TextElement;
-import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -57,9 +56,10 @@ public class Player implements DeviceCallback {
 
     private int stepIndex;
 
-    public boolean isRunning;
-    public boolean isPaused;
-    public boolean isStopped;
+    public boolean started;
+    public boolean running;
+    public boolean paused;
+    public boolean stopped;
 
     private boolean success;
 
@@ -96,9 +96,18 @@ public class Player implements DeviceCallback {
         players.remove(this);
     }
 
-    public static boolean isPlaying() {
+    public static boolean isStarted() {
         for (Player player : players) {
-            if (player.isRunning) {
+            if (player.started) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isRunning() {
+        for (Player player : players) {
+            if (player.running) {
                 return true;
             }
         }
@@ -107,7 +116,7 @@ public class Player implements DeviceCallback {
 
     public static boolean isPaused() {
         for (Player player : players) {
-            if (player.isPaused) {
+            if (player.paused) {
                 return true;
             }
         }
@@ -116,7 +125,7 @@ public class Player implements DeviceCallback {
 
     public static boolean isStopped() {
         for (Player player : players) {
-            if (player.isStopped) {
+            if (player.stopped) {
                 return true;
             }
         }
@@ -129,6 +138,7 @@ public class Player implements DeviceCallback {
         new Thread(new Runnable() {
             public void run() {
                 success = true;
+                started = true;
                 device.play(feature, tags);
                 cleanup();
             }
@@ -166,8 +176,8 @@ public class Player implements DeviceCallback {
     }
 
     private void reset() {
-        isRunning = false;
-        isStopped = false;
+        running = false;
+        stopped = false;
         currentFeature = null;
         currentScenario = null;
         currentStep = null;
@@ -216,21 +226,20 @@ public class Player implements DeviceCallback {
     }
 
     public void onPlay() {
-        isRunning = true;
         success = true;
         Engine.cucumberRoot.clearFailedStatus();
     }
 
     public void onPause() {
-        isPaused = true;
+        paused = true;
     }
 
     public void onResume() {
-        isPaused = false;
+        paused = false;
     }
 
     public void onStop() {
-        isStopped = true;
+        stopped = true;
     }
 
     public void afterPlayed() {
@@ -245,6 +254,7 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeFeatures() {
+        running = true;
     }
 
     public void beforeFeature(String name) {
@@ -393,12 +403,21 @@ public class Player implements DeviceCallback {
     public static boolean isDeviceRunning(Device device) {
         for (Player player : players) {
             if (player.device == device) {
-                return player.isRunning;
+                return player.running;
             }
         }
         return false;
     }
-    
+
+    public static boolean isDeviceStarted(Device device) {
+        for (Player player : players) {
+            if (player.device == device) {
+                return player.started;
+            }
+        }
+        return false;
+    }
+
     private static Color getUnusedPlayingColor() {
         Set<Color> colors = new HashSet<Color>();
         colors.addAll(PLAYING_COLORS);

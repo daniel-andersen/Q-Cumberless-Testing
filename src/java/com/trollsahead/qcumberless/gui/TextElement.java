@@ -861,7 +861,7 @@ public class TextElement extends Element {
     }
 
     private boolean renderPlaying(int index) {
-        if (!Player.isPlaying()) {
+        if (!Player.isRunning()) {
             return false;
         }
         if (!isRunnable() || !isRunning()) {

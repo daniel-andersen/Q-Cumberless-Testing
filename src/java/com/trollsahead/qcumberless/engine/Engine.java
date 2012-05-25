@@ -204,7 +204,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         if (isPollingForDevices || System.currentTimeMillis() < lastTimePolledForDevices + POLL_FOR_DEVICES_PERIOD) {
             return;
         }
-        if (Player.isPlaying()) {
+        if (Player.isRunning()) {
             return;
         }
         isPollingForDevices = true;
