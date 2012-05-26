@@ -32,13 +32,13 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BarOptimizer {
+public class RenderOptimizer {
     private static final int MAX_UNUSED_COUNT = 10;
 
-    private static Map<String, BarTemplate> templates;
+    private static Map<String, ImageTemplate> templates;
 
     public static void reset() {
-        templates = new HashMap<String, BarTemplate>();
+        templates = new HashMap<String, ImageTemplate>();
     }
 
     public static void update() {
@@ -48,7 +48,7 @@ public class BarOptimizer {
     }
 
     private static boolean hasUnusedTemplates() {
-        for (BarTemplate template : templates.values()) {
+        for (ImageTemplate template : templates.values()) {
             template.unusedCount++;
             if (template.unusedCount > MAX_UNUSED_COUNT) {
                 return true;
@@ -58,9 +58,9 @@ public class BarOptimizer {
     }
 
     private static void removeUnusedTemplates() {
-        Map<String, BarTemplate> newTemplates = new HashMap<String, BarTemplate>();
+        Map<String, ImageTemplate> newTemplates = new HashMap<String, ImageTemplate>();
         for (String key : templates.keySet()) {
-            BarTemplate template = templates.get(key);
+            ImageTemplate template = templates.get(key);
             if (template.unusedCount <= MAX_UNUSED_COUNT) {
                 newTemplates.put(key, template);
             }
@@ -68,37 +68,38 @@ public class BarOptimizer {
         templates = newTemplates;
     }
 
-    public static BufferedImage getBarTemplate(int width, int height, Color color) {
-        String key = getKey(width, height, color);
-        BarTemplate template = templates.get(key);
+    public static ImageTemplate getImageTemplate(int width, int height) {
+        String key = getKey(width, height);
+        ImageTemplate template = templates.get(key);
         if (template == null) {
-            return null;
+            return createImageTemplate(width, height);
         }
         template.unusedCount = 0;
-        return template.image;
+        return template;
     }
     
-    public static Graphics2D createBarTemplate(int width, int height, Color color) {
-        String key = getKey(width, height, color);
+    private static ImageTemplate createImageTemplate(int width, int height) {
+        String key = getKey(width, height);
         System.out.println("New template: " + key);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setFont(Engine.FONT_DEFAULT);
-        templates.put(key, new BarTemplate(image, graphics));
-        return graphics;
+        ImageTemplate template = new ImageTemplate(image, graphics);
+        templates.put(key, template);
+        return template;
     }
     
-    private static String getKey(int width, int height, Color color) {
-        return width + "," + height + "," + color.toString();
+    private static String getKey(int width, int height) {
+        return width + "," + height;
     }
 
-    private static class BarTemplate {
+    public static class ImageTemplate {
         public BufferedImage image;
         public Graphics2D graphics;
         public int unusedCount;
 
-        public BarTemplate(BufferedImage image, Graphics2D graphics) {
+        public ImageTemplate(BufferedImage image, Graphics2D graphics) {
             this.image = image;
             this.graphics = graphics;
             unusedCount = 0;

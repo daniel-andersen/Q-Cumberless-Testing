@@ -35,6 +35,7 @@ import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
+import static com.trollsahead.qcumberless.gui.RenderOptimizer.ImageTemplate;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -773,24 +774,21 @@ public class TextElement extends Element {
     }
 
     private void renderElement(Graphics2D canvas) {
-        int index = calculateImageIndex();
-        Graphics2D g = imageGraphics[index];
+        ImageTemplate imageTemplate = RenderOptimizer.getImageTemplate(renderWidth + 5, renderHeight + 5);
+        BufferedImage image = imageTemplate.image;
+        Graphics2D g = imageTemplate.graphics;
         if (Engine.fpsDetails != Engine.DETAILS_NONE) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         } else {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
-        clear(index);
-        drawBar(index);
-        drawText(index);
-        drawTags(index);
-        canvas.drawImage(image[index], (int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, null);
+        clear(g);
+        drawBar(g);
+        drawText(g);
+        drawTags(g);
+        canvas.drawImage(image, (int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, null);
         drawButtons(canvas);
-    }
-
-    private int calculateImageIndex() {
-        return Math.min(renderHeight / IMAGE_BUFFER_STEP_SIZE, IMAGE_BUFFER_COUNT - 1);
     }
 
     protected void renderHintsInternal(Graphics2D g) {
@@ -822,14 +820,12 @@ public class TextElement extends Element {
         }
     }
 
-    private void clear(int index) {
-        Graphics2D g = imageGraphics[index];
+    private void clear(Graphics2D g) {
         g.setColor(COLOR_BG_CLEAR);
-        g.fillRect(0, 0, IMAGE_BUFFER_WIDTH, IMAGE_BUFFER_HEIGHT[index]);
+        g.fillRect(0, 0, renderWidth, renderHeight);
     }
 
-    private void drawBar(int index) {
-        Graphics2D g = imageGraphics[index];
+    private void drawBar(Graphics2D g) {
         int x = 0;
         int y = buttonGroupHeight;
         int width = renderWidth - 1;
@@ -838,13 +834,12 @@ public class TextElement extends Element {
             GuiUtil.drawShadow(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING);
             GuiUtil.drawBorder(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
         }
-        BufferedImage barImage = BarOptimizer.getBarTemplate(width, height, getBackgroundColor());
         GuiUtil.drawShadow(g, x, y, width + 1, height + 1, BAR_ROUNDING);
         GuiUtil.drawBarBorder(g, x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
         boolean renderedBorder = false;
-        renderedBorder |= renderPlaying(index);
-        renderedBorder |= renderEditing(index);
-        renderedBorder |= renderPlayFailures(index);
+        renderedBorder |= renderPlaying(g);
+        renderedBorder |= renderEditing(g);
+        renderedBorder |= renderPlayFailures(g);
         int space = renderedBorder ? 1 : 0;
         GuiUtil.drawBarFilling(g, x + 1 + space, y + 1 + space, width - 1 - (space * 2), height - 1 - (space * 2), BAR_ROUNDING, getBackgroundColor());
         if (buttonGroupVisible) {
@@ -863,43 +858,42 @@ public class TextElement extends Element {
         }
     }
 
-    private boolean renderPlaying(int index) {
+    private boolean renderPlaying(Graphics2D g) {
         if (!Player.isRunning()) {
             return false;
         }
         if (!isRunnable() || !isRunning()) {
             return false;
         }
-        renderBorder(index, COLOR_BORDER_PLAYING, 1.5f);
-        renderAnimatedBorder(index);
+        renderBorder(g, COLOR_BORDER_PLAYING, 1.5f);
+        renderAnimatedBorder(g);
         return true;
     }
 
-    private boolean renderPlayFailures(int index) {
+    private boolean renderPlayFailures(Graphics2D g) {
         if (!isRunnable() || !isFailed) {
             return false;
         }
-        renderBorder(index, COLOR_BORDER_FAILURE, 1.5f);
+        renderBorder(g, COLOR_BORDER_FAILURE, 1.5f);
         return true;
     }
 
-    private boolean renderEditing(int index) {
+    private boolean renderEditing(Graphics2D g) {
         if (!EditBox.isEditing(this)) {
             return false;
         }
-        renderBorder(index, COLOR_BORDER_EDITING, 1.5f);
+        renderBorder(g, COLOR_BORDER_EDITING, 1.5f);
         return true;
     }
 
-    private void renderBorder(int index, Color color, float width) {
-        GuiUtil.drawBorder(imageGraphics[index], 1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, color, width);
+    private void renderBorder(Graphics2D g, Color color, float width) {
+        GuiUtil.drawBorder(g, 1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, color, width);
         if (buttonGroupVisible) {
-            GuiUtil.drawBorder(imageGraphics[index], 1, 1, buttonGroupWidth - 2, renderHeight - 10, BAR_ROUNDING, color, width);
+            GuiUtil.drawBorder(g, 1, 1, buttonGroupWidth - 2, renderHeight - 10, BAR_ROUNDING, color, width);
         }
     }
 
-    private void renderAnimatedBorder(int index) {
-        Graphics2D g = imageGraphics[index];
+    private void renderAnimatedBorder(Graphics2D g) {
         Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPEED);
         g.setColor(Player.getPlayingColor(this));
         g.drawRoundRect(1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, BAR_ROUNDING);
@@ -920,8 +914,7 @@ public class TextElement extends Element {
         return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_STEP;
     }
 
-    private void drawText(int index) {
-        Graphics2D g = imageGraphics[index];
+    private void drawText(Graphics2D g) {
         FontMetrics fontMetrics = g.getFontMetrics();
         for (CucumberStepPart part : step.getParts()) {
             if (!part.render) {
@@ -946,11 +939,10 @@ public class TextElement extends Element {
         g.setFont(Engine.FONT_DEFAULT);
     }
 
-    private void drawTags(int index) {
+    private void drawTags(Graphics2D g) {
         if (!shouldRenderTags() || (!isHighlighted() && type == TYPE_FEATURE)) {
             return;
         }
-        Graphics2D g = imageGraphics[index];
         FontMetrics fontMetrics = g.getFontMetrics();
 
         int width = fontMetrics.stringWidth(tags.toString()) + (HINT_PADDING_HORIZONTAL * 2);
