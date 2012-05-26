@@ -91,6 +91,7 @@ public class TextElement extends Element {
     public static final int RENDER_WIDTH_MAX_FEATURE_EDITOR = 600;
     public static final int RENDER_WIDTH_MAX_STEP_DEFINITIONS = 400;
     public static final int RENDER_HEIGHT_MINIMUM = 20;
+    public static final int SHADOW_SIZE = 5;
 
     public static final int[] PADDING_HORIZONTAL = new int[] {50, 50, 50, 50, 50, 50};
     public static final int[] PADDING_VERTICAL   = new int[] {10, 10, 10, 5, 5, 10};
@@ -774,7 +775,7 @@ public class TextElement extends Element {
     }
 
     private void renderElement(Graphics2D canvas) {
-        ImageTemplate imageTemplate = RenderOptimizer.getImageTemplate(renderWidth + 5, renderHeight + 5);
+        ImageTemplate imageTemplate = RenderOptimizer.getImageTemplate(renderWidth + SHADOW_SIZE, renderHeight + SHADOW_SIZE);
         BufferedImage image = imageTemplate.image;
         Graphics2D g = imageTemplate.graphics;
         if (Engine.fpsDetails != Engine.DETAILS_NONE) {
@@ -822,7 +823,7 @@ public class TextElement extends Element {
 
     private void clear(Graphics2D g) {
         g.setColor(COLOR_BG_CLEAR);
-        g.fillRect(0, 0, renderWidth, renderHeight);
+        g.fillRect(0, 0, renderWidth + SHADOW_SIZE, renderHeight + SHADOW_SIZE);
     }
 
     private void drawBar(Graphics2D g) {
@@ -835,7 +836,7 @@ public class TextElement extends Element {
             GuiUtil.drawBorder(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
         }
         GuiUtil.drawShadow(g, x, y, width + 1, height + 1, BAR_ROUNDING);
-        GuiUtil.drawBarBorder(g, x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
+        GuiUtil.drawBarFilling(g, x, y, width + 1, height + 1, BAR_ROUNDING, COLOR_BORDER_SHADOW); // Outline - for some reason fillRoundRect is faster than drawRoundRect
         boolean renderedBorder = false;
         renderedBorder |= renderPlaying(g);
         renderedBorder |= renderEditing(g);
