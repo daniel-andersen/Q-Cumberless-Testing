@@ -213,7 +213,7 @@ public class RootElement extends Element {
     protected void foldFadeAnimation(float alpha) {
     }
 
-    public void click() {
+    public void click(int clickCount) {
     }
 
     public boolean isDragable() {

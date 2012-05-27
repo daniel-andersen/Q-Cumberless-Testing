@@ -306,7 +306,7 @@ public abstract class Element {
 
     protected abstract void foldFadeAnimation(float alpha);
 
-    public abstract void click();
+    public abstract void click(int clickCount);
 
     public abstract boolean isDragable();
     protected abstract void applyDrag();

@@ -44,7 +44,7 @@ public class CumberlessMouseListener implements MouseListener, MouseMotionListen
 
     public void mouseClicked(MouseEvent mouseEvent) {
         updateMousePosition(mouseEvent);
-        Engine.click();
+        Engine.click(mouseEvent.getClickCount());
     }
 
     public void mousePressed(MouseEvent mouseEvent) {

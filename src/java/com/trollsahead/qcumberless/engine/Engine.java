@@ -318,7 +318,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public void componentHidden(ComponentEvent componentEvent) {
     }
 
-    public static void click() {
+    public static void click(int clickCount) {
         synchronized (LOCK) {
             if (buttonBar.click()) {
                 return;
@@ -330,7 +330,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 return;
             }
             if (touchedElement != null) {
-                touchedElement.click();
+                touchedElement.click(clickCount);
             }
         }
     }

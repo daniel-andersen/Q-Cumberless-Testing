@@ -486,7 +486,11 @@ public class TextElement extends Element {
         return y + fontMetrics.getHeight();
     }
 
-    public void click() {
+    public void click(int clickCount) {
+        if (clickCount > 1) {
+            doubleClick();
+            return;
+        }
         for (Button button : buttons) {
             if (button.click()) {
                 return;
@@ -518,6 +522,13 @@ public class TextElement extends Element {
         } else {
             foldToggle();
         }
+    }
+
+    private void doubleClick() {
+        if (groupParent != Engine.stepsRoot) {
+            return;
+        }
+        throwElementToFeaturesGroup();
     }
 
     private void play() {
@@ -594,7 +605,7 @@ public class TextElement extends Element {
         }
         super.endDrag();
         dragFadeAnimation();
-        if (groupParent == Engine.stepsRoot) {
+        if (isThrowingElementToFeaturesGroup()) {
             throwElementToFeaturesGroup();
         }
         Engine.updateLastAddedElement(this);
@@ -642,42 +653,45 @@ public class TextElement extends Element {
         dragHistoryTime[dragHistoryIndex] = System.currentTimeMillis();
     }
 
-    private void throwElementToFeaturesGroup() {
-        if (Engine.lastAddedElement == null) {
-            return;
+    private boolean isThrowingElementToFeaturesGroup() {
+        if (groupParent != Engine.stepsRoot || Engine.lastAddedElement == null) {
+            return false;
         }
         int oldestIndex = (dragHistoryIndex + 1) % DRAG_HISTORY_LENGTH;
         long deltaTime = dragHistoryTime[dragHistoryIndex] - dragHistoryTime[oldestIndex];
         if (deltaTime == 0) {
-            return;
+            return false;
         }
         int deltaX = Math.abs(dragHistoryX[dragHistoryIndex] - dragHistoryX[oldestIndex]);
         int deltaY = Math.abs(dragHistoryY[dragHistoryIndex] - dragHistoryY[oldestIndex]);
         float squaredDist = (float) ((deltaX * deltaX) + (deltaY * deltaY));
-        if (squaredDist / deltaTime > DRAG_HISTORY_THROW_LIMIT) {
-            groupParent.removeChild(this);
-            if (type == TYPE_FEATURE) {
+        return squaredDist / deltaTime > DRAG_HISTORY_THROW_LIMIT;
+    }
+
+    private void throwElementToFeaturesGroup() {
+        groupParent.removeChild(this);
+        if (type == TYPE_FEATURE) {
+            Engine.featuresRoot.addChild(this);
+        } else if (type == TYPE_SCENARIO) {
+            if (Engine.lastAddedElement.type == TYPE_FEATURE) {
                 Engine.featuresRoot.addChild(this);
-            } else if (type == TYPE_SCENARIO) {
-                if (Engine.lastAddedElement.type == TYPE_FEATURE) {
-                    Engine.featuresRoot.addChild(this);
-                } else if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
-                    Engine.lastAddedElement.groupParent.addChild(this);
-                } else {
-                    Engine.lastAddedElement.groupParent.groupParent.addChild(this);
-                }
+            } else if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
+                Engine.lastAddedElement.groupParent.addChild(this);
             } else {
-                if (Engine.lastAddedElement.type == TYPE_FEATURE) {
-                    return;
-                }
-                if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
-                    Engine.lastAddedElement.addChild(this);
-                } else {
-                    int index = Engine.lastAddedElement.groupParent.findChildIndex(Engine.lastAddedElement);
-                    Engine.lastAddedElement.groupParent.addChild(this, index + 1);
-                }
+                Engine.lastAddedElement.groupParent.groupParent.addChild(this);
+            }
+        } else {
+            if (Engine.lastAddedElement.type == TYPE_FEATURE) {
+                return;
+            }
+            if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
+                Engine.lastAddedElement.addChild(this);
+            } else {
+                int index = Engine.lastAddedElement.groupParent.findChildIndex(Engine.lastAddedElement);
+                Engine.lastAddedElement.groupParent.addChild(this, index + 1);
             }
         }
+        Engine.updateLastAddedElement(this);
     }
 
     public Element findGroup(int x, int y, int type) {
