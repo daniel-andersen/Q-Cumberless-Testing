@@ -132,14 +132,6 @@ public class TextElement extends Element {
 
     private static final String EXPORT_INDENT = "    ";
 
-    private static final int IMAGE_BUFFER_COUNT = 20;
-    private static final int IMAGE_BUFFER_WIDTH = 620;
-    private static final int IMAGE_BUFFER_STEP_SIZE = 10;
-    private static final int[] IMAGE_BUFFER_HEIGHT = new int[IMAGE_BUFFER_COUNT];
-
-    private static BufferedImage[] image = new BufferedImage[IMAGE_BUFFER_COUNT];
-    private static Graphics2D[] imageGraphics = new Graphics2D[IMAGE_BUFFER_COUNT];
-
     private List<Button> buttons;
     private List<ElementPluginButton> pluginButtons;
     private Button expandButton;
@@ -166,15 +158,6 @@ public class TextElement extends Element {
     private boolean buttonGroupHasButtons = false;
 
     private Element lastBubbledElement = null;
-
-    static {
-        for (int i = 0; i < IMAGE_BUFFER_COUNT; i++) {
-            IMAGE_BUFFER_HEIGHT[i] = (i + 1) * IMAGE_BUFFER_STEP_SIZE;
-            image[i] = new BufferedImage(IMAGE_BUFFER_WIDTH, IMAGE_BUFFER_HEIGHT[i], BufferedImage.TYPE_INT_ARGB);
-            imageGraphics[i] = image[i].createGraphics();
-            imageGraphics[i].setFont(Engine.FONT_DEFAULT);
-        }
-    }
 
     public TextElement(int type, int rootType) {
         this(type, rootType, "Untitled");

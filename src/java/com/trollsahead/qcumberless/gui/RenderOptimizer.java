@@ -80,7 +80,6 @@ public class RenderOptimizer {
     
     private static ImageTemplate createImageTemplate(int width, int height) {
         String key = getKey(width, height);
-        System.out.println("New template: " + key);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
