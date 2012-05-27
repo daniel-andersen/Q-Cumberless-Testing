@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
 public class CalabashAndroidDevice extends GenericDevice {
-    private static final Pattern patternStarting = Pattern.compile("Running the cucumber tests");
+    private static final Pattern patternStarting = Pattern.compile("Feature: .*");
     private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
     private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(.*)Screenshot taken(.*)");
 
