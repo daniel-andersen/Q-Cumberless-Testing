@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.gui.Images;
+import com.trollsahead.qcumberless.gui.Splash;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
@@ -45,8 +46,9 @@ public class Main {
 
         ConfigurationManager.loadConfiguration();
 
-        Images.initialize();
+        Splash.show();
 
+        Images.initialize();
         wirePlugins();
         setLanguage();
 
