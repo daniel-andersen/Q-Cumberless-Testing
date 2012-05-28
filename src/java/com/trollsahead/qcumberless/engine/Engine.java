@@ -480,10 +480,10 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         return sb;
     }
 
-    public static Element findBackgroundElement(Element element) {
+    public static TextElement findBackgroundElement(Element element) {
         for (Element child : element.children) {
             if (child.type == TextElement.TYPE_BACKGROUND) {
-                return child;
+                return (TextElement) child;
             }
         }
         return null;

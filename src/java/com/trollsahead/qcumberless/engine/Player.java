@@ -52,9 +52,11 @@ public class Player implements DeviceCallback {
 
     public TextElement currentFeature = null;
     public TextElement currentScenario = null;
+    public TextElement currentBackground = null;
     public TextElement currentStep = null;
 
     private int stepIndex;
+    private boolean didFinishBackground;
 
     public boolean started;
     public boolean running;
@@ -188,8 +190,10 @@ public class Player implements DeviceCallback {
         stopped = false;
         currentFeature = null;
         currentScenario = null;
+        currentBackground = null;
         currentStep = null;
         stepIndex = -1;
+        didFinishBackground = false;
     }
 
     private static boolean hasFailures() {
@@ -285,8 +289,10 @@ public class Player implements DeviceCallback {
             stepIndex = currentFeature.findChildIndex(currentStep);
         } else {
             currentScenario = null;
+            currentBackground = null;
             stepIndex = -1;
         }
+        didFinishBackground = false;
     }
 
     public void afterScenario() {
@@ -308,13 +314,25 @@ public class Player implements DeviceCallback {
 
     public void beforeStep(String name) {
         System.out.println("Running step: '" + name + "'");
-        if (currentScenario != null) {
-            Element background = Engine.findBackgroundElement(currentScenario.groupParent);
-            if (!(stepIndex == -1 && background != null && name.equals(background.toString()))) {
-                currentStep = (TextElement) currentScenario.findChildFromIndex(name, stepIndex + 1);
-                stepIndex = currentScenario.findChildIndex(currentStep);
-            }
+        if (currentScenario == null) {
+            return;
         }
+        TextElement scenarioOrBackground = currentScenario;
+        TextElement backgroundElement = Engine.findBackgroundElement(currentScenario.groupParent);
+        if (!didFinishBackground && backgroundElement != null) {
+            currentBackground = backgroundElement;
+            scenarioOrBackground = currentBackground;
+            
+        }
+        currentStep = (TextElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
+        if ((scenarioOrBackground == currentScenario || currentStep == null) && backgroundElement != null) {
+            currentBackground = null;
+            didFinishBackground = true;
+            stepIndex = -1;
+            scenarioOrBackground = currentScenario;
+            currentStep = (TextElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
+        }
+        stepIndex = scenarioOrBackground.findChildIndex(currentStep);
     }
 
     public void afterStep(String name) {
@@ -358,9 +376,9 @@ public class Player implements DeviceCallback {
 
     private boolean isRunningElement(TextElement element) {
         return (element.type == TextElement.TYPE_FEATURE && currentFeature == element) ||
-                //(element.type == TextElement.TYPE_BACKGROUND && currentBackground == element) ||
-                (element.type == TextElement.TYPE_SCENARIO && currentScenario == element) ||
-                (element.type == TextElement.TYPE_STEP && currentStep == element);
+               (element.type == TextElement.TYPE_BACKGROUND && currentBackground == element) ||
+               (element.type == TextElement.TYPE_SCENARIO && currentScenario == element) ||
+               (element.type == TextElement.TYPE_STEP && currentStep == element);
     }
     
     public static boolean isCurrentFeature(TextElement element) {
@@ -375,6 +393,15 @@ public class Player implements DeviceCallback {
     public static boolean isCurrentScenario(TextElement element) {
         for (Player player : players) {
             if (player.currentScenario == element) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCurrentBackground(TextElement element) {
+        for (Player player : players) {
+            if (player.currentBackground == element) {
                 return true;
             }
         }

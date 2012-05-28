@@ -903,7 +903,7 @@ public class TextElement extends Element {
 
     private boolean isRunning() {
         return (type == TYPE_FEATURE && Player.isCurrentFeature(this)) ||
-               //(type == TYPE_BACKGROUND && CucumberPlayer.currentScenario == null && CucumberPlayer.isCurrentFeature(groupParent)) ||
+               (type == TYPE_BACKGROUND && Player.isCurrentBackground(this)) ||
                (type == TYPE_SCENARIO && Player.isCurrentScenario(this)) ||
                (type == TYPE_STEP && Player.isCurrentStep(this));
     }
