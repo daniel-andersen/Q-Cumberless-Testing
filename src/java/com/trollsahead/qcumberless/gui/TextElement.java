@@ -618,6 +618,12 @@ public class TextElement extends Element {
     protected void applyDrag() {
         updateDragPositionHistory();
         Element touchedGroup = Engine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
+        if (type == TYPE_BACKGROUND && touchedGroup != null && touchedGroup.type == TYPE_FEATURE) {
+            TextElement backgroundElement = Engine.findBackgroundElement(touchedGroup);
+            if (backgroundElement != null && backgroundElement != this) {
+                touchedGroup = null;
+            }
+        }
         if (touchedGroup == null && type == TYPE_FEATURE) {
             touchedGroup = Engine.featuresRoot;
         }
@@ -672,19 +678,25 @@ public class TextElement extends Element {
         groupParent.removeChild(this);
         if (type == TYPE_FEATURE) {
             Engine.featuresRoot.addChild(this);
-        } else if (type == TYPE_SCENARIO) {
+        } else if (type == TYPE_SCENARIO || type == TYPE_BACKGROUND) {
+            Element elementToAddChildTo;
             if (Engine.lastAddedElement.type == TYPE_FEATURE) {
-                Engine.featuresRoot.addChild(this);
-            } else if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
-                Engine.lastAddedElement.groupParent.addChild(this);
+                elementToAddChildTo = Engine.featuresRoot;
+            } else if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND) {
+                elementToAddChildTo = Engine.lastAddedElement.groupParent;
             } else {
-                Engine.lastAddedElement.groupParent.groupParent.addChild(this);
+                elementToAddChildTo = Engine.lastAddedElement.groupParent.groupParent;
+            }
+            if (type == TYPE_SCENARIO || (type == TYPE_BACKGROUND && !hasBackgroundElement(elementToAddChildTo))) {
+                elementToAddChildTo.addChild(this);
+            } else {
+                return;
             }
         } else {
             if (Engine.lastAddedElement.type == TYPE_FEATURE) {
                 return;
             }
-            if (Engine.lastAddedElement.type == TYPE_SCENARIO) {
+            if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND) {
                 Engine.lastAddedElement.addChild(this);
             } else {
                 int index = Engine.lastAddedElement.groupParent.findChildIndex(Engine.lastAddedElement);
@@ -692,6 +704,24 @@ public class TextElement extends Element {
             }
         }
         Engine.updateLastAddedElement(this);
+    }
+
+    public void addChild(Element element, int index) {
+        super.addChild(element, index);
+        if (element.type == TYPE_BACKGROUND) {
+            updateElementIndex(element, 0);
+        }
+    }
+
+    public void addChild(Element element) {
+        super.addChild(element);
+        if (element.type == TYPE_BACKGROUND) {
+            updateElementIndex(element, 0);
+        }
+    }
+    
+    private boolean hasBackgroundElement(Element feature) {
+        return Engine.findBackgroundElement(feature) != null;
     }
 
     public Element findGroup(int x, int y, int type) {
