@@ -1081,7 +1081,7 @@ public class TextElement extends Element {
     }
 
     private boolean hasEditButton() {
-        return type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition());
+        return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition());
     }
 
     private boolean hasTagsAddButton() {
