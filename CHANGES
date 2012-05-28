@@ -2,6 +2,9 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.1.2
+
 0.1.1
-    - Playing of background elements visualized
-    - Background elements can now be added
+    - Better support for background elements, incl. adding and visualized playing
+    - Features can now be added and edited
+    - Flash messages when fx saving
