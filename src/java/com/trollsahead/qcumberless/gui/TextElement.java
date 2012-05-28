@@ -31,6 +31,7 @@ import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.Tag;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
@@ -420,8 +421,8 @@ public class TextElement extends Element {
             animation.moveAnimation.setRenderPosition(animation.moveAnimation, false);
         }
         calculateButtonGroupHeight();
-        calculateTagsPosition(g);
-        int elementHeight = calculatePartPositions(g);
+        calculateTagsPosition();
+        int elementHeight = calculatePartPositions();
         renderWidth = calculateRenderWidth();
         renderHeight = Math.max(RENDER_HEIGHT_MINIMUM, elementHeight + (TEXT_PADDING_VERTICAL * 2));
         paddingHeight = PADDING_VERTICAL[type];
@@ -440,14 +441,13 @@ public class TextElement extends Element {
         }
     }
 
-    private void calculateTagsPosition(Graphics g) {
+    private void calculateTagsPosition() {
         if (!shouldRenderTags()) {
             tagsHeight = 0;
             return;
         }
-        FontMetrics fontMetrics = g.getFontMetrics();
-        tagsWidth = fontMetrics.stringWidth(getTagsStringOrAtIfEmpty()) + (HINT_PADDING_HORIZONTAL * 2);
-        tagsHeight = fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
+        tagsWidth = Engine.fontMetrics.stringWidth(getTagsStringOrAtIfEmpty()) + (HINT_PADDING_HORIZONTAL * 2);
+        tagsHeight = Engine.fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
     }
 
     public static int calculateRenderWidthFromRoot(int rootType) {
@@ -474,16 +474,15 @@ public class TextElement extends Element {
         return renderWidth;
     }
 
-    private int calculatePartPositions(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
+    private int calculatePartPositions() {
         int x = 0;
         int y = tagsHeight + buttonGroupHeight;
         for (CucumberStepPart part : step.getParts()) {
-            part.wrapText(fontMetrics, x, y, renderWidth - (getTextPaddingLeft() + getTextPaddingRight()));
+            part.wrapText(x, y, renderWidth - (getTextPaddingLeft() + getTextPaddingRight()));
             x = part.endX;
             y = part.endY;
         }
-        return y + fontMetrics.getHeight();
+        return y + Engine.fontMetrics.getHeight();
     }
 
     public void click(int clickCount) {
@@ -528,7 +527,19 @@ public class TextElement extends Element {
         if (groupParent != Engine.stepsRoot) {
             return;
         }
-        throwElementToFeaturesGroup();
+        new Thread(new Runnable() {
+            public void run() {
+                if (type == TYPE_FEATURE) {
+                    filename = CucumberlessDialog.instance.askFeatureFilename();
+                    if (filename == null) {
+                        return;
+                    }
+                }
+                synchronized (Engine.LOCK) {
+                    throwElementToFeaturesGroup();
+                }
+            }
+        }).start();
     }
 
     private void play() {
@@ -943,7 +954,6 @@ public class TextElement extends Element {
     }
 
     private void drawText(Graphics2D g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
         for (CucumberStepPart part : step.getParts()) {
             if (!part.render) {
                 continue;
@@ -958,10 +968,10 @@ public class TextElement extends Element {
             for (String text : part.wrappedText) {
                 int drawX = x + getTextPaddingLeft();
                 int drawY = y + TEXT_PADDING_VERTICAL - 3;
-                g.drawString(text, drawX, drawY + fontMetrics.getHeight());
-                updatePartTouchState(fontMetrics, part, text, (int) animation.moveAnimation.renderX + drawX, (int) animation.moveAnimation.renderY + drawY);
+                g.drawString(text, drawX, drawY + Engine.fontMetrics.getHeight());
+                updatePartTouchState(part, text, (int) animation.moveAnimation.renderX + drawX, (int) animation.moveAnimation.renderY + drawY);
                 x = 0;
-                y += fontMetrics.getHeight();
+                y += Engine.fontMetrics.getHeight();
             }
         }
         g.setFont(Engine.FONT_DEFAULT);
@@ -971,10 +981,9 @@ public class TextElement extends Element {
         if (!shouldRenderTags() || (!isHighlighted() && type == TYPE_FEATURE)) {
             return;
         }
-        FontMetrics fontMetrics = g.getFontMetrics();
 
-        int width = fontMetrics.stringWidth(tags.toString()) + (HINT_PADDING_HORIZONTAL * 2);
-        int height = fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
+        int width = Engine.fontMetrics.stringWidth(tags.toString()) + (HINT_PADDING_HORIZONTAL * 2);
+        int height = Engine.fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
 
         int x = (renderWidth - width) / 2;
         int y = TAGS_PADDING_VERTICAL + buttonGroupHeight;
@@ -984,7 +993,7 @@ public class TextElement extends Element {
         g.drawRoundRect(x, y, width - 1, height - 1, HINT_ROUNDING, HINT_ROUNDING);
 
         g.setColor(COLOR_TEXT_TAGS);
-        g.drawString(tags.toString(), x + HINT_PADDING_HORIZONTAL, y + fontMetrics.getHeight() - 3 + HINT_PADDING_VERTICAL);
+        g.drawString(tags.toString(), x + HINT_PADDING_HORIZONTAL, y + Engine.fontMetrics.getHeight() - 3 + HINT_PADDING_VERTICAL);
     }
 
     private void drawHint(Graphics g, String hint, int x, int y, Color textColor, Color bgColor) {
@@ -992,10 +1001,8 @@ public class TextElement extends Element {
     }
     
     private void drawHint(Graphics g, String hint, int x, int y, Color textColor, Color bgColor, Color borderColor, boolean centerAligned, boolean bottomAligned, boolean forceOnScreen) {
-        FontMetrics fontMetrics = g.getFontMetrics();
-
-        int width = fontMetrics.stringWidth(hint) + (HINT_PADDING_HORIZONTAL * 2);
-        int height = fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
+        int width = Engine.fontMetrics.stringWidth(hint) + (HINT_PADDING_HORIZONTAL * 2);
+        int height = Engine.fontMetrics.getHeight() + (HINT_PADDING_VERTICAL * 2);
 
         if (bottomAligned) {
             y -= height;
@@ -1014,7 +1021,7 @@ public class TextElement extends Element {
         g.drawRoundRect(x, y, width - 1, height - 1, HINT_ROUNDING, HINT_ROUNDING);
 
         g.setColor(textColor);
-        g.drawString(hint, x + HINT_PADDING_HORIZONTAL, y + fontMetrics.getHeight() - 3 + HINT_PADDING_VERTICAL);
+        g.drawString(hint, x + HINT_PADDING_HORIZONTAL, y + Engine.fontMetrics.getHeight() - 3 + HINT_PADDING_VERTICAL);
     }
 
     private boolean hasScreenshot() {
@@ -1041,10 +1048,10 @@ public class TextElement extends Element {
         g.drawImage(errorScreenshots[1], x, y, null);
     }
 
-    private void updatePartTouchState(FontMetrics fontMetrics, CucumberStepPart part, String text, int x, int y) {
+    private void updatePartTouchState(CucumberStepPart part, String text, int x, int y) {
         part.isTouched =
-                CumberlessMouseListener.mouseX >= x && CumberlessMouseListener.mouseX <= x + fontMetrics.stringWidth(text) &&
-                CumberlessMouseListener.mouseY >= y && CumberlessMouseListener.mouseY <= y + fontMetrics.getHeight();
+                CumberlessMouseListener.mouseX >= x && CumberlessMouseListener.mouseX <= x + Engine.fontMetrics.stringWidth(text) &&
+                CumberlessMouseListener.mouseY >= y && CumberlessMouseListener.mouseY <= y + Engine.fontMetrics.getHeight();
     }
 
     private int getTextPaddingLeft() {
@@ -1129,20 +1136,13 @@ public class TextElement extends Element {
     }
 
     public boolean export(File directory) {
-        String relativePath = getRelativePath(filename);
+        String relativePath = ElementHelper.getRelativePath(filename);
         File file = new File(directory, relativePath);
         File path = new File(Util.getPath(file.getAbsolutePath()));
         if (!path.exists() && !path.mkdirs()) {
             return false;
         }
         return export(file.getAbsolutePath());
-    }
-
-    private String getRelativePath(String filename) {
-        if (!Util.isEmpty(Engine.featuresBaseDir) && filename.startsWith(Engine.featuresBaseDir)) {
-            return Util.stripLeadingSlash(filename.substring(Engine.featuresBaseDir.length()));
-        }
-        return new File(filename).getName();
     }
 
     public boolean export(String filename) {

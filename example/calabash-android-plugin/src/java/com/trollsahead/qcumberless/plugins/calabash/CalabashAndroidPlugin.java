@@ -28,7 +28,7 @@ package com.trollsahead.qcumberless.plugins.calabash;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.calabash.CalabashAndroidDevice;
 import com.trollsahead.qcumberless.device.calabash.CalabashAndroidDeviceImportStepDefinitions;
-import com.trollsahead.qcumberless.engine.ProgressBarManager;
+import com.trollsahead.qcumberless.engine.FlashingMessageManager;
 import com.trollsahead.qcumberless.gui.ProgressBar;
 import com.trollsahead.qcumberless.model.StepDefinition;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
@@ -55,7 +55,7 @@ public class CalabashAndroidPlugin implements Plugin {
 
     public List<StepDefinition> getStepDefinitions() {
         ProgressBar progressBar = new ProgressBar("Importing step definitions");
-        ProgressBarManager.addProgressBar(progressBar);
+        FlashingMessageManager.addMessage(progressBar);
         try {
             final URL[] urls = new URL[] {
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/additions_manual_steps.rb"),
@@ -79,7 +79,7 @@ public class CalabashAndroidPlugin implements Plugin {
             e.printStackTrace();
             return null;
         } finally {
-            ProgressBarManager.removeProgressBar(progressBar);
+            FlashingMessageManager.removeMessage(progressBar);
         }
     }
 

@@ -53,6 +53,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static final Font FONT_DEFAULT = new Font("Verdana", Font.PLAIN, 12);
 
+    public static FontMetrics fontMetrics;
+
     public static CumberlessCanvas canvas;
 
     public static RootElement cucumberRoot = null;
@@ -115,7 +117,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
         RenderOptimizer.reset();
 
-        ProgressBarManager.initialize();
+        FlashingMessageManager.initialize();
 
         mouseListener = new CumberlessMouseListener();
 
@@ -200,7 +202,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             DropDown.update();
         }
         EasterEgg.update();
-        ProgressBarManager.update();
+        FlashingMessageManager.update();
     }
 
     private void pollForDevices() {
@@ -231,7 +233,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void render() {
-        backbufferGraphics.setFont(FONT_DEFAULT);
         canvas.clear(backbufferGraphics);
         cucumberRoot.render(backbufferGraphics);
         if (DropDown.isVisible) {
@@ -240,7 +241,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         buttonBar.render(backbufferGraphics);
         spotlight.render(backbufferGraphics);
         Player.render(backbufferGraphics);
-        ProgressBarManager.render(backbufferGraphics);
+        FlashingMessageManager.render(backbufferGraphics);
         cucumberRoot.renderHints(backbufferGraphics);
         renderFps(backbufferGraphics);
     }
@@ -249,7 +250,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         if (!fpsShow) {
             return;
         }
-        FontMetrics fontMetrics = g.getFontMetrics();
         String str = "FPS: " + fpsLastCount;
         int x = (canvasWidth - fontMetrics.stringWidth(str)) / 2;
         int y = canvasHeight - 5 - ButtonBar.BUTTONBAR_HEIGHT;
@@ -284,6 +284,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private static void createBackbuffer() {
         backbuffer = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
         backbufferGraphics = backbuffer.createGraphics();
+        backbufferGraphics.setFont(FONT_DEFAULT);
+        fontMetrics = backbufferGraphics.getFontMetrics();
         backbufferGraphics.setColor(Color.BLACK);
         backbufferGraphics.fillRect(0, 0, canvasWidth + 1, canvasHeight + 1);
     }
@@ -302,7 +304,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         try {
             synchronized (LOCK) {
                 setWindowSize(canvas.getWidth(), canvas.getHeight());
-                buttonBar.resize(backbufferGraphics);
+                buttonBar.resize();
             }
         } catch (Exception e) {
             // Ignore!
@@ -506,13 +508,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             resetFps();
             return;
         }
-        featuresBaseDir = (files.length == 1 && files[0].isDirectory()) ? files[0].getAbsolutePath() : null;
         synchronized (LOCK) {
             try {
                 FeatureLoader.parseFeatureFiles(Util.getFeatureFiles(files));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            featuresBaseDir = (files.length == 1 && files[0].isDirectory()) ? files[0].getAbsolutePath() : null;
             Engine.featuresRoot.isLoaded = true;
             resetFps();
         }
@@ -520,11 +522,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static void exportFeatures(File directory) {
         featuresRoot.export(directory);
+        FlashingMessageManager.addMessage(new FlashingMessage("Features exported!", FlashingMessage.STANDARD_TIMEOUT));
         resetFps();
     }
 
     public static void saveFeatures() {
         featuresRoot.save();
+        FlashingMessageManager.addMessage(new FlashingMessage("Features saved!", FlashingMessage.STANDARD_TIMEOUT));
         resetFps();
     }
 

@@ -25,52 +25,68 @@
 
 package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.gui.ProgressBar;
+import com.trollsahead.qcumberless.gui.FlashingMessage;
 
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ProgressBarManager {
-    private static final int PROGRESS_BAR_TOP = 50;
-    private static final int PROGRESS_BAR_GAP = 15;
+public class FlashingMessageManager {
+    private static final int MESSAGES_TOP = 50;
+    private static final int MESSAGES_GAP = 15;
 
-    private static List<ProgressBar> progressBars = new LinkedList<ProgressBar>();
+    private static List<FlashingMessage> messages = new LinkedList<FlashingMessage>();
 
     public static void initialize() {
     }
 
-    public static void addProgressBar(ProgressBar progressBar) {
+    public static void addMessage(FlashingMessage message) {
         synchronized (Engine.LOCK) {
-            progressBars.add(progressBar);
-            repositionProgressBars();
+            messages.add(message);
+            repositionMessages();
         }
     }
 
-    public static void removeProgressBar(ProgressBar progressBar) {
+    public static void removeMessage(FlashingMessage message) {
         synchronized (Engine.LOCK) {
-            progressBars.remove(progressBar);
-            repositionProgressBars();
+            messages.remove(message);
+            repositionMessages();
         }
     }
     
-    private static void repositionProgressBars() {
-        int y = PROGRESS_BAR_TOP;
-        for (ProgressBar progressBar : progressBars) {
-            progressBar.setPosition((Engine.canvasWidth - progressBar.getWidth()) / 2, y);
-            y += progressBar.getHeight() + PROGRESS_BAR_GAP;
+    private static void repositionMessages() {
+        int y = MESSAGES_TOP;
+        for (FlashingMessage message : messages) {
+            message.setPosition((Engine.canvasWidth - message.getWidth()) / 2, y);
+            y += message.getHeight() + MESSAGES_GAP;
         }
     }
 
     public static void update() {
-        for (ProgressBar progressBar : progressBars) {
-            progressBar.update();
+        boolean hasTimedOutMessages = false;
+        for (FlashingMessage message : messages) {
+            message.update();
+            hasTimedOutMessages |= message.hasTimedOut();
+        }
+        if (hasTimedOutMessages) {
+            removeTimedOutMessages();
         }
     }
 
+    private static void removeTimedOutMessages() {
+        List<FlashingMessage> newMessages = new LinkedList<FlashingMessage>();
+        for (FlashingMessage message : messages) {
+            if (!message.hasTimedOut()) {
+                newMessages.add(message);
+            }
+        }
+        messages = newMessages;
+        repositionMessages();
+    }
+
     public static void render(Graphics2D g) {
-        for (ProgressBar progressBar : progressBars) {
-            progressBar.render(g);
+        for (FlashingMessage message : messages) {
+            message.render(g);
         }
     }
 }

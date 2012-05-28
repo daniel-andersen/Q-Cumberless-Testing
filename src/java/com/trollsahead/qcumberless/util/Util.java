@@ -134,6 +134,14 @@ public class Util {
         }
     }
 
+    public static String removeTrailingSlash(String filename) {
+        if (!isEmpty(filename) && filename.startsWith("/")) {
+            return filename.substring(1);
+        } else {
+            return filename;
+        }
+    }
+
     public static String stripPseudoNewLines(String str) {
         if (isEmpty(str)) {
             return str;

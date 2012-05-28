@@ -25,6 +25,8 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.Engine;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -87,32 +89,30 @@ public class DropDown {
     }
 
     public static void render(Graphics g) {
-        renderX = calculateX(g);
-        renderY = calculateY(g);
-        renderWidth = calculateWidth(g);
-        renderHeight = calculateHeight(g);
+        renderX = calculateX();
+        renderY = calculateY();
+        renderWidth = calculateWidth();
+        renderHeight = calculateHeight();
         if (!alignTop) {
             renderY = Math.max(0, renderY - renderHeight);
         }
-        itemHeight = calculateItemHeight(g);
+        itemHeight = calculateItemHeight();
         drawBackground(g);
         drawText(g);
     }
 
-    private static int calculateX(Graphics g) {
+    private static int calculateX() {
         return x - PADDING_HORIZONTAL;
     }
 
-    private static int calculateY(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
-        return y + fontMetrics.getHeight() + 3 - PADDING_VERTICAL;
+    private static int calculateY() {
+        return y + Engine.fontMetrics.getHeight() + 3 - PADDING_VERTICAL;
     }
 
-    private static int calculateWidth(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
+    private static int calculateWidth() {
         int maxWidth = 0;
         for (String item : items) {
-            int width = fontMetrics.stringWidth(item);
+            int width = Engine.fontMetrics.stringWidth(item);
             if (width > maxWidth) {
                 maxWidth = width;
             }
@@ -121,14 +121,12 @@ public class DropDown {
         return maxWidth + (PADDING_HORIZONTAL * 2) + toggleWidth;
     }
 
-    private static int calculateHeight(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
-        return (items.size() * fontMetrics.getHeight()) + (PADDING_VERTICAL * 2);
+    private static int calculateHeight() {
+        return (items.size() * Engine.fontMetrics.getHeight()) + (PADDING_VERTICAL * 2);
     }
 
-    private static int calculateItemHeight(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
-        return fontMetrics.getHeight();
+    private static int calculateItemHeight() {
+        return Engine.fontMetrics.getHeight();
     }
 
     private static void drawBackground(Graphics g) {
@@ -137,16 +135,15 @@ public class DropDown {
     }
 
     private static void drawText(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
         int offsetX = toggleMode ? TOGGLE_OFFSET_X : 0;
         for (int i = 0; i < items.size(); i++) {
             String item = items.get(i);
             int x = renderX + PADDING_HORIZONTAL;
-            int y = renderY + PADDING_VERTICAL + (fontMetrics.getHeight() * (i + 1));
+            int y = renderY + PADDING_VERTICAL + (Engine.fontMetrics.getHeight() * (i + 1));
             if (toggleMode) {
                 BufferedImage image = toggledModeCallbackHandler.getToggledImage(item);
                 if (image != null) {
-                    g.drawImage(image, x, y - ((fontMetrics.getHeight() + image.getHeight()) / 2), null);
+                    g.drawImage(image, x, y - ((Engine.fontMetrics.getHeight() + image.getHeight()) / 2), null);
                 }
             }
             if (i == highlightIndex) {

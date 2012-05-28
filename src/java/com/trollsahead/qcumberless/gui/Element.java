@@ -252,7 +252,7 @@ public abstract class Element {
     public abstract Element findGroup(int x, int y, int type);
 
     protected boolean isInsideGroupRect(int x, int y) {
-        if ((isParentFolded() && !(this instanceof RootElement)) || !visible) {
+        if (isParentFolded() || !visible) {
             return false;
         }
         return x >= animation.moveAnimation.realX && y >= animation.moveAnimation.realY && x <= animation.moveAnimation.realX + renderWidth && y <= animation.moveAnimation.realY + groupHeight;

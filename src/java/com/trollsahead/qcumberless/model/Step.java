@@ -25,9 +25,9 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
-import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
@@ -205,7 +205,7 @@ public class Step {
             this.validParameters = validParameters;
         }
 
-        public void wrapText(FontMetrics fontMetrics, int startX, int startY, int width) {
+        public void wrapText(int startX, int startY, int width) {
             this.startX = startX;
             this.startY = startY;
             this.endX = startX;
@@ -216,31 +216,31 @@ public class Step {
                 return;
             }
             if (Util.isEmpty(text)) {
-                this.endX += fontMetrics.stringWidth(" ");
+                this.endX += Engine.fontMetrics.stringWidth(" ");
                 return;
             }
             String[] words = type == PartType.TEXT ? getText().split(" ") : new String[] {getText()};
             int offsetX = startX;
             for (String word : words) {
-                offsetX = addWordToWrappedText(fontMetrics, word, width, offsetX);
+                offsetX = addWordToWrappedText(word, width, offsetX);
             }
             if (Util.isEmpty(wrappedText.get(0))) {
                 this.startX = 0;
-                this.startY += fontMetrics.getHeight();
+                this.startY += Engine.fontMetrics.getHeight();
                 wrappedText.remove(0);
             }
         }
         
-        private int addWordToWrappedText(FontMetrics fontMetrics, String word, int width, int offsetX) {
+        private int addWordToWrappedText(String word, int width, int offsetX) {
             int index = wrappedText.size() - 1;
             String currentLine = wrappedText.get(index);
-            endX = offsetX + fontMetrics.stringWidth(currentLine + word);
+            endX = offsetX + Engine.fontMetrics.stringWidth(currentLine + word);
             if (endX < width) {
                 wrappedText.set(index, currentLine + word + " ");
                 return offsetX;
             } else {
-                endX = fontMetrics.stringWidth(word);
-                endY += fontMetrics.getHeight();
+                endX = Engine.fontMetrics.stringWidth(word);
+                endY += Engine.fontMetrics.getHeight();
                 wrappedText.add(word + " ");
                 return 0;
             }

@@ -142,4 +142,20 @@ public class CucumberlessDialog extends JFrame {
             instance.dispatchEvent(windowClosing);
         }
     }
+
+    public String askFeatureFilename() {
+        String filename = (String) JOptionPane.showInputDialog(
+                this,
+                Util.isEmpty(Engine.featuresBaseDir) ? "Enter filename with full path" : ("Enter filename relative to features directory:\n" + Engine.featuresBaseDir),
+                "Enter filename",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "noname.feature");
+        if (!Util.isEmpty(filename) && !Util.isEmpty(Engine.featuresBaseDir)) {
+            return Util.addSlashToPath(Engine.featuresBaseDir) + Util.removeTrailingSlash(filename);
+        } else {
+            return filename;
+        }
+    }
 }

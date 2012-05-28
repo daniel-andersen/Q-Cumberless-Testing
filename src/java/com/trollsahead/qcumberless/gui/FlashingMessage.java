@@ -29,47 +29,71 @@ import com.trollsahead.qcumberless.engine.Engine;
 
 import java.awt.*;
 
-public class ProgressBar extends FlashingMessage {
-    private static final int WIDTH = 500;
-    private static final int HEIGHT = 50;
+import static com.trollsahead.qcumberless.gui.Animation.MoveAnimation;
 
-    private static final int PROGRESS_BAR_HEIGHT = 10;
+public class FlashingMessage {
+    public static final long STANDARD_TIMEOUT = 2 * 1000L;
 
-    private static final int PROGRESS_BAR_GAP = 8;
+    private static final float MOVE_SPEED = 0.8f;
 
-    private static final Color PROGRESS_BAR_COLOR = new Color(0.8f, 0.8f, 0.4f, 0.6f);
-    private static final Color PROGRESS_BAR_BACKGROUND_COLOR = new Color(0.2f, 0.2f, 0.2f, 0.6f);
+    private static final int HEIGHT = 30;
 
-    private float percent;
+    private static final int TEXT_GAP_HORIZONTAL = 20;
+    private static final int TEXT_GAP_VERTICAL = 2;
 
-    public ProgressBar(String title) {
-        super(title);
+    private static final Color TEXT_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    private static final Color BACKGROUND_COLOR = new Color(0.2f, 0.2f, 0.2f, 0.6f);
+
+    private String title;
+    private long timeout;
+    private long starttime;
+
+    private boolean positionDefined = false;
+
+    protected MoveAnimation moveAnimation = new MoveAnimation();
+
+    public FlashingMessage(String title) {
+        this(title, 0);
+    }
+    
+    public FlashingMessage(String title, long timeout) {
+        this.title = title;
+        this.timeout = timeout;
+        this.starttime = System.currentTimeMillis();
     }
 
-    public void setProcess(float percent) {
-        this.percent = percent;
+    public void setPosition(int x, int y) {
+        moveAnimation.setRealPosition(x, y, MOVE_SPEED);
+        if (!positionDefined) {
+            moveAnimation.setRenderPosition(x, y, MOVE_SPEED);
+            positionDefined = true;
+        }
+    }
+
+    public void update() {
+        moveAnimation.update(false);
     }
 
     public void render(Graphics2D g) {
-        super.render(g);
-
         int x = (Engine.canvasWidth - getWidth()) / 2;
         int y = (int) moveAnimation.renderY;
 
-        int progressWidth = (int) ((float) getWidth() * percent / 100.0f);
+        g.setColor(BACKGROUND_COLOR);
+        g.fillRoundRect(x, y, getWidth(), getHeight(), 20, 20);
 
-        g.setColor(PROGRESS_BAR_BACKGROUND_COLOR);
-        g.fillRect(x + PROGRESS_BAR_GAP, y + getHeight() - PROGRESS_BAR_GAP - PROGRESS_BAR_HEIGHT, getWidth() - (PROGRESS_BAR_GAP * 2), PROGRESS_BAR_HEIGHT);
-
-        g.setColor(PROGRESS_BAR_COLOR);
-        g.fillRect(x + PROGRESS_BAR_GAP, y + getHeight() - PROGRESS_BAR_GAP - PROGRESS_BAR_HEIGHT, progressWidth, PROGRESS_BAR_HEIGHT);
+        g.setColor(TEXT_COLOR);
+        g.drawString(title, (Engine.canvasWidth - Engine.fontMetrics.stringWidth(title)) / 2, (int) moveAnimation.renderY + TEXT_GAP_VERTICAL + Engine.fontMetrics.getHeight());
     }
 
     public int getWidth() {
-        return WIDTH;
+        return Math.min(Engine.fontMetrics.stringWidth(title) + TEXT_GAP_HORIZONTAL, Engine.canvasWidth * 5 / 6);
     }
 
     public int getHeight() {
         return HEIGHT;
+    }
+
+    public boolean hasTimedOut() {
+        return timeout > 0 && System.currentTimeMillis() > starttime + timeout;
     }
 }

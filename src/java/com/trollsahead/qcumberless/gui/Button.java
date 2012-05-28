@@ -176,7 +176,7 @@ public class Button {
         if (!visible) {
             return;
         }
-        calculatePosition(g);
+        calculatePosition();
         drawBackground(g);
         drawText(g);
         drawImage(g);
@@ -202,13 +202,12 @@ public class Button {
         if (Util.isEmpty(text)) {
             return;
         }
-        FontMetrics fontMetrics = g.getFontMetrics();
         if (enabled) {
             g.setColor(TEXT_COLOR[state]);
         } else {
             g.setColor(TEXT_COLOR_DISABLED);
         }
-        g.drawString(text, renderX, renderY + fontMetrics.getHeight() - 3);
+        g.drawString(text, renderX, renderY + Engine.fontMetrics.getHeight() - 3);
     }
     
     private void drawImage(Graphics g) {
@@ -225,27 +224,24 @@ public class Button {
         if (state == STATE_NORMAL) {
             return;
         }
-        FontMetrics fontMetrics = g.getFontMetrics();
-        int hintWidth = fontMetrics.stringWidth(hint);
-        int y = renderY - fontMetrics.getHeight() - (HINT_BACKGROUND_PADDING * 2) - HINT_BACKGROUND_GAP;
+        int hintWidth = Engine.fontMetrics.stringWidth(hint);
+        int y = renderY - Engine.fontMetrics.getHeight() - (HINT_BACKGROUND_PADDING * 2) - HINT_BACKGROUND_GAP;
         int x = renderX;
         if (x + hintWidth > Engine.canvasWidth) {
             x = Engine.canvasWidth - hintWidth - TEXT_BACKGROUND_PADDING_HORIZONTAL;
         }
         g.setColor(TEXT_BACKGROUND_COLOR_HINT);
-        g.fillRoundRect(x - HINT_BACKGROUND_PADDING, y, hintWidth + HINT_BACKGROUND_PADDING * 2, fontMetrics.getHeight() + HINT_BACKGROUND_PADDING * 2, 5, 5);
+        g.fillRoundRect(x - HINT_BACKGROUND_PADDING, y, hintWidth + HINT_BACKGROUND_PADDING * 2, Engine.fontMetrics.getHeight() + HINT_BACKGROUND_PADDING * 2, 5, 5);
         g.setColor(TEXT_COLOR_HINT);
-        g.drawString(hint, x, y + fontMetrics.getHeight());
+        g.drawString(hint, x, y + Engine.fontMetrics.getHeight());
     }
 
-    private void calculatePosition(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
-
+    private void calculatePosition() {
         renderX = x + offsetX;
         renderY = y + offsetY;
 
-        renderWidth = (text != null && fontMetrics != null ? fontMetrics.stringWidth(text) : 0) + (image[state] != null ? image[state].getWidth(null) : 0);
-        renderHeight = Math.max((text != null && fontMetrics != null ? fontMetrics.getHeight() : 0), (image[state] != null ? image[state].getHeight(null) : 0));
+        renderWidth = (text != null ? Engine.fontMetrics.stringWidth(text) : 0) + (image[state] != null ? image[state].getWidth(null) : 0);
+        renderHeight = Math.max((text != null ? Engine.fontMetrics.getHeight() : 0), (image[state] != null ? image[state].getHeight(null) : 0));
 
         if (isAlignType(ALIGN_HORIZONTAL_RIGHT_OF_PARENT)) {
             renderX = parent.renderWidth - x;

@@ -129,8 +129,7 @@ public class Spotlight {
             return;
         }
         BufferedImage spotlightImage = Images.getImage(Images.IMAGE_SPOTLIGHT, ThumbnailState.NORMAL.ordinal());
-        FontMetrics fontMetrics = g.getFontMetrics();
-        int width = spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT + fontMetrics.stringWidth(searchString) + (PADDING_HORIZONTAL * 2);
+        int width = spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT + Engine.fontMetrics.stringWidth(searchString) + (PADDING_HORIZONTAL * 2);
         int x = (int) Engine.stepsRoot.animation.moveAnimation.renderX;
         int y = PADDING_VERTICAL;
 
@@ -140,6 +139,6 @@ public class Spotlight {
         g.drawImage(spotlightImage, x + PADDING_HORIZONTAL, y + (BAR_HEIGHT - spotlightImage.getHeight()) / 2, null);
 
         g.setColor(COLOR_TEXT);
-        g.drawString(searchString, x + PADDING_HORIZONTAL + spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT, y + (BAR_HEIGHT + fontMetrics.getHeight()) / 2 - 3);
+        g.drawString(searchString, x + PADDING_HORIZONTAL + spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT, y + (BAR_HEIGHT + Engine.fontMetrics.getHeight()) / 2 - 3);
     }
 }

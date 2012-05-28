@@ -269,20 +269,19 @@ public class ButtonBar {
                 Engine.getDefinedTags());
     }
 
-    public void resize(Graphics g) {
-        FontMetrics fontMetrics = g.getFontMetrics();
+    public void resize() {
         int x = BUTTON_PADDING;
         scratchFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(scratchFeaturesButton.toString());
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(scratchFeaturesButton.toString());
         loadFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(loadFeaturesButton.toString());
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(loadFeaturesButton.toString());
         saveFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(saveFeaturesButton.toString());
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(saveFeaturesButton.toString());
         exportFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(exportFeaturesButton.toString());
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(exportFeaturesButton.toString());
         x += BUTTON_PADDING;
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + fontMetrics.stringWidth(closeButton.toString());
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(closeButton.toString());
         x += BUTTON_PADDING;
         tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING;
@@ -433,9 +432,8 @@ public class ButtonBar {
     
     private void renderDevices(Graphics2D g) {
         if (deviceButtons.size() == 0) {
-            FontMetrics fontMetrics = g.getFontMetrics();
             g.setColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
-            g.drawString(TEXT_NO_DEVICES, Engine.canvasWidth - fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + fontMetrics.getHeight()) / 2) - 3);
+            g.drawString(TEXT_NO_DEVICES, Engine.canvasWidth - Engine.fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + Engine.fontMetrics.getHeight()) / 2) - 3);
         } else {
             for (DeviceButton button : deviceButtons) {
                 button.setOffset(0, renderY);

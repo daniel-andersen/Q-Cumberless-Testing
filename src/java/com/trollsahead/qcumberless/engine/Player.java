@@ -210,8 +210,6 @@ public class Player implements DeviceCallback {
             return;
         }
 
-        FontMetrics fontMetrics = g.getFontMetrics();
-        
         String text = hasDeviceFailures ? TEXT_FAILURE : TEXT_SUCCESS;
 
         final int WIDTH = MESSAGE_WIDTH;
@@ -220,8 +218,8 @@ public class Player implements DeviceCallback {
         int x = (Engine.canvasWidth - WIDTH) / 2;
         int y = 20;
         
-        int textX = x + (WIDTH - fontMetrics.stringWidth(text)) / 2;
-        int textY = y + (HEIGHT - fontMetrics.getHeight()) / 2 - 3;
+        int textX = x + (WIDTH - Engine.fontMetrics.stringWidth(text)) / 2;
+        int textY = y + (HEIGHT - Engine.fontMetrics.getHeight()) / 2 - 3;
 
         g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.3f));
         g.fillRoundRect(x, y, WIDTH, HEIGHT, 10, 10);
@@ -234,7 +232,7 @@ public class Player implements DeviceCallback {
         } else {
             return;
         }
-        g.drawString(text, textX, textY + fontMetrics.getHeight());
+        g.drawString(text, textX, textY + Engine.fontMetrics.getHeight());
     }
 
     public void onPlay() {
