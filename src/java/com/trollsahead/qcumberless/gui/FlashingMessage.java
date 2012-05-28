@@ -38,7 +38,7 @@ public class FlashingMessage {
 
     private static final int HEIGHT = 30;
 
-    private static final int TEXT_GAP_HORIZONTAL = 20;
+    private static final int TEXT_GAP_HORIZONTAL = 30;
     private static final int TEXT_GAP_VERTICAL = 2;
 
     private static final Color TEXT_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
