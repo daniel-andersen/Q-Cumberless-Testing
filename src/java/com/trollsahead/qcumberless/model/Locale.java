@@ -45,6 +45,8 @@ public class Locale {
         en.put("feature", "Feature");
         en.put("scenario", "Scenario");
         en.put("background", "Background");
+        en.put("comment", "Comment");
+        en.put("new step", "New step");
         en.put("Given", "Given");
         en.put("When", "When");
         en.put("Then", "Then");
@@ -56,6 +58,8 @@ public class Locale {
         dk.put("feature", "Egenskab");
         dk.put("scenario", "Scenarie");
         dk.put("background", "Baggrund");
+        dk.put("comment", "Kommentar");
+        dk.put("new step", "Nyt step");
         dk.put("Given", "Givet");
         dk.put("When", "Når");
         dk.put("Then", "Så");

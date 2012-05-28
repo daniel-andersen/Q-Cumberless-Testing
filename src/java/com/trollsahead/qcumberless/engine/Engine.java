@@ -547,10 +547,11 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             cucumberRoot.addChild(stepsRoot, 1);
 
             if (addTemplate) {
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, "Feature"));
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, "Scenario"));
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, "Comment"));
-                TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, "New step");
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("feature")));
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario")));
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_BACKGROUND, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("background")));
+                stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("comment")));
+                TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("new step"));
                 stepElement.step.isMatched = false;
                 stepsRoot.addChild(stepElement);
             }
