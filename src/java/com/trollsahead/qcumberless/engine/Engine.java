@@ -337,14 +337,14 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
     }
 
-    public static void mousePressed() {
+    public static void mousePressed(boolean isControlDown) {
         if (DropDown.mousePressed()) {
             return;
         }
         if (EditBox.mousePressed()) {
             return;
         }
-        startDrag();
+        startDrag(isControlDown);
     }
 
     public static void mouseReleased() {
@@ -380,12 +380,12 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         updateDrag();
     }
 
-    private static void startDrag() {
+    private static void startDrag(boolean isControlDown) {
         synchronized (Engine.LOCK) {
             if (touchedElement != null && touchedElement.isDragable()) {
-                touchedElement.startDrag();
+                touchedElement.startDrag(isControlDown);
             } else if (touchedRootElement != null) {
-                touchedRootElement.startDrag();
+                touchedRootElement.startDrag(isControlDown);
             }
         }
     }

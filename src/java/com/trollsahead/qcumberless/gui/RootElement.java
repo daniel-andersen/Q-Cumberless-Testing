@@ -96,7 +96,7 @@ public class RootElement extends Element {
         stickChildrenToParentRenderPosition(true);
     }
 
-    public void startDrag() {
+    public void startDrag(boolean isControlDown) {
         if (isScrollbarTouched()) {
             dragScrollbar(0);
         }
@@ -144,6 +144,12 @@ public class RootElement extends Element {
             }
         }
         return null;
+    }
+
+    public void fold() {
+    }
+
+    public void unfold() {
     }
 
     protected void renderBefore(Graphics2D g) {
@@ -227,7 +233,7 @@ public class RootElement extends Element {
     public void updateElementIndex(Element element, int index) {
     }
 
-    protected Element duplicate() {
+    public Element duplicate() {
         return new RootElement();
     }
 

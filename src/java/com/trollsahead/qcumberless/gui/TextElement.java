@@ -575,12 +575,17 @@ public class TextElement extends Element {
         foldFadeAnimation(folded ? 0.0f : Animation.FADE_ALPHA_DEFAULT);
     }
 
+    public void fold() {
+        folded = true;
+        foldFadeAnimation(0.0f);
+    }
+
     public void unfold() {
         folded = false;
         foldFadeAnimation(Animation.FADE_ALPHA_DEFAULT);
     }
 
-    protected void foldFadeAnimation(float alpha) {
+    public void foldFadeAnimation(float alpha) {
         for (Element child : children) {
             child.animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
             if (!child.folded) {
@@ -600,14 +605,18 @@ public class TextElement extends Element {
         }
     }
 
-    public void startDrag() {
+    public void startDrag(boolean isControlDown) {
         if (isButtonTouched()) {
             return;
         }
-        super.startDrag();
+        super.startDrag(isControlDown);
         dragFadeAnimation();
         resetDragPositionHistory();
         lastBubbledElement = null;
+        if (isControlDown && type != TYPE_FEATURE && type != TYPE_BACKGROUND) {
+            ElementHelper.deepCopyElement(this);
+            applyDrag();
+        }
     }
 
     public void endDrag() {
@@ -700,6 +709,7 @@ public class TextElement extends Element {
             }
             if (type == TYPE_SCENARIO || (type == TYPE_BACKGROUND && !hasBackgroundElement(elementToAddChildTo))) {
                 elementToAddChildTo.addChild(this);
+                elementToAddChildTo.unfold();
             } else {
                 return;
             }
@@ -709,9 +719,11 @@ public class TextElement extends Element {
             }
             if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND) {
                 Engine.lastAddedElement.addChild(this);
+                Engine.lastAddedElement.unfold();
             } else {
                 int index = Engine.lastAddedElement.groupParent.findChildIndex(Engine.lastAddedElement);
                 Engine.lastAddedElement.groupParent.addChild(this, index + 1);
+                Engine.lastAddedElement.groupParent.unfold();
             }
         }
         Engine.updateLastAddedElement(this);
@@ -774,7 +786,7 @@ public class TextElement extends Element {
         }
     }
 
-    protected Element duplicate() {
+    public TextElement duplicate() {
         TextElement element = new TextElement(type, rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
         element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(animation.moveAnimation, true);
@@ -783,6 +795,7 @@ public class TextElement extends Element {
         element.renderHeight = renderHeight;
         element.animation.sizeAnimation.currentWidth = this.renderWidth;
         element.animation.sizeAnimation.currentHeight = this.renderHeight;
+        element.folded = this.folded;
         return element;
     }
 

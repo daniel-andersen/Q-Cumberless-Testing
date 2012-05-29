@@ -26,6 +26,8 @@
 package com.trollsahead.qcumberless.util;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.Element;
+import com.trollsahead.qcumberless.gui.TextElement;
 
 import java.io.File;
 
@@ -35,5 +37,32 @@ public class ElementHelper {
             return Util.stripLeadingSlash(filename.substring(Engine.featuresBaseDir.length()));
         }
         return new File(filename).getName();
+    }
+
+    public static void deepCopyElement(TextElement element) {
+        TextElement newElement = copyAndUnfoldElement(element);
+        int index = element.groupParent.findChildIndex(element);
+        element.groupParent.addChild(newElement, index);
+        deepCopyElement(element, newElement);
+        if (newElement.isFolded()) {
+            newElement.foldFadeAnimation(0.0f);
+        }
+    }
+
+    public static void deepCopyElement(TextElement sourceElement, TextElement destElement) {
+        for (Element element : sourceElement.children) {
+            TextElement oldElement = (TextElement) element;
+            TextElement newElement = copyAndUnfoldElement(oldElement);
+            destElement.addChild(newElement);
+            deepCopyElement(oldElement, newElement);
+        }
+    }
+    
+    public static TextElement copyAndUnfoldElement(TextElement element) {
+        TextElement newElement = element.duplicate();
+        if (element.children.size() == 0) {
+            newElement.unfold();
+        }
+        return newElement;
     }
 }

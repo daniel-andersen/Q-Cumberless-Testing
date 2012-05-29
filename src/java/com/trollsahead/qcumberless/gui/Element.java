@@ -272,7 +272,7 @@ public abstract class Element {
         return x >= animation.moveAnimation.realX && y >= animation.moveAnimation.realY && x <= animation.moveAnimation.realX + renderWidth && y <= animation.moveAnimation.realY + renderHeight + paddingHeight;
     }
 
-    protected boolean isSelfOrParentFolded() {
+    public boolean isSelfOrParentFolded() {
         if (folded) {
             return true;
         }
@@ -282,11 +282,19 @@ public abstract class Element {
         return false;
     }
 
-    protected boolean isParentFolded() {
+    public boolean isParentFolded() {
         if (groupParent != null) {
             return groupParent.isSelfOrParentFolded();
         }
         return false;
+    }
+
+    public abstract void fold();
+
+    public abstract void unfold();
+
+    public boolean isFolded() {
+        return folded;
     }
 
     public void clearFailedStatus() {
@@ -325,7 +333,7 @@ public abstract class Element {
         return highlighted;
     }
 
-    public void startDrag() {
+    public void startDrag(boolean isControlDown) {
         isDragged = true;
         dragOffsetX = (int) animation.moveAnimation.renderX - CumberlessMouseListener.mouseX;
         dragOffsetY = (int) animation.moveAnimation.renderY - CumberlessMouseListener.mouseY;
@@ -359,7 +367,7 @@ public abstract class Element {
 
     public abstract void updateElementIndex(Element element, int index);
 
-    protected abstract Element duplicate();
+    public abstract Element duplicate();
 
     public StringBuilder buildFeature() {
         StringBuilder sb = buildFeatureInternal();

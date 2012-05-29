@@ -53,7 +53,7 @@ public class CumberlessMouseListener implements MouseListener, MouseMotionListen
             return;
         }
         isButtonPressed = true;
-        Engine.mousePressed();
+        Engine.mousePressed(mouseEvent.isControlDown());
     }
 
     public void mouseReleased(MouseEvent mouseEvent) {
