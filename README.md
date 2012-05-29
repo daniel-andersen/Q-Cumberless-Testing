@@ -21,4 +21,4 @@ Daniel Andersen (dani_ande@yahoo.dk)
 Screenshot
 ==========
 
-<img src='https://raw.github.com/black-knight/Q-Cumberless-Testing/master/doc/screenshot.png' width='800px' />
+<img src='https://raw.github.com/black-knight/Q-Cumberless-Testing/master/doc/screenshot.jpg' width='900px' />
