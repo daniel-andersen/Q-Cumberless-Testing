@@ -692,7 +692,7 @@ public class TextElement extends Element {
         } else if (type == TYPE_SCENARIO || type == TYPE_BACKGROUND) {
             Element elementToAddChildTo;
             if (Engine.lastAddedElement.type == TYPE_FEATURE) {
-                elementToAddChildTo = Engine.featuresRoot;
+                elementToAddChildTo = Engine.lastAddedElement;
             } else if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND) {
                 elementToAddChildTo = Engine.lastAddedElement.groupParent;
             } else {
