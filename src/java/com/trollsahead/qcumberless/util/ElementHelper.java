@@ -65,4 +65,21 @@ public class ElementHelper {
         }
         return newElement;
     }
+
+    public static TextElement findBackgroundElement(Element element) {
+        for (Element child : element.children) {
+            if (child.type == TextElement.TYPE_BACKGROUND) {
+                return (TextElement) child;
+            }
+        }
+        return null;
+    }
+
+    public static void bubbleBackgroundToTop(TextElement element) {
+        TextElement backgroundElement = findBackgroundElement(element);
+        if (backgroundElement == null || element.findChildIndex(backgroundElement) == 0) {
+            return;
+        }
+        element.updateElementIndex(backgroundElement, 0);
+    }
 }

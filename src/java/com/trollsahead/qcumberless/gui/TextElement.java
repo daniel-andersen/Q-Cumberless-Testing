@@ -639,7 +639,7 @@ public class TextElement extends Element {
         updateDragPositionHistory();
         Element touchedGroup = Engine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
         if (type == TYPE_BACKGROUND && touchedGroup != null && touchedGroup.type == TYPE_FEATURE) {
-            TextElement backgroundElement = Engine.findBackgroundElement(touchedGroup);
+            TextElement backgroundElement = ElementHelper.findBackgroundElement(touchedGroup);
             if (backgroundElement != null && backgroundElement != this) {
                 touchedGroup = null;
             }
@@ -731,20 +731,16 @@ public class TextElement extends Element {
 
     public void addChild(Element element, int index) {
         super.addChild(element, index);
-        if (element.type == TYPE_BACKGROUND) {
-            updateElementIndex(element, 0);
-        }
+        ElementHelper.bubbleBackgroundToTop(this);
     }
 
     public void addChild(Element element) {
         super.addChild(element);
-        if (element.type == TYPE_BACKGROUND) {
-            updateElementIndex(element, 0);
-        }
+        ElementHelper.bubbleBackgroundToTop(this);
     }
     
     private boolean hasBackgroundElement(Element feature) {
-        return Engine.findBackgroundElement(feature) != null;
+        return ElementHelper.findBackgroundElement(feature) != null;
     }
 
     public Element findGroup(int x, int y, int type) {

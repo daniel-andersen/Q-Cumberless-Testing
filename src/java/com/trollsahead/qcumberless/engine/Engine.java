@@ -34,6 +34,7 @@ import com.trollsahead.qcumberless.model.StepDefinition;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -473,22 +474,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 sb.append(parentTextElement.getTagsString()).append("\n");
             }
             sb.append(Locale.getString("feature")).append(": ").append(parentTextElement.getTitle()).append("\n\n");
-            Element background = findBackgroundElement(parentTextElement);
+            Element background = ElementHelper.findBackgroundElement(parentTextElement);
             if (background != null) {
                 sb.append(background.buildFeature());
             }
         }
         sb.append(cucumberTextElement.buildFeature());
         return sb;
-    }
-
-    public static TextElement findBackgroundElement(Element element) {
-        for (Element child : element.children) {
-            if (child.type == TextElement.TYPE_BACKGROUND) {
-                return (TextElement) child;
-            }
-        }
-        return null;
     }
 
     public static void importStepDefinitions(final Plugin plugin) {

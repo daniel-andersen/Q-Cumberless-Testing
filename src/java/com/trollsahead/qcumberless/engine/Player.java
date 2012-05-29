@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.gui.Element;
 import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -316,7 +317,7 @@ public class Player implements DeviceCallback {
             return;
         }
         TextElement scenarioOrBackground = currentScenario;
-        TextElement backgroundElement = Engine.findBackgroundElement(currentScenario.groupParent);
+        TextElement backgroundElement = ElementHelper.findBackgroundElement(currentScenario.groupParent);
         if (!didFinishBackground && backgroundElement != null) {
             currentBackground = backgroundElement;
             scenarioOrBackground = currentBackground;
