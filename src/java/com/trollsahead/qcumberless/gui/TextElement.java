@@ -530,6 +530,9 @@ public class TextElement extends Element {
         new Thread(new Runnable() {
             public void run() {
                 if (type == TYPE_FEATURE) {
+                    if (Locale.isLocaleSet()) {
+                        comment = "# language: " + Locale.getLocale().toString().toLowerCase();
+                    }
                     filename = CucumberlessDialog.instance.askFeatureFilename();
                     if (filename == null) {
                         return;

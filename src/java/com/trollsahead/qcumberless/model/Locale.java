@@ -30,10 +30,11 @@ import java.util.Map;
 
 public class Locale {
     private static Language language = Language.EN;
+    private static boolean localeSet = false;
 
     public enum Language {
         EN,
-        DK
+        DA
     }
 
     private static Map<Language, Map<String, String>> localeMap;
@@ -65,21 +66,27 @@ public class Locale {
         dk.put("Then", "Så");
         dk.put("And", "Og");
         dk.put("But", "Men");
-        localeMap.put(Language.DK, dk);
+        localeMap.put(Language.DA, dk);
     }
 
     public static void setLocale(String language) {
         Locale.language = Language.valueOf(language);
+        localeSet = true;
     }
     
     public static void setLocale(Language language) {
         Locale.language = language;
+        localeSet = true;
     }
     
     public static Language getLocale() {
         return language;
     }
-    
+
+    public static boolean isLocaleSet() {
+        return localeSet;
+    }
+
     public static String getString(String key) {
         return getCurrentLocaleMap().get(key);
     }
