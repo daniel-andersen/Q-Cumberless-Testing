@@ -465,7 +465,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             return cucumberTextElement.buildFeature();
         }
         StringBuilder sb = new StringBuilder();
-        if (cucumberTextElement.type == TextElement.TYPE_SCENARIO) {
+        if (cucumberTextElement.type == TextElement.TYPE_SCENARIO || cucumberTextElement.type == TextElement.TYPE_BACKGROUND) {
             TextElement parentTextElement = (TextElement) cucumberTextElement.groupParent;
             if (!Util.isEmpty(parentTextElement.getComment())) {
                 sb.append(parentTextElement.getComment()).append("\n");
@@ -474,12 +474,19 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 sb.append(parentTextElement.getTagsString()).append("\n");
             }
             sb.append(Locale.getString("feature")).append(": ").append(parentTextElement.getTitle()).append("\n\n");
-            Element background = ElementHelper.findBackgroundElement(parentTextElement);
-            if (background != null) {
-                sb.append(background.buildFeature());
+            if (cucumberTextElement.type != TextElement.TYPE_BACKGROUND) {
+                Element background = ElementHelper.findBackgroundElement(parentTextElement);
+                if (background != null) {
+                    sb.append(background.buildFeature());
+                }
             }
         }
         sb.append(cucumberTextElement.buildFeature());
+        if (cucumberTextElement.type == TextElement.TYPE_BACKGROUND) {
+            sb.append("\n");
+            sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": Testing background\n");
+            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# Just for testing background\n");
+        }
         return sb;
     }
 

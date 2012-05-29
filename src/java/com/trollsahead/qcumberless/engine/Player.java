@@ -313,11 +313,8 @@ public class Player implements DeviceCallback {
 
     public void beforeStep(String name) {
         System.out.println("Running step: '" + name + "'");
-        if (currentScenario == null) {
-            return;
-        }
         TextElement scenarioOrBackground = currentScenario;
-        TextElement backgroundElement = ElementHelper.findBackgroundElement(currentScenario.groupParent);
+        TextElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
         if (!didFinishBackground && backgroundElement != null) {
             currentBackground = backgroundElement;
             scenarioOrBackground = currentBackground;

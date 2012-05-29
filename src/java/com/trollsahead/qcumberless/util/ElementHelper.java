@@ -32,6 +32,8 @@ import com.trollsahead.qcumberless.gui.TextElement;
 import java.io.File;
 
 public class ElementHelper {
+    public static final String EXPORT_INDENT = "    ";
+
     public static String getRelativePath(String filename) {
         if (!Util.isEmpty(Engine.featuresBaseDir) && filename.startsWith(Engine.featuresBaseDir)) {
             return Util.stripLeadingSlash(filename.substring(Engine.featuresBaseDir.length()));

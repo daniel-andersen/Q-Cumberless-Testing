@@ -3,6 +3,9 @@ Q-Cumberless Testing
 ----= CHANGES =----
 
 0.1.2
+    - Running of backgrounds
+    - Language comment added to feature when language set in configuration
+    - Copying of elements by holding down control
 
 0.1.1
     - Better support for background elements, incl. adding and visualized playing

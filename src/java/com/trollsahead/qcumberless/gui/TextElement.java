@@ -131,8 +131,6 @@ public class TextElement extends Element {
     private String comment = null;
     public Tag tags;
 
-    private static final String EXPORT_INDENT = "    ";
-
     private List<Button> buttons;
     private List<ElementPluginButton> pluginButtons;
     private Button expandButton;
@@ -1111,7 +1109,7 @@ public class TextElement extends Element {
         }
         if (!Util.isEmpty(tags.toString())) {
             if (type == TYPE_SCENARIO) {
-                sb.append(EXPORT_INDENT);
+                sb.append(ElementHelper.EXPORT_INDENT);
             }
             sb.append(tags.toString()).append("\n");
         }
@@ -1119,16 +1117,16 @@ public class TextElement extends Element {
             sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
         }
         if (type == TYPE_BACKGROUND) {
-            sb.append(EXPORT_INDENT).append(Locale.getString("background")).append(":\n");
+            sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("background")).append(":\n");
         }
         if (type == TYPE_SCENARIO) {
-            sb.append(EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
+            sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
         }
         if (type == TYPE_STEP) {
-            sb.append(EXPORT_INDENT).append(EXPORT_INDENT).append(step.toString()).append("\n");
+            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append(step.toString()).append("\n");
         }
         if (type == TYPE_COMMENT) {
-            sb.append(EXPORT_INDENT).append(EXPORT_INDENT).append("# ").append(title).append("\n");
+            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# ").append(title).append("\n");
         }
         return sb;
     }
