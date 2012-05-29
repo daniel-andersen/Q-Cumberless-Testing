@@ -18,3 +18,7 @@ Q-Cumberless Testing is licensed under a BSD-style license. See the file LICENSE
 Copyright (c) 2012
 Daniel Andersen (dani_ande@yahoo.dk)
 
+Screenshot
+==========
+
+<img src='https://raw.github.com/black-knight/Q-Cumberless-Testing/master/doc/screenshot.png' width='800px' />
