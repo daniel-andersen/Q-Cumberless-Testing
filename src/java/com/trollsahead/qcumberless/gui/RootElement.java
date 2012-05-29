@@ -46,8 +46,6 @@ public class RootElement extends Element {
     private static final int SCROLLBAR_BOTTOM_PADDING = ButtonBar.BUTTONBAR_HEIGHT;
     private static final int SCROLLBAR_ROUNDING = 7;
 
-    private static final float ANIMATION_SPEED_PUSH = 0.8f;
-
     private int x = 0;
     private int y = 0;
     private int width = 100;

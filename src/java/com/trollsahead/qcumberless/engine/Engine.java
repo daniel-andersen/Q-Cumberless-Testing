@@ -557,6 +557,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("new step"));
                 stepElement.step.isMatched = false;
                 stepsRoot.addChild(stepElement);
+                stepsRoot.addChild(new Table(TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("table")));
             }
 
             updateRootPositions();

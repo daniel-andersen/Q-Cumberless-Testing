@@ -48,6 +48,7 @@ public class Locale {
         en.put("background", "Background");
         en.put("comment", "Comment");
         en.put("new step", "New step");
+        en.put("table", "Table");
         en.put("Given", "Given");
         en.put("When", "When");
         en.put("Then", "Then");
@@ -55,18 +56,19 @@ public class Locale {
         en.put("But", "But");
         localeMap.put(Language.EN, en);
 
-        Map<String, String> dk = new HashMap<String, String>();
-        dk.put("feature", "Egenskab");
-        dk.put("scenario", "Scenarie");
-        dk.put("background", "Baggrund");
-        dk.put("comment", "Kommentar");
-        dk.put("new step", "Nyt step");
-        dk.put("Given", "Givet");
-        dk.put("When", "Når");
-        dk.put("Then", "Så");
-        dk.put("And", "Og");
-        dk.put("But", "Men");
-        localeMap.put(Language.DA, dk);
+        Map<String, String> da = new HashMap<String, String>();
+        da.put("feature", "Egenskab");
+        da.put("scenario", "Scenarie");
+        da.put("background", "Baggrund");
+        da.put("comment", "Kommentar");
+        da.put("new step", "Nyt step");
+        da.put("table", "Tabel");
+        da.put("Given", "Givet");
+        da.put("When", "Når");
+        da.put("Then", "Så");
+        da.put("And", "Og");
+        da.put("But", "Men");
+        localeMap.put(Language.DA, da);
     }
 
     public static void setLocale(String language) {

@@ -54,11 +54,13 @@ public class TextElement extends Element {
     public static final int TYPE_SCENARIO        = 2;
     public static final int TYPE_STEP            = 3;
     public static final int TYPE_COMMENT         = 4;
+    public static final int TYPE_TABLE           = 5;
 
     public static final int[][] TYPE_ATTACHABLE_TO = {
             {RootElement.TYPE_ROOT},
             {TYPE_FEATURE},
             {TYPE_FEATURE},
+            {TYPE_SCENARIO, TYPE_BACKGROUND},
             {TYPE_SCENARIO, TYPE_BACKGROUND},
             {TYPE_SCENARIO, TYPE_BACKGROUND}
     };
@@ -82,20 +84,21 @@ public class TextElement extends Element {
             {new Color(0x88FF88), new Color(0xAADDAA)},
             {new Color(0xFF6666), new Color(0xDD9999)},
             {new Color(0xAAAAAA), new Color(0xBBBBBB)},
+            {new Color(0xFF6666), new Color(0xDD9999)},
     };
 
-    private static final Color COLOR_BORDER_SHADOW = new Color(0.0f, 0.0f, 0.0f, 0.8f);
-    private static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
-    private static final Color COLOR_BORDER_FAILURE = new Color(1.0f, 0.0f, 0.0f, 0.8f);
-    private static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
+    protected static final Color COLOR_BORDER_SHADOW = new Color(0.0f, 0.0f, 0.0f, 0.8f);
+    protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
+    protected static final Color COLOR_BORDER_FAILURE = new Color(1.0f, 0.0f, 0.0f, 0.8f);
+    protected static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
 
     public static final int RENDER_WIDTH_MAX_FEATURE_EDITOR = 600;
     public static final int RENDER_WIDTH_MAX_STEP_DEFINITIONS = 400;
     public static final int RENDER_HEIGHT_MINIMUM = 20;
     public static final int SHADOW_SIZE = 5;
 
-    public static final int[] PADDING_HORIZONTAL = new int[] {50, 50, 50, 50, 50, 50};
-    public static final int[] PADDING_VERTICAL   = new int[] {10, 10, 10, 5, 5, 10};
+    public static final int[] PADDING_HORIZONTAL = new int[] {50, 50, 50, 50, 50, 50, 50};
+    public static final int[] PADDING_VERTICAL   = new int[] {10, 10, 10,  5,  5, 10,  5};
 
     public static final int BAR_ROUNDING = 20;
     private static final int HINT_ROUNDING = 12;
@@ -103,10 +106,10 @@ public class TextElement extends Element {
     public static final int TEXT_PADDING_HORIZONTAL = 15;
     public static final int TEXT_PADDING_VERTICAL   = 5;
 
-    private static final int HINT_PADDING_HORIZONTAL = 7;
-    private static final int HINT_PADDING_VERTICAL = 2;
+    protected static final int HINT_PADDING_HORIZONTAL = 7;
+    protected static final int HINT_PADDING_VERTICAL = 2;
 
-    private static final int TAGS_PADDING_VERTICAL = 4;
+    protected static final int TAGS_PADDING_VERTICAL = 4;
 
     public static final int BUTTON_PADDING_HORIZONTAL = 15;
     public static final int BUTTON_SPACE_HORIZONTAL = 6;
@@ -115,48 +118,48 @@ public class TextElement extends Element {
     public static final int BUTTON_WIDTH  = 15;
     public static final int BUTTON_HEIGHT = 15;
 
-    private static final int BUTTON_GROUP_HEIGHT = BUTTON_HEIGHT + BUTTON_SPACE_VERTICAL;
+    protected static final int BUTTON_GROUP_HEIGHT = BUTTON_HEIGHT + BUTTON_SPACE_VERTICAL;
 
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
     public static final float PLAY_ANIMATION_DASH_WIDTH = 1.5f;
 
-    private int tagsWidth = 0;
-    private int tagsHeight = 0;
+    protected int tagsWidth = 0;
+    protected int tagsHeight = 0;
 
     public Step step;
 
     public String title;
-    private String filename = null;
-    private String comment = null;
+    protected String filename = null;
+    protected String comment = null;
     public Tag tags;
 
-    private List<Button> buttons;
-    private List<ElementPluginButton> pluginButtons;
-    private Button expandButton;
-    private Button trashcanButton;
-    private Button playButton;
-    private Button editButton;
-    private Button tagsAddButton;
-    private Button tagsNewButton;
-    private Button tagsRemoveButton;
+    protected List<Button> buttons;
+    protected List<ElementPluginButton> pluginButtons;
+    protected Button expandButton;
+    protected Button trashcanButton;
+    protected Button playButton;
+    protected Button editButton;
+    protected Button tagsAddButton;
+    protected Button tagsNewButton;
+    protected Button tagsRemoveButton;
 
-    private static final int DRAG_HISTORY_LENGTH = 5;
-    private static final long DRAG_HISTORY_UPDATE_INTERVAL = 5;
-    private static final float DRAG_HISTORY_THROW_LIMIT = 10.0f;
+    protected static final int DRAG_HISTORY_LENGTH = 5;
+    protected static final long DRAG_HISTORY_UPDATE_INTERVAL = 5;
+    protected static final float DRAG_HISTORY_THROW_LIMIT = 10.0f;
 
-    private int[] dragHistoryX = new int[DRAG_HISTORY_LENGTH];
-    private int[] dragHistoryY = new int[DRAG_HISTORY_LENGTH];
-    private long[] dragHistoryTime = new long[DRAG_HISTORY_LENGTH];
-    private int dragHistoryIndex = 0;
+    protected int[] dragHistoryX = new int[DRAG_HISTORY_LENGTH];
+    protected int[] dragHistoryY = new int[DRAG_HISTORY_LENGTH];
+    protected long[] dragHistoryTime = new long[DRAG_HISTORY_LENGTH];
+    protected int dragHistoryIndex = 0;
 
-    private int buttonGroupHeight = 0;
-    private boolean buttonGroupVisible = false;
-    private boolean buttonGroupVisibleOld = false;
-    private int buttonGroupWidth = 0;
-    private boolean buttonGroupHasButtons = false;
+    protected int buttonGroupHeight = 0;
+    protected boolean buttonGroupVisible = false;
+    protected boolean buttonGroupVisibleOld = false;
+    protected int buttonGroupWidth = 0;
+    protected boolean buttonGroupHasButtons = false;
 
-    private Element lastBubbledElement = null;
+    protected Element lastBubbledElement = null;
 
     public TextElement(int type, int rootType) {
         this(type, rootType, "Untitled");
@@ -898,7 +901,7 @@ public class TextElement extends Element {
 
     public Color getBackgroundColor() {
         int highlightToIndex = isHighlighted() ? 1 : 0;
-        if (type == TYPE_STEP && isFailed) {
+        if ((type == TYPE_STEP || type == TYPE_TABLE) && isFailed) {
             return COLOR_BG_FAILED;
         } else if (type != TYPE_STEP || step.matchedByStepDefinition() || groupParent == Engine.stepsRoot) {
             return COLOR_BG_FILL[type][highlightToIndex];
@@ -1086,15 +1089,19 @@ public class TextElement extends Element {
         return false;
     }
 
-    private boolean hasPlayButton() {
+    protected boolean hasPlayButton() {
         return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled();
     }
 
-    private boolean hasEditButton() {
-        return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_COMMENT || (type == TYPE_STEP && !step.matchedByStepDefinition());
+    protected boolean hasEditButton() {
+        return  type == TYPE_FEATURE ||
+                type == TYPE_SCENARIO ||
+                type == TYPE_BACKGROUND ||
+                type == TYPE_COMMENT ||
+                (type == TYPE_STEP && !step.matchedByStepDefinition());
     }
 
-    private boolean hasTagsAddButton() {
+    protected boolean hasTagsAddButton() {
         return type == TYPE_FEATURE || type == TYPE_SCENARIO;
     }
 
