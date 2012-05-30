@@ -46,11 +46,12 @@ public class FeatureLoader {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
-            BaseBarElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+            FeatureElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
             feature.setFilename(filename);
             Engine.featuresRoot.addChild(feature);
-            BaseBarElement scenario = null;
-            BaseBarElement background = null;
+            ScenarioElement scenario = null;
+            BackgroundElement background = null;
+            StepElement step = null;
             String line;
             String tags = null;
             String comment = null;
@@ -85,11 +86,16 @@ public class FeatureLoader {
                     tags = extractTags(line);
                 } else if (line.matches(getCommentPattern())) {
                     comment = extractComment(line);
+                } else if (line.matches(getTableRowPattern())) {
+                    step.addRowToTable(extractTableRow(line));
                 } else {
                     if (comment != null) {
                         addStep(feature, background, scenario, comment);
                     }
-                    addStep(feature, background, scenario, line);
+                    BaseBarElement element = addStep(feature, background, scenario, line);
+                    if (element instanceof StepElement) {
+                        step = (StepElement) element;
+                    }
                     tags = null;
                     comment = null;
                 }
@@ -101,19 +107,30 @@ public class FeatureLoader {
         }
     }
 
-    private static void addStep(BaseBarElement feature, BaseBarElement background, BaseBarElement scenario, String line) {
+    private static String[] extractTableRow(String line) {
+        Matcher matcher = Pattern.compile(getTableRowPattern()).matcher(line);
+        matcher.find();
+        String[] cols = matcher.group(1).split("\\|");
+        for (int i = 0; i < cols.length; i++) {
+            cols[i] = cols[i].trim();
+        }
+        return cols;
+    }
+
+    private static BaseBarElement addStep(BaseBarElement feature, BaseBarElement background, BaseBarElement scenario, String line) {
         if (scenario != null) {
-            addStepToScenario(scenario, line);
+            return addStepToScenario(scenario, line);
         } else if (background != null) {
-            addStepToScenario(background, line);
+            return addStepToScenario(background, line);
         } else if (feature != null && !Util.isEmpty(line)) {
             feature.setTitle(feature.getTitle() + Util.PSEUDO_NEWLINE + line);
         }
+        return null;
     }
 
-    private static void addStepToScenario(BaseBarElement scenario, String line) {
+    private static BaseBarElement addStepToScenario(BaseBarElement scenario, String line) {
         if (scenario == null || Util.isEmpty(line)) {
-            return;
+            return null;
         }
         BaseBarElement stepElement;
         if (Util.startsWithIgnoreWhitespace(line, "#")) {
@@ -122,6 +139,7 @@ public class FeatureLoader {
             stepElement = new StepElement(BaseBarElement.ROOT_FEATURE_EDITOR, line, findMatchingStep(line));
         }
         scenario.addChild(stepElement);
+        return stepElement;
     }
 
     public static Step findMatchingStep(String line) {
@@ -156,11 +174,11 @@ public class FeatureLoader {
     }
 
     private static String getScenarioPattern() {
-        return "\\s*" + Locale.getString("scenario") + ": (.*)";
+        return "^\\s*" + Locale.getString("scenario") + ": (.*)";
     }
 
     private static String getBackgroundPattern() {
-        return "\\s*" + Locale.getString("background") + ":";
+        return "^\\s*" + Locale.getString("background") + ":";
     }
 
     private static String getTagPattern() {
@@ -168,6 +186,10 @@ public class FeatureLoader {
     }
 
     private static String getCommentPattern() {
-        return "\\s*(#.*)";
+        return "^\\s*(#.*)";
+    }
+
+    private static String getTableRowPattern() {
+        return "^\\s*\\|(.*)\\|\\s*$";
     }
 }

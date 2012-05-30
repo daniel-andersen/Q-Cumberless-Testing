@@ -97,16 +97,23 @@ public class StepElement extends BaseBarElement {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        addTable();
+                        createTable();
                     }
                 },
                 this);
         buttons.add(tableButton);
     }
 
-    private void addTable() {
+    public void createTable() {
         table = new Table(this);
+    }
 
+    public void addRowToTable(String[] cells) {
+        if (table == null) {
+            table = new Table(this, cells);
+        } else {
+            table.addRow(cells);
+        }
     }
 
     protected void updateAdditionalButtonPositions() {

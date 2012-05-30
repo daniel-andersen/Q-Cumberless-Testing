@@ -43,8 +43,8 @@ public class Table {
     private static final Color COLOR_TEXT = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     private static final Color COLOR_BG_HIGHLIGHT = new Color(0.0f, 0.0f, 0.0f, 0.2f);
 
-    public int rows = 2;
-    public int cols = 2;
+    public int rows;
+    public int cols;
 
     public int highlightedRow;
     public int highlightedCol;
@@ -62,30 +62,22 @@ public class Table {
     private BaseBarElement parent;
 
     public Table(BaseBarElement parent) {
-        this.parent = parent;
-        colWidth = new int[cols];
-        colCharWidth = new int[cols];
-        cells = new Cell[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                cells[i][j] = new Cell();
-            }
+        this(parent, 2, 2);
+    }
+
+    public Table(BaseBarElement parent, String[] row) {
+        this(parent, row.length, 1);
+        for (int j = 0; j < row.length; j++) {
+            cells[0][j] = new Cell(row[j]);
         }
-        calculateCellSize();
     }
 
     public Table(BaseBarElement parent, int cols, int rows) {
         this.parent = parent;
         this.cols = cols;
         this.rows = rows;
-        colWidth = new int[cols];
-        cells = new Cell[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                cells[i][j] = new Cell();
-            }
-        }
-        calculateCellSize();
+        cells = null;
+        adjustTableSize(cols, rows);
     }
 
     public int getWidth() {
@@ -195,11 +187,6 @@ public class Table {
         return false;
     }
 
-    public void setCellText(int col, int row, String text) {
-        cells[row][col].text = text;
-        calculateCellSize();
-    }
-
     public String getEditedCellText() {
         return editedCell.text;
     }
@@ -229,13 +216,49 @@ public class Table {
         return sb;
     }
 
+    public void addRow(String[] row) {
+        int newWidth = cells != null && cells.length > 0 ? Math.max(cells[0].length, row.length) : row.length;
+        int newHeight = cells != null ? cells.length + 1 : 1;
+        adjustTableSize(newWidth, newHeight);
+        for (int j = 0; j < newWidth; j++) {
+            cells[newHeight - 1][j] = new Cell(row[j]);
+        }
+    }
+
+    private void adjustTableSize(int cols, int rows) {
+        this.cols = cols;
+        this.rows = rows;
+        colWidth = new int[cols];
+        colCharWidth = new int[cols];
+        Cell[][] newCells = new Cell[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (cells != null && i < cells.length && j < cells[i].length) {
+                    newCells[i][j] = cells[i][j];
+                } else {
+                    newCells[i][j] = new Cell();
+                }
+            }
+        }
+        cells = newCells;
+        calculateCellSize();
+    }
+
     private class Cell {
-        String text = "";
+        String text;
         boolean highlighted;
         int x;
         int y;
         int width;
         int height;
+
+        public Cell() {
+            text = "";
+        }
+        
+        public Cell(String text) {
+            this.text = text;
+        }
 
         public int getWidth() {
             if (!Util.isEmpty(text)) {
