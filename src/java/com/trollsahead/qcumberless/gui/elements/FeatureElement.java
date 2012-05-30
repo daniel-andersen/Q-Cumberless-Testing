@@ -57,4 +57,8 @@ public class FeatureElement extends BaseBarElement {
         duplicatePropertiesTo(element);
         return element;
     }
+
+    protected boolean isAttachable(int type) {
+        return type == TYPE_SCENARIO || type == TYPE_BACKGROUND;
+    }
 }

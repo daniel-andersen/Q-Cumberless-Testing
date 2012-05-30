@@ -57,4 +57,8 @@ public class BackgroundElement extends BaseBarElement {
         duplicatePropertiesTo(element);
         return element;
     }
+
+    protected boolean isAttachable(int type) {
+        return type == TYPE_STEP || type == TYPE_COMMENT;
+    }
 }

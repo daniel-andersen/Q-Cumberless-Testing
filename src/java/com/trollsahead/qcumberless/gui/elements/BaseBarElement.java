@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.FeatureLoader;
 import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.*;
+import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.Tag;
@@ -56,27 +57,15 @@ public abstract class BaseBarElement extends Element {
     public static final int TYPE_STEP            = 3;
     public static final int TYPE_COMMENT         = 4;
 
-    public static final int[][] TYPE_ATTACHABLE_TO = {
-            {RootElement.TYPE_ROOT},
-            {TYPE_FEATURE},
-            {TYPE_FEATURE},
-            {TYPE_SCENARIO, TYPE_BACKGROUND},
-            {TYPE_SCENARIO, TYPE_BACKGROUND},
-            {TYPE_SCENARIO, TYPE_BACKGROUND}
-    };
-
     public static final Color COLOR_TEXT_NORMAL        = new Color(0x000000);
     public static final Color COLOR_TEXT_PARAMETER     = new Color(0xDDDD88);
     public static final Color COLOR_TEXT_ERROR_MESSAGE = new Color(0x000000);
     public static final Color COLOR_TEXT_TAGS          = new Color(0x000000);
 
-    public static final Color COLOR_BG_FAILED          = new Color(0xFF0000);
     public static final Color COLOR_BG_ERROR_MESSAGE   = new Color(0.8f, 0.8f, 0.4f, 0.8f);
     public static final Color COLOR_BG_TAGS            = new Color(0.0f, 0.0f, 0.0f, 0.05f);
     public static final Color COLOR_BG_CLEAR           = new Color(1.0f, 1.0f, 1.0f, 0.0f);
     public static final Color COLOR_BG_HINT            = new Color(0.0f, 0.0f, 0.0f, 0.8f);
-
-    public static final Color[] COLOR_BG_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
 
     protected static final Color COLOR_BORDER_SHADOW = new Color(0.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
@@ -125,15 +114,15 @@ public abstract class BaseBarElement extends Element {
     protected String comment = null;
     public Tag tags;
 
-    protected List<com.trollsahead.qcumberless.gui.Button> buttons;
+    protected List<Button> buttons;
     protected List<ElementPluginButton> pluginButtons;
-    protected com.trollsahead.qcumberless.gui.Button expandButton;
-    protected com.trollsahead.qcumberless.gui.Button trashcanButton;
-    protected com.trollsahead.qcumberless.gui.Button playButton;
-    protected com.trollsahead.qcumberless.gui.Button editButton;
-    protected com.trollsahead.qcumberless.gui.Button tagsAddButton;
-    protected com.trollsahead.qcumberless.gui.Button tagsNewButton;
-    protected com.trollsahead.qcumberless.gui.Button tagsRemoveButton;
+    protected Button expandButton;
+    protected Button trashcanButton;
+    protected Button playButton;
+    protected Button editButton;
+    protected Button tagsAddButton;
+    protected Button tagsNewButton;
+    protected Button tagsRemoveButton;
 
     protected static final int DRAG_HISTORY_LENGTH = 5;
     protected static final long DRAG_HISTORY_UPDATE_INTERVAL = 5;
@@ -190,91 +179,91 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void addButtons() {
-        buttons = new ArrayList<com.trollsahead.qcumberless.gui.Button>();
-        expandButton = new com.trollsahead.qcumberless.gui.Button(
+        buttons = new ArrayList<Button>();
+        expandButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_CENTER | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                     }
                 },
                 this);
         buttons.add(expandButton);
-        trashcanButton = new com.trollsahead.qcumberless.gui.Button(
+        trashcanButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_RIGHT_OF_PARENT | com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_CENTER | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_RIGHT_OF_PARENT | Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         trashElement();
                     }
                 },
                 this);
         buttons.add(trashcanButton);
-        playButton = new com.trollsahead.qcumberless.gui.Button(
+        playButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_PLAY, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_CENTER | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         play();
                     }
                 },
                 this);
         buttons.add(playButton);
-        editButton = new com.trollsahead.qcumberless.gui.Button(
+        editButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_EDIT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EDIT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EDIT, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_CENTER | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         EditBox.showEditElement(BaseBarElement.this);
                     }
                 },
                 this);
         buttons.add(editButton);
-        tagsAddButton = new com.trollsahead.qcumberless.gui.Button(
+        tagsAddButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_ADD, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_LEFT | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         addTags(false);
                     }
                 },
                 this);
         buttons.add(tagsAddButton);
-        tagsNewButton = new com.trollsahead.qcumberless.gui.Button(
+        tagsNewButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_AT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_CENTER | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         addTags(true);
                     }
                 },
                 this);
         buttons.add(tagsNewButton);
-        tagsRemoveButton = new com.trollsahead.qcumberless.gui.Button(
+        tagsRemoveButton = new Button(
                 0,
                 0,
                 null,
                 Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_MINUS, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal()),
-                com.trollsahead.qcumberless.gui.Button.ALIGN_HORIZONTAL_LEFT | com.trollsahead.qcumberless.gui.Button.ALIGN_VERTICAL_CENTER,
-                new com.trollsahead.qcumberless.gui.Button.CucumberButtonNotification() {
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
                     public void onClick() {
                         removeTags();
                     }
@@ -283,7 +272,7 @@ public abstract class BaseBarElement extends Element {
         buttons.add(tagsRemoveButton);
         pluginButtons = GuiUtil.getPluginButtonsForElement(this);
         updateButtonPositions();
-        for (com.trollsahead.qcumberless.gui.Button button : buttons) {
+        for (Button button : buttons) {
             button.setVisible(false);
         }
         for (ElementPluginButton button : pluginButtons) {
@@ -322,7 +311,7 @@ public abstract class BaseBarElement extends Element {
         buttonGroupWidth -= BUTTON_SPACE_HORIZONTAL;
     }
     
-    private int addGroupButton(com.trollsahead.qcumberless.gui.Button button, int x) {
+    private int addGroupButton(Button button, int x) {
         button.setPosition(x, BUTTON_SPACE_VERTICAL + (BUTTON_HEIGHT / 2));
         buttonGroupHasButtons = true;
         return x + BUTTON_WIDTH + BUTTON_SPACE_HORIZONTAL;
@@ -361,7 +350,7 @@ public abstract class BaseBarElement extends Element {
         if (groupParent == Engine.stepsRoot) {
             return;
         }
-        for (com.trollsahead.qcumberless.gui.Button button : buttons) {
+        for (Button button : buttons) {
             button.setVisible(false);
         }
         for (ElementPluginButton button : pluginButtons) {
@@ -379,7 +368,7 @@ public abstract class BaseBarElement extends Element {
         tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
         playButton.setVisible(hasPlayButton() && buttonGroupVisible);
         editButton.setVisible(hasEditButton() && buttonGroupVisible);
-        for (com.trollsahead.qcumberless.gui.Button button : buttons) {
+        for (Button button : buttons) {
             button.update();
         }
         for (ElementPluginButton button : pluginButtons) {
@@ -486,7 +475,7 @@ public abstract class BaseBarElement extends Element {
             doubleClick();
             return;
         }
-        for (com.trollsahead.qcumberless.gui.Button button : buttons) {
+        for (Button button : buttons) {
             if (button.click()) {
                 return;
             }
@@ -743,7 +732,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public Element findGroup(int x, int y, int type) {
-        if (isInsideGroupRect(x, y) && isAttachableTo(type)) {
+        if (isInsideGroupRect(x, y) && isAttachable(type)) {
             return this;
         } else {
             for (Element child : children) {
@@ -756,14 +745,7 @@ public abstract class BaseBarElement extends Element {
         }
     }
 
-    private boolean isAttachableTo(int type) {
-        for (int attachType : TYPE_ATTACHABLE_TO[type]) {
-            if (attachType == this.type) {
-                return true;
-            }
-        }
-        return false;
-    }
+    protected abstract boolean isAttachable(int type);
 
     public void updateElementIndex(Element element, int index) {
         int currentIndex = findChildIndex(element);
@@ -859,7 +841,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void drawButtons(Graphics2D canvas) {
-        for (com.trollsahead.qcumberless.gui.Button button : buttons) {
+        for (Button button : buttons) {
             button.render(canvas);
         }
         for (ElementPluginButton button : pluginButtons) {
@@ -1062,7 +1044,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private boolean isButtonTouched() {
-        for (com.trollsahead.qcumberless.gui.Button button : buttons) {
+        for (Button button : buttons) {
             if (button.isTouched()) {
                 return true;
             }
