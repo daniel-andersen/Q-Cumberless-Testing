@@ -54,9 +54,10 @@ public class Button {
     public static final int ALIGN_HORIZONTAL_LEFT            = 1 << 0;
     public static final int ALIGN_HORIZONTAL_CENTER          = 1 << 1;
     public static final int ALIGN_HORIZONTAL_RIGHT_OF_PARENT = 1 << 2;
-    public static final int ALIGN_VERTICAL_BOTTOM            = 1 << 3;
-    public static final int ALIGN_VERTICAL_CENTER            = 1 << 4;
-    public static final int ALIGN_VERTICAL_CENTER_OF_PARENT  = 1 << 5;
+    public static final int ALIGN_VERTICAL_TOP               = 1 << 3;
+    public static final int ALIGN_VERTICAL_BOTTOM            = 1 << 4;
+    public static final int ALIGN_VERTICAL_CENTER            = 1 << 5;
+    public static final int ALIGN_VERTICAL_CENTER_OF_PARENT  = 1 << 6;
 
     private int x;
     private int y;

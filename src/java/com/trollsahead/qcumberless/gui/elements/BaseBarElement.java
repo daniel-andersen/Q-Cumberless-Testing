@@ -185,7 +185,7 @@ public abstract class BaseBarElement extends Element {
                 0,
                 null,
                 Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()),
-                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_TOP,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
                     }
@@ -286,7 +286,7 @@ public abstract class BaseBarElement extends Element {
     protected void updateButtonPositions() {
         buttonGroupHasButtons = false;
         trashcanButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
-        expandButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
+        expandButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight + TEXT_PADDING_VERTICAL);
         if (!isHighlighted()) {
             return;
         }
