@@ -79,9 +79,9 @@ public class Button {
 
     private int state;
     private boolean enabled = true;
+    private String hint;
 
     public static boolean isOneTouched = false;
-    private String hint;
 
     public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Element parent) {
         this(x, y, text, normalImage, highlightImage, pressedImage, alignment, notification);

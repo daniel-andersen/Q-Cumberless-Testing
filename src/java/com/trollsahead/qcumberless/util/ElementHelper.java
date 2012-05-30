@@ -26,6 +26,8 @@
 package com.trollsahead.qcumberless.util;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.Button;
+import com.trollsahead.qcumberless.gui.DropDown;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 
@@ -83,5 +85,10 @@ public class ElementHelper {
             return;
         }
         element.updateElementIndex(backgroundElement, 0);
+    }
+    
+    public static boolean isElementsHighlightable() {
+        return !Button.isOneTouched && !DropDown.isVisible;
+
     }
 }

@@ -116,6 +116,7 @@ public class Table {
                 int x = (int) parent.animation.moveAnimation.renderX + cells[i][j].x;
                 int y = (int) parent.animation.moveAnimation.renderY + cells[i][j].y;
                 cells[i][j].highlighted =
+                        ElementHelper.isElementsHighlightable() &&
                         CumberlessMouseListener.mouseX >= x && CumberlessMouseListener.mouseX < x + cells[i][j].width &&
                         CumberlessMouseListener.mouseY >= y && CumberlessMouseListener.mouseY < y + cells[i][j].height;
                 if (cells[i][j].highlighted) {
@@ -222,6 +223,18 @@ public class Table {
         adjustTableSize(newWidth, newHeight);
         for (int j = 0; j < newWidth; j++) {
             cells[newHeight - 1][j] = new Cell(row[j]);
+        }
+    }
+
+    public void adjustTableSize(String action) {
+        if ("New row".equalsIgnoreCase(action)) {
+            adjustTableSize(cols, rows + 1);
+        } else if ("New column".equalsIgnoreCase(action)) {
+            adjustTableSize(cols + 1, rows);
+        } else if ("Delete row".equalsIgnoreCase(action)) {
+            adjustTableSize(cols, Math.max(rows - 1, 1));
+        } else if ("Delete column".equalsIgnoreCase(action)) {
+            adjustTableSize(Math.max(cols - 1, 1), rows);
         }
     }
 

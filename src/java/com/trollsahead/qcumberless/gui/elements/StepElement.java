@@ -30,6 +30,7 @@ import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class StepElement extends BaseBarElement {
     private Table table = null;
@@ -97,7 +98,19 @@ public class StepElement extends BaseBarElement {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        createTable();
+                        if (table == null) {
+                            createTable();
+                        } else {
+                            DropDown.show(
+                                    tableButton.renderX + TEXT_PADDING_HORIZONTAL,
+                                    tableButton.renderY + TEXT_PADDING_VERTICAL,
+                                    new DropDown.DropDownCallback() {
+                                        public void chooseItem(String item) {
+                                            table.adjustTableSize(item);
+                                        }
+                                    },
+                                    Arrays.asList(new String[] {"New row", "New column", "Delete row", "Delete column"}));
+                        }
                     }
                 },
                 this);
@@ -117,20 +130,15 @@ public class StepElement extends BaseBarElement {
     }
 
     protected void updateAdditionalButtonPositions() {
-        if (hasTableButton())
         buttonGroupWidth = addGroupButton(tableButton, buttonGroupWidth);
     }
 
     protected void updateAdditionalButtonsVisibleState() {
-        tableButton.setVisible(hasTableButton() && buttonGroupVisible);
+        tableButton.setVisible(buttonGroupVisible);
     }
 
     protected int getAdditionalRenderHeight() {
         return table != null ? (table.getHeight() + TEXT_PADDING_VERTICAL) : 0;
-    }
-
-    private boolean hasTableButton() {
-        return table == null;
     }
 
     public StringBuilder buildFeatureInternal() {
