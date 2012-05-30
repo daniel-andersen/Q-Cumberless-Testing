@@ -257,6 +257,17 @@ public class Table {
         calculateCellSize();
     }
 
+    public Table duplicate() {
+        Table newTable = new Table(parent, cols, rows);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                newTable.cells[i][j] = new Cell(cells[i][j].text);
+            }
+        }
+        newTable.calculateCellSize();
+        return newTable;
+    }
+
     private class Cell {
         String text;
         boolean highlighted;

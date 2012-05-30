@@ -3,6 +3,7 @@ Q-Cumberless Testing
 ----= CHANGES =----
 
 0.1.4 (WIP)
+    - Support for scenario outlines
 
 0.1.3
     - Support for tables

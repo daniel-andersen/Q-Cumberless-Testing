@@ -25,15 +25,17 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.List;
 
 public class StepElement extends BaseBarElement {
-    private Table table = null;
+    protected Table table = null;
     
     public static final Color[] BG_COLOR_NORMAL = {new Color(0xFF6666), new Color(0xDD9999)};
     public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
@@ -65,7 +67,10 @@ public class StepElement extends BaseBarElement {
     }
 
     public BaseBarElement duplicate() {
-        BaseBarElement element = new StepElement(rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
+        StepElement element = new StepElement(rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
+        if (table != null) {
+            element.table = table.duplicate();
+        }
         duplicatePropertiesTo(element);
         return element;
     }
@@ -106,15 +111,25 @@ public class StepElement extends BaseBarElement {
                                     tableButton.renderY + TEXT_PADDING_VERTICAL,
                                     new DropDown.DropDownCallback() {
                                         public void chooseItem(String item) {
-                                            table.adjustTableSize(item);
+                                            synchronized (Engine.LOCK) {
+                                                if ("Delete table".equalsIgnoreCase(item)) {
+                                                    table = null;
+                                                } else {
+                                                    table.adjustTableSize(item);
+                                                }
+                                            }
                                         }
                                     },
-                                    Arrays.asList(new String[] {"New row", "New column", "Delete row", "Delete column"}));
+                                    getTableActions());
                         }
                     }
                 },
                 this);
         buttons.add(tableButton);
+    }
+
+    protected List<String> getTableActions() {
+        return Arrays.asList(new String[] {"New row", "New column", "Delete row", "Delete column", "Delete table"});
     }
 
     public void createTable() {
