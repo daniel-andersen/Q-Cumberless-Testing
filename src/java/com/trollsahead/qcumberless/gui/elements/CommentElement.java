@@ -25,26 +25,26 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.model.Step;
+import java.awt.*;
 
 public class CommentElement extends BaseBarElement {
-    public CommentElement(int rootType) {
-        super(TYPE_COMMENT, rootType);
-    }
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAAA), new Color(0xBBBBBB)};
 
     public CommentElement(int rootType, String title) {
         super(TYPE_COMMENT, rootType, title);
     }
 
-    public CommentElement(int rootType, String title, Step step) {
-        super(TYPE_COMMENT, rootType, title, step);
+    public CommentElement(int rootType, String title, int width) {
+        super(TYPE_COMMENT, rootType, title, width);
     }
 
-    public CommentElement(int rootType, int width, String title, Step step) {
-        super(TYPE_COMMENT, rootType, width, title, step);
+    public Color getBackgroundColor() {
+        return BG_COLOR_NORMAL[isHighlighted() ? 1 : 0];
     }
 
-    public CommentElement(int rootType, int width, String title, Step step, String tags) {
-        super(TYPE_COMMENT, rootType, width, title, step, tags);
+    public BaseBarElement duplicate() {
+        BaseBarElement element = new CommentElement(rootType, title, calculateRenderWidthFromRoot(rootType));
+        duplicatePropertiesTo(element);
+        return element;
     }
 }

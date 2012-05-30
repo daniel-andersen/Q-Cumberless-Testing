@@ -49,13 +49,12 @@ import java.util.Set;
 
 import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
-public class BaseBarElement extends Element {
+public abstract class BaseBarElement extends Element {
     public static final int TYPE_FEATURE         = 0;
     public static final int TYPE_BACKGROUND      = 1;
     public static final int TYPE_SCENARIO        = 2;
     public static final int TYPE_STEP            = 3;
     public static final int TYPE_COMMENT         = 4;
-    public static final int TYPE_TABLE           = 5;
 
     public static final int[][] TYPE_ATTACHABLE_TO = {
             {RootElement.TYPE_ROOT},
@@ -78,15 +77,6 @@ public class BaseBarElement extends Element {
     public static final Color COLOR_BG_HINT            = new Color(0.0f, 0.0f, 0.0f, 0.8f);
 
     public static final Color[] COLOR_BG_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
-
-    public static final Color[][] COLOR_BG_FILL = new Color[][] {
-            {new Color(0xAAAAFF), new Color(0xBBBBEE)},
-            {new Color(0x888888), new Color(0xAAAAAA)},
-            {new Color(0x88FF88), new Color(0xAADDAA)},
-            {new Color(0xFF6666), new Color(0xDD9999)},
-            {new Color(0xAAAAAA), new Color(0xBBBBBB)},
-            {new Color(0xFF6666), new Color(0xDD9999)},
-    };
 
     protected static final Color COLOR_BORDER_SHADOW = new Color(0.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
@@ -172,6 +162,10 @@ public class BaseBarElement extends Element {
 
     protected BaseBarElement(int type, int rootType, String title, Step step) {
         this(type, rootType, calculateRenderWidthFromRoot(rootType), title, step, "");
+    }
+
+    protected BaseBarElement(int type, int rootType, String title, int width) {
+        this(type, rootType, width, title, new Step(title), "");
     }
 
     protected BaseBarElement(int type, int rootType, int width, String title, Step step) {
@@ -787,8 +781,9 @@ public class BaseBarElement extends Element {
         }
     }
 
-    public BaseBarElement duplicate() {
-        BaseBarElement element = new BaseBarElement(type, rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
+    public abstract BaseBarElement duplicate();
+
+    protected void duplicatePropertiesTo(BaseBarElement element) {
         element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(animation.moveAnimation, true);
         element.animation.moveAnimation.setRenderPosition(animation.moveAnimation, true);
@@ -797,7 +792,6 @@ public class BaseBarElement extends Element {
         element.animation.sizeAnimation.currentWidth = this.renderWidth;
         element.animation.sizeAnimation.currentHeight = this.renderHeight;
         element.folded = this.folded;
-        return element;
     }
 
     private int calculateIndexInList(Element touchedGroup) {
@@ -900,16 +894,7 @@ public class BaseBarElement extends Element {
         }
     }
 
-    public Color getBackgroundColor() {
-        int highlightToIndex = isHighlighted() ? 1 : 0;
-        if ((type == TYPE_STEP || type == TYPE_TABLE) && isFailed) {
-            return COLOR_BG_FAILED;
-        } else if (type != TYPE_STEP || step.matchedByStepDefinition() || groupParent == Engine.stepsRoot) {
-            return COLOR_BG_FILL[type][highlightToIndex];
-        } else {
-            return COLOR_BG_UNRECOGNIZED_STEP[highlightToIndex];
-        }
-    }
+    public abstract Color getBackgroundColor();
 
     private boolean renderPlaying(Graphics2D g) {
         if (!Player.isRunning()) {

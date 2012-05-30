@@ -66,4 +66,10 @@ public class StepElement extends BaseBarElement {
             return BG_COLOR_UNRECOGNIZED_STEP[highlightToIndex];
         }
     }
+
+    public BaseBarElement duplicate() {
+        BaseBarElement element = new StepElement(rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
+        duplicatePropertiesTo(element);
+        return element;
+    }
 }

@@ -25,9 +25,12 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.model.Step;
+import java.awt.*;
 
 public class FeatureElement extends BaseBarElement {
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAFF), new Color(0xBBBBEE)};
+    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
+
     public FeatureElement(int rootType) {
         super(TYPE_FEATURE, rootType);
     }
@@ -36,15 +39,22 @@ public class FeatureElement extends BaseBarElement {
         super(TYPE_FEATURE, rootType, title);
     }
 
-    public FeatureElement(int rootType, String title, Step step) {
-        super(TYPE_FEATURE, rootType, title, step);
+    public FeatureElement(int rootType, String title, int width) {
+        super(TYPE_FEATURE, rootType, title, width);
     }
 
-    public FeatureElement(int rootType, int width, String title, Step step) {
-        super(TYPE_FEATURE, rootType, width, title, step);
+    public Color getBackgroundColor() {
+        int highlightToIndex = isHighlighted() ? 1 : 0;
+        if (isFailed) {
+            return BG_COLOR_FAILED[highlightToIndex];
+        } else {
+            return BG_COLOR_NORMAL[highlightToIndex];
+        }
     }
 
-    public FeatureElement(int rootType, int width, String title, Step step, String tags) {
-        super(TYPE_FEATURE, rootType, width, title, step, tags);
+    public BaseBarElement duplicate() {
+        BaseBarElement element = new FeatureElement(rootType, title, calculateRenderWidthFromRoot(rootType));
+        duplicatePropertiesTo(element);
+        return element;
     }
 }

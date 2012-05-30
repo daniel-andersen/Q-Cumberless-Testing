@@ -25,24 +25,5 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-public class Table extends BaseBarElement {
-    public Table(int rootType, String title) {
-        super(TYPE_TABLE, rootType, title);
-    }
-
-    protected boolean hasPlayButton() {
-        return false;
-    }
-
-    protected boolean hasEditButton() {
-        return false;
-    }
-
-    protected boolean hasTagsAddButton() {
-        return false;
-    }
-
-    public StringBuilder buildFeatureInternal() {
-        return new StringBuilder("# table");
-    }
+public class Table {
 }
