@@ -418,13 +418,13 @@ public abstract class BaseBarElement extends Element {
         calculateTagsPosition();
         int elementHeight = calculatePartPositions();
         renderWidth = calculateRenderWidth();
-        renderHeight = Math.max(RENDER_HEIGHT_MINIMUM, elementHeight + (TEXT_PADDING_VERTICAL * 2)) + getExtraRenderHeight();
+        renderHeight = Math.max(RENDER_HEIGHT_MINIMUM, elementHeight + (TEXT_PADDING_VERTICAL * 2)) + getAdditionalRenderHeight();
         paddingHeight = PADDING_VERTICAL[type];
         groupHeight = renderHeight + paddingHeight;
         updateButtonPositions();
     }
 
-    protected abstract int getExtraRenderHeight();
+    protected abstract int getAdditionalRenderHeight();
     
     private void calculateButtonGroupHeight() {
         buttonGroupHeight = buttonGroupVisible ? BUTTON_GROUP_HEIGHT : 0;
@@ -827,9 +827,12 @@ public abstract class BaseBarElement extends Element {
         drawBar(g);
         drawText(g);
         drawTags(g);
+        drawAdditionals(g);
         canvas.drawImage(image, (int) animation.moveAnimation.renderX, (int) animation.moveAnimation.renderY, null);
         drawButtons(canvas);
     }
+
+    protected abstract void drawAdditionals(Graphics2D g);
 
     protected void renderHintsInternal(Graphics2D g) {
         if (!isHighlighted()) {
@@ -1046,11 +1049,11 @@ public abstract class BaseBarElement extends Element {
                 CumberlessMouseListener.mouseY >= y && CumberlessMouseListener.mouseY <= y + Engine.fontMetrics.getHeight();
     }
 
-    private int getTextPaddingLeft() {
+    protected int getTextPaddingLeft() {
         return BUTTON_WIDTH + BUTTON_PADDING_HORIZONTAL;
     }
 
-    private int getTextPaddingRight() {
+    protected int getTextPaddingRight() {
         return TEXT_PADDING_HORIZONTAL + BUTTON_WIDTH;
     }
 

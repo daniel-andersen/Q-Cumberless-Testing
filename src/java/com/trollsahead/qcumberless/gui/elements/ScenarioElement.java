@@ -58,6 +58,9 @@ public class ScenarioElement extends BaseBarElement {
         return element;
     }
 
+    protected void drawAdditionals(Graphics2D g) {
+    }
+
     protected void addAdditionalButtons() {
     }
 
@@ -67,7 +70,7 @@ public class ScenarioElement extends BaseBarElement {
     protected void updateAdditionalButtonsVisibleState() {
     }
 
-    protected int getExtraRenderHeight() {
+    protected int getAdditionalRenderHeight() {
         return 0;
     }
 

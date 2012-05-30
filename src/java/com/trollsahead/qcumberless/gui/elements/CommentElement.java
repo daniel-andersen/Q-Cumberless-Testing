@@ -48,6 +48,9 @@ public class CommentElement extends BaseBarElement {
         return element;
     }
 
+    protected void drawAdditionals(Graphics2D g) {
+    }
+
     protected void addAdditionalButtons() {
     }
 
@@ -57,7 +60,7 @@ public class CommentElement extends BaseBarElement {
     protected void updateAdditionalButtonsVisibleState() {
     }
 
-    protected int getExtraRenderHeight() {
+    protected int getAdditionalRenderHeight() {
         return 0;
     }
 

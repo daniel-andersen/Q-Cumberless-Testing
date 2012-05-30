@@ -175,6 +175,15 @@ public class Util {
         );
     }
 
+    public static Color blendColorKeepAlpha(Color source, Color dest) {
+        return new Color(
+                (int) (source.getRed()   + (float) (dest.getRed()   - source.getRed())   * (dest.getAlpha() / 255.0f)),
+                (int) (source.getGreen() + (float) (dest.getGreen() - source.getGreen()) * (dest.getAlpha() / 255.0f)),
+                (int) (source.getBlue()  + (float) (dest.getBlue()  - source.getBlue())  * (dest.getAlpha() / 255.0f)),
+                source.getAlpha()
+        );
+    }
+
     public static List<String> sortedTagList(List<String> list) {
         String[] array = list.toArray(new String[0]);
         Arrays.sort(array, new Comparator<String>() {

@@ -69,6 +69,21 @@ public class StepElement extends BaseBarElement {
         return element;
     }
 
+    public void click(int clickCount) {
+        if (table != null) {
+            if (table.click()) {
+                return;
+            }
+        }
+        super.click(clickCount);
+    }
+    
+    protected void drawAdditionals(Graphics2D g) {
+        if (table != null) {
+            table.render(g, getTextPaddingLeft(), renderHeight - table.getHeight() - TEXT_PADDING_VERTICAL);
+        }
+    }
+
     protected boolean isAttachable(int type) {
         return false;
     }
@@ -82,11 +97,16 @@ public class StepElement extends BaseBarElement {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.CucumberButtonNotification() {
                     public void onClick() {
-                        System.out.println("HELLO!");
+                        addTable();
                     }
                 },
                 this);
         buttons.add(tableButton);
+    }
+
+    private void addTable() {
+        table = new Table(this);
+
     }
 
     protected void updateAdditionalButtonPositions() {
@@ -98,11 +118,11 @@ public class StepElement extends BaseBarElement {
         tableButton.setVisible(hasTableButton() && buttonGroupVisible);
     }
 
-    protected int getExtraRenderHeight() {
-        return 0;
+    protected int getAdditionalRenderHeight() {
+        return table != null ? (table.getHeight() + TEXT_PADDING_VERTICAL) : 0;
     }
 
     private boolean hasTableButton() {
-        return table != null;
+        return table == null;
     }
 }
