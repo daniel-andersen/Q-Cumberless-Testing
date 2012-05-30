@@ -178,7 +178,7 @@ public abstract class BaseBarElement extends Element {
         addButtons();
     }
 
-    private void addButtons() {
+    protected void addButtons() {
         buttons = new ArrayList<Button>();
         expandButton = new Button(
                 0,
@@ -270,6 +270,7 @@ public abstract class BaseBarElement extends Element {
                 },
                 this);
         buttons.add(tagsRemoveButton);
+        addAdditionalButtons();
         pluginButtons = GuiUtil.getPluginButtonsForElement(this);
         updateButtonPositions();
         for (Button button : buttons) {
@@ -280,7 +281,9 @@ public abstract class BaseBarElement extends Element {
         }
     }
 
-    private void updateButtonPositions() {
+    protected abstract void addAdditionalButtons();
+
+    protected void updateButtonPositions() {
         buttonGroupHasButtons = false;
         trashcanButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
         expandButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
@@ -302,6 +305,7 @@ public abstract class BaseBarElement extends Element {
                 buttonGroupWidth = addGroupButton(tagsNewButton, buttonGroupWidth);
             }
         }
+        updateAdditionalButtonPositions();
         for (ElementPluginButton button : pluginButtons) {
             if (!button.getCallback().isVisibleForElement(this)) {
                 continue;
@@ -310,8 +314,10 @@ public abstract class BaseBarElement extends Element {
         }
         buttonGroupWidth -= BUTTON_SPACE_HORIZONTAL;
     }
-    
-    private int addGroupButton(Button button, int x) {
+
+    protected abstract void updateAdditionalButtonPositions();
+
+    protected int addGroupButton(Button button, int x) {
         button.setPosition(x, BUTTON_SPACE_VERTICAL + (BUTTON_HEIGHT / 2));
         buttonGroupHasButtons = true;
         return x + BUTTON_WIDTH + BUTTON_SPACE_HORIZONTAL;
@@ -368,6 +374,7 @@ public abstract class BaseBarElement extends Element {
         tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
         playButton.setVisible(hasPlayButton() && buttonGroupVisible);
         editButton.setVisible(hasEditButton() && buttonGroupVisible);
+        updateAdditionalButtonsVisibleState();
         for (Button button : buttons) {
             button.update();
         }
@@ -376,6 +383,8 @@ public abstract class BaseBarElement extends Element {
             button.update();
         }
     }
+
+    protected abstract void updateAdditionalButtonsVisibleState();
 
     private void updateButtonGroupState() {
         if (expandButton.isTouched()) {
@@ -409,12 +418,14 @@ public abstract class BaseBarElement extends Element {
         calculateTagsPosition();
         int elementHeight = calculatePartPositions();
         renderWidth = calculateRenderWidth();
-        renderHeight = Math.max(RENDER_HEIGHT_MINIMUM, elementHeight + (TEXT_PADDING_VERTICAL * 2));
+        renderHeight = Math.max(RENDER_HEIGHT_MINIMUM, elementHeight + (TEXT_PADDING_VERTICAL * 2)) + getExtraRenderHeight();
         paddingHeight = PADDING_VERTICAL[type];
         groupHeight = renderHeight + paddingHeight;
         updateButtonPositions();
     }
 
+    protected abstract int getExtraRenderHeight();
+    
     private void calculateButtonGroupHeight() {
         buttonGroupHeight = buttonGroupVisible ? BUTTON_GROUP_HEIGHT : 0;
         animation.moveAnimation.realY -= buttonGroupHeight;

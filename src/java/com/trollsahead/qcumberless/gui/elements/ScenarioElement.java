@@ -58,6 +58,19 @@ public class ScenarioElement extends BaseBarElement {
         return element;
     }
 
+    protected void addAdditionalButtons() {
+    }
+
+    protected void updateAdditionalButtonPositions() {
+    }
+
+    protected void updateAdditionalButtonsVisibleState() {
+    }
+
+    protected int getExtraRenderHeight() {
+        return 0;
+    }
+
     protected boolean isAttachable(int type) {
         return type == TYPE_STEP || type == TYPE_COMMENT;
     }

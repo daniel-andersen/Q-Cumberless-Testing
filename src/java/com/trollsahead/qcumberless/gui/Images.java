@@ -46,7 +46,7 @@ public class Images {
     public static int IMAGE_RESUME = 9;
     public static int IMAGE_STOP = 10;
     public static int IMAGE_SPOTLIGHT = 11;
-    public static int IMAGE_IMPORT_STEP_DEFINITIONS = 12;
+    public static int IMAGE_TABLE = 12;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -79,6 +79,11 @@ public class Images {
         images.put(IMAGE_EDIT, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/edit_normal.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/edit_highlight.png"))
+        });
+        images.put(IMAGE_TABLE, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/table_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/table_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/table_pressed.png"))
         });
         images.put(IMAGE_EXPAND, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/expand_normal.png")),

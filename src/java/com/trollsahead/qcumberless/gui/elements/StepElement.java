@@ -25,6 +25,8 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.gui.*;
+import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
@@ -36,9 +38,7 @@ public class StepElement extends BaseBarElement {
     public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
     public static final Color[] BG_COLOR_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
 
-    public StepElement(int rootType) {
-        super(BaseBarElement.TYPE_STEP, rootType);
-    }
+    protected Button tableButton;
 
     public StepElement(int rootType, String title) {
         super(BaseBarElement.TYPE_STEP, rootType, title);
@@ -50,10 +50,6 @@ public class StepElement extends BaseBarElement {
 
     public StepElement(int rootType, int width, String title, Step step) {
         super(BaseBarElement.TYPE_STEP, rootType, width, title, step);
-    }
-
-    public StepElement(int rootType, int width, String title, Step step, String tags) {
-        super(BaseBarElement.TYPE_STEP, rootType, width, title, step, tags);
     }
 
     public Color getBackgroundColor() {
@@ -75,5 +71,38 @@ public class StepElement extends BaseBarElement {
 
     protected boolean isAttachable(int type) {
         return false;
+    }
+
+    protected void addAdditionalButtons() {
+        tableButton = new Button(
+                0,
+                0,
+                null,
+                Images.getImage(Images.IMAGE_TABLE, Images.ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_TABLE, Images.ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_TABLE, Images.ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                        System.out.println("HELLO!");
+                    }
+                },
+                this);
+        buttons.add(tableButton);
+    }
+
+    protected void updateAdditionalButtonPositions() {
+        if (hasTableButton())
+        buttonGroupWidth = addGroupButton(tableButton, buttonGroupWidth);
+    }
+
+    protected void updateAdditionalButtonsVisibleState() {
+        tableButton.setVisible(hasTableButton() && buttonGroupVisible);
+    }
+
+    protected int getExtraRenderHeight() {
+        return 0;
+    }
+
+    private boolean hasTableButton() {
+        return table != null;
     }
 }

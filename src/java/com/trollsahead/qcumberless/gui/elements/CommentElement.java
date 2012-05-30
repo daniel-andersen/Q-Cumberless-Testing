@@ -48,6 +48,19 @@ public class CommentElement extends BaseBarElement {
         return element;
     }
 
+    protected void addAdditionalButtons() {
+    }
+
+    protected void updateAdditionalButtonPositions() {
+    }
+
+    protected void updateAdditionalButtonsVisibleState() {
+    }
+
+    protected int getExtraRenderHeight() {
+        return 0;
+    }
+
     protected boolean isAttachable(int type) {
         return false;
     }
