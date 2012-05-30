@@ -27,24 +27,26 @@ package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.Table;
 
 import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
 public class EditBox {
     public static boolean isVisible = false;
 
-    private static final int TYPE_ELEMENT = 0;
-    private static final int TYPE_PART    = 1;
-    private static final int TYPE_TAGS    = 2;
+    private static final int TYPE_ELEMENT    = 0;
+    private static final int TYPE_PART       = 1;
+    private static final int TYPE_TAGS       = 2;
+    private static final int TYPE_TABLE_CELL = 3;
 
     private static int editType;
 
     private static BaseBarElement element;
     private static CucumberStepPart part;
+    private static Table table;
 
     public static void showEditPart(CucumberStepPart part) {
         EditBox.part = part;
-        EditBox.element = null;
         EditBox.editType = TYPE_PART;
         CucumberlessDialog.elementTextField.setText(part.getText());
         show();
@@ -52,7 +54,6 @@ public class EditBox {
     
     public static void showEditElement(BaseBarElement element) {
         EditBox.element = element;
-        EditBox.part = null;
         EditBox.editType = TYPE_ELEMENT;
         CucumberlessDialog.elementTextField.setText(element.step.getFirstPart().getText());
         show();
@@ -60,13 +61,20 @@ public class EditBox {
 
     public static void showEditTags(BaseBarElement element) {
         EditBox.element = element;
-        EditBox.part = null;
         EditBox.editType = TYPE_TAGS;
         CucumberlessDialog.elementTextField.setText(element.tags.toString());
         show();
     }
 
+    public static void showEditTable(Table table) {
+        EditBox.table = table;
+        EditBox.editType = TYPE_TABLE_CELL;
+        CucumberlessDialog.elementTextField.setText(table.getEditedCellText());
+        show();
+    }
+
     private static void show() {
+        hide();
         EditBox.isVisible = true;
         CucumberlessDialog.elementTextField.setVisible(true);
         CucumberlessDialog.mainPanel.doLayout();
@@ -74,8 +82,13 @@ public class EditBox {
     }
 
     public static void hide() {
+        if (!isVisible) {
+            return;
+        }
         isVisible = false;
         element = null;
+        part = null;
+        table = null;
         CucumberlessDialog.elementTextField.setVisible(false);
         CucumberlessDialog.mainPanel.doLayout();
     }
@@ -127,6 +140,8 @@ public class EditBox {
                 part.setText(text);
             } else if (editType == TYPE_TAGS) {
                 element.setTags(text);
+            } else if (editType == TYPE_TABLE_CELL) {
+                table.setEditedCellText(text);
             }
         }
     }

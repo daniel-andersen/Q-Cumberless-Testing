@@ -27,33 +27,57 @@ package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
+import com.trollsahead.qcumberless.gui.EditBox;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 
 public class Table {
-    private static final int DEFAULT_CELL_WIDTH = 200;
+    private static final int MINIMUM_CELL_WIDTH = 50;
 
     private static final int CELL_PADDING_HORIZONTAL = 10;
     private static final int CELL_PADDING_VERTICAL = 2;
 
-    private static final Color COLOR_LINE = new Color(0.0f, 0.0f, 0.0f, 0.5f);
+    private static final Color COLOR_LINE = new Color(0.0f, 0.0f, 0.0f, 0.3f);
     private static final Color COLOR_TEXT = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     private static final Color COLOR_BG_HIGHLIGHT = new Color(0.0f, 0.0f, 0.0f, 0.2f);
 
     public int rows = 2;
     public int cols = 2;
 
+    public int highlightedRow;
+    public int highlightedCol;
+
     private int width;
     private int height;
 
     private Cell[][] cells;
     private int[] colWidth;
+    private int[] colCharWidth;
     private int rowHeight;
+
+    private Cell editedCell = null;
+
     private BaseBarElement parent;
 
     public Table(BaseBarElement parent) {
         this.parent = parent;
+        colWidth = new int[cols];
+        colCharWidth = new int[cols];
+        cells = new Cell[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                cells[i][j] = new Cell();
+            }
+        }
+        calculateCellSize();
+    }
+
+    public Table(BaseBarElement parent, int cols, int rows) {
+        this.parent = parent;
+        this.cols = cols;
+        this.rows = rows;
         colWidth = new int[cols];
         cells = new Cell[rows][cols];
         for (int i = 0; i < rows; i++) {
@@ -63,7 +87,7 @@ public class Table {
         }
         calculateCellSize();
     }
-    
+
     public int getWidth() {
         return width;
     }
@@ -93,6 +117,8 @@ public class Table {
     }
 
     private void findHighlightedCell() {
+        highlightedCol = -1;
+        highlightedRow = -1;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 int x = (int) parent.animation.moveAnimation.renderX + cells[i][j].x;
@@ -100,23 +126,25 @@ public class Table {
                 cells[i][j].highlighted =
                         CumberlessMouseListener.mouseX >= x && CumberlessMouseListener.mouseX < x + cells[i][j].width &&
                         CumberlessMouseListener.mouseY >= y && CumberlessMouseListener.mouseY < y + cells[i][j].height;
-            }
-        }
-    }
-
-    private void renderHighlightedCell(Graphics2D g) {
-        g.setColor(Util.blendColorKeepAlpha(parent.getBackgroundColor(), COLOR_BG_HIGHLIGHT));
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
                 if (cells[i][j].highlighted) {
-                    g.fillRect(cells[i][j].x, cells[i][j].y, cells[i][j].width, cells[i][j].height);
+                    highlightedCol = j;
+                    highlightedRow = i;
                 }
             }
         }
     }
 
+    private void renderHighlightedCell(Graphics2D g) {
+        if (highlightedCol == -1 || highlightedRow == -1) {
+            return;
+        }
+        g.setColor(Util.blendColorKeepAlpha(parent.getBackgroundColor(), COLOR_BG_HIGHLIGHT));
+        g.fillRect(cells[highlightedRow][highlightedCol].x, cells[highlightedRow][highlightedCol].y,
+                   cells[highlightedRow][highlightedCol].width, cells[highlightedRow][highlightedCol].height);
+    }
+
     private void renderGrid(Graphics2D g, int x, int y) {
-        g.setColor(COLOR_LINE);
+        g.setColor(Util.blendColorKeepAlpha(parent.getBackgroundColor(), COLOR_LINE));
         for (int i = 0; i < rows + 1; i++) {
             int h = i * rowHeight;
             g.drawLine(x, y + h, x + width, y + h);
@@ -140,11 +168,16 @@ public class Table {
     public void calculateCellSize() {
         width = 0;
         for (int j = 0; j < cols; j++) {
-            colWidth[j] = 0;
+            colWidth[j] = MINIMUM_CELL_WIDTH;
+            colCharWidth[j] = 0;
             for (int i = 0; i < rows; i++) {
                 int width = cells[i][j].getWidth();
                 if (width > colWidth[j]) {
                     colWidth[j] = width;
+                }
+                int charWidth = !Util.isEmpty(cells[i][j].text) ? cells[i][j].text.length() : 0;
+                if (charWidth > colCharWidth[j]) {
+                    colCharWidth[j] = charWidth;
                 }
             }
             width += colWidth[j];
@@ -153,32 +186,66 @@ public class Table {
         height = rows * rowHeight;
     }
 
+    public boolean click() {
+        if (highlightedCol == -1 || highlightedRow == -1) {
+            return false;
+        }
+        editedCell = cells[highlightedRow][highlightedCol];
+        EditBox.showEditTable(this);
+        return false;
+    }
+
     public void setCellText(int col, int row, String text) {
         cells[row][col].text = text;
         calculateCellSize();
     }
 
-    public boolean click() {
-        return false;
+    public String getEditedCellText() {
+        return editedCell.text;
+    }
+
+    public void setEditedCellText(String text) {
+        editedCell.text = text;
+        calculateCellSize();
+    }
+
+    public StringBuilder buildFeature() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rows; i++) {
+            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT);
+            sb.append("  |");
+            for (int j = 0; j < cols; j++) {
+                if (!Util.isEmpty(cells[i][j].text)) {
+                    sb.append(" ");
+                    sb.append(cells[i][j].text);
+                    sb.append(Util.fillChar(' ', colCharWidth[j] + 1 - cells[i][j].text.length()));
+                } else {
+                    sb.append(Util.fillChar(' ', colCharWidth[j] + 2));
+                }
+                sb.append("|");
+            }
+            sb.append("\n");
+        }
+        return sb;
     }
 
     private class Cell {
-        String text = "Test";
+        String text = "";
         boolean highlighted;
-        private int x;
-        private int y;
-        private int width;
-        private int height;
+        int x;
+        int y;
+        int width;
+        int height;
 
-        int getWidth() {
+        public int getWidth() {
             if (!Util.isEmpty(text)) {
-                return Engine.fontMetrics.stringWidth(text) + (CELL_PADDING_HORIZONTAL * 2);
+                return Math.max(Engine.fontMetrics.stringWidth(text) + (CELL_PADDING_HORIZONTAL * 2), MINIMUM_CELL_WIDTH);
             } else {
-                return DEFAULT_CELL_WIDTH;
+                return MINIMUM_CELL_WIDTH;
             }
         }
 
-        void setBounds(int x, int y, int width, int height) {
+        public void setBounds(int x, int y, int width, int height) {
             this.x = x;
             this.y = y;
             this.width = width;

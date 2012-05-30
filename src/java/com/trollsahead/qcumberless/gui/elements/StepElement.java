@@ -125,4 +125,12 @@ public class StepElement extends BaseBarElement {
     private boolean hasTableButton() {
         return table == null;
     }
+
+    public StringBuilder buildFeatureInternal() {
+        StringBuilder sb = super.buildFeatureInternal();
+        if (table != null) {
+            sb.append(table.buildFeature());
+        }
+        return sb;
+    }
 }
