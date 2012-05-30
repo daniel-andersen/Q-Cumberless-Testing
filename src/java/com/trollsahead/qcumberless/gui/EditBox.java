@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 
 import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
@@ -38,7 +39,7 @@ public class EditBox {
 
     private static int editType;
 
-    private static TextElement element;
+    private static BaseBarElement element;
     private static CucumberStepPart part;
 
     public static void showEditPart(CucumberStepPart part) {
@@ -49,7 +50,7 @@ public class EditBox {
         show();
     }
     
-    public static void showEditElement(TextElement element) {
+    public static void showEditElement(BaseBarElement element) {
         EditBox.element = element;
         EditBox.part = null;
         EditBox.editType = TYPE_ELEMENT;
@@ -57,7 +58,7 @@ public class EditBox {
         show();
     }
 
-    public static void showEditTags(TextElement element) {
+    public static void showEditTags(BaseBarElement element) {
         EditBox.element = element;
         EditBox.part = null;
         EditBox.editType = TYPE_TAGS;
@@ -130,7 +131,7 @@ public class EditBox {
         }
     }
 
-    public static boolean isEditing(TextElement cucumberTextElement) {
+    public static boolean isEditing(BaseBarElement cucumberTextElement) {
         return cucumberTextElement == element;
     }
 }

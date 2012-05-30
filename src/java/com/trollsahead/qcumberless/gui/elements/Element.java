@@ -23,9 +23,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.gui;
+package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.Animation;
+import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -90,11 +92,11 @@ public abstract class Element {
         if (children.contains(element)) {
             if (this == Engine.stepsRoot) {
                 Element stepDefinitionElement = element.duplicate();
-                if (stepDefinitionElement instanceof TextElement) {
-                    ((TextElement) stepDefinitionElement).step.setShouldRenderKeyword(false);
+                if (stepDefinitionElement instanceof BaseBarElement) {
+                    ((BaseBarElement) stepDefinitionElement).step.setShouldRenderKeyword(false);
                 }
-                if (element instanceof TextElement) {
-                    ((TextElement) element).step.setShouldRenderKeyword(true);
+                if (element instanceof BaseBarElement) {
+                    ((BaseBarElement) element).step.setShouldRenderKeyword(true);
                 }
                 Engine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
@@ -374,7 +376,7 @@ public abstract class Element {
         for (Element child : children) {
             sb.append(child.buildFeature());
         }
-        if (type == TextElement.TYPE_FEATURE || type == TextElement.TYPE_BACKGROUND || type == TextElement.TYPE_SCENARIO) {
+        if (type == BaseBarElement.TYPE_FEATURE || type == BaseBarElement.TYPE_BACKGROUND || type == BaseBarElement.TYPE_SCENARIO) {
             sb.append("\n");
         }
         return sb;
@@ -420,4 +422,8 @@ public abstract class Element {
     }
 
     public abstract Set<String> getTagsInternal();
+
+    public boolean isVisible() {
+        return visible;
+    }
 }

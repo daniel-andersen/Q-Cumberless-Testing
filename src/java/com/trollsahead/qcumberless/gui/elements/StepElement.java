@@ -23,40 +23,47 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.model.Step;
 
 import java.awt.*;
 
-public interface DeviceCallback {
-    void onPlay();
-    void onPause();
-    void onResume();
-    void onStop();
-
-    void afterPlayed();
-    void afterPlayFailed(String errorMessage);
-
-    void beforeFeatures();
-
-    void beforeFeature(String name);
-    void afterFeature();
-    void afterFeatureFailed();
-
-    void beforeScenario(String name);
-    void afterScenario();
-    void afterScenarioFailed();
-
-    void beforeBackground(String name);
-    void afterBackground();
-    void afterBackgroundFailed(String errorMessage);
-
-    void beforeStep(String name);
-    void afterStep(String name);
-    void afterStepFailed(String errorMessage);
+public class StepElement extends BaseBarElement {
+    private Table table = null;
     
-    void attachScreenshots(Element element, Image... screenshots);
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0xFF6666), new Color(0xDD9999)};
+    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
+    public static final Color[] BG_COLOR_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
 
-    Element getCurrentElement();
+    public StepElement(int rootType) {
+        super(BaseBarElement.TYPE_STEP, rootType);
+    }
+
+    public StepElement(int rootType, String title) {
+        super(BaseBarElement.TYPE_STEP, rootType, title);
+    }
+
+    public StepElement(int rootType, String title, Step step) {
+        super(BaseBarElement.TYPE_STEP, rootType, title, step);
+    }
+
+    public StepElement(int rootType, int width, String title, Step step) {
+        super(BaseBarElement.TYPE_STEP, rootType, width, title, step);
+    }
+
+    public StepElement(int rootType, int width, String title, Step step, String tags) {
+        super(BaseBarElement.TYPE_STEP, rootType, width, title, step, tags);
+    }
+
+    public Color getBackgroundColor() {
+        int highlightToIndex = isHighlighted() ? 1 : 0;
+        if (isFailed) {
+            return BG_COLOR_FAILED[highlightToIndex];
+        } else if (step.matchedByStepDefinition() || rootType == ROOT_STEP_DEFINITIONS) {
+            return BG_COLOR_NORMAL[highlightToIndex];
+        } else {
+            return BG_COLOR_UNRECOGNIZED_STEP[highlightToIndex];
+        }
+    }
 }

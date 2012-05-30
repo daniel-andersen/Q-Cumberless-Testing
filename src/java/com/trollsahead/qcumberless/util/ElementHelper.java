@@ -26,8 +26,8 @@
 package com.trollsahead.qcumberless.util;
 
 import com.trollsahead.qcumberless.engine.Engine;
-import com.trollsahead.qcumberless.gui.Element;
-import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 
 import java.io.File;
 
@@ -41,8 +41,8 @@ public class ElementHelper {
         return new File(filename).getName();
     }
 
-    public static void deepCopyElement(TextElement element) {
-        TextElement newElement = copyAndUnfoldElement(element);
+    public static void deepCopyElement(BaseBarElement element) {
+        BaseBarElement newElement = copyAndUnfoldElement(element);
         int index = element.groupParent.findChildIndex(element);
         element.groupParent.addChild(newElement, index);
         deepCopyElement(element, newElement);
@@ -51,34 +51,34 @@ public class ElementHelper {
         }
     }
 
-    public static void deepCopyElement(TextElement sourceElement, TextElement destElement) {
+    public static void deepCopyElement(BaseBarElement sourceElement, BaseBarElement destElement) {
         for (Element element : sourceElement.children) {
-            TextElement oldElement = (TextElement) element;
-            TextElement newElement = copyAndUnfoldElement(oldElement);
+            BaseBarElement oldElement = (BaseBarElement) element;
+            BaseBarElement newElement = copyAndUnfoldElement(oldElement);
             destElement.addChild(newElement);
             deepCopyElement(oldElement, newElement);
         }
     }
     
-    public static TextElement copyAndUnfoldElement(TextElement element) {
-        TextElement newElement = element.duplicate();
+    public static BaseBarElement copyAndUnfoldElement(BaseBarElement element) {
+        BaseBarElement newElement = element.duplicate();
         if (element.children.size() == 0) {
             newElement.unfold();
         }
         return newElement;
     }
 
-    public static TextElement findBackgroundElement(Element element) {
+    public static BaseBarElement findBackgroundElement(Element element) {
         for (Element child : element.children) {
-            if (child.type == TextElement.TYPE_BACKGROUND) {
-                return (TextElement) child;
+            if (child.type == BaseBarElement.TYPE_BACKGROUND) {
+                return (BaseBarElement) child;
             }
         }
         return null;
     }
 
-    public static void bubbleBackgroundToTop(TextElement element) {
-        TextElement backgroundElement = findBackgroundElement(element);
+    public static void bubbleBackgroundToTop(BaseBarElement element) {
+        BaseBarElement backgroundElement = findBackgroundElement(element);
         if (backgroundElement == null || element.findChildIndex(backgroundElement) == 0) {
             return;
         }

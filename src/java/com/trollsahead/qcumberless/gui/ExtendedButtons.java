@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.plugins.ElementMethodCallback;
 
 import java.awt.*;

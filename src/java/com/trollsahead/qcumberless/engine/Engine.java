@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.gui.Spotlight;
 import com.trollsahead.qcumberless.gui.*;
+import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.StepDefinition;
 import com.trollsahead.qcumberless.model.Locale;
@@ -448,7 +449,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
     }
 
-    public static void runTests(TextElement cucumberTextElement) {
+    public static void runTests(BaseBarElement cucumberTextElement) {
         final StringBuilder feature = buildFeature(cucumberTextElement);
         System.out.println(feature.toString());
         Player.prepareRun();
@@ -460,13 +461,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
     }
 
-    private static StringBuilder buildFeature(TextElement cucumberTextElement) {
-        if (cucumberTextElement.type == TextElement.TYPE_FEATURE) {
+    private static StringBuilder buildFeature(BaseBarElement cucumberTextElement) {
+        if (cucumberTextElement.type == BaseBarElement.TYPE_FEATURE) {
             return cucumberTextElement.buildFeature();
         }
         StringBuilder sb = new StringBuilder();
-        if (cucumberTextElement.type == TextElement.TYPE_SCENARIO || cucumberTextElement.type == TextElement.TYPE_BACKGROUND) {
-            TextElement parentTextElement = (TextElement) cucumberTextElement.groupParent;
+        if (cucumberTextElement.type == BaseBarElement.TYPE_SCENARIO || cucumberTextElement.type == BaseBarElement.TYPE_BACKGROUND) {
+            BaseBarElement parentTextElement = (BaseBarElement) cucumberTextElement.groupParent;
             if (!Util.isEmpty(parentTextElement.getComment())) {
                 sb.append(parentTextElement.getComment()).append("\n");
             }
@@ -474,7 +475,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 sb.append(parentTextElement.getTagsString()).append("\n");
             }
             sb.append(Locale.getString("feature")).append(": ").append(parentTextElement.getTitle()).append("\n\n");
-            if (cucumberTextElement.type != TextElement.TYPE_BACKGROUND) {
+            if (cucumberTextElement.type != BaseBarElement.TYPE_BACKGROUND) {
                 Element background = ElementHelper.findBackgroundElement(parentTextElement);
                 if (background != null) {
                     sb.append(background.buildFeature());
@@ -482,7 +483,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             }
         }
         sb.append(cucumberTextElement.buildFeature());
-        if (cucumberTextElement.type == TextElement.TYPE_BACKGROUND) {
+        if (cucumberTextElement.type == BaseBarElement.TYPE_BACKGROUND) {
             sb.append("\n");
             sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": Testing background\n");
             sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# Just for testing background\n");
@@ -550,14 +551,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             cucumberRoot.addChild(stepsRoot, 1);
 
             if (addTemplate) {
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("feature")));
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario")));
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_BACKGROUND, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("background")));
-                stepsRoot.addChild(new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("comment")));
-                TextElement stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("new step"));
+                stepsRoot.addChild(new FeatureElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("feature")));
+                stepsRoot.addChild(new ScenarioElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario")));
+                stepsRoot.addChild(new BackgroundElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("background")));
+                stepsRoot.addChild(new CommentElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("comment")));
+                BaseBarElement stepElement = new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("new step"));
                 stepElement.step.isMatched = false;
                 stepsRoot.addChild(stepElement);
-                stepsRoot.addChild(new Table(TextElement.ROOT_STEP_DEFINITIONS, Locale.getString("table")));
             }
 
             updateRootPositions();
@@ -576,9 +576,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void addTemplateFeature() {
-        TextElement scenario = new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_FEATURE_EDITOR, "New Scenario");
+        BaseBarElement scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR, "New Scenario");
         scenario.unfold();
-        TextElement feature = new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_FEATURE_EDITOR, "New Feature");
+        BaseBarElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR, "New Feature");
         feature.setFilename("noname_" + System.currentTimeMillis() + ".feature");
         feature.addChild(scenario);
         feature.unfold();
@@ -587,8 +587,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void updateRootPositions() {
-        dragSplitterX = TextElement.RENDER_WIDTH_MAX_FEATURE_EDITOR + ((canvasWidth - TextElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - TextElement.RENDER_WIDTH_MAX_FEATURE_EDITOR) / 2);
-        int divider = Math.max(dragSplitterX, canvasWidth - TextElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - RootElement.PADDING_HORIZONTAL * 2);
+        dragSplitterX = BaseBarElement.RENDER_WIDTH_MAX_FEATURE_EDITOR + ((canvasWidth - BaseBarElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - BaseBarElement.RENDER_WIDTH_MAX_FEATURE_EDITOR) / 2);
+        int divider = Math.max(dragSplitterX, canvasWidth - BaseBarElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - RootElement.PADDING_HORIZONTAL * 2);
         cucumberRoot.setBounds(0, 0, 0, 0);
         if (featuresRoot != null) {
             featuresRoot.setBounds(0, 10, divider - 20, canvasHeight);

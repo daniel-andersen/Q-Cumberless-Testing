@@ -25,7 +25,7 @@
 
 package com.trollsahead.qcumberless.plugins;
 
-import com.trollsahead.qcumberless.gui.Element;
+import com.trollsahead.qcumberless.gui.elements.Element;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 

@@ -23,26 +23,28 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.gui;
+package com.trollsahead.qcumberless.gui.elements;
 
-public class Table extends TextElement {
-    public Table(int rootType, String title) {
-        super(TYPE_TABLE, rootType, title);
+import com.trollsahead.qcumberless.model.Step;
+
+public class ScenarioElement extends BaseBarElement {
+    public ScenarioElement(int rootType) {
+        super(TYPE_SCENARIO, rootType);
     }
 
-    protected boolean hasPlayButton() {
-        return false;
+    public ScenarioElement(int rootType, String title) {
+        super(TYPE_SCENARIO, rootType, title);
     }
 
-    protected boolean hasEditButton() {
-        return false;
+    public ScenarioElement(int rootType, String title, Step step) {
+        super(TYPE_SCENARIO, rootType, title, step);
     }
 
-    protected boolean hasTagsAddButton() {
-        return false;
+    public ScenarioElement(int rootType, int width, String title, Step step) {
+        super(TYPE_SCENARIO, rootType, width, title, step);
     }
 
-    public StringBuilder buildFeatureInternal() {
-        return new StringBuilder("# table");
+    public ScenarioElement(int rootType, int width, String title, Step step, String tags) {
+        super(TYPE_SCENARIO, rootType, width, title, step, tags);
     }
 }

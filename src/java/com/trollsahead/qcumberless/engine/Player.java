@@ -27,8 +27,8 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
-import com.trollsahead.qcumberless.gui.Element;
-import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
@@ -51,10 +51,10 @@ public class Player implements DeviceCallback {
 
     public static long messageTimeout = 0;
 
-    public TextElement currentFeature = null;
-    public TextElement currentScenario = null;
-    public TextElement currentBackground = null;
-    public TextElement currentStep = null;
+    public BaseBarElement currentFeature = null;
+    public BaseBarElement currentScenario = null;
+    public BaseBarElement currentBackground = null;
+    public BaseBarElement currentStep = null;
 
     private int stepIndex;
     private boolean didFinishBackground;
@@ -269,7 +269,7 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeFeature(String name) {
-        currentFeature = (TextElement) Engine.featuresRoot.findChild(name);
+        currentFeature = (BaseBarElement) Engine.featuresRoot.findChild(name);
         System.out.println("Starting feature: '" + name + "'");
     }
 
@@ -283,8 +283,8 @@ public class Player implements DeviceCallback {
     public void beforeScenario(String name) {
         System.out.println("Starting scenario: '" + name + "'");
         if (currentFeature != null) {
-            currentScenario = (TextElement) currentFeature.findChild(name);
-            currentStep = (TextElement) currentFeature.firstChildOfType(TextElement.TYPE_STEP);
+            currentScenario = (BaseBarElement) currentFeature.findChild(name);
+            currentStep = (BaseBarElement) currentFeature.firstChildOfType(BaseBarElement.TYPE_STEP);
             stepIndex = currentFeature.findChildIndex(currentStep);
         } else {
             currentScenario = null;
@@ -313,20 +313,20 @@ public class Player implements DeviceCallback {
 
     public void beforeStep(String name) {
         System.out.println("Running step: '" + name + "'");
-        TextElement scenarioOrBackground = currentScenario;
-        TextElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
+        BaseBarElement scenarioOrBackground = currentScenario;
+        BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
         if (!didFinishBackground && backgroundElement != null) {
             currentBackground = backgroundElement;
             scenarioOrBackground = currentBackground;
             
         }
-        currentStep = (TextElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
+        currentStep = (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
         if ((scenarioOrBackground == currentScenario || currentStep == null) && backgroundElement != null) {
             currentBackground = null;
             didFinishBackground = true;
             stepIndex = -1;
             scenarioOrBackground = currentScenario;
-            currentStep = (TextElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
+            currentStep = (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
         }
         stepIndex = scenarioOrBackground.findChildIndex(currentStep);
     }
@@ -370,14 +370,14 @@ public class Player implements DeviceCallback {
         Engine.buttonBar.setFailed();
     }
 
-    private boolean isRunningElement(TextElement element) {
-        return (element.type == TextElement.TYPE_FEATURE && currentFeature == element) ||
-               (element.type == TextElement.TYPE_BACKGROUND && currentBackground == element) ||
-               (element.type == TextElement.TYPE_SCENARIO && currentScenario == element) ||
-               (element.type == TextElement.TYPE_STEP && currentStep == element);
+    private boolean isRunningElement(BaseBarElement element) {
+        return (element.type == BaseBarElement.TYPE_FEATURE && currentFeature == element) ||
+               (element.type == BaseBarElement.TYPE_BACKGROUND && currentBackground == element) ||
+               (element.type == BaseBarElement.TYPE_SCENARIO && currentScenario == element) ||
+               (element.type == BaseBarElement.TYPE_STEP && currentStep == element);
     }
     
-    public static boolean isCurrentFeature(TextElement element) {
+    public static boolean isCurrentFeature(BaseBarElement element) {
         for (Player player : players) {
             if (player.currentFeature == element) {
                 return true;
@@ -386,7 +386,7 @@ public class Player implements DeviceCallback {
         return false;
     }
 
-    public static boolean isCurrentScenario(TextElement element) {
+    public static boolean isCurrentScenario(BaseBarElement element) {
         for (Player player : players) {
             if (player.currentScenario == element) {
                 return true;
@@ -395,7 +395,7 @@ public class Player implements DeviceCallback {
         return false;
     }
 
-    public static boolean isCurrentBackground(TextElement element) {
+    public static boolean isCurrentBackground(BaseBarElement element) {
         for (Player player : players) {
             if (player.currentBackground == element) {
                 return true;
@@ -404,7 +404,7 @@ public class Player implements DeviceCallback {
         return false;
     }
 
-    public static boolean isCurrentStep(TextElement element) {
+    public static boolean isCurrentStep(BaseBarElement element) {
         for (Player player : players) {
             if (player.currentStep == element) {
                 return true;
@@ -413,7 +413,7 @@ public class Player implements DeviceCallback {
         return false;
     }
 
-    public static Color getPlayingColor(TextElement element) {
+    public static Color getPlayingColor(BaseBarElement element) {
         for (Player player : players) {
             if (player.isRunningElement(element)) {
                 return player.runningColor;

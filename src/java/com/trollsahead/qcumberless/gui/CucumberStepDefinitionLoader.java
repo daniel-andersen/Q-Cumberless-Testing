@@ -26,6 +26,8 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.StepElement;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.StepDefinition;
 
@@ -36,20 +38,20 @@ import java.util.List;
 
 public class CucumberStepDefinitionLoader {
     public static void parseStepDefinitions(List<StepDefinition> stepDefinitions) {
-        List<TextElement> elements = new ArrayList<TextElement>();
+        List<BaseBarElement> elements = new ArrayList<BaseBarElement>();
         Engine.resetStepDefinitions(true);
         for (StepDefinition stepDefinition : stepDefinitions) {
             Step currentStep = new Step(stepDefinition);
             currentStep.setShouldRenderKeyword(false);
             Engine.stepDefinitions.add(currentStep);
-            elements.add(new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
+            elements.add(new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
         }
-        Collections.sort(elements, new Comparator<TextElement>() {
-            public int compare(TextElement element1, TextElement element2) {
+        Collections.sort(elements, new Comparator<BaseBarElement>() {
+            public int compare(BaseBarElement element1, BaseBarElement element2) {
                 return element1.step.toString().compareTo(element2.step.toString());
             }
         });
-        for (TextElement element : elements) {
+        for (BaseBarElement element : elements) {
             Engine.stepsRoot.addChild(element);
         }
     }

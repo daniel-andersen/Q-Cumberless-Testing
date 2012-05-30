@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.elements.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -40,7 +41,7 @@ public class EasterEgg {
     public static int animation = 0;
     public static boolean enabled = false;
 
-    private static List<TextElement> customElements = null;
+    private static List<BaseBarElement> customElements = null;
 
     private static final float STICK_ANGLE_CUTOFF = 0.2f;
 
@@ -97,50 +98,50 @@ public class EasterEgg {
     private static void createCustomElements() {
         ballSticky = true;
 
-        customElements = new LinkedList<TextElement>();
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You fight with the strength of many men, Sir Knight."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I am Arthur, King of the Britons."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I seek the finest and the bravest knights in the land to join me in my court at Camelot."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You have proved yourself worthy. Will you join me?"));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You make me sad. So be it. Come, Patsy."));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I have no quarrel with you, good Sir Knight, but I must cross this bridge."));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Then you shall die."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "I command you, as King of the Britons, to stand aside!"));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "I move for no man."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "So be it!"));
+        customElements = new LinkedList<BaseBarElement>();
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "You fight with the strength of many men, Sir Knight."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "I am Arthur, King of the Britons."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "I seek the finest and the bravest knights in the land to join me in my court at Camelot."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "You have proved yourself worthy. Will you join me?"));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "You make me sad. So be it. Come, Patsy."));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "None shall pass."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "I have no quarrel with you, good Sir Knight, but I must cross this bridge."));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "Then you shall die."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "I command you, as King of the Britons, to stand aside!"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "I move for no man."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "So be it!"));
 
-        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Aaah!, hiyaah!"));
+        customElements.add(createElement(BaseBarElement.TYPE_STEP,     0, 0, 200, "Aaah!, hiyaah!"));
 
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Now stand aside, worthy adversary."));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "'Tis but a scratch."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "A scratch? Your arm's off!"));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "No, it isn't."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Well, what's that, then?"));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "I've had worse."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "Now stand aside, worthy adversary."));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "'Tis but a scratch."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "A scratch? Your arm's off!"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "No, it isn't."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "Well, what's that, then?"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "I've had worse."));
 
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "You liar!"));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Come on, you pansy!"));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "You liar!"));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "Come on, you pansy!"));
 
-        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
-        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Hiyaah!"));
-        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Aaaaaaaah!"));
-        customElements.add(createElement(TextElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
+        customElements.add(createElement(BaseBarElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
+        customElements.add(createElement(BaseBarElement.TYPE_STEP,     0, 0, 200, "Hiyaah!"));
+        customElements.add(createElement(BaseBarElement.TYPE_STEP,     0, 0, 200, "Aaaaaaaah!"));
+        customElements.add(createElement(BaseBarElement.TYPE_STEP,     0, 0, 200, "Huyah!"));
 
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Victory is mine!"));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "We thank Thee Lord, that in Thy mer--"));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Hah!"));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "Victory is mine!"));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "We thank Thee Lord, that in Thy mer--"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "Hah!"));
 
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Come on, then."));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Have at you!"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "Come on, then."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "What?"));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "Have at you!"));
 
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Eh. You are indeed brave, Sir Knight, but the fight is mine."));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Oh, had enough, eh?"));
-        customElements.add(createElement(TextElement.TYPE_SCENARIO, 0, 0, 200, "Look, you stupid bastard. You've got no arms left."));
-        customElements.add(createElement(TextElement.TYPE_COMMENT,  0, 0, 200, "Yes, I have."));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "Eh. You are indeed brave, Sir Knight, but the fight is mine."));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "Oh, had enough, eh?"));
+        customElements.add(createElement(BaseBarElement.TYPE_SCENARIO, 0, 0, 200, "Look, you stupid bastard. You've got no arms left."));
+        customElements.add(createElement(BaseBarElement.TYPE_COMMENT,  0, 0, 200, "Yes, I have."));
 
         final int COL_WIDTH = 210;
         final int ROW_HEIGHT = 80;
@@ -162,8 +163,19 @@ public class EasterEgg {
         }
     }
 
-    private static TextElement createElement(int type, int x, int y, int width, String text) {
-        TextElement element = new TextElement(type, TextElement.ROOT_NONE, text);
+    private static BaseBarElement createElement(int type, int x, int y, int width, String text) {
+        BaseBarElement element;
+        switch (type) {
+            case BaseBarElement.TYPE_SCENARIO:
+                element = new ScenarioElement(BaseBarElement.ROOT_NONE, text);
+                break;
+            case BaseBarElement.TYPE_COMMENT:
+                element = new CommentElement(BaseBarElement.ROOT_NONE, text);
+                break;
+            default:
+                element = new StepElement(BaseBarElement.ROOT_NONE, text);
+                break;
+        }
         element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(x, y);
         element.animation.moveAnimation.setRenderPosition(x, y);
@@ -281,7 +293,7 @@ public class EasterEgg {
             int x = (int) (ballX + deltaX);
             int y = (int) (ballY + deltaY);
             Element element = findElement(x, y);
-            if (element != null && element.visible) {
+            if (element != null && element.isVisible()) {
                 if (deltaX < 0 && ballVelX < 0.0f) {
                     ballVelX = -ballVelX;
                 }
@@ -305,20 +317,20 @@ public class EasterEgg {
         if (Engine.featuresRoot.children.size() > 0) {
             if (element.children.size() <= 0) {
                 element.trashElement();
-            } else if (element.folded) {
-                ((TextElement) element).unfold();
+            } else if (element.isFolded()) {
+                element.unfold();
             }
         } else {
-            if (element.type == TextElement.TYPE_SCENARIO ||
-                (element.type == TextElement.TYPE_COMMENT && !hasElementLeft(TextElement.TYPE_SCENARIO)) ||
-                (element.type == TextElement.TYPE_STEP && !hasElementLeft(TextElement.TYPE_COMMENT))) {
+            if (element.type == BaseBarElement.TYPE_SCENARIO ||
+                (element.type == BaseBarElement.TYPE_COMMENT && !hasElementLeft(BaseBarElement.TYPE_SCENARIO)) ||
+                (element.type == BaseBarElement.TYPE_STEP && !hasElementLeft(BaseBarElement.TYPE_COMMENT))) {
                 customElements.remove(element);
             }
         }
     }
 
     private static boolean hasElementLeft(int type) {
-        for (TextElement element : customElements) {
+        for (BaseBarElement element : customElements) {
             if (element.type == type) {
                 return true;
             }
@@ -397,7 +409,7 @@ public class EasterEgg {
     public static void show() {
         synchronized (Engine.LOCK) {
             enabled = true;
-            customElements = new LinkedList<TextElement>();
+            customElements = new LinkedList<BaseBarElement>();
             updateTime = System.currentTimeMillis();
             updateCount = 0;
             if (animation <= 0) {

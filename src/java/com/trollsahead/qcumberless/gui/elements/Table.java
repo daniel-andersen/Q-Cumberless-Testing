@@ -23,40 +23,26 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.gui.elements.Element;
+public class Table extends BaseBarElement {
+    public Table(int rootType, String title) {
+        super(TYPE_TABLE, rootType, title);
+    }
 
-import java.awt.*;
+    protected boolean hasPlayButton() {
+        return false;
+    }
 
-public interface DeviceCallback {
-    void onPlay();
-    void onPause();
-    void onResume();
-    void onStop();
+    protected boolean hasEditButton() {
+        return false;
+    }
 
-    void afterPlayed();
-    void afterPlayFailed(String errorMessage);
+    protected boolean hasTagsAddButton() {
+        return false;
+    }
 
-    void beforeFeatures();
-
-    void beforeFeature(String name);
-    void afterFeature();
-    void afterFeatureFailed();
-
-    void beforeScenario(String name);
-    void afterScenario();
-    void afterScenarioFailed();
-
-    void beforeBackground(String name);
-    void afterBackground();
-    void afterBackgroundFailed(String errorMessage);
-
-    void beforeStep(String name);
-    void afterStep(String name);
-    void afterStepFailed(String errorMessage);
-    
-    void attachScreenshots(Element element, Image... screenshots);
-
-    Element getCurrentElement();
+    public StringBuilder buildFeatureInternal() {
+        return new StringBuilder("# table");
+    }
 }

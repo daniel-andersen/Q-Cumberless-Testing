@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
@@ -40,7 +41,7 @@ public class Spotlight {
     private static final int PADDING_VERTICAL = 10;
 
     private static final int BAR_HEIGHT = 30;
-    private static final int BAR_ROUNDING = TextElement.BAR_ROUNDING;
+    private static final int BAR_ROUNDING = BaseBarElement.BAR_ROUNDING;
 
     private static final float[] COLOR_BACKGROUND_NORMAL = {0.0f, 0.0f, 0.0f, 0.6f};
     private static final float COLOR_DISAPPEAR_SPEED = 0.1f;

@@ -23,9 +23,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.gui;
+package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.Animation;
+import com.trollsahead.qcumberless.gui.ButtonBar;
+import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 
 import java.awt.*;
 import java.io.File;

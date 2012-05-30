@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;

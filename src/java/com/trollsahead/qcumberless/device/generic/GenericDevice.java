@@ -28,7 +28,7 @@ package com.trollsahead.qcumberless.device.generic;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.engine.LogListener;
-import com.trollsahead.qcumberless.gui.Element;
+import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;

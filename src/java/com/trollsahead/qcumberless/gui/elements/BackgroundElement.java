@@ -23,40 +23,28 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.model.Step;
 
-import java.awt.*;
+public class BackgroundElement extends BaseBarElement {
+    public BackgroundElement(int rootType) {
+        super(TYPE_BACKGROUND, rootType);
+    }
 
-public interface DeviceCallback {
-    void onPlay();
-    void onPause();
-    void onResume();
-    void onStop();
+    public BackgroundElement(int rootType, String title) {
+        super(TYPE_BACKGROUND, rootType, title);
+    }
 
-    void afterPlayed();
-    void afterPlayFailed(String errorMessage);
+    public BackgroundElement(int rootType, String title, Step step) {
+        super(TYPE_BACKGROUND, rootType, title, step);
+    }
 
-    void beforeFeatures();
+    public BackgroundElement(int rootType, int width, String title, Step step) {
+        super(TYPE_BACKGROUND, rootType, width, title, step);
+    }
 
-    void beforeFeature(String name);
-    void afterFeature();
-    void afterFeatureFailed();
-
-    void beforeScenario(String name);
-    void afterScenario();
-    void afterScenarioFailed();
-
-    void beforeBackground(String name);
-    void afterBackground();
-    void afterBackgroundFailed(String errorMessage);
-
-    void beforeStep(String name);
-    void afterStep(String name);
-    void afterStepFailed(String errorMessage);
-    
-    void attachScreenshots(Element element, Image... screenshots);
-
-    Element getCurrentElement();
+    public BackgroundElement(int rootType, int width, String title, Step step, String tags) {
+        super(TYPE_BACKGROUND, rootType, width, title, step, tags);
+    }
 }

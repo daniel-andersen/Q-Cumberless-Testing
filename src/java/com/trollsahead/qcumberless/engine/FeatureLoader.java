@@ -25,7 +25,7 @@
 
 package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.gui.TextElement;
+import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.Util;
@@ -46,11 +46,11 @@ public class FeatureLoader {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
-            TextElement feature = new TextElement(TextElement.TYPE_FEATURE, TextElement.ROOT_FEATURE_EDITOR);
+            BaseBarElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
             feature.setFilename(filename);
             Engine.featuresRoot.addChild(feature);
-            TextElement scenario = null;
-            TextElement background = null;
+            BaseBarElement scenario = null;
+            BaseBarElement background = null;
             String line;
             String tags = null;
             String comment = null;
@@ -66,7 +66,7 @@ public class FeatureLoader {
                     tags = null;
                     comment = null;
                 } else if (line.matches(getBackgroundPattern())) {
-                    background = new TextElement(TextElement.TYPE_BACKGROUND, TextElement.ROOT_FEATURE_EDITOR);
+                    background = new BackgroundElement(BaseBarElement.ROOT_FEATURE_EDITOR);
                     background.setTitle("Background");
                     background.setTags(tags);
                     background.setComment(comment);
@@ -74,7 +74,7 @@ public class FeatureLoader {
                     comment = null;
                     feature.addChild(background);
                 } else if (line.matches(getScenarioPattern())) {
-                    scenario = new TextElement(TextElement.TYPE_SCENARIO, TextElement.ROOT_FEATURE_EDITOR);
+                    scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
                     scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
                     scenario.setTags(tags);
                     scenario.setComment(comment);
@@ -101,7 +101,7 @@ public class FeatureLoader {
         }
     }
 
-    private static void addStep(TextElement feature, TextElement background, TextElement scenario, String line) {
+    private static void addStep(BaseBarElement feature, BaseBarElement background, BaseBarElement scenario, String line) {
         if (scenario != null) {
             addStepToScenario(scenario, line);
         } else if (background != null) {
@@ -111,15 +111,15 @@ public class FeatureLoader {
         }
     }
 
-    private static void addStepToScenario(TextElement scenario, String line) {
+    private static void addStepToScenario(BaseBarElement scenario, String line) {
         if (scenario == null || Util.isEmpty(line)) {
             return;
         }
-        TextElement stepElement;
+        BaseBarElement stepElement;
         if (Util.startsWithIgnoreWhitespace(line, "#")) {
-            stepElement = new TextElement(TextElement.TYPE_COMMENT, TextElement.ROOT_FEATURE_EDITOR, Util.removeCommentFromLine(line));
+            stepElement = new CommentElement(BaseBarElement.ROOT_FEATURE_EDITOR, Util.removeCommentFromLine(line));
         } else {
-            stepElement = new TextElement(TextElement.TYPE_STEP, TextElement.ROOT_FEATURE_EDITOR, line, findMatchingStep(line));
+            stepElement = new StepElement(BaseBarElement.ROOT_FEATURE_EDITOR, line, findMatchingStep(line));
         }
         scenario.addChild(stepElement);
     }
