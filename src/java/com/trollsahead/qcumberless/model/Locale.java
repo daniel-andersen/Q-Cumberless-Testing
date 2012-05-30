@@ -61,7 +61,7 @@ public class Locale {
         Map<String, String> da = new HashMap<String, String>();
         da.put("feature", "Egenskab");
         da.put("scenario", "Scenarie");
-        da.put("scenario outline", "Scenarie Outline");
+        da.put("scenario outline", "Abstrakt Scenario");
         da.put("background", "Baggrund");
         da.put("comment", "Kommentar");
         da.put("new step", "Nyt step");

@@ -48,6 +48,7 @@ public class GenericDevice extends Device {
     private static final Pattern patternStartingFeature = Pattern.compile("(\\s*)Feature: (.*)");
     private static final Pattern patternStartingBackground = Pattern.compile("(\\s*)Background: (.*)");
     private static final Pattern patternStartingScenario = Pattern.compile("(.*)Scenario: (.*)(\\s*)#(.*)");
+    private static final Pattern patternStartingScenarioOutline = Pattern.compile("(.*)Scenario Outline: (.*)(\\s*)#(.*)");
     private static final Pattern patternRunningStep = Pattern.compile("(\\s*)Step: (.*)");
     private static final Pattern patternStepFailed = Pattern.compile("(\\s*)Step failed: (.*)");
     private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
@@ -189,6 +190,13 @@ public class GenericDevice extends Device {
         }
     }
 
+    protected void checkStartingScenarioOutline(String log) {
+        Matcher matcher = getPatternStartingScenarioOutline().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeScenario(matcher.group(2).trim());
+        }
+    }
+
     protected void checkRunningStep(String log) {
         Matcher matcher = getPatternRunningStep().matcher(log);
         if (matcher.find()) {
@@ -254,6 +262,10 @@ public class GenericDevice extends Device {
 
     protected Pattern getPatternStartingScenario() {
         return patternStartingScenario;
+    }
+
+    protected Pattern getPatternStartingScenarioOutline() {
+        return patternStartingScenarioOutline;
     }
 
     protected Pattern getPatternRunningStep() {

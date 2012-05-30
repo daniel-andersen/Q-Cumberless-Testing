@@ -320,7 +320,7 @@ public class Player implements DeviceCallback {
             scenarioOrBackground = currentBackground;
             
         }
-        currentStep = (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
+        currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1) : null;
         if ((scenarioOrBackground == currentScenario || currentStep == null) && backgroundElement != null) {
             currentBackground = null;
             didFinishBackground = true;

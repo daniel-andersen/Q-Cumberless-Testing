@@ -35,8 +35,8 @@ public class Constants {
     
     static {
         stepPrefixs = new HashMap<Language, String[]>();
-        stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", "*", "-", "--"});
-        stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", "*", "-", "--"});
+        stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", "*"});
+        stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", "*"});
     }
 
     public static String[] getStepPrefixs() {
