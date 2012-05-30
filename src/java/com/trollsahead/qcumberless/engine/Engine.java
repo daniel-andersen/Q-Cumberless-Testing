@@ -466,7 +466,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             return cucumberTextElement.buildFeature();
         }
         StringBuilder sb = new StringBuilder();
-        if (cucumberTextElement.type == BaseBarElement.TYPE_SCENARIO || cucumberTextElement.type == BaseBarElement.TYPE_BACKGROUND) {
+        if (cucumberTextElement.type == BaseBarElement.TYPE_SCENARIO || cucumberTextElement.type == BaseBarElement.TYPE_BACKGROUND || cucumberTextElement.type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
             BaseBarElement parentTextElement = (BaseBarElement) cucumberTextElement.groupParent;
             if (!Util.isEmpty(parentTextElement.getComment())) {
                 sb.append(parentTextElement.getComment()).append("\n");
@@ -553,6 +553,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             if (addTemplate) {
                 stepsRoot.addChild(new FeatureElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("feature")));
                 stepsRoot.addChild(new ScenarioElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario")));
+                stepsRoot.addChild(new ScenarioOutlineElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario outline")));
                 stepsRoot.addChild(new BackgroundElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("background")));
                 stepsRoot.addChild(new CommentElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("comment")));
                 BaseBarElement stepElement = new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("new step"));

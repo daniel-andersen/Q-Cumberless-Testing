@@ -26,67 +26,44 @@
 package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.model.Locale;
+import com.trollsahead.qcumberless.util.ElementHelper;
 
-import java.awt.*;
-
-public class FeatureElement extends BaseBarElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAFF), new Color(0xBBBBEE)};
-    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
-
-    public FeatureElement(int rootType) {
-        super(TYPE_FEATURE, rootType);
+public class ScenarioOutlineElement extends ScenarioElement {
+    public ScenarioOutlineElement(int rootType) {
+        super(rootType);
+        type = TYPE_SCENARIO_OUTLINE;
+        appendExamples();
     }
 
-    public FeatureElement(int rootType, String title) {
-        super(TYPE_FEATURE, rootType, title);
+    public ScenarioOutlineElement(int rootType, String title) {
+        super(rootType, title);
+        type = TYPE_SCENARIO_OUTLINE;
+        appendExamples();
     }
 
-    public FeatureElement(int rootType, String title, int width) {
-        super(TYPE_FEATURE, rootType, title, width);
+    public ScenarioOutlineElement(int rootType, String title, int width) {
+        super(rootType, title, width);
+        type = TYPE_SCENARIO_OUTLINE;
+        appendExamples();
     }
 
-    public Color getBackgroundColor() {
-        int highlightToIndex = isHighlighted() ? 1 : 0;
-        if (isFailed) {
-            return BG_COLOR_FAILED[highlightToIndex];
-        } else {
-            return BG_COLOR_NORMAL[highlightToIndex];
-        }
+    private void appendExamples() {
+        addChild(new ExamplesElement());
     }
 
     public BaseBarElement duplicate() {
-        BaseBarElement element = new FeatureElement(rootType, title, calculateRenderWidthFromRoot(rootType));
+        BaseBarElement element = new ScenarioOutlineElement(rootType, title, calculateRenderWidthFromRoot(rootType));
         duplicatePropertiesTo(element);
         return element;
     }
 
-    protected void drawAdditionals(Graphics2D g) {
-    }
-
-    protected void addAdditionalButtons() {
-    }
-
-    protected void updateAdditionalButtonPositions() {
-    }
-
-    protected void updateAdditionalButtonsVisibleState() {
-    }
-
-    protected int getAdditionalRenderHeight() {
-        return 0;
-    }
-
-    protected boolean isAttachable(int type) {
-        return type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_SCENARIO_OUTLINE;
-    }
-
     public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = super.buildFeatureInternal();
-        sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
+        StringBuilder sb = buildFeatureInternalSkipThis();
+        sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario outline")).append(": ").append(title).append("\n");
         return sb;
     }
 
-    private String convertNewlines(String title) {
-        return title.replaceAll("\\s\\*\\s", "\n");
+    public ExamplesElement getExamplesElement() {
+        return children != null && children.size() > 0 ? (ExamplesElement) children.get(children.size() - 1) : null;
     }
 }

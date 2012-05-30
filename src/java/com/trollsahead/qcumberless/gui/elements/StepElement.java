@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.Step;
+import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -158,6 +159,7 @@ public class StepElement extends BaseBarElement {
 
     public StringBuilder buildFeatureInternal() {
         StringBuilder sb = super.buildFeatureInternal();
+        sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append(step.toString()).append("\n");
         if (table != null) {
             sb.append(table.buildFeature());
         }

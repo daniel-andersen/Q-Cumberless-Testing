@@ -51,11 +51,13 @@ import java.util.Set;
 import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
 public abstract class BaseBarElement extends Element {
-    public static final int TYPE_FEATURE         = 0;
-    public static final int TYPE_BACKGROUND      = 1;
-    public static final int TYPE_SCENARIO        = 2;
-    public static final int TYPE_STEP            = 3;
-    public static final int TYPE_COMMENT         = 4;
+    public static final int TYPE_FEATURE          = 0;
+    public static final int TYPE_BACKGROUND       = 1;
+    public static final int TYPE_SCENARIO         = 2;
+    public static final int TYPE_STEP             = 3;
+    public static final int TYPE_COMMENT          = 4;
+    public static final int TYPE_EXAMPLES         = 5;
+    public static final int TYPE_SCENARIO_OUTLINE = 6;
 
     public static final Color COLOR_TEXT_NORMAL        = new Color(0x000000);
     public static final Color COLOR_TEXT_PARAMETER     = new Color(0xDDDD88);
@@ -169,7 +171,7 @@ public abstract class BaseBarElement extends Element {
         this.title = title;
         this.step = step != null ? step : new Step(title);
         this.tags = new Tag(tags);
-        folded = type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND;
+        folded = type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND;
         if (type == TYPE_FEATURE) {
             animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         }
@@ -368,7 +370,7 @@ public abstract class BaseBarElement extends Element {
         }
         expandButton.setVisible(buttonGroupHasButtons);
         updateButtonGroupState();
-        trashcanButton.setVisible(true);
+        trashcanButton.setVisible(hasTrashcanButton());
         tagsRemoveButton.setVisible(hasTagsAddButton() && tags.hasTags());
         tagsAddButton.setVisible(hasTagsAddButton() && tags.hasTags());
         tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
@@ -567,7 +569,7 @@ public abstract class BaseBarElement extends Element {
         if (children.size() == 0 || isParentFolded()) {
             return;
         }
-        if (type != TYPE_FEATURE && type != TYPE_SCENARIO && type != TYPE_BACKGROUND) {
+        if (type != TYPE_FEATURE && type != TYPE_SCENARIO && type != TYPE_SCENARIO_OUTLINE && type != TYPE_BACKGROUND) {
             return;
         }
         folded = !folded;
@@ -697,16 +699,16 @@ public abstract class BaseBarElement extends Element {
         groupParent.removeChild(this);
         if (type == TYPE_FEATURE) {
             Engine.featuresRoot.addChild(this);
-        } else if (type == TYPE_SCENARIO || type == TYPE_BACKGROUND) {
+        } else if (type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_SCENARIO_OUTLINE) {
             Element elementToAddChildTo;
             if (Engine.lastAddedElement.type == TYPE_FEATURE) {
                 elementToAddChildTo = Engine.lastAddedElement;
-            } else if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND) {
+            } else if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND || Engine.lastAddedElement.type == TYPE_SCENARIO_OUTLINE) {
                 elementToAddChildTo = Engine.lastAddedElement.groupParent;
             } else {
                 elementToAddChildTo = Engine.lastAddedElement.groupParent.groupParent;
             }
-            if (type == TYPE_SCENARIO || (type == TYPE_BACKGROUND && !hasBackgroundElement(elementToAddChildTo))) {
+            if (type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || (type == TYPE_BACKGROUND && !hasBackgroundElement(elementToAddChildTo))) {
                 elementToAddChildTo.addChild(this);
                 elementToAddChildTo.unfold();
             } else {
@@ -716,7 +718,7 @@ public abstract class BaseBarElement extends Element {
             if (Engine.lastAddedElement.type == TYPE_FEATURE) {
                 return;
             }
-            if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND) {
+            if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND || Engine.lastAddedElement.type == TYPE_SCENARIO_OUTLINE) {
                 Engine.lastAddedElement.addChild(this);
                 Engine.lastAddedElement.unfold();
             } else {
@@ -730,12 +732,12 @@ public abstract class BaseBarElement extends Element {
 
     public void addChild(Element element, int index) {
         super.addChild(element, index);
-        ElementHelper.bubbleBackgroundToTop(this);
+        ElementHelper.bubbleStaticElementsIntoPlace(this);
     }
 
     public void addChild(Element element) {
         super.addChild(element);
-        ElementHelper.bubbleBackgroundToTop(this);
+        ElementHelper.bubbleStaticElementsIntoPlace(this);
     }
     
     private boolean hasBackgroundElement(Element feature) {
@@ -940,12 +942,12 @@ public abstract class BaseBarElement extends Element {
     private boolean isRunning() {
         return (type == TYPE_FEATURE && Player.isCurrentFeature(this)) ||
                (type == TYPE_BACKGROUND && Player.isCurrentBackground(this)) ||
-               (type == TYPE_SCENARIO && Player.isCurrentScenario(this)) ||
+               ((type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE) && Player.isCurrentScenario(this)) ||
                (type == TYPE_STEP && Player.isCurrentStep(this));
     }
     
     private boolean isRunnable() {
-        return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_STEP;
+        return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND || type == TYPE_STEP;
     }
 
     private void drawText(Graphics2D g) {
@@ -1071,20 +1073,25 @@ public abstract class BaseBarElement extends Element {
         return false;
     }
 
+    protected boolean hasTrashcanButton() {
+        return true;
+    }
+
     protected boolean hasPlayButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled();
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled();
     }
 
     protected boolean hasEditButton() {
         return  type == TYPE_FEATURE ||
                 type == TYPE_SCENARIO ||
+                type == TYPE_SCENARIO_OUTLINE ||
                 type == TYPE_BACKGROUND ||
                 type == TYPE_COMMENT ||
                 (type == TYPE_STEP && !step.matchedByStepDefinition());
     }
 
     protected boolean hasTagsAddButton() {
-        return type == TYPE_FEATURE || type == TYPE_SCENARIO;
+        return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE;
     }
 
     private boolean shouldRenderTags() {
@@ -1102,26 +1109,7 @@ public abstract class BaseBarElement extends Element {
             }
             sb.append(tags.toString()).append("\n");
         }
-        if (type == TYPE_FEATURE) {
-            sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
-        }
-        if (type == TYPE_BACKGROUND) {
-            sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("background")).append(":\n");
-        }
-        if (type == TYPE_SCENARIO) {
-            sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
-        }
-        if (type == TYPE_STEP) {
-            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append(step.toString()).append("\n");
-        }
-        if (type == TYPE_COMMENT) {
-            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# ").append(title).append("\n");
-        }
         return sb;
-    }
-
-    private String convertNewlines(String title) {
-        return title.replaceAll("\\s\\*\\s", "\n");
     }
 
     protected void updateStepsInternal() {

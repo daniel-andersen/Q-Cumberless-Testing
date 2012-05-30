@@ -45,6 +45,7 @@ public class Locale {
         Map<String, String> en = new HashMap<String, String>();
         en.put("feature", "Feature");
         en.put("scenario", "Scenario");
+        en.put("scenario outline", "Scenario Outline");
         en.put("background", "Background");
         en.put("comment", "Comment");
         en.put("new step", "New step");
@@ -54,11 +55,13 @@ public class Locale {
         en.put("Then", "Then");
         en.put("And", "And");
         en.put("But", "But");
+        en.put("Examples", "Examples");
         localeMap.put(Language.EN, en);
 
         Map<String, String> da = new HashMap<String, String>();
         da.put("feature", "Egenskab");
         da.put("scenario", "Scenarie");
+        da.put("scenario outline", "Scenarie Outline");
         da.put("background", "Baggrund");
         da.put("comment", "Kommentar");
         da.put("new step", "Nyt step");
@@ -68,6 +71,7 @@ public class Locale {
         da.put("Then", "Så");
         da.put("And", "Og");
         da.put("But", "Men");
+        da.put("Examples", "Eksempler");
         localeMap.put(Language.DA, da);
     }
 

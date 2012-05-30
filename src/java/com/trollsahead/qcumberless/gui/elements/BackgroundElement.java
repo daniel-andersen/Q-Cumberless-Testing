@@ -25,6 +25,9 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.model.Locale;
+import com.trollsahead.qcumberless.util.ElementHelper;
+
 import java.awt.*;
 
 public class BackgroundElement extends BaseBarElement {
@@ -76,5 +79,11 @@ public class BackgroundElement extends BaseBarElement {
 
     protected boolean isAttachable(int type) {
         return type == TYPE_STEP || type == TYPE_COMMENT;
+    }
+
+    public StringBuilder buildFeatureInternal() {
+        StringBuilder sb = super.buildFeatureInternal();
+        sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("background")).append(":\n");
+        return sb;
     }
 }

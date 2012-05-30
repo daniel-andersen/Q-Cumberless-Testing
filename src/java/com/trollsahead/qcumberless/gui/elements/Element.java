@@ -376,7 +376,7 @@ public abstract class Element {
         for (Element child : children) {
             sb.append(child.buildFeature());
         }
-        if (type == BaseBarElement.TYPE_FEATURE || type == BaseBarElement.TYPE_BACKGROUND || type == BaseBarElement.TYPE_SCENARIO) {
+        if (type == BaseBarElement.TYPE_FEATURE || type == BaseBarElement.TYPE_BACKGROUND || type == BaseBarElement.TYPE_SCENARIO || type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
             sb.append("\n");
         }
         return sb;

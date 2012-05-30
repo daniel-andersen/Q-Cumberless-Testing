@@ -74,9 +74,14 @@ public class FeatureLoader {
                     tags = null;
                     comment = null;
                     feature.addChild(background);
-                } else if (line.matches(getScenarioPattern())) {
-                    scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
-                    scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
+                } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
+                    if (line.matches(getScenarioPattern())) {
+                        scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+                        scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
+                    } else {
+                        scenario = new ScenarioOutlineElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+                        scenario.setTitle(extractTitle(Pattern.compile(getScenarioOutlinePattern()), line));
+                    }
                     scenario.setTags(tags);
                     scenario.setComment(comment);
                     tags = null;
@@ -86,6 +91,9 @@ public class FeatureLoader {
                     tags = extractTags(line);
                 } else if (line.matches(getCommentPattern())) {
                     comment = extractComment(line);
+                } else if (line.matches(getExamplesPattern())) {
+                    step = ((ScenarioOutlineElement) scenario).getExamplesElement();
+                    ((ExamplesElement) step).clearTable();
                 } else if (line.matches(getTableRowPattern())) {
                     step.addRowToTable(extractTableRow(line));
                 } else {
@@ -93,7 +101,7 @@ public class FeatureLoader {
                         addStep(feature, background, scenario, comment);
                     }
                     BaseBarElement element = addStep(feature, background, scenario, line);
-                    if (element instanceof StepElement) {
+                    if (element instanceof StepElement || element instanceof ExamplesElement) {
                         step = (StepElement) element;
                     }
                     tags = null;
@@ -177,6 +185,10 @@ public class FeatureLoader {
         return "^\\s*" + Locale.getString("scenario") + ": (.*)";
     }
 
+    private static String getScenarioOutlinePattern() {
+        return "^\\s*" + Locale.getString("scenario outline") + ": (.*)";
+    }
+
     private static String getBackgroundPattern() {
         return "^\\s*" + Locale.getString("background") + ":";
     }
@@ -187,6 +199,10 @@ public class FeatureLoader {
 
     private static String getCommentPattern() {
         return "^\\s*(#.*)";
+    }
+
+    private static String getExamplesPattern() {
+        return "^\\s*" + Locale.getString("Examples") + ":";
     }
 
     private static String getTableRowPattern() {

@@ -25,6 +25,8 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.util.ElementHelper;
+
 import java.awt.*;
 
 public class CommentElement extends BaseBarElement {
@@ -66,5 +68,11 @@ public class CommentElement extends BaseBarElement {
 
     protected boolean isAttachable(int type) {
         return false;
+    }
+
+    public StringBuilder buildFeatureInternal() {
+        StringBuilder sb = super.buildFeatureInternal();
+        sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# ").append(title).append("\n");
+        return sb;
     }
 }

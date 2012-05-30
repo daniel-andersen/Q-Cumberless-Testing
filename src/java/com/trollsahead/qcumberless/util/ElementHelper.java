@@ -79,12 +79,24 @@ public class ElementHelper {
         return null;
     }
 
-    public static void bubbleBackgroundToTop(BaseBarElement element) {
-        BaseBarElement backgroundElement = findBackgroundElement(element);
-        if (backgroundElement == null || element.findChildIndex(backgroundElement) == 0) {
-            return;
+    public static BaseBarElement findExamplesElement(Element element) {
+        for (Element child : element.children) {
+            if (child.type == BaseBarElement.TYPE_EXAMPLES) {
+                return (BaseBarElement) child;
+            }
         }
-        element.updateElementIndex(backgroundElement, 0);
+        return null;
+    }
+
+    public static void bubbleStaticElementsIntoPlace(BaseBarElement element) {
+        BaseBarElement backgroundElement = findBackgroundElement(element);
+        if (backgroundElement != null && element.findChildIndex(backgroundElement) > 0) {
+            element.updateElementIndex(backgroundElement, 0);
+        }
+        BaseBarElement examplesElement = findExamplesElement(element);
+        if (examplesElement != null && element.findChildIndex(examplesElement) < element.children.size() - 1) {
+            element.updateElementIndex(examplesElement, element.children.size() - 1);
+        }
     }
     
     public static boolean isElementsHighlightable() {

@@ -25,6 +25,9 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.model.Locale;
+import com.trollsahead.qcumberless.util.ElementHelper;
+
 import java.awt.*;
 
 public class ScenarioElement extends BaseBarElement {
@@ -76,5 +79,15 @@ public class ScenarioElement extends BaseBarElement {
 
     protected boolean isAttachable(int type) {
         return type == TYPE_STEP || type == TYPE_COMMENT;
+    }
+
+    public StringBuilder buildFeatureInternal() {
+        StringBuilder sb = super.buildFeatureInternal();
+        sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
+        return sb;
+    }
+
+    protected StringBuilder buildFeatureInternalSkipThis() {
+        return super.buildFeatureInternal();
     }
 }

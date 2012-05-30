@@ -28,65 +28,47 @@ package com.trollsahead.qcumberless.gui.elements;
 import com.trollsahead.qcumberless.model.Locale;
 
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
-public class FeatureElement extends BaseBarElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAFF), new Color(0xBBBBEE)};
-    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
+public class ExamplesElement extends StepElement {
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0x6666FF), new Color(0x9999DD)};
 
-    public FeatureElement(int rootType) {
-        super(TYPE_FEATURE, rootType);
-    }
-
-    public FeatureElement(int rootType, String title) {
-        super(TYPE_FEATURE, rootType, title);
-    }
-
-    public FeatureElement(int rootType, String title, int width) {
-        super(TYPE_FEATURE, rootType, title, width);
+    public ExamplesElement() {
+        super(ROOT_FEATURE_EDITOR, Locale.getString("Examples") + ":");
+        type = TYPE_EXAMPLES;
+        createTable();
     }
 
     public Color getBackgroundColor() {
-        int highlightToIndex = isHighlighted() ? 1 : 0;
-        if (isFailed) {
-            return BG_COLOR_FAILED[highlightToIndex];
-        } else {
-            return BG_COLOR_NORMAL[highlightToIndex];
-        }
+        return BG_COLOR_NORMAL[isHighlighted() ? 1 : 0];
     }
 
     public BaseBarElement duplicate() {
-        BaseBarElement element = new FeatureElement(rootType, title, calculateRenderWidthFromRoot(rootType));
+        ExamplesElement element = new ExamplesElement();
+        if (table != null) {
+            element.table = table.duplicate();
+        }
         duplicatePropertiesTo(element);
         return element;
     }
 
-    protected void drawAdditionals(Graphics2D g) {
-    }
-
-    protected void addAdditionalButtons() {
-    }
-
-    protected void updateAdditionalButtonPositions() {
-    }
-
-    protected void updateAdditionalButtonsVisibleState() {
-    }
-
-    protected int getAdditionalRenderHeight() {
-        return 0;
-    }
-
-    protected boolean isAttachable(int type) {
-        return type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_SCENARIO_OUTLINE;
+    protected List<String> getTableActions() {
+        return Arrays.asList(new String[] {"New row", "New column", "Delete row", "Delete column"});
     }
 
     public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = super.buildFeatureInternal();
-        sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append(super.buildFeatureInternal());
         return sb;
     }
 
-    private String convertNewlines(String title) {
-        return title.replaceAll("\\s\\*\\s", "\n");
+    protected boolean hasTrashcanButton() {
+        return false;
+    }
+
+    public void clearTable() {
+        table = null;
     }
 }
