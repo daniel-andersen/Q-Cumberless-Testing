@@ -1,3 +1,3 @@
-module QCumberless
-  VERSION = "0.0.1"
+module Qcumberless
+  VERSION = "0.0.2"
 end

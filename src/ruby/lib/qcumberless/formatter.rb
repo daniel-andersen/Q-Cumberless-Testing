@@ -1,6 +1,6 @@
 require 'cucumber/formatter/pretty'
 
-module QCumberless
+module Qcumberless
   class Formatter < Cucumber::Formatter::Pretty
     def before_step( step )
       @io.printf("Step: ".indent(@scenario_indent + 2))

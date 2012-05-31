@@ -4,7 +4,7 @@ require "qcumberless/version"
 
 Gem::Specification.new do |s|
   s.name        = "qcumberless"
-  s.version     = QCumberless::VERSION
+  s.version     = Qcumberless::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Daniel Andersen"]
   s.email       = ["dani_ande@yahoo.dk"]
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   *****************************************************************
   * To use the qcumberless formatter, simple add                  *
-  *   --format 'QCumberless::Formatter'                           * 
+  *   --format 'Qcumberless::Formatter'                           * 
   * to your cucumber.yml, Rakefile, or command line call          *
   *****************************************************************
 
