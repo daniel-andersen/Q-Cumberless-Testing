@@ -380,9 +380,9 @@ public class ButtonBar {
             animation.colorAnimation.setColor(COLOR_BACKGROUND_NORMAL, ANIMATION_FADE_SPEED);
         }
         if (Player.isNotifiedStopped()) {
-            pauseButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()));
+            stopButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.DISABLED.ordinal()));
         } else {
-            pauseButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.PRESSED.ordinal()));
+            stopButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.PRESSED.ordinal()));
         }
         if (Player.isPaused()) {
             pauseButton.setImages(Images.getImage(Images.IMAGE_RESUME, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_RESUME, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_RESUME, ThumbnailState.PRESSED.ordinal()));
