@@ -25,6 +25,8 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.Engine;
+
 import java.awt.*;
 
 public class Animation {
@@ -190,7 +192,11 @@ public class Animation {
         }
 
         public Color getColor() {
-            return new Color(currentColor[0], currentColor[1], currentColor[2], currentColor[3]);
+            if (Engine.fpsDetails != Engine.DETAILS_NONE) {
+                return new Color(currentColor[0], currentColor[1], currentColor[2], currentColor[3]);
+            } else {
+                return new Color(currentColor[0], currentColor[1], currentColor[2], 1.0f);
+            }
         }
 
         public float getAlpha() {
@@ -198,7 +204,7 @@ public class Animation {
         }
 
         public boolean isVisible() {
-            return getAlpha() > 0.0f;
+            return getAlpha() > 0.0f && !(Engine.fpsDetails == Engine.DETAILS_NONE && destColor[3] == 0.0f);
         }
     }
 

@@ -42,7 +42,7 @@ public class GuiUtil {
     public static final Color[] SHADOW_COLOR = {new Color(0.0f, 0.0f, 0.0f, 0.2f), new Color(0.0f, 0.0f, 0.0f, 0.4f), new Color(0.0f, 0.0f, 0.0f, 0.6f)};
 
     public static void drawShadow(Graphics2D g, int x, int y, int width, int height, int rounding) {
-        if (Engine.fpsDetails == Engine.DETAILS_FEWER) {
+        if (Engine.fpsDetails >= Engine.DETAILS_FEWER) {
             return;
         }
         g.setColor(SHADOW_COLOR[0]);

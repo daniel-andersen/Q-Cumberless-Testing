@@ -819,12 +819,7 @@ public abstract class BaseBarElement extends Element {
         ImageTemplate imageTemplate = RenderOptimizer.getImageTemplate(renderWidth + SHADOW_SIZE, renderHeight + SHADOW_SIZE);
         BufferedImage image = imageTemplate.image;
         Graphics2D g = imageTemplate.graphics;
-        if (Engine.fpsDetails != Engine.DETAILS_NONE) {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        } else {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        }
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
+        setDetails(g);
         clear(g);
         drawBar(g);
         drawText(g);
@@ -834,6 +829,15 @@ public abstract class BaseBarElement extends Element {
         drawButtons(canvas);
     }
 
+    private void setDetails(Graphics2D g) {
+        if (Engine.fpsDetails != Engine.DETAILS_NONE) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
+        } else {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        }
+    }
+    
     protected abstract void drawAdditionals(Graphics2D g);
 
     protected void renderHintsInternal(Graphics2D g) {

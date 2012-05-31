@@ -271,7 +271,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             if (fpsUpdateCount >= 30 && fpsUpdateCount <= 35) {
                 fpsDetails = DETAILS_FEWER;
             }
-            if (fpsUpdateCount <= 25) {
+            if (fpsUpdateCount <= 20) {
                 fpsDetails = DETAILS_NONE;
             }
             fpsUpdateCount = 0;
