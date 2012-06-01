@@ -108,6 +108,11 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private static Graphics2D backbufferGraphics = null;
 
+    private static final int SCROLL_WHEEL_IMPACT = 20;
+
+    private static int scrollWheelAmountFeatures = 0;
+    private static int scrollWheelAmountStepDefinitions = 0;
+
     public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         canvasWidth = screenSize.width;
@@ -192,6 +197,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private void update() {
         Button.isOneTouched = false;
         pollForDevices();
+        scroll();
         RenderOptimizer.update();
         updateHighlight();
         buttonBar.update();
@@ -202,6 +208,17 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
         EasterEgg.update();
         FlashingMessageManager.update();
+    }
+
+    private void scroll() {
+        if (scrollWheelAmountFeatures != 0) {
+            featuresRoot.scroll(scrollWheelAmountFeatures);
+            scrollWheelAmountFeatures = 0;
+        }
+        if (scrollWheelAmountStepDefinitions != 0) {
+            stepsRoot.scroll(scrollWheelAmountStepDefinitions);
+            scrollWheelAmountStepDefinitions = 0;
+        }
     }
 
     private void pollForDevices() {
@@ -391,9 +408,10 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void mouseWheelMoved(int unitsToScroll) {
-        RootElement element = CumberlessMouseListener.mouseX < dragSplitterX ? featuresRoot : stepsRoot;
-        synchronized (LOCK) {
-            element.scroll(-unitsToScroll * 2);
+        if (CumberlessMouseListener.mouseX < dragSplitterX) {
+            scrollWheelAmountFeatures -= unitsToScroll * SCROLL_WHEEL_IMPACT;
+        } else {
+            scrollWheelAmountStepDefinitions -= unitsToScroll * SCROLL_WHEEL_IMPACT;
         }
     }
 

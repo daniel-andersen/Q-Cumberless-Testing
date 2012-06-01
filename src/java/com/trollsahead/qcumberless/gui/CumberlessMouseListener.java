@@ -89,6 +89,6 @@ public class CumberlessMouseListener implements MouseListener, MouseMotionListen
     }
 
     public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-        Engine.mouseWheelMoved(mouseWheelEvent.getUnitsToScroll());
+        Engine.mouseWheelMoved(mouseWheelEvent.getWheelRotation());
     }
 }
