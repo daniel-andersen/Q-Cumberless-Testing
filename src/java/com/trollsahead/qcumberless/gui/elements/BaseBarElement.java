@@ -473,13 +473,21 @@ public abstract class BaseBarElement extends Element {
     }
 
     private int calculatePartPositions() {
+        step.setRenderWidth(renderWidth - (getTextPaddingLeft() + getTextPaddingRight()));
+        if (buttonGroupVisible != buttonGroupVisibleOld) {
+            step.setTextDirty(true);
+        }
+        if (!step.isTextDirty()) {
+            return step.getLastPartBottom() + Engine.fontMetrics.getHeight();
+        }
         int x = 0;
         int y = tagsHeight + buttonGroupHeight;
         for (CucumberStepPart part : step.getParts()) {
-            part.wrapText(x, y, renderWidth - (getTextPaddingLeft() + getTextPaddingRight()));
+            part.wrapText(x, y);
             x = part.endX;
             y = part.endY;
         }
+        step.setTextDirty(false);
         return y + Engine.fontMetrics.getHeight();
     }
 
@@ -832,10 +840,10 @@ public abstract class BaseBarElement extends Element {
     private void setDetails(Graphics2D g) {
         if (Engine.fpsDetails != Engine.DETAILS_NONE) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
         } else {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
     }
     
     protected abstract void drawAdditionals(Graphics2D g);
@@ -884,7 +892,7 @@ public abstract class BaseBarElement extends Element {
             GuiUtil.drawBorder(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
         }
         GuiUtil.drawShadow(g, x, y, width + 1, height + 1, BAR_ROUNDING);
-        GuiUtil.drawBarFilling(g, x, y, width + 1, height + 1, BAR_ROUNDING, COLOR_BORDER_SHADOW); // Outline - for some reason fillRoundRect is faster than drawRoundRect
+        GuiUtil.drawBarBorder(g, x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
         boolean renderedBorder = false;
         renderedBorder |= renderPlaying(g);
         renderedBorder |= renderEditing(g);

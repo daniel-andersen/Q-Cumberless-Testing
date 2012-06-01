@@ -46,6 +46,9 @@ public class Step {
     private List<CucumberStepPart> parts = null;
     private boolean renderKeyword = true;
 
+    private boolean textDirty = true;
+    private int renderWidth = 0;
+
     public Step(String definition) {
         this(definition, true);
     }
@@ -83,7 +86,11 @@ public class Step {
         return step;
     }
 
-    public void findParameters(String line) {
+    public boolean isTextDirty() {
+        return textDirty;
+    }
+
+    private void findParameters(String line) {
         Matcher matcher = Pattern.compile(definition).matcher(Util.stripLeadingSpaces(line));
         matcher.find();
         if (matcher.groupCount() > 0) {
@@ -92,6 +99,7 @@ public class Step {
                 actualParameters[i] = matcher.group(i + 1);
             }
         }
+        textDirty = true;
     }
 
     public boolean matchedByStepDefinition() {
@@ -110,6 +118,7 @@ public class Step {
         for (int i = 0; i < validParameters.size(); i++) {
             actualParameters[i] = validParameters.get(i)[0];
         }
+        textDirty = true;
         updateRenderKeyword();
     }
 
@@ -119,10 +128,10 @@ public class Step {
         int parameterIdx = 0;
         for (String str : strings) {
             if (!Util.isEmpty(str)) {
-                parts.add(new CucumberStepPart(CucumberStepPart.PartType.TEXT, str));
+                parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, str));
             }
             if (parameterIdx < validParameters.size()) {
-                parts.add(new CucumberStepPart(CucumberStepPart.PartType.ARGUMENT, actualParameters[parameterIdx], validParameters.get(parameterIdx)));
+                parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.ARGUMENT, actualParameters[parameterIdx], validParameters.get(parameterIdx)));
                 parameterIdx++;
             }
         }
@@ -175,14 +184,36 @@ public class Step {
                 firstPart = false;
             }
         }
+        textDirty = true;
+    }
+
+    public void setRenderWidth(int width) {
+        if (renderWidth != width) {
+            renderWidth = width;
+            textDirty = true;
+        }
+    }
+
+    public int getLastPartBottom() {
+        if (parts != null && parts.size() > 0) {
+            return parts.get(parts.size() - 1).endY;
+        } else {
+            return 0;
+        }
+    }
+
+    public void setTextDirty(boolean textDirty) {
+        this.textDirty = textDirty;
     }
 
     public static class CucumberStepPart {
         public static enum PartType {TEXT, ARGUMENT}
+
+        private Step parentStep;
         public PartType type = PartType.TEXT;
         private String text;
         public String[] validParameters;
-
+        
         public boolean isTouched = false;
         public boolean isFirstPart = false;
 
@@ -195,17 +226,21 @@ public class Step {
 
         public boolean render = true;
 
-        public CucumberStepPart(PartType type, String text) {
-            this(type, text, null);
+        public CucumberStepPart(Step parent, PartType type, String text) {
+            this(parent, type, text, null);
         }
 
-        public CucumberStepPart(PartType type, String text, String[] validParameters) {
+        public CucumberStepPart(Step parent, PartType type, String text, String[] validParameters) {
+            parentStep = parent;
             this.type = type;
             this.text = text;
             this.validParameters = validParameters;
         }
 
-        public void wrapText(int startX, int startY, int width) {
+        public void wrapText(int startX, int startY) {
+            if (!parentStep.isTextDirty()) {
+                return;
+            }
             this.startX = startX;
             this.startY = startY;
             this.endX = startX;
@@ -222,7 +257,7 @@ public class Step {
             String[] words = type == PartType.TEXT ? getText().split(" ") : new String[] {getText()};
             int offsetX = startX;
             for (String word : words) {
-                offsetX = addWordToWrappedText(word, width, offsetX);
+                offsetX = addWordToWrappedText(word, parentStep.renderWidth, offsetX);
             }
             if (Util.isEmpty(wrappedText.get(0))) {
                 this.startX = 0;
@@ -252,6 +287,7 @@ public class Step {
 
         public void setText(String text) {
             this.text = text;
+            parentStep.textDirty = true;
         }
     }
 }
