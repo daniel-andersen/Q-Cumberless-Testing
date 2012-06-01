@@ -51,8 +51,6 @@ import java.util.List;
 public class Engine implements Runnable, ComponentListener, KeyListener {
     public static final Object LOCK = new Object();
 
-    private static final int FRAME_DELAY = 20;
-
     public static final Font FONT_DEFAULT = new Font("Verdana", Font.PLAIN, 12);
 
     public static FontMetrics fontMetrics;
@@ -84,7 +82,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static final int DETAILS_FEWER = 1;
     public static final int DETAILS_NONE  = 2;
 
-    private static long cycleTime;
     private static long fpsTimer;
     private static int fpsUpdateCount;
     private static int fpsLastCount;
@@ -180,7 +177,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public void run() {
         isRunning = true;
-        cycleTime = System.currentTimeMillis();
         while (isRunning) {
             synchronized (LOCK) {
                 update();
@@ -235,6 +231,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void render() {
+        setLevelOfDetails(backbufferGraphics);
         canvas.clear(backbufferGraphics);
         cucumberRoot.render(backbufferGraphics);
         if (DropDown.isVisible) {
@@ -248,6 +245,18 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         renderFps(backbufferGraphics);
     }
 
+    private void setLevelOfDetails(Graphics2D g) {
+        if (fpsDetails != Engine.DETAILS_NONE) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
+        } else {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        }
+    }
+    
     private void renderFps(Graphics g) {
         if (!fpsShow) {
             return;
@@ -278,9 +287,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             fpsTimer = time;
         }
         fpsUpdateCount++;
-        cycleTime += FRAME_DELAY;
-        long difference = cycleTime - time;
-        Util.sleep(Math.max(5, difference));
+        Util.sleep(5);
     }
 
     private static void createBackbuffer() {
