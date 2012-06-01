@@ -53,6 +53,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static final Font FONT_DEFAULT = new Font("Verdana", Font.PLAIN, 12);
 
+    public static final int FRAME_RATE = 50;
+    
     public static FontMetrics fontMetrics;
 
     public static CumberlessCanvas canvas;
@@ -196,19 +198,23 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void update() {
-        Button.isOneTouched = false;
-        pollForDevices();
-        updateScroll();
-        RenderOptimizer.update();
-        updateHighlight();
-        buttonBar.update();
-        spotlight.update();
-        cucumberRoot.update(System.currentTimeMillis());
-        if (DropDown.isVisible) {
-            DropDown.update();
+        int lastFpsCount = fpsLastCount > 0 ? fpsLastCount : FRAME_RATE;
+        int count = Math.max(1, FRAME_RATE / lastFpsCount);
+        for (int i = 0; i < count; i++) {
+            Button.isOneTouched = false;
+            pollForDevices();
+            updateScroll();
+            RenderOptimizer.update();
+            updateHighlight();
+            buttonBar.update();
+            spotlight.update();
+            cucumberRoot.update(System.currentTimeMillis());
+            if (DropDown.isVisible) {
+                DropDown.update();
+            }
+            EasterEgg.update();
+            FlashingMessageManager.update();
         }
-        EasterEgg.update();
-        FlashingMessageManager.update();
     }
 
     private void updateScroll() {
