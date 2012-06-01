@@ -36,6 +36,7 @@ import java.awt.image.*;
 public class CumberlessCanvas extends JPanel {
     public CumberlessCanvas() {
         setFocusable(true);
+        setIgnoreRepaint(true);
         setBackground(Color.BLACK);
     }
 
