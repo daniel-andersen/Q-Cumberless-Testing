@@ -123,6 +123,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         canvas = new CumberlessCanvas();
         canvas.addMouseListener(mouseListener);
         canvas.addMouseMotionListener(mouseListener);
+        canvas.addMouseWheelListener(mouseListener);
         canvas.addComponentListener(this);
         canvas.addKeyListener(this);
 
@@ -387,6 +388,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         }
         canvasHasMouseFocus = true;
         updateDrag();
+    }
+
+    public static void mouseWheelMoved(int unitsToScroll) {
+        RootElement element = CumberlessMouseListener.mouseX < dragSplitterX ? featuresRoot : stepsRoot;
+        synchronized (LOCK) {
+            element.scroll(-unitsToScroll * 2);
+        }
     }
 
     private static void startDrag(boolean isControlDown) {

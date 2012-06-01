@@ -27,11 +27,9 @@ package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.Engine;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 
-public class CumberlessMouseListener implements MouseListener, MouseMotionListener {
+public class CumberlessMouseListener implements MouseListener, MouseMotionListener, MouseWheelListener {
     public static int mouseX = 0;
     public static int mouseY = 0;
     public static int oldMouseX = 0;
@@ -88,5 +86,9 @@ public class CumberlessMouseListener implements MouseListener, MouseMotionListen
         oldMouseY = mouseY;
         mouseX = mouseEvent.getX();
         mouseY = mouseEvent.getY();
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
+        Engine.mouseWheelMoved(mouseWheelEvent.getUnitsToScroll());
     }
 }
