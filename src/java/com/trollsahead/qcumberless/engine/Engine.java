@@ -108,10 +108,11 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private static Graphics2D backbufferGraphics = null;
 
-    private static final int SCROLL_WHEEL_IMPACT = 20;
+    private static final int SCROLL_WHEEL_IMPACT = 10;
+    private static final float SCROLL_WHEEL_DECREASE = 0.9f;
 
-    private static int scrollWheelAmountFeatures = 0;
-    private static int scrollWheelAmountStepDefinitions = 0;
+    private static float scrollWheelAmountFeatures = 0;
+    private static float scrollWheelAmountStepDefinitions = 0;
 
     public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -197,7 +198,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private void update() {
         Button.isOneTouched = false;
         pollForDevices();
-        scroll();
+        updateScroll();
         RenderOptimizer.update();
         updateHighlight();
         buttonBar.update();
@@ -210,14 +211,14 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         FlashingMessageManager.update();
     }
 
-    private void scroll() {
+    private void updateScroll() {
         if (scrollWheelAmountFeatures != 0) {
-            featuresRoot.scroll(scrollWheelAmountFeatures);
-            scrollWheelAmountFeatures = 0;
+            featuresRoot.scroll((int) -scrollWheelAmountFeatures);
+            scrollWheelAmountFeatures = Util.decrease(scrollWheelAmountFeatures, SCROLL_WHEEL_DECREASE);
         }
         if (scrollWheelAmountStepDefinitions != 0) {
-            stepsRoot.scroll(scrollWheelAmountStepDefinitions);
-            scrollWheelAmountStepDefinitions = 0;
+            stepsRoot.scroll((int) -scrollWheelAmountStepDefinitions);
+            scrollWheelAmountStepDefinitions = Util.decrease(scrollWheelAmountStepDefinitions, SCROLL_WHEEL_DECREASE);
         }
     }
 
@@ -409,9 +410,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static void mouseWheelMoved(int unitsToScroll) {
         if (CumberlessMouseListener.mouseX < dragSplitterX) {
-            scrollWheelAmountFeatures -= unitsToScroll * SCROLL_WHEEL_IMPACT;
+            scrollWheelAmountFeatures = unitsToScroll * SCROLL_WHEEL_IMPACT;
         } else {
-            scrollWheelAmountStepDefinitions -= unitsToScroll * SCROLL_WHEEL_IMPACT;
+            scrollWheelAmountStepDefinitions = unitsToScroll * SCROLL_WHEEL_IMPACT;
         }
     }
 

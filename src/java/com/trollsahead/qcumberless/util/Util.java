@@ -252,4 +252,12 @@ public class Util {
         };
         return floatColor;
     }
+
+    public static float decrease(float a, float pct) {
+        a = a * pct;
+        if (Math.abs(a) < 0.1f) {
+            a = 0.0f;
+        }
+        return a;
+    }
 }
