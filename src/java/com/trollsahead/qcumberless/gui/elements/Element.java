@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class Element {
+    public enum ColorState {NORMAL, NOT_YET_PLAYED, SUCCESS, FAILURE}
+
     public static final int ROOT_NONE = 0;
     public static final int ROOT_FEATURE_EDITOR = 1;
     public static final int ROOT_STEP_DEFINITIONS = 2;
@@ -61,6 +63,8 @@ public abstract class Element {
     protected boolean shouldStickToParentRenderPosition = false;
 
     public boolean isFailed = false;
+    public boolean isSuccess = false;
+
     public String errorMessage = null;
     public Image[] errorScreenshots = null;
 
@@ -76,7 +80,7 @@ public abstract class Element {
         children.add(element);
         element.groupParent = this;
         if (this == Engine.stepsRoot) {
-            element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
+            element.animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         }
     }
 
@@ -157,7 +161,7 @@ public abstract class Element {
     protected abstract void updateSelf(long time);
 
     public void render(Graphics2D g) {
-        if (!animation.colorAnimation.isVisible()) {
+        if (!animation.alphaAnimation.isVisible()) {
             groupHeight = 0;
             return;
         }
@@ -175,7 +179,7 @@ public abstract class Element {
         }
         int selfHeight = groupHeight;
         for (Element child : children) {
-            if (child.animation.colorAnimation.isVisible()) {
+            if (child.animation.alphaAnimation.isVisible()) {
                 child.render(g, dragHighlightMode, isParentDragged || isBeingDragged());
                 groupHeight += child.groupHeight;
             }
@@ -202,6 +206,15 @@ public abstract class Element {
 
     public void setFailed() {
         isFailed = true;
+        setColorState(ColorState.FAILURE);
+        if (groupParent != null) {
+            groupParent.setFailed();
+        }
+    }
+
+    public void setSuccess() {
+        isSuccess = true;
+        setColorState(ColorState.SUCCESS);
     }
 
     public void setErrorMessage(String message) {
@@ -299,12 +312,13 @@ public abstract class Element {
         return folded;
     }
 
-    public void clearFailedStatus() {
+    public void clearRunStatus() {
         isFailed = false;
+        isSuccess = false;
         errorMessage = null;
         errorScreenshots = null;
         for (Element child : children) {
-            child.clearFailedStatus();
+            child.clearRunStatus();
         }
     }
     
@@ -401,7 +415,7 @@ public abstract class Element {
             return;
         }
         visible = true;
-        animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
+        animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
     }
 
     public void hide() {
@@ -409,7 +423,7 @@ public abstract class Element {
             return;
         }
         visible = false;
-        animation.colorAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
+        animation.alphaAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
     }
 
     public Set<String> getTags() {
@@ -426,4 +440,13 @@ public abstract class Element {
     public boolean isVisible() {
         return visible;
     }
+
+    public void setColorStateAll(ColorState colorState) {
+        setColorState(colorState);
+        for (Element element : children) {
+            element.setColorStateAll(colorState);
+        }
+    }
+    
+    public abstract void setColorState(ColorState colorState);
 }

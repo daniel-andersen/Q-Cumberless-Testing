@@ -39,7 +39,6 @@ public class StepElement extends BaseBarElement {
     protected Table table = null;
     
     public static final Color[] BG_COLOR_NORMAL = {new Color(0xFF6666), new Color(0xDD9999)};
-    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
     public static final Color[] BG_COLOR_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
 
     protected Button tableButton;
@@ -56,14 +55,11 @@ public class StepElement extends BaseBarElement {
         super(BaseBarElement.TYPE_STEP, rootType, width, title, step);
     }
 
-    public Color getBackgroundColor() {
-        int highlightToIndex = isHighlighted() ? 1 : 0;
-        if (isFailed) {
-            return BG_COLOR_FAILED[highlightToIndex];
-        } else if (step.matchedByStepDefinition() || rootType == ROOT_STEP_DEFINITIONS) {
-            return BG_COLOR_NORMAL[highlightToIndex];
+    public Color getNormalBackgroundColor() {
+        if (step.matchedByStepDefinition() || rootType == ROOT_STEP_DEFINITIONS) {
+            return BG_COLOR_NORMAL[highlightToColorIndex()];
         } else {
-            return BG_COLOR_UNRECOGNIZED_STEP[highlightToIndex];
+            return BG_COLOR_UNRECOGNIZED_STEP[highlightToColorIndex()];
         }
     }
 

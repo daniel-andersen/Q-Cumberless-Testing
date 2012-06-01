@@ -69,7 +69,7 @@ public class RootElement extends Element {
     private int verticalGap = 0;
 
     public RootElement() {
-        animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
+        animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         animation.moveAnimation.setRenderPosition(0, -100, Animation.MOVEMENT_SPEED_ENTRANCE);
         type = TYPE_ROOT;
         rootType = ROOT_NONE;
@@ -279,5 +279,8 @@ public class RootElement extends Element {
 
     public Set<String> getTagsInternal() {
         return new HashSet<String>();
+    }
+
+    public void setColorState(ColorState colorState) {
     }
 }

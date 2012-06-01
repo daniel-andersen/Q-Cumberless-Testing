@@ -32,7 +32,6 @@ import java.awt.*;
 
 public class ScenarioElement extends BaseBarElement {
     public static final Color[] BG_COLOR_NORMAL = {new Color(0x88FF88), new Color(0xAADDAA)};
-    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
 
     public ScenarioElement(int rootType) {
         super(TYPE_SCENARIO, rootType);
@@ -46,13 +45,8 @@ public class ScenarioElement extends BaseBarElement {
         super(TYPE_SCENARIO, rootType, title, width);
     }
 
-    public Color getBackgroundColor() {
-        int highlightToIndex = isHighlighted() ? 1 : 0;
-        if (isFailed) {
-            return BG_COLOR_FAILED[highlightToIndex];
-        } else {
-            return BG_COLOR_NORMAL[highlightToIndex];
-        }
+    public Color getNormalBackgroundColor() {
+        return BG_COLOR_NORMAL[highlightToColorIndex()];
     }
 
     public BaseBarElement duplicate() {

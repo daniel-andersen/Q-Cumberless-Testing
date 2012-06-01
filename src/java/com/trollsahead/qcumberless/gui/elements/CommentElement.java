@@ -40,8 +40,8 @@ public class CommentElement extends BaseBarElement {
         super(TYPE_COMMENT, rootType, title, width);
     }
 
-    public Color getBackgroundColor() {
-        return BG_COLOR_NORMAL[isHighlighted() ? 1 : 0];
+    public Color getNormalBackgroundColor() {
+        return BG_COLOR_NORMAL[highlightToColorIndex()];
     }
 
     public BaseBarElement duplicate() {

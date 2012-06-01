@@ -242,4 +242,14 @@ public class Util {
         }
         return sb.toString();
     }
+
+    public static float[] colorToFloatArray(Color color) {
+        float[] floatColor = {
+            (float) color.getRed() / 255.0f,
+            (float) color.getGreen() / 255.0f,
+            (float) color.getBlue() / 255.0f,
+            (float) color.getAlpha() / 255.0f
+        };
+        return floatColor;
+    }
 }

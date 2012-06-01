@@ -64,12 +64,17 @@ public abstract class BaseBarElement extends Element {
     public static final Color COLOR_TEXT_ERROR_MESSAGE = new Color(0x000000);
     public static final Color COLOR_TEXT_TAGS          = new Color(0x000000);
 
+    private static final Color BAR_COLOR_NOT_YET_PLAYED  = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    private static final Color BAR_COLOR_SUCCESS         = new Color(0.2f, 0.9f, 0.2f, 0.5f);
+    private static final Color BAR_COLOR_FAILURE         = new Color(1.0f, 0.2f, 0.2f, 0.8f);
+    private static final Color BAR_COLOR_PLAYING_COMMENT = new Color(0.5f, 0.5f, 0.5f, 0.0f);
+
     public static final Color COLOR_BG_ERROR_MESSAGE   = new Color(0.8f, 0.8f, 0.4f, 0.8f);
     public static final Color COLOR_BG_TAGS            = new Color(0.0f, 0.0f, 0.0f, 0.05f);
     public static final Color COLOR_BG_CLEAR           = new Color(1.0f, 1.0f, 1.0f, 0.0f);
     public static final Color COLOR_BG_HINT            = new Color(0.0f, 0.0f, 0.0f, 0.8f);
 
-    protected static final Color COLOR_BORDER_SHADOW = new Color(0.0f, 0.0f, 0.0f, 0.8f);
+    protected static final Color COLOR_BORDER_SHADOW  = new Color(0.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
     protected static final Color COLOR_BORDER_FAILURE = new Color(1.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
@@ -143,6 +148,8 @@ public abstract class BaseBarElement extends Element {
 
     protected Element lastBubbledElement = null;
 
+    protected ColorState colorState = ColorState.NORMAL;
+
     protected BaseBarElement(int type, int rootType) {
         this(type, rootType, "Untitled");
     }
@@ -172,8 +179,9 @@ public abstract class BaseBarElement extends Element {
         this.step = step != null ? step : new Step(title);
         this.tags = new Tag(tags);
         folded = type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND;
+        animation.colorAnimation.setColor(getNormalBackgroundColor());
         if (type == TYPE_FEATURE) {
-            animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
+            animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         }
         animation.sizeAnimation.currentWidth = this.renderWidth;
         animation.sizeAnimation.currentHeight = this.renderHeight;
@@ -413,7 +421,7 @@ public abstract class BaseBarElement extends Element {
                 animation.moveAnimation.realX += PADDING_HORIZONTAL[((BaseBarElement) groupParent).type];
             }
         }
-        if (shouldStickToParentRenderPosition || animation.colorAnimation.justBecameVisible) {
+        if (shouldStickToParentRenderPosition || animation.alphaAnimation.justBecameVisible) {
             animation.moveAnimation.setRenderPosition(animation.moveAnimation, false);
         }
         calculateButtonGroupHeight();
@@ -596,7 +604,7 @@ public abstract class BaseBarElement extends Element {
 
     public void foldFadeAnimation(float alpha) {
         for (Element child : children) {
-            child.animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
+            child.animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
             if (!child.folded) {
                 child.foldFadeAnimation(alpha);
             }
@@ -606,10 +614,10 @@ public abstract class BaseBarElement extends Element {
     private void dragFadeAnimation() {
         highlight(false);
         float alpha = isDragged ? Animation.FADE_ALPHA_DRAG : Animation.FADE_ALPHA_DEFAULT;
-        animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_DRAG);
+        animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_DRAG);
         if (!folded) {
             for (Element child : children) {
-                child.animation.colorAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
+                child.animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
             }
         }
     }
@@ -787,14 +795,16 @@ public abstract class BaseBarElement extends Element {
     public abstract BaseBarElement duplicate();
 
     protected void duplicatePropertiesTo(BaseBarElement element) {
-        element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
+        element.animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(animation.moveAnimation, true);
         element.animation.moveAnimation.setRenderPosition(animation.moveAnimation, true);
         element.renderWidth = renderWidth;
         element.renderHeight = renderHeight;
-        element.animation.sizeAnimation.currentWidth = this.renderWidth;
-        element.animation.sizeAnimation.currentHeight = this.renderHeight;
-        element.folded = this.folded;
+        element.animation.sizeAnimation.currentWidth = renderWidth;
+        element.animation.sizeAnimation.currentHeight = renderHeight;
+        element.setColorState(colorState);
+        element.animation.colorAnimation.setColor(animation.colorAnimation.getColor());
+        element.folded = folded;
     }
 
     private int calculateIndexInList(Element touchedGroup) {
@@ -809,7 +819,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     protected void renderBefore(Graphics2D g) {
-        if (!animation.colorAnimation.isVisible()) {
+        if (!animation.alphaAnimation.isVisible()) {
             return;
         }
         if (animation.moveAnimation.renderX > Engine.canvasWidth || animation.moveAnimation.renderY > Engine.canvasHeight ||
@@ -827,7 +837,8 @@ public abstract class BaseBarElement extends Element {
         ImageTemplate imageTemplate = RenderOptimizer.getImageTemplate(renderWidth + SHADOW_SIZE, renderHeight + SHADOW_SIZE);
         BufferedImage image = imageTemplate.image;
         Graphics2D g = imageTemplate.graphics;
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.colorAnimation.getAlpha()));
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, animation.alphaAnimation.getAlpha()));
+        setBackgroundColorAccordingToState();
         clear(g);
         drawBar(g);
         drawText(g);
@@ -887,15 +898,42 @@ public abstract class BaseBarElement extends Element {
         boolean renderedBorder = false;
         renderedBorder |= renderPlaying(g);
         renderedBorder |= renderEditing(g);
-        renderedBorder |= renderPlayFailures(g);
         int space = renderedBorder ? 1 : 0;
-        GuiUtil.drawBarFilling(g, x + 1 + space, y + 1 + space, width - 1 - (space * 2), height - 1 - (space * 2), BAR_ROUNDING, getBackgroundColor());
+        GuiUtil.drawBarFilling(g, x + 1 + space, y + 1 + space, width - 1 - (space * 2), height - 1 - (space * 2), BAR_ROUNDING, animation.colorAnimation.getColor());
         if (buttonGroupVisible) {
-            GuiUtil.drawBarFilling(g, x + 1 + space, 1 + space, buttonGroupWidth - 1 - (space * 2), renderHeight - 8, BAR_ROUNDING, getBackgroundColor());
+            GuiUtil.drawBarFilling(g, x + 1 + space, 1 + space, buttonGroupWidth - 1 - (space * 2), renderHeight - 8, BAR_ROUNDING, animation.colorAnimation.getColor());
         }
     }
 
-    public abstract Color getBackgroundColor();
+    public void setColorState(ColorState colorState) {
+        this.colorState = colorState;
+        animation.colorAnimation.setColor(getBackgroundColorAccordingToState(), Animation.FADE_SPEED_CHANGE_COLOR_STATE);
+    }
+
+    private void setBackgroundColorAccordingToState() {
+        animation.colorAnimation.setColorKeepProgress(getBackgroundColorAccordingToState());
+    }
+
+    private Color getBackgroundColorAccordingToState() {
+        if ((this instanceof CommentElement) && colorState != ColorState.NORMAL) {
+            return BAR_COLOR_PLAYING_COMMENT;
+        }
+        if (colorState == ColorState.NOT_YET_PLAYED) {
+            return BAR_COLOR_NOT_YET_PLAYED;
+        } else if (colorState == ColorState.SUCCESS) {
+            return BAR_COLOR_SUCCESS;
+        } else if (colorState == ColorState.FAILURE) {
+            return BAR_COLOR_FAILURE;
+        } else {
+            return getNormalBackgroundColor();
+        }
+    }
+
+    public abstract Color getNormalBackgroundColor();
+
+    protected int highlightToColorIndex() {
+        return isHighlighted() ? 1 : 0;
+    }
 
     private boolean renderPlaying(Graphics2D g) {
         if (!Player.isRunning()) {
@@ -906,14 +944,6 @@ public abstract class BaseBarElement extends Element {
         }
         renderBorder(g, COLOR_BORDER_PLAYING, 1.5f);
         renderAnimatedBorder(g);
-        return true;
-    }
-
-    private boolean renderPlayFailures(Graphics2D g) {
-        if (!isRunnable() || !isFailed) {
-            return false;
-        }
-        renderBorder(g, COLOR_BORDER_FAILURE, 1.5f);
         return true;
     }
 
@@ -988,7 +1018,7 @@ public abstract class BaseBarElement extends Element {
         int x = (renderWidth - width) / 2;
         int y = TAGS_PADDING_VERTICAL + buttonGroupHeight;
 
-        g.setColor(Util.blendColor(getBackgroundColor(), COLOR_BG_TAGS));
+        g.setColor(Util.blendColor(animation.colorAnimation.getColor(), COLOR_BG_TAGS));
         g.fillRoundRect(x, y, width - 1, height - 1, HINT_ROUNDING, HINT_ROUNDING);
         g.drawRoundRect(x, y, width - 1, height - 1, HINT_ROUNDING, HINT_ROUNDING);
 

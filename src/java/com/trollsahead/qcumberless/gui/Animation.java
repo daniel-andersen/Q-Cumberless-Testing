@@ -25,16 +25,17 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 
 public class Animation {
-    public static final float FADE_SPEED_DRAG       = 0.05f;
-    public static final float FADE_SPEED_ENTRANCE   = 0.02f;
-    public static final float FADE_SPEED_FOLD       = 0.05f;
-    public static final float FADE_SPEED_REENTRANCE = 0.05f;
-    public static final float FADE_SPEED_APPEAR     = 0.05f;
+    public static final float FADE_SPEED_DRAG               = 0.05f;
+    public static final float FADE_SPEED_ENTRANCE           = 0.02f;
+    public static final float FADE_SPEED_FOLD               = 0.05f;
+    public static final float FADE_SPEED_REENTRANCE         = 0.05f;
+    public static final float FADE_SPEED_APPEAR             = 0.05f;
+    public static final float FADE_SPEED_CHANGE_COLOR_STATE = 0.005f;
 
     public static final float FADE_ALPHA_DEFAULT = 0.8f;
     public static final float FADE_ALPHA_DRAG    = 0.5f;
@@ -47,6 +48,7 @@ public class Animation {
     public MoveAnimation moveAnimation = new MoveAnimation();
     public SizeAnimation sizeAnimation = new SizeAnimation();
     public ColorAnimation colorAnimation = new ColorAnimation();
+    public ColorAnimation alphaAnimation = new ColorAnimation();
 
     public static Stroke setStrokeAnimation(Graphics2D g, float dashLength, float dashWidth, float speed) {
         float dashPosition = (dashLength * 2.0f) - (float) (System.currentTimeMillis() % (int) (speed * dashLength * 2.0f)) / speed;
@@ -74,6 +76,7 @@ public class Animation {
 
     public void update(boolean retainPosition) {
         colorAnimation.update();
+        alphaAnimation.update();
         sizeAnimation.update();
         moveAnimation.update(retainPosition);
     }
@@ -174,10 +177,31 @@ public class Animation {
             this.justBecameVisible = getAlpha() <= 0.0f;
         }
 
+        public void setColor(Color color, float speed) {
+            this.fromColor = currentColor.clone();
+            this.destColor = Util.colorToFloatArray(color);
+            this.speed = speed;
+            this.progress = 0.0f;
+            this.isFading = true;
+            this.justBecameVisible = getAlpha() <= 0.0f;
+        }
+
+        public void setColor(Color color) {
+            setColorKeepProgress(color);
+            this.fromColor = Util.colorToFloatArray(color);
+            this.destColor = this.fromColor.clone();
+            this.currentColor = this.fromColor.clone();
+            this.progress = 1.0f;
+            this.isFading = false;
+            this.justBecameVisible = getAlpha() <= 0.0f;
+        }
+        
+        public void setColorKeepProgress(Color color) {
+            this.fromColor = currentColor.clone();
+            this.destColor = Util.colorToFloatArray(color);
+        }
+
         private void update() {
-            if (!isFading) {
-                return;
-            }
             if (progress > 0.0f) {
                 justBecameVisible = false;
             }

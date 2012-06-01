@@ -131,13 +131,13 @@ public class Table {
         if (highlightedCol == -1 || highlightedRow == -1) {
             return;
         }
-        g.setColor(Util.blendColorKeepAlpha(parent.getBackgroundColor(), COLOR_BG_HIGHLIGHT));
+        g.setColor(Util.blendColorKeepAlpha(parent.getNormalBackgroundColor(), COLOR_BG_HIGHLIGHT));
         g.fillRect(cells[highlightedRow][highlightedCol].x, cells[highlightedRow][highlightedCol].y,
                    cells[highlightedRow][highlightedCol].width, cells[highlightedRow][highlightedCol].height);
     }
 
     private void renderGrid(Graphics2D g, int x, int y) {
-        g.setColor(Util.blendColorKeepAlpha(parent.getBackgroundColor(), COLOR_LINE));
+        g.setColor(Util.blendColorKeepAlpha(parent.getNormalBackgroundColor(), COLOR_LINE));
         for (int i = 0; i < rows + 1; i++) {
             int h = i * rowHeight;
             g.drawLine(x, y + h, x + width, y + h);

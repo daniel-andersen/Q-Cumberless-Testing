@@ -32,7 +32,6 @@ import java.awt.*;
 
 public class BackgroundElement extends BaseBarElement {
     public static final Color[] BG_COLOR_NORMAL = {new Color(0x888888), new Color(0xAAAAAA)};
-    public static final Color[] BG_COLOR_FAILED = {new Color(0xFF0000), new Color(0xFF5555)};
 
     public BackgroundElement(int rootType) {
         super(TYPE_BACKGROUND, rootType);
@@ -46,13 +45,8 @@ public class BackgroundElement extends BaseBarElement {
         super(TYPE_BACKGROUND, rootType, title, width);
     }
 
-    public Color getBackgroundColor() {
-        int highlightToIndex = isHighlighted() ? 1 : 0;
-        if (isFailed) {
-            return BG_COLOR_FAILED[highlightToIndex];
-        } else {
-            return BG_COLOR_NORMAL[highlightToIndex];
-        }
+    public Color getNormalBackgroundColor() {
+        return BG_COLOR_NORMAL[highlightToColorIndex()];
     }
 
     public BaseBarElement duplicate() {

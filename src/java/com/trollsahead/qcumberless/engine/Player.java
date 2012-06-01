@@ -76,6 +76,8 @@ public class Player implements DeviceCallback {
 
     public static Set<Player> players = new HashSet<Player>();
 
+    public static boolean showResultState = false;
+    
     static {
         PLAYING_COLORS.add(Color.WHITE);
         PLAYING_COLORS.add(Color.YELLOW);
@@ -85,8 +87,14 @@ public class Player implements DeviceCallback {
     public static void prepareRun() {
         hasDeviceFailures = false;
         notifiedStopped = false;
+        setShowResultState(true);
     }
 
+    public static void setShowResultState(boolean showResultState) {
+        Player.showResultState = showResultState;
+        Engine.featuresRoot.setColorStateAll(showResultState ? Element.ColorState.NOT_YET_PLAYED : Element.ColorState.NORMAL);
+    }
+    
     public Player() {
         runningColor = getUnusedPlayingColor();
         players.add(this);
@@ -238,7 +246,7 @@ public class Player implements DeviceCallback {
 
     public void onPlay() {
         success = true;
-        Engine.cucumberRoot.clearFailedStatus();
+        Engine.cucumberRoot.clearRunStatus();
     }
 
     public void onPause() {
@@ -269,8 +277,10 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeFeature(String name) {
-        currentFeature = (BaseBarElement) Engine.featuresRoot.findChild(name);
         System.out.println("Starting feature: '" + name + "'");
+        setSuccess(currentStep);
+        currentFeature = (BaseBarElement) Engine.featuresRoot.findChild(name);
+        setSuccess(currentFeature);
     }
 
     public void afterFeature() {
@@ -282,10 +292,12 @@ public class Player implements DeviceCallback {
 
     public void beforeScenario(String name) {
         System.out.println("Starting scenario: '" + name + "'");
+        setSuccess(currentStep);
         if (currentFeature != null) {
             currentScenario = (BaseBarElement) currentFeature.findChild(name);
             currentStep = (BaseBarElement) currentFeature.firstChildOfType(BaseBarElement.TYPE_STEP);
             stepIndex = currentFeature.findChildIndex(currentStep);
+            setSuccess(currentScenario);
         } else {
             currentScenario = null;
             currentBackground = null;
@@ -313,6 +325,7 @@ public class Player implements DeviceCallback {
 
     public void beforeStep(String name) {
         System.out.println("Running step: '" + name + "'");
+        setSuccess(currentStep);
         BaseBarElement scenarioOrBackground = currentScenario;
         BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
         if (!didFinishBackground && backgroundElement != null) {
@@ -469,5 +482,11 @@ public class Player implements DeviceCallback {
             }
         }
         return false;
+    }
+    
+    private void setSuccess(Element element) {
+        if (element != null && !element.isFailed) {
+            element.setSuccess();
+        }
     }
 }
