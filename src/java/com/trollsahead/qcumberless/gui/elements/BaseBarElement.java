@@ -67,7 +67,7 @@ public abstract class BaseBarElement extends Element {
     private static final Color BAR_COLOR_NOT_YET_PLAYED  = new Color(0.5f, 0.5f, 0.5f, 0.5f);
     private static final Color BAR_COLOR_SUCCESS         = new Color(0.2f, 0.9f, 0.2f, 0.5f);
     private static final Color BAR_COLOR_FAILURE         = new Color(1.0f, 0.2f, 0.2f, 0.8f);
-    private static final Color BAR_COLOR_PLAYING_COMMENT = new Color(0.5f, 0.5f, 0.5f, 0.0f);
+    private static final Color BAR_COLOR_PLAYING_COMMENT = new Color(0.1f, 0.1f, 0.1f, 0.5f);
 
     public static final Color COLOR_BG_ERROR_MESSAGE   = new Color(0.8f, 0.8f, 0.4f, 0.8f);
     public static final Color COLOR_BG_TAGS            = new Color(0.0f, 0.0f, 0.0f, 0.05f);
@@ -76,7 +76,6 @@ public abstract class BaseBarElement extends Element {
 
     protected static final Color COLOR_BORDER_SHADOW  = new Color(0.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
-    protected static final Color COLOR_BORDER_FAILURE = new Color(1.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
 
     public static final int RENDER_WIDTH_MAX_FEATURE_EDITOR = 600;
