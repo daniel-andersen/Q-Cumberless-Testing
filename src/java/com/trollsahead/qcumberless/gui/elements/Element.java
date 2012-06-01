@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.util.Util;
@@ -101,6 +102,7 @@ public abstract class Element {
                 }
                 if (element instanceof BaseBarElement) {
                     ((BaseBarElement) element).step.setShouldRenderKeyword(true);
+                    element.setColorState(Player.showResultState ? ColorState.NOT_YET_PLAYED : ColorState.NORMAL);
                 }
                 Engine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
