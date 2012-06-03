@@ -103,6 +103,7 @@ public abstract class Element {
                 }
                 if (element instanceof BaseBarElement) {
                     ((BaseBarElement) element).step.setShouldRenderKeyword(true);
+                    element.toggleColorScheme();
                 }
                 Engine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
