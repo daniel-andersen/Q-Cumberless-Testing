@@ -39,21 +39,12 @@ public interface DeviceCallback {
     void afterPlayFailed(String errorMessage);
 
     void beforeFeatures();
-
     void beforeFeature(String name);
-    void afterFeature();
-    void afterFeatureFailed();
-
     void beforeScenario(String name);
-    void afterScenario();
-    void afterScenarioFailed();
-
     void beforeBackground(String name);
-    void afterBackground();
-    void afterBackgroundFailed(String errorMessage);
-
     void beforeStep(String name);
-    void afterStep(String name);
+    void beforeOutlineTable();
+    void beforeTableRow(String tableRow);
     void afterStepFailed(String errorMessage);
     
     void attachScreenshots(Element element, Image... screenshots);

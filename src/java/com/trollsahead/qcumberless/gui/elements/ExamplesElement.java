@@ -71,4 +71,21 @@ public class ExamplesElement extends StepElement {
     public void clearTable() {
         table = null;
     }
+
+    public void clearRunStatus() {
+        super.clearRunStatus();
+        table.clearRunStatus();
+    }
+    
+    public void setNotYetPlayed(int row) {
+        table.setNotYetPlayed(row);
+    }
+
+    public void setFailed(int row) {
+        table.setFailed(row);
+    }
+
+    public void setSuccess(int row) {
+        table.setSuccess(row);
+    }
 }

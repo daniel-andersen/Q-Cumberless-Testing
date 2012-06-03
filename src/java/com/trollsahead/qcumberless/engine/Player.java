@@ -27,9 +27,7 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
-import com.trollsahead.qcumberless.gui.elements.Element;
-import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
-import com.trollsahead.qcumberless.gui.elements.StepElement;
+import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
@@ -56,6 +54,8 @@ public class Player implements DeviceCallback {
     public BaseBarElement currentScenario = null;
     public BaseBarElement currentBackground = null;
     public BaseBarElement currentStep = null;
+    public ExamplesElement currentExamples = null;
+    public int currentExamplesRow = -1;
 
     private int stepIndex;
     private boolean didFinishBackground;
@@ -153,7 +153,6 @@ public class Player implements DeviceCallback {
                 success = true;
                 started = true;
                 device.play(feature, tags);
-                setSuccess(currentStep);
                 cleanup();
             }
         }).start();
@@ -197,6 +196,8 @@ public class Player implements DeviceCallback {
         currentScenario = null;
         currentBackground = null;
         currentStep = null;
+        currentExamples = null;
+        currentExamplesRow = -1;
         stepIndex = -1;
         didFinishBackground = false;
     }
@@ -259,6 +260,7 @@ public class Player implements DeviceCallback {
 
     public void afterPlayed() {
         setSuccess(currentStep);
+        setSuccess(currentExamplesRow);
         reset();
         messageTimeout = System.currentTimeMillis() + MESSAGE_TIMEOUT_PLAYER;
     }
@@ -276,20 +278,17 @@ public class Player implements DeviceCallback {
     public void beforeFeature(String name) {
         System.out.println("Starting feature: '" + name + "'");
         setSuccess(currentStep);
+        setSuccess(currentExamplesRow);
         currentFeature = (BaseBarElement) Engine.featuresRoot.findChild(name);
         setSuccess(currentFeature);
-    }
-
-    public void afterFeature() {
-    }
-
-    public void afterFeatureFailed() {
-        failure();
     }
 
     public void beforeScenario(String name) {
         System.out.println("Starting scenario: '" + name + "'");
         setSuccess(currentStep);
+        setSuccess(currentExamplesRow);
+        currentExamples = null;
+        currentExamplesRow = -1;
         if (currentFeature != null) {
             currentScenario = (BaseBarElement) currentFeature.findChild(name);
             currentStep = (BaseBarElement) currentFeature.firstChildOfType(BaseBarElement.TYPE_STEP);
@@ -303,21 +302,7 @@ public class Player implements DeviceCallback {
         didFinishBackground = false;
     }
 
-    public void afterScenario() {
-    }
-
-    public void afterScenarioFailed() {
-        failure();
-    }
-
     public void beforeBackground(String name) {
-    }
-
-    public void afterBackground() {
-    }
-
-    public void afterBackgroundFailed(String errorMessage) {
-        failure(errorMessage);
     }
 
     public void beforeStep(String name) {
@@ -341,7 +326,19 @@ public class Player implements DeviceCallback {
         stepIndex = scenarioOrBackground != null ? scenarioOrBackground.findChildIndex(currentStep) : -1;
     }
 
-    public void afterStep(String name) {
+    public void beforeOutlineTable() {
+        if (!(currentScenario instanceof ScenarioOutlineElement)) {
+            return;
+        }
+        currentExamples = ((ScenarioOutlineElement) currentScenario).getExamplesElement();
+        currentExamplesRow = 0;
+    }
+
+    public void beforeTableRow(String tableRow) {
+        if (currentExamples == null) {
+            return;
+        }
+        currentExamplesRow++;
     }
 
     public void afterStepFailed(String errorMessage) {
@@ -362,6 +359,9 @@ public class Player implements DeviceCallback {
     
     private void failure(String errorMessage) {
         setFailed();
+        if (currentExamples != null && currentExamplesRow != -1) {
+            currentExamples.setFailed(currentExamplesRow);
+        }
         if (currentStep != null && errorMessage != null) {
             currentStep.setFailed();
             currentStep.setErrorMessage(errorMessage);
@@ -482,11 +482,33 @@ public class Player implements DeviceCallback {
     }
     
     private void setSuccess(Element element) {
-        if ((element instanceof StepElement) && currentScenario.isFailed) {
+        if ((element instanceof StepElement) && (currentScenario.isFailed || (currentScenario instanceof ScenarioOutlineElement))) {
             return;
         }
         if (element != null && !element.isFailed) {
             element.setSuccess();
         }
+    }
+
+    private void setSuccess(int examplesRow) {
+        if (currentExamples != null && !currentExamples.isFailed) {
+            currentExamples.setSuccess(examplesRow);
+        }
+    }
+
+    public static boolean isPlayingExampleRow(BaseBarElement element, int row) {
+        if (!(element instanceof ExamplesElement)) {
+            return false;
+        }
+        ExamplesElement examplesElement = (ExamplesElement) element;
+        if (!isCurrentScenario((BaseBarElement) examplesElement.groupParent)) {
+            return false;
+        }
+        for (Player player : players) {
+            if (player.currentExamples == examplesElement && player.currentExamplesRow == row) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -47,8 +47,10 @@ public class GenericDevice extends Device {
     private static final Pattern patternStarting = Pattern.compile("Executing tasks");
     private static final Pattern patternStartingFeature = Pattern.compile("(\\s*)Feature: (.*)");
     private static final Pattern patternStartingBackground = Pattern.compile("(\\s*)Background: (.*)");
-    private static final Pattern patternStartingScenario = Pattern.compile("(.*)Scenario: (.*)(\\s*)#(.*)");
-    private static final Pattern patternStartingScenarioOutline = Pattern.compile("(.*)Scenario Outline: (.*)(\\s*)#(.*)");
+    private static final Pattern patternStartingScenario = Pattern.compile("(\\s*)Scenario: (.*)(\\s*)#(.*)");
+    private static final Pattern patternStartingScenarioOutline = Pattern.compile("(\\s*)Scenario Outline: (.*)(\\s*)#(.*)");
+    private static final Pattern patternStartingOutlineTable = Pattern.compile("(\\s*)Outline table(\\s*)");
+    private static final Pattern patternStartingTableRow = Pattern.compile("(\\s*)Table row: (.*)");
     private static final Pattern patternRunningStep = Pattern.compile("(\\s*)Step: (.*)");
     private static final Pattern patternStepFailed = Pattern.compile("(\\s*)Step failed: (.*)");
     private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
@@ -151,7 +153,10 @@ public class GenericDevice extends Device {
             checkStartingFeature(log);
             checkStartingBackground(log);
             checkStartingScenario(log);
+            checkStartingScenarioOutline(log);
             checkRunningStep(log);
+            checkStartingOutlineTable(log);
+            checkStartingTableRow(log);
             checkStepFailed(log);
             checkScreenshotBeingTaken(log);
             checkScreenshotTaken(log);
@@ -194,6 +199,20 @@ public class GenericDevice extends Device {
         Matcher matcher = getPatternStartingScenarioOutline().matcher(log);
         if (matcher.find()) {
             deviceCallback.beforeScenario(matcher.group(2).trim());
+        }
+    }
+
+    protected void checkStartingOutlineTable(String log) {
+        Matcher matcher = getPatternStartingOutlineTable().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeOutlineTable();
+        }
+    }
+
+    protected void checkStartingTableRow(String log) {
+        Matcher matcher = getPatternStartingTableRow().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.beforeTableRow(matcher.group(2).trim());
         }
     }
 
@@ -270,6 +289,14 @@ public class GenericDevice extends Device {
 
     protected Pattern getPatternRunningStep() {
         return patternRunningStep;
+    }
+
+    protected Pattern getPatternStartingOutlineTable() {
+        return patternStartingOutlineTable;
+    }
+
+    protected Pattern getPatternStartingTableRow() {
+        return patternStartingTableRow;
     }
 
     protected Pattern getPatternStepFailed() {

@@ -26,10 +26,13 @@
 package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.gui.EditBox;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
+
+import static com.trollsahead.qcumberless.gui.elements.Element.PlayColorState;
 
 import java.awt.*;
 
@@ -60,6 +63,7 @@ public class Table {
     private Cell editedCell = null;
 
     private BaseBarElement parent;
+    private PlayColorState[] colorState;
 
     public Table(BaseBarElement parent) {
         this(parent, 2, 2);
@@ -91,6 +95,7 @@ public class Table {
     public void render(Graphics2D g, int offsetX, int offsetY) {
         calculateCellBounds(offsetX, offsetY);
         findHighlightedCell();
+        renderPlayingRow(g);
         renderHighlightedCell(g);
         renderGrid(g, offsetX, offsetY);
         renderText(g);
@@ -134,6 +139,17 @@ public class Table {
         g.setColor(Util.blendColorKeepAlpha(parent.getNormalBackgroundColor(), COLOR_BG_HIGHLIGHT));
         g.fillRect(cells[highlightedRow][highlightedCol].x, cells[highlightedRow][highlightedCol].y,
                    cells[highlightedRow][highlightedCol].width, cells[highlightedRow][highlightedCol].height);
+    }
+
+    private void renderPlayingRow(Graphics2D g) {
+        for (int i = 0; i < rows; i++) {
+            if (!Player.isPlayingExampleRow(parent, i)) {
+                return;
+            }
+            g.setColor(Util.blendColorKeepAlpha(parent.getNormalBackgroundColor(), COLOR_BG_HIGHLIGHT));
+            g.fillRect(cells[highlightedRow][highlightedCol].x, cells[highlightedRow][highlightedCol].y,
+                       cells[highlightedRow][highlightedCol].width, cells[highlightedRow][highlightedCol].height);
+        }
     }
 
     private void renderGrid(Graphics2D g, int x, int y) {
@@ -243,6 +259,7 @@ public class Table {
         this.rows = rows;
         colWidth = new int[cols];
         colCharWidth = new int[cols];
+        colorState = new PlayColorState[rows];
         Cell[][] newCells = new Cell[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -252,6 +269,7 @@ public class Table {
                     newCells[i][j] = new Cell();
                 }
             }
+            colorState[i] = PlayColorState.NOT_YET_PLAYED;
         }
         cells = newCells;
         calculateCellSize();
@@ -263,9 +281,28 @@ public class Table {
             for (int j = 0; j < cols; j++) {
                 newTable.cells[i][j] = new Cell(cells[i][j].text);
             }
+            newTable.colorState[i] = colorState[i];
         }
         newTable.calculateCellSize();
         return newTable;
+    }
+
+    public void setNotYetPlayed(int row) {
+        colorState[row] = PlayColorState.NOT_YET_PLAYED;
+    }
+
+    public void setSuccess(int row) {
+        colorState[row] = PlayColorState.SUCCESS;
+    }
+
+    public void setFailed(int row) {
+        colorState[row] = PlayColorState.FAILURE;
+    }
+
+    public void clearRunStatus() {
+        for (int i = 0; i < rows; i++) {
+            setNotYetPlayed(i);
+        }
     }
 
     private class Cell {
