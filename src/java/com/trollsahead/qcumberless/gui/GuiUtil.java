@@ -42,7 +42,7 @@ public class GuiUtil {
     public static final Color[] SHADOW_COLOR = {new Color(0.0f, 0.0f, 0.0f, 0.2f), new Color(0.0f, 0.0f, 0.0f, 0.4f), new Color(0.0f, 0.0f, 0.0f, 0.6f)};
 
     public static void drawShadow(Graphics2D g, int x, int y, int width, int height, int rounding) {
-        if (Engine.fpsDetails >= Engine.DETAILS_FEWER) {
+        if (Engine.fpsDetails >= Engine.DETAILS_MEDIUM) {
             return;
         }
         g.setColor(SHADOW_COLOR[0]);
@@ -60,19 +60,31 @@ public class GuiUtil {
 
         g.setColor(color);
         g.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-        g.drawRoundRect(x, y, width, height, rounding, rounding);
+        if (Engine.fpsDetails == Engine.DETAILS_LOW) {
+            g.drawRect(x, y, width, height);
+        } else {
+            g.drawRoundRect(x, y, width, height, rounding, rounding);
+        }
 
         g.setStroke(stroke);
     }
 
     public static void drawBarFilling(Graphics2D g, int x, int y, int width, int height, int rounding, Color color) {
         g.setColor(color);
-        g.fillRoundRect(x, y, width, height, rounding, rounding);
+        if (Engine.fpsDetails == Engine.DETAILS_LOW) {
+            g.fillRect(x, y, width, height);
+        } else {
+            g.fillRoundRect(x, y, width, height, rounding, rounding);
+        }
     }
 
     public static void drawBarBorder(Graphics2D g, int x, int y, int width, int height, int rounding, Color color) {
         g.setColor(color);
-        g.drawRoundRect(x, y, width, height, rounding, rounding);
+        if (Engine.fpsDetails == Engine.DETAILS_LOW) {
+            g.drawRect(x, y, width, height);
+        } else {
+            g.drawRoundRect(x, y, width, height, rounding, rounding);
+        }
     }
 
     public static List<ElementPluginButton> getPluginButtonsForElement(final Element element) {

@@ -82,14 +82,14 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static int canvasWidth;
     public static int canvasHeight;
 
-    public static final int DETAILS_ALL   = 0;
-    public static final int DETAILS_FEWER = 1;
-    public static final int DETAILS_NONE  = 2;
+    public static final int DETAILS_HIGH = 0;
+    public static final int DETAILS_MEDIUM = 1;
+    public static final int DETAILS_LOW = 2;
 
     private static long fpsTimer;
     private static int fpsUpdateCount;
     private static int fpsLastCount;
-    public static int fpsDetails = DETAILS_ALL;
+    public static int fpsDetails = DETAILS_HIGH;
     private static boolean fpsShow = false;
 
     private static boolean isRunning;
@@ -275,7 +275,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void setLevelOfDetails(Graphics2D g) {
-        if (fpsDetails != Engine.DETAILS_NONE) {
+        if (fpsDetails != Engine.DETAILS_LOW) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
@@ -303,14 +303,25 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         long time = System.currentTimeMillis();
         if (time > fpsTimer + 1000L) {
             fpsLastCount = fpsUpdateCount;
-            if (fpsUpdateCount >= 45) {
-                fpsDetails = DETAILS_ALL;
-            }
-            if (fpsUpdateCount >= 30 && fpsUpdateCount <= 35) {
-                fpsDetails = DETAILS_FEWER;
-            }
-            if (fpsUpdateCount <= 20) {
-                fpsDetails = DETAILS_NONE;
+            String configDetails = ConfigurationManager.get("renderDetails");
+            if (Util.isEmpty(configDetails) || "auto".equalsIgnoreCase(configDetails)) {
+                if (fpsUpdateCount >= 45) {
+                    fpsDetails = DETAILS_HIGH;
+                }
+                if (fpsUpdateCount >= 30 && fpsUpdateCount <= 35) {
+                    fpsDetails = DETAILS_MEDIUM;
+                }
+                if (fpsUpdateCount <= 20) {
+                    fpsDetails = DETAILS_LOW;
+                }
+            } else {
+                if ("low".equalsIgnoreCase(configDetails)) {
+                    fpsDetails = DETAILS_LOW;
+                } else if ("medium".equalsIgnoreCase(configDetails)) {
+                    fpsDetails = DETAILS_MEDIUM;
+                } else {
+                    fpsDetails = DETAILS_HIGH;
+                }
             }
             fpsUpdateCount = 0;
             fpsTimer = time;
