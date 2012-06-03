@@ -650,6 +650,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             if (keyEvent.getKeyChar() == '!') {
                 fpsShow = !fpsShow;
             }
+            if (Util.isEmpty(spotlight.searchString) && keyEvent.getKeyChar() == ' ') {
+                Player.switchColorMode();
+            }
         }
     }
 

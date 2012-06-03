@@ -94,7 +94,11 @@ public class Player implements DeviceCallback {
         Player.showResultState = showResultState;
         Engine.featuresRoot.setColorStateAll(showResultState ? Element.ColorState.NOT_YET_PLAYED : Element.ColorState.NORMAL);
     }
-    
+
+    public static void switchColorMode() {
+        setShowResultState(!showResultState);
+    }
+
     public Player() {
         runningColor = getUnusedPlayingColor();
         players.add(this);

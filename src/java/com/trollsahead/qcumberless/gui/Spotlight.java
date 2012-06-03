@@ -74,6 +74,9 @@ public class Spotlight {
             EasterEgg.hide();
             return;
         }
+        if (Util.isEmpty(searchString) && e.getKeyChar() == ' ') {
+            return;
+        }
         if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
             if (!Util.isEmpty(searchString)) {
                 searchString = searchString.substring(0, searchString.length() - 1);
