@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.StepElement;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
@@ -76,8 +77,6 @@ public class Player implements DeviceCallback {
 
     public static Set<Player> players = new HashSet<Player>();
 
-    public static boolean showResultState = false;
-    
     static {
         PLAYING_COLORS.add(Color.WHITE);
         PLAYING_COLORS.add(Color.YELLOW);
@@ -87,16 +86,8 @@ public class Player implements DeviceCallback {
     public static void prepareRun() {
         hasDeviceFailures = false;
         notifiedStopped = false;
-        setShowResultState(true);
-    }
-
-    public static void setShowResultState(boolean showResultState) {
-        Player.showResultState = showResultState;
-        Engine.featuresRoot.setColorStateAll(showResultState ? Element.ColorState.NOT_YET_PLAYED : Element.ColorState.NORMAL);
-    }
-
-    public static void switchColorMode() {
-        setShowResultState(!showResultState);
+        Engine.featuresRoot.setPlayColorStateIncludingChildren(Element.PlayColorState.NOT_YET_PLAYED);
+        Engine.setColorScheme(Element.ColorScheme.PLAY);
     }
 
     public Player() {
@@ -162,6 +153,7 @@ public class Player implements DeviceCallback {
                 success = true;
                 started = true;
                 device.play(feature, tags);
+                setSuccess(currentStep);
                 cleanup();
             }
         }).start();
@@ -266,6 +258,7 @@ public class Player implements DeviceCallback {
     }
 
     public void afterPlayed() {
+        setSuccess(currentStep);
         reset();
         messageTimeout = System.currentTimeMillis() + MESSAGE_TIMEOUT_PLAYER;
     }
@@ -343,9 +336,9 @@ public class Player implements DeviceCallback {
             didFinishBackground = true;
             stepIndex = -1;
             scenarioOrBackground = currentScenario;
-            currentStep = (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1);
+            currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1) : null;
         }
-        stepIndex = scenarioOrBackground.findChildIndex(currentStep);
+        stepIndex = scenarioOrBackground != null ? scenarioOrBackground.findChildIndex(currentStep) : -1;
     }
 
     public void afterStep(String name) {
@@ -489,6 +482,9 @@ public class Player implements DeviceCallback {
     }
     
     private void setSuccess(Element element) {
+        if ((element instanceof StepElement) && currentScenario.isFailed) {
+            return;
+        }
         if (element != null && !element.isFailed) {
             element.setSuccess();
         }

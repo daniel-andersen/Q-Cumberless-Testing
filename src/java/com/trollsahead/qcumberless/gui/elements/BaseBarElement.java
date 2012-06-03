@@ -147,7 +147,7 @@ public abstract class BaseBarElement extends Element {
 
     protected Element lastBubbledElement = null;
 
-    protected ColorState colorState = ColorState.NORMAL;
+    protected PlayColorState playColorState = PlayColorState.NOT_YET_PLAYED;
 
     protected BaseBarElement(int type, int rootType) {
         this(type, rootType, "Untitled");
@@ -801,7 +801,7 @@ public abstract class BaseBarElement extends Element {
         element.renderHeight = renderHeight;
         element.animation.sizeAnimation.currentWidth = renderWidth;
         element.animation.sizeAnimation.currentHeight = renderHeight;
-        element.setColorState(colorState);
+        element.setPlayColorState(playColorState);
         element.animation.colorAnimation.setColor(animation.colorAnimation.getColor());
         element.folded = folded;
     }
@@ -904,8 +904,12 @@ public abstract class BaseBarElement extends Element {
         }
     }
 
-    public void setColorState(ColorState colorState) {
-        this.colorState = colorState;
+    public void setPlayColorState(PlayColorState playColorState) {
+        this.playColorState = playColorState;
+        animation.colorAnimation.setColor(getBackgroundColorAccordingToState());
+    }
+
+    public void toggleColorSchemeInternal() {
         animation.colorAnimation.setColor(getBackgroundColorAccordingToState(), Animation.FADE_SPEED_CHANGE_COLOR_STATE);
     }
 
@@ -914,17 +918,17 @@ public abstract class BaseBarElement extends Element {
     }
 
     private Color getBackgroundColorAccordingToState() {
-        if ((this instanceof CommentElement) && colorState != ColorState.NORMAL) {
-            return BAR_COLOR_PLAYING_COMMENT;
+        if (Engine.colorScheme == ColorScheme.DESIGN || groupParent == Engine.stepsRoot) {
+            return getNormalBackgroundColor();
         }
-        if (colorState == ColorState.NOT_YET_PLAYED) {
-            return BAR_COLOR_NOT_YET_PLAYED;
-        } else if (colorState == ColorState.SUCCESS) {
+        if (this instanceof CommentElement) {
+            return BAR_COLOR_PLAYING_COMMENT;
+        } else if (playColorState == PlayColorState.SUCCESS) {
             return BAR_COLOR_SUCCESS;
-        } else if (colorState == ColorState.FAILURE) {
+        } else if (playColorState == PlayColorState.FAILURE) {
             return BAR_COLOR_FAILURE;
         } else {
-            return getNormalBackgroundColor();
+            return BAR_COLOR_NOT_YET_PLAYED;
         }
     }
 

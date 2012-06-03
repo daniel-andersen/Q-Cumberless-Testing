@@ -39,7 +39,8 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class Element {
-    public enum ColorState {NORMAL, NOT_YET_PLAYED, SUCCESS, FAILURE}
+    public enum ColorScheme {DESIGN, PLAY}
+    public enum PlayColorState {NOT_YET_PLAYED, SUCCESS, FAILURE}
 
     public static final int ROOT_NONE = 0;
     public static final int ROOT_FEATURE_EDITOR = 1;
@@ -102,7 +103,6 @@ public abstract class Element {
                 }
                 if (element instanceof BaseBarElement) {
                     ((BaseBarElement) element).step.setShouldRenderKeyword(true);
-                    element.setColorState(Player.showResultState ? ColorState.NOT_YET_PLAYED : ColorState.NORMAL);
                 }
                 Engine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
@@ -208,7 +208,7 @@ public abstract class Element {
 
     public void setFailed() {
         isFailed = true;
-        setColorState(ColorState.FAILURE);
+        setPlayColorState(PlayColorState.FAILURE);
         if (groupParent != null) {
             groupParent.setFailed();
         }
@@ -216,7 +216,7 @@ public abstract class Element {
 
     public void setSuccess() {
         isSuccess = true;
-        setColorState(ColorState.SUCCESS);
+        setPlayColorState(PlayColorState.SUCCESS);
     }
 
     public void setErrorMessage(String message) {
@@ -443,12 +443,21 @@ public abstract class Element {
         return visible;
     }
 
-    public void setColorStateAll(ColorState colorState) {
-        setColorState(colorState);
+    public void setPlayColorStateIncludingChildren(PlayColorState playColorState) {
+        setPlayColorState(playColorState);
         for (Element element : children) {
-            element.setColorStateAll(colorState);
+            element.setPlayColorStateIncludingChildren(playColorState);
         }
     }
-    
-    public abstract void setColorState(ColorState colorState);
+
+    public abstract void setPlayColorState(PlayColorState playColorState);
+
+    public void toggleColorScheme() {
+        toggleColorSchemeInternal();
+        for (Element element : children) {
+            element.toggleColorScheme();
+        }
+    }
+
+    public abstract void toggleColorSchemeInternal();
 }

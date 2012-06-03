@@ -281,6 +281,9 @@ public class RootElement extends Element {
         return new HashSet<String>();
     }
 
-    public void setColorState(ColorState colorState) {
+    public void toggleColorSchemeInternal() {
+    }
+
+    public void setPlayColorState(PlayColorState playColorState) {
     }
 }

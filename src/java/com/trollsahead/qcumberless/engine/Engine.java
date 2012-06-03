@@ -38,6 +38,8 @@ import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
+
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -116,6 +118,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private static float scrollWheelAmountFeatures = 0;
     private static float scrollWheelAmountStepDefinitions = 0;
 
+    public static ColorScheme colorScheme = ColorScheme.DESIGN;
+    
     public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         canvasWidth = screenSize.width;
@@ -651,7 +655,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 fpsShow = !fpsShow;
             }
             if (Util.isEmpty(spotlight.searchString) && keyEvent.getKeyChar() == ' ') {
-                Player.switchColorMode();
+                switchColorScheme();
             }
         }
     }
@@ -692,5 +696,18 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static boolean isRunTagEnabled(String tag) {
         return runTags.contains(tag);
+    }
+    
+    public static void setColorScheme(ColorScheme colorScheme) {
+        Engine.colorScheme = colorScheme;
+        cucumberRoot.toggleColorScheme();
+    }
+
+    private void switchColorScheme() {
+        if (colorScheme == ColorScheme.DESIGN) {
+            setColorScheme(ColorScheme.PLAY);
+        } else {
+            setColorScheme(ColorScheme.DESIGN);
+        }
     }
 }
