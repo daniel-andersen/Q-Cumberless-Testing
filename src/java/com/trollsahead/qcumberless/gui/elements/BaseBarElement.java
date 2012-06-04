@@ -421,7 +421,7 @@ public abstract class BaseBarElement extends Element {
                 animation.moveAnimation.realX += PADDING_HORIZONTAL[((BaseBarElement) groupParent).type];
             }
         }
-        if (shouldStickToParentRenderPosition || animation.alphaAnimation.justBecameVisible) {
+        if (shouldStickToParentRenderPosition || animation.alphaAnimation.justBecameVisible()) {
             animation.moveAnimation.setRenderPosition(animation.moveAnimation, false);
         }
         calculateButtonGroupHeight();

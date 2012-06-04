@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -36,7 +37,7 @@ public class Animation {
     public static final float FADE_SPEED_REENTRANCE              = 0.05f;
     public static final float FADE_SPEED_APPEAR                  = 0.05f;
     public static final float FADE_SPEED_CHANGE_COLOR_SCHEME     = 0.005f;
-    public static final float FADE_SPEED_CHANGE_PLAY_COLOR_STATE = 0.05f;
+    public static final float FADE_SPEED_CHANGE_PLAY_COLOR_STATE = 0.1f;
 
     public static final float FADE_ALPHA_DEFAULT = 0.8f;
     public static final float FADE_ALPHA_DRAG    = 0.5f;
@@ -158,7 +159,7 @@ public class Animation {
         private float speed = FADE_SPEED_ENTRANCE;
         private float progress = 0.0f;
         public boolean isFading = false;
-        public boolean justBecameVisible = false;
+        public long becameVisibleAtCount = Engine.renderCounter;
 
         public void setAlpha(float alpha, float speed) {
             this.fromColor = currentColor.clone();
@@ -166,7 +167,9 @@ public class Animation {
             this.speed = speed;
             this.progress = 0.0f;
             this.isFading = true;
-            this.justBecameVisible = getAlpha() <= 0.0f;
+            if (getAlpha() <= 0.0f) {
+                becameVisibleAtCount = Engine.renderCounter;
+            }
         }
 
         public void setColor(float[] color, float speed) {
@@ -175,7 +178,9 @@ public class Animation {
             this.speed = speed;
             this.progress = 0.0f;
             this.isFading = true;
-            this.justBecameVisible = getAlpha() <= 0.0f;
+            if (getAlpha() <= 0.0f) {
+                becameVisibleAtCount = Engine.renderCounter;
+            }
         }
 
         public void setColor(Color color, float speed) {
@@ -184,7 +189,9 @@ public class Animation {
             this.speed = speed;
             this.progress = 0.0f;
             this.isFading = true;
-            this.justBecameVisible = getAlpha() <= 0.0f;
+            if (getAlpha() <= 0.0f) {
+                becameVisibleAtCount = Engine.renderCounter;
+            }
         }
 
         public void setColor(Color color) {
@@ -194,7 +201,9 @@ public class Animation {
             this.currentColor = this.fromColor.clone();
             this.progress = 1.0f;
             this.isFading = false;
-            this.justBecameVisible = getAlpha() <= 0.0f;
+            if (getAlpha() <= 0.0f) {
+                becameVisibleAtCount = Engine.renderCounter;
+            }
         }
         
         public void setColorKeepProgress(Color color) {
@@ -203,9 +212,6 @@ public class Animation {
         }
 
         private void update() {
-            if (progress > 0.0f) {
-                justBecameVisible = false;
-            }
             progress += speed;
             if (progress >= 1.0f) {
                 progress = 1.0f;
@@ -226,6 +232,10 @@ public class Animation {
 
         public boolean isVisible() {
             return getAlpha() > 0.0f;
+        }
+        
+        public boolean justBecameVisible() {
+            return Engine.renderCounter == becameVisibleAtCount + 1;
         }
     }
 

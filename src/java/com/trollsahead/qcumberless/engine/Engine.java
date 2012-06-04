@@ -92,6 +92,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static int fpsDetails = DETAILS_HIGH;
     private static boolean fpsShow = false;
 
+    public static long renderCounter = 0;
+
     private static boolean isRunning;
 
     public static ButtonBar buttonBar;
@@ -260,6 +262,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void render() {
+        renderCounter++;
         setLevelOfDetails(backbufferGraphics);
         canvas.clear(backbufferGraphics);
         cucumberRoot.render(backbufferGraphics);
