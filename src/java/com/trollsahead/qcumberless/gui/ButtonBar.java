@@ -39,9 +39,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class ButtonBar {
     public static final int TYPE_NORMAL  = 0;
@@ -317,6 +316,7 @@ public class ButtonBar {
             button.setHint(device.name());
             deviceButtons.add(button);
         }
+        sortDeviceButtons();
         positionDeviceButtons();
     }
 
@@ -334,6 +334,19 @@ public class ButtonBar {
             button.setPosition(x - (DEVICE_BUTTON_WIDTH / 2), BUTTONBAR_HEIGHT / 2);
             x -= button.getImageWidth() + BUTTON_PADDING;
         }
+    }
+
+    private void sortDeviceButtons() {
+        if (deviceButtons == null || deviceButtons.isEmpty()) {
+            return;
+        }
+        DeviceButton buttons[] = deviceButtons.toArray(new DeviceButton[0]);
+        Arrays.sort(buttons, new Comparator<DeviceButton>() {
+            public int compare(DeviceButton b1, DeviceButton b2) {
+                return b2.getDevice().name().compareTo(b1.getDevice().name());
+            }
+        });
+        deviceButtons = Arrays.asList(buttons);
     }
 
     public void update() {
