@@ -30,12 +30,13 @@ import com.trollsahead.qcumberless.util.Util;
 import java.awt.*;
 
 public class Animation {
-    public static final float FADE_SPEED_DRAG               = 0.05f;
-    public static final float FADE_SPEED_ENTRANCE           = 0.02f;
-    public static final float FADE_SPEED_FOLD               = 0.05f;
-    public static final float FADE_SPEED_REENTRANCE         = 0.05f;
-    public static final float FADE_SPEED_APPEAR             = 0.05f;
-    public static final float FADE_SPEED_CHANGE_COLOR_STATE = 0.005f;
+    public static final float FADE_SPEED_DRAG                    = 0.05f;
+    public static final float FADE_SPEED_ENTRANCE                = 0.02f;
+    public static final float FADE_SPEED_FOLD                    = 0.05f;
+    public static final float FADE_SPEED_REENTRANCE              = 0.05f;
+    public static final float FADE_SPEED_APPEAR                  = 0.05f;
+    public static final float FADE_SPEED_CHANGE_COLOR_SCHEME     = 0.005f;
+    public static final float FADE_SPEED_CHANGE_PLAY_COLOR_STATE = 0.05f;
 
     public static final float FADE_ALPHA_DEFAULT = 0.8f;
     public static final float FADE_ALPHA_DRAG    = 0.5f;

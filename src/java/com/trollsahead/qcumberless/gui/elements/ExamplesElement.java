@@ -54,7 +54,7 @@ public class ExamplesElement extends StepElement {
     }
 
     protected List<String> getTableActions() {
-        return Arrays.asList(new String[] {"New row", "New column", "Delete row", "Delete column"});
+        return Arrays.asList(new String[] {"Add row", "Add column", "Delete row", "Delete column"});
     }
 
     public StringBuilder buildFeatureInternal() {
@@ -76,13 +76,13 @@ public class ExamplesElement extends StepElement {
         super.clearRunStatus();
         table.clearRunStatus();
     }
-    
-    public void setNotYetPlayed(int row) {
-        table.setNotYetPlayed(row);
+
+    public boolean isFailed(int row) {
+        return table.isFailed(row);
     }
 
-    public void setFailed(int row) {
-        table.setFailed(row);
+    public void setFailed(int row, String errorMessage) {
+        table.setFailed(row, errorMessage);
     }
 
     public void setSuccess(int row) {

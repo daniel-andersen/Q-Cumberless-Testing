@@ -57,7 +57,6 @@ public class GuiUtil {
 
     public static void drawBorder(Graphics2D g, int x, int y, int width, int height, int rounding, Color color, float strokeWidth) {
         Stroke stroke = g.getStroke();
-
         g.setColor(color);
         g.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
         if (Engine.fpsDetails == Engine.DETAILS_LOW) {
@@ -65,7 +64,14 @@ public class GuiUtil {
         } else {
             g.drawRoundRect(x, y, width, height, rounding, rounding);
         }
+        g.setStroke(stroke);
+    }
 
+    public static void drawSquareBorder(Graphics2D g, int x, int y, int width, int height, int rounding, Color color, float strokeWidth) {
+        Stroke stroke = g.getStroke();
+        g.setColor(color);
+        g.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+        g.drawRect(x, y, width, height);
         g.setStroke(stroke);
     }
 

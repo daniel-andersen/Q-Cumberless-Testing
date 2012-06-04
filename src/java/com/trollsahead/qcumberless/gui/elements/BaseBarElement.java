@@ -64,10 +64,10 @@ public abstract class BaseBarElement extends Element {
     public static final Color COLOR_TEXT_ERROR_MESSAGE = new Color(0x000000);
     public static final Color COLOR_TEXT_TAGS          = new Color(0x000000);
 
-    private static final Color BAR_COLOR_NOT_YET_PLAYED  = new Color(0.5f, 0.5f, 0.5f, 0.5f);
-    private static final Color BAR_COLOR_SUCCESS         = new Color(0.2f, 0.9f, 0.2f, 0.5f);
-    private static final Color BAR_COLOR_FAILURE         = new Color(1.0f, 0.2f, 0.2f, 0.8f);
-    private static final Color BAR_COLOR_PLAYING_COMMENT = new Color(0.1f, 0.1f, 0.1f, 0.5f);
+    public static final Color BAR_COLOR_NOT_YET_PLAYED  = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    public static final Color BAR_COLOR_SUCCESS         = new Color(0.2f, 0.9f, 0.2f, 0.5f);
+    public static final Color BAR_COLOR_FAILURE         = new Color(1.0f, 0.2f, 0.2f, 0.8f);
+    public static final Color BAR_COLOR_PLAYING_COMMENT = new Color(0.1f, 0.1f, 0.1f, 0.5f);
 
     public static final Color COLOR_BG_ERROR_MESSAGE   = new Color(0.8f, 0.8f, 0.4f, 0.8f);
     public static final Color COLOR_BG_TAGS            = new Color(0.0f, 0.0f, 0.0f, 0.05f);
@@ -77,6 +77,8 @@ public abstract class BaseBarElement extends Element {
     protected static final Color COLOR_BORDER_SHADOW  = new Color(0.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
     protected static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
+
+    public static final float BORDER_STROKE_WIDTH = 1.5f;
 
     public static final int RENDER_WIDTH_MAX_FEATURE_EDITOR = 600;
     public static final int RENDER_WIDTH_MAX_STEP_DEFINITIONS = 400;
@@ -108,7 +110,6 @@ public abstract class BaseBarElement extends Element {
 
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
-    public static final float PLAY_ANIMATION_DASH_WIDTH = 1.5f;
 
     protected int tagsWidth = 0;
     protected int tagsHeight = 0;
@@ -890,7 +891,7 @@ public abstract class BaseBarElement extends Element {
         int height = renderHeight - 1 - buttonGroupHeight;
         if (buttonGroupVisible) {
             GuiUtil.drawShadow(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING);
-            GuiUtil.drawBorder(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, 1.5f);
+            GuiUtil.drawBorder(g, x, 0, buttonGroupWidth, renderHeight - 5, BAR_ROUNDING, COLOR_BORDER_SHADOW, BORDER_STROKE_WIDTH);
         }
         GuiUtil.drawShadow(g, x, y, width + 1, height + 1, BAR_ROUNDING);
         GuiUtil.drawBarBorder(g, x, y, width, height, BAR_ROUNDING, COLOR_BORDER_SHADOW);
@@ -906,11 +907,11 @@ public abstract class BaseBarElement extends Element {
 
     public void setPlayColorState(PlayColorState playColorState) {
         this.playColorState = playColorState;
-        animation.colorAnimation.setColor(getBackgroundColorAccordingToState());
+        animation.colorAnimation.setColor(getBackgroundColorAccordingToState(), Animation.FADE_SPEED_CHANGE_PLAY_COLOR_STATE);
     }
 
     public void toggleColorSchemeInternal() {
-        animation.colorAnimation.setColor(getBackgroundColorAccordingToState(), Animation.FADE_SPEED_CHANGE_COLOR_STATE);
+        animation.colorAnimation.setColor(getBackgroundColorAccordingToState(), Animation.FADE_SPEED_CHANGE_COLOR_SCHEME);
     }
 
     private void setBackgroundColorAccordingToState() {
@@ -945,7 +946,7 @@ public abstract class BaseBarElement extends Element {
         if (!isRunnable() || !isRunning()) {
             return false;
         }
-        renderBorder(g, COLOR_BORDER_PLAYING, 1.5f);
+        renderBorder(g, COLOR_BORDER_PLAYING, BORDER_STROKE_WIDTH);
         renderAnimatedBorder(g);
         return true;
     }
@@ -954,7 +955,7 @@ public abstract class BaseBarElement extends Element {
         if (!EditBox.isEditing(this)) {
             return false;
         }
-        renderBorder(g, COLOR_BORDER_EDITING, 1.5f);
+        renderBorder(g, COLOR_BORDER_EDITING, BORDER_STROKE_WIDTH);
         return true;
     }
 
@@ -966,7 +967,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void renderAnimatedBorder(Graphics2D g) {
-        Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, PLAY_ANIMATION_DASH_WIDTH, PLAY_ANIMATION_SPEED);
+        Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, BORDER_STROKE_WIDTH, PLAY_ANIMATION_SPEED);
         g.setColor(Player.getPlayingColor(this));
         g.drawRoundRect(1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, BAR_ROUNDING);
         if (buttonGroupVisible) {
@@ -1029,7 +1030,7 @@ public abstract class BaseBarElement extends Element {
         g.drawString(tags.toString(), x + HINT_PADDING_HORIZONTAL, y + Engine.fontMetrics.getHeight() - 3 + HINT_PADDING_VERTICAL);
     }
 
-    private void drawHint(Graphics g, String hint, int x, int y, Color textColor, Color bgColor) {
+    protected void drawHint(Graphics g, String hint, int x, int y, Color textColor, Color bgColor) {
         drawHint(g, hint, x, y, textColor, bgColor, COLOR_BG_HINT, false, true, true);
     }
     

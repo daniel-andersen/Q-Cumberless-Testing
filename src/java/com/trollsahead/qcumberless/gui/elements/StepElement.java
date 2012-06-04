@@ -55,6 +55,13 @@ public class StepElement extends BaseBarElement {
         super(BaseBarElement.TYPE_STEP, rootType, width, title, step);
     }
 
+    protected void renderHintsInternal(Graphics2D g) {
+        super.renderHintsInternal(g);
+        if (table != null) {
+            table.renderHints(g);
+        }
+    }
+    
     public Color getNormalBackgroundColor() {
         if (step.matchedByStepDefinition() || rootType == ROOT_STEP_DEFINITIONS) {
             return BG_COLOR_NORMAL[highlightToColorIndex()];
@@ -126,7 +133,7 @@ public class StepElement extends BaseBarElement {
     }
 
     protected List<String> getTableActions() {
-        return Arrays.asList(new String[] {"New row", "New column", "Delete row", "Delete column", "Delete table"});
+        return Arrays.asList(new String[] {"Add row", "Add column", "Delete row", "Delete column", "Delete table"});
     }
 
     public void createTable() {

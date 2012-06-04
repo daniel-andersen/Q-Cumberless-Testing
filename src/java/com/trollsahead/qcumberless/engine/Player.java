@@ -55,9 +55,10 @@ public class Player implements DeviceCallback {
     public BaseBarElement currentBackground = null;
     public BaseBarElement currentStep = null;
     public ExamplesElement currentExamples = null;
-    public int currentExamplesRow = -1;
 
-    private int stepIndex;
+    public int currentExamplesRow = -1;
+    private int currentStepIndex;
+
     private boolean didFinishBackground;
 
     public boolean started;
@@ -192,14 +193,8 @@ public class Player implements DeviceCallback {
     private void reset() {
         running = false;
         stopped = false;
+        resetCurrentScenario();
         currentFeature = null;
-        currentScenario = null;
-        currentBackground = null;
-        currentStep = null;
-        currentExamples = null;
-        currentExamplesRow = -1;
-        stepIndex = -1;
-        didFinishBackground = false;
     }
 
     private static boolean hasFailures() {
@@ -279,6 +274,7 @@ public class Player implements DeviceCallback {
         System.out.println("Starting feature: '" + name + "'");
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
+        resetCurrentScenario();
         currentFeature = (BaseBarElement) Engine.featuresRoot.findChild(name);
         setSuccess(currentFeature);
     }
@@ -287,17 +283,14 @@ public class Player implements DeviceCallback {
         System.out.println("Starting scenario: '" + name + "'");
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
-        currentExamples = null;
-        currentExamplesRow = -1;
+        resetCurrentStep();
         if (currentFeature != null) {
             currentScenario = (BaseBarElement) currentFeature.findChild(name);
             currentStep = (BaseBarElement) currentFeature.firstChildOfType(BaseBarElement.TYPE_STEP);
-            stepIndex = currentFeature.findChildIndex(currentStep);
+            currentStepIndex = currentFeature.findChildIndex(currentStep);
             setSuccess(currentScenario);
         } else {
-            currentScenario = null;
-            currentBackground = null;
-            stepIndex = -1;
+            resetCurrentScenario();
         }
         didFinishBackground = false;
     }
@@ -315,29 +308,31 @@ public class Player implements DeviceCallback {
             scenarioOrBackground = currentBackground;
             
         }
-        currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1) : null;
+        currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, currentStepIndex + 1) : null;
         if ((scenarioOrBackground == currentScenario || currentStep == null) && backgroundElement != null) {
             currentBackground = null;
             didFinishBackground = true;
-            stepIndex = -1;
+            currentStepIndex = -1;
             scenarioOrBackground = currentScenario;
-            currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, stepIndex + 1) : null;
+            currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, currentStepIndex + 1) : null;
         }
-        stepIndex = scenarioOrBackground != null ? scenarioOrBackground.findChildIndex(currentStep) : -1;
+        currentStepIndex = scenarioOrBackground != null ? scenarioOrBackground.findChildIndex(currentStep) : -1;
     }
 
     public void beforeOutlineTable() {
         if (!(currentScenario instanceof ScenarioOutlineElement)) {
             return;
         }
+        resetCurrentStep();
         currentExamples = ((ScenarioOutlineElement) currentScenario).getExamplesElement();
-        currentExamplesRow = 0;
+        currentExamplesRow = -1;
     }
 
     public void beforeTableRow(String tableRow) {
         if (currentExamples == null) {
             return;
         }
+        setSuccess(currentExamplesRow);
         currentExamplesRow++;
     }
 
@@ -360,7 +355,7 @@ public class Player implements DeviceCallback {
     private void failure(String errorMessage) {
         setFailed();
         if (currentExamples != null && currentExamplesRow != -1) {
-            currentExamples.setFailed(currentExamplesRow);
+            currentExamples.setFailed(currentExamplesRow, errorMessage);
         }
         if (currentStep != null && errorMessage != null) {
             currentStep.setFailed();
@@ -380,11 +375,27 @@ public class Player implements DeviceCallback {
         Engine.buttonBar.setFailed();
     }
 
+    private void resetCurrentScenario() {
+        resetCurrentStep();
+        currentScenario = null;
+        currentBackground = null;
+        didFinishBackground = false;
+    }
+
+    private void resetCurrentStep() {
+        currentExamples = null;
+        currentExamplesRow = -1;
+        currentStep = null;
+        currentStepIndex = -1;
+    }
+
     private boolean isRunningElement(BaseBarElement element) {
         return (element.type == BaseBarElement.TYPE_FEATURE && currentFeature == element) ||
                (element.type == BaseBarElement.TYPE_BACKGROUND && currentBackground == element) ||
                (element.type == BaseBarElement.TYPE_SCENARIO && currentScenario == element) ||
-               (element.type == BaseBarElement.TYPE_STEP && currentStep == element);
+               (element.type == BaseBarElement.TYPE_SCENARIO_OUTLINE && currentScenario == element) ||
+               (element.type == BaseBarElement.TYPE_STEP && currentStep == element) ||
+               (element.type == BaseBarElement.TYPE_EXAMPLES && currentExamples == element);
     }
     
     public static boolean isCurrentFeature(BaseBarElement element) {
@@ -416,7 +427,7 @@ public class Player implements DeviceCallback {
 
     public static boolean isCurrentStep(BaseBarElement element) {
         for (Player player : players) {
-            if (player.currentStep == element) {
+            if (player.currentStep == element && !(player.currentScenario instanceof ScenarioOutlineElement)) {
                 return true;
             }
         }
@@ -482,7 +493,7 @@ public class Player implements DeviceCallback {
     }
     
     private void setSuccess(Element element) {
-        if ((element instanceof StepElement) && (currentScenario.isFailed || (currentScenario instanceof ScenarioOutlineElement))) {
+        if ((element instanceof StepElement) && (currentScenario.isFailed || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
             return;
         }
         if (element != null && !element.isFailed) {
@@ -491,7 +502,7 @@ public class Player implements DeviceCallback {
     }
 
     private void setSuccess(int examplesRow) {
-        if (currentExamples != null && !currentExamples.isFailed) {
+        if (currentExamples != null && examplesRow > 0 && !currentExamples.isFailed(examplesRow)) {
             currentExamples.setSuccess(examplesRow);
         }
     }
