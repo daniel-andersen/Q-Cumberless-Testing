@@ -26,7 +26,6 @@
 package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.engine.Engine;
-import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.util.Util;

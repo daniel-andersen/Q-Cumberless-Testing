@@ -147,6 +147,7 @@ public abstract class BaseBarElement extends Element {
     protected boolean buttonGroupHasButtons = false;
 
     protected Element lastBubbledElement = null;
+    protected long lastRenderCount = 0;
 
     protected PlayColorState playColorState = PlayColorState.NOT_YET_PLAYED;
 
@@ -356,6 +357,7 @@ public abstract class BaseBarElement extends Element {
 
     public void updateSelf(long time) {
         updateButtons();
+        lastRenderCount = Engine.renderCounter;
     }
 
     public String getTitle() {
@@ -397,6 +399,9 @@ public abstract class BaseBarElement extends Element {
     protected abstract void updateAdditionalButtonsVisibleState();
 
     private void updateButtonGroupState() {
+        if (Engine.renderCounter <= lastRenderCount) {
+            return;
+        }
         if (expandButton.isTouched()) {
             toggleButtonGroup(true);
         } else if (!buttonGroupHasButtons || !expandAreaIsTouched()) {
@@ -411,6 +416,10 @@ public abstract class BaseBarElement extends Element {
     private void toggleButtonGroup(boolean visible) {
         buttonGroupVisibleOld = buttonGroupVisible;
         buttonGroupVisible = visible;
+        if (buttonGroupVisible != buttonGroupVisibleOld) {
+            step.setTextDirty(true);
+            shouldStickToParentRenderPosition = true;
+        }
     }
 
     protected void calculateRenderPosition(Graphics2D g) {
@@ -482,9 +491,6 @@ public abstract class BaseBarElement extends Element {
 
     private int calculatePartPositions() {
         step.setRenderWidth(renderWidth - (getTextPaddingLeft() + getTextPaddingRight()));
-        if (buttonGroupVisible != buttonGroupVisibleOld) {
-            step.setTextDirty(true);
-        }
         if (!step.isTextDirty()) {
             return step.getLastPartBottom() + Engine.fontMetrics.getHeight();
         }
