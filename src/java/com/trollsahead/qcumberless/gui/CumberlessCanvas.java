@@ -41,11 +41,11 @@ public class CumberlessCanvas extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.RENDER_LOCK) {
             g.drawImage(Engine.backbuffer, 0, 0, this);
         }
     }
-
+    
     public void clear(Graphics2D g) {
         if (!EasterEgg.isBackgroundCoveringCanvas()) {
             drawBackgroundPicture(g);

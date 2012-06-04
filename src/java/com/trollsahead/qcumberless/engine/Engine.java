@@ -51,7 +51,8 @@ import java.util.*;
 import java.util.List;
 
 public class Engine implements Runnable, ComponentListener, KeyListener {
-    public static final Object LOCK = new Object();
+    public static final Object DATA_LOCK = new Object();
+    public static final Object RENDER_LOCK = new Object();
 
     public static final Font FONT_DEFAULT = new Font("Verdana", Font.PLAIN, 12);
 
@@ -121,7 +122,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private static float scrollWheelAmountStepDefinitions = 0;
 
     public static ColorScheme colorScheme = ColorScheme.DESIGN;
-    
+
     public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         canvasWidth = screenSize.width;
@@ -193,9 +194,11 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public void run() {
         isRunning = true;
         while (isRunning) {
-            synchronized (LOCK) {
+            synchronized (DATA_LOCK) {
                 update();
-                render();
+                synchronized (RENDER_LOCK) {
+                    render();
+                }
                 cucumberRoot.stickToParentRenderPosition(false);
             }
             canvas.repaint();
@@ -251,7 +254,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                         newDevices.addAll(devices);
                     }
                 }
-                synchronized (LOCK) {
+                synchronized (DATA_LOCK) {
                     devices = newDevices;
                     buttonBar.updateDevices(devices);
                 }
@@ -334,7 +337,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void createBackbuffer() {
-        backbuffer = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+        backbuffer = RenderOptimizer.graphicsConfiguration.createCompatibleImage(canvasWidth, canvasHeight);
         backbufferGraphics = backbuffer.createGraphics();
         backbufferGraphics.setFont(FONT_DEFAULT);
         fontMetrics = backbufferGraphics.getFontMetrics();
@@ -354,7 +357,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public void componentResized(ComponentEvent componentEvent) {
         try {
-            synchronized (LOCK) {
+            synchronized (DATA_LOCK) {
                 setWindowSize(canvas.getWidth(), canvas.getHeight());
                 buttonBar.resize();
             }
@@ -373,7 +376,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void click(int clickCount) {
-        synchronized (LOCK) {
+        synchronized (DATA_LOCK) {
             if (buttonBar.click()) {
                 return;
             }
@@ -441,7 +444,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void startDrag(boolean isControlDown) {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             if (touchedElement != null && touchedElement.isDragable()) {
                 touchedElement.startDrag(isControlDown);
             } else if (touchedRootElement != null) {
@@ -451,7 +454,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void endDrag() {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             if (touchedElement != null) {
                 touchedElement.endDrag();
             } else if (touchedRootElement != null) {
@@ -464,7 +467,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         if (!CumberlessMouseListener.isButtonPressed) {
             return;
         }
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             if (touchedElement != null && touchedElement.isBeingDragged()) {
                 touchedElement.applyDragOffset();
             } else if (touchedRootElement != null && touchedRootElement.isDragable()) {
@@ -553,7 +556,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         new Thread(new Runnable() {
             public void run() {
                 List<StepDefinition> stepDefinitions = plugin.getStepDefinitions();
-                synchronized (LOCK) {
+                synchronized (DATA_LOCK) {
                     CucumberStepDefinitionLoader.parseStepDefinitions(stepDefinitions);
                     featuresRoot.updateSteps();
                 }
@@ -566,7 +569,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             resetFps();
             return;
         }
-        synchronized (LOCK) {
+        synchronized (DATA_LOCK) {
             try {
                 FeatureLoader.parseFeatureFiles(Util.getFeatureFiles(files));
             } catch (Exception e) {
@@ -591,7 +594,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void scratchFeatures(boolean addTemplate) {
-        synchronized (LOCK) {
+        synchronized (DATA_LOCK) {
             resetFeatures();
             if (addTemplate) {
                 addTemplateFeature();
@@ -601,7 +604,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void resetStepDefinitions(boolean addTemplate) {
-        synchronized (LOCK) {
+        synchronized (DATA_LOCK) {
             stepDefinitions = new ArrayList<Step>();
 
             cucumberRoot.removeChild(stepsRoot);
@@ -662,7 +665,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public void keyPressed(KeyEvent keyEvent) {
         if (!EditBox.isVisible) {
-            synchronized (LOCK) {
+            synchronized (DATA_LOCK) {
                 spotlight.searchKeyPressed(keyEvent);
             }
             if (keyEvent.getKeyChar() == '!') {

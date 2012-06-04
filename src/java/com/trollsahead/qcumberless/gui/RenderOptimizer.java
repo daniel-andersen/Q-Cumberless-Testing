@@ -37,6 +37,14 @@ public class RenderOptimizer {
 
     private static Map<String, ImageTemplate> templates;
 
+    public static GraphicsConfiguration graphicsConfiguration;
+
+    static {
+        GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
+        graphicsConfiguration = graphicsDevice.getDefaultConfiguration();
+    }
+
     public static void reset() {
         templates = new HashMap<String, ImageTemplate>();
     }

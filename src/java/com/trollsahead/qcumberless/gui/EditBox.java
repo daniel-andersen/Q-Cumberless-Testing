@@ -130,7 +130,7 @@ public class EditBox {
     }
 
     public static void setText(String text) {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             if (!isVisible) {
                 return;
             }

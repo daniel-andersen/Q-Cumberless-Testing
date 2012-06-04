@@ -115,7 +115,7 @@ public class StepElement extends BaseBarElement {
                                     tableButton.renderY + TEXT_PADDING_VERTICAL,
                                     new DropDown.DropDownCallback() {
                                         public void chooseItem(String item) {
-                                            synchronized (Engine.LOCK) {
+                                            synchronized (Engine.DATA_LOCK) {
                                                 if ("Delete table".equalsIgnoreCase(item)) {
                                                     table = null;
                                                 } else {

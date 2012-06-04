@@ -407,7 +407,7 @@ public class EasterEgg {
     }
 
     public static void show() {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             enabled = true;
             customElements = new LinkedList<BaseBarElement>();
             updateTime = System.currentTimeMillis();
@@ -426,7 +426,7 @@ public class EasterEgg {
     }
 
     public static void hide() {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             enabled = false;
             Engine.spotlight.clear();
             Engine.canvas.setCursor(savedCursor);

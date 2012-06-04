@@ -558,7 +558,7 @@ public abstract class BaseBarElement extends Element {
                         return;
                     }
                 }
-                synchronized (Engine.LOCK) {
+                synchronized (Engine.DATA_LOCK) {
                     throwElementToFeaturesGroup();
                 }
             }
@@ -570,7 +570,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void trashElement() {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
                 Engine.cucumberRoot.removeChild(this);

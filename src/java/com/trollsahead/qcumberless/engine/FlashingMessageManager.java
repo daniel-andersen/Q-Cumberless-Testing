@@ -41,14 +41,14 @@ public class FlashingMessageManager {
     }
 
     public static void addMessage(FlashingMessage message) {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             messages.add(message);
             repositionMessages();
         }
     }
 
     public static void removeMessage(FlashingMessage message) {
-        synchronized (Engine.LOCK) {
+        synchronized (Engine.DATA_LOCK) {
             messages.remove(message);
             repositionMessages();
         }
