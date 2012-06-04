@@ -8,6 +8,7 @@ Q-Cumberless Testing
 
 0.1.4
     - Support for scenario outlines
+    - Color schemes (play mode and design mode)
     - Render optimizations
 
 0.1.3
