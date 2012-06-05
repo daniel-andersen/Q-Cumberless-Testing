@@ -137,10 +137,18 @@ public class Button {
         return offsetX;
     }
 
+    public int getX() {
+        return x;
+    }
+
     public int getOffsetY() {
         return offsetY;
     }
-    
+
+    public int getY() {
+        return y;
+    }
+
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
@@ -229,8 +237,8 @@ public class Button {
         int hintWidth = Engine.fontMetrics.stringWidth(hint);
         int y = renderY - Engine.fontMetrics.getHeight() - (HINT_BACKGROUND_PADDING * 2) - HINT_BACKGROUND_GAP;
         int x = renderX;
-        if (x + hintWidth > Engine.canvasWidth) {
-            x = Engine.canvasWidth - hintWidth - TEXT_BACKGROUND_PADDING_HORIZONTAL;
+        if (x + hintWidth > Engine.windowWidth) {
+            x = Engine.windowWidth - hintWidth - TEXT_BACKGROUND_PADDING_HORIZONTAL;
         }
         g.setColor(TEXT_BACKGROUND_COLOR_HINT);
         g.fillRoundRect(x - HINT_BACKGROUND_PADDING, y, hintWidth + HINT_BACKGROUND_PADDING * 2, Engine.fontMetrics.getHeight() + HINT_BACKGROUND_PADDING * 2, 5, 5);

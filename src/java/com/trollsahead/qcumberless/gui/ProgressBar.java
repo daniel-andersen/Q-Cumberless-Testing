@@ -53,7 +53,7 @@ public class ProgressBar extends FlashingMessage {
     public void render(Graphics2D g) {
         super.render(g);
 
-        int x = (Engine.canvasWidth - getWidth()) / 2;
+        int x = (Engine.windowWidth - getWidth()) / 2;
         int y = (int) moveAnimation.renderY;
 
         int progressWidth = (int) ((float) getWidth() * percent / 100.0f);

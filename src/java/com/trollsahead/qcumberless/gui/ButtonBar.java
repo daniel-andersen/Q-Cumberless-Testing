@@ -72,6 +72,7 @@ public class ButtonBar {
     private Button pauseButton;
     private Button stopButton;
     private Button tagsButton;
+    private Button terminalButton;
     private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
@@ -98,7 +99,7 @@ public class ButtonBar {
             deviceEnabledImage = ImageIO.read(ButtonBar.class.getResource("/resources/pictures/device_enabled.png"));
             deviceDisabledImage = ImageIO.read(ButtonBar.class.getResource("/resources/pictures/device_disabled.png"));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Q-Cumberless Testing refused to start", e);
         }
     }
 
@@ -216,6 +217,19 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(tagsButton);
+        terminalButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_TERMINAL, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_TERMINAL, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_TERMINAL, ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.CucumberButtonNotification() {
+                    public void onClick() {
+                        Engine.toggleTerminal();
+                    }
+                },
+                null);
+        buttons.add(terminalButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
     }
@@ -284,9 +298,11 @@ public class ButtonBar {
         x += BUTTON_PADDING;
         tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING;
+        terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING;
         pluginButtonsX = x;
-        pauseButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth - 30, BUTTONBAR_HEIGHT);
-        stopButton.setPosition((Engine.canvasWidth / 2) - Engine.canvasWidth + 30, BUTTONBAR_HEIGHT);
+        pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
+        stopButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth + 30, BUTTONBAR_HEIGHT);
         positionPluginButtons();
         positionDeviceButtons();
     }
@@ -329,7 +345,7 @@ public class ButtonBar {
     }
 
     private void positionDeviceButtons() {
-        int x = Engine.canvasWidth - BUTTON_PADDING;
+        int x = Engine.windowWidth - BUTTON_PADDING;
         for (Button button : deviceButtons) {
             button.setPosition(x - (DEVICE_BUTTON_WIDTH / 2), BUTTONBAR_HEIGHT / 2);
             x -= button.getImageWidth() + BUTTON_PADDING;
@@ -359,6 +375,7 @@ public class ButtonBar {
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
         tagsButton.setVisible(isTagsButtonVisible());
+        terminalButton.setVisible(isTerminalButtonVisible());
         for (Button button : buttons) {
             button.update();
         }
@@ -382,10 +399,14 @@ public class ButtonBar {
         return !Util.isEmpty(Engine.getDefinedTags());
     }
 
+    private boolean isTerminalButtonVisible() {
+        return deviceButtons != null && !deviceButtons.isEmpty();
+    }
+
     private void updateType() {
         if (Player.isStarted() && type == TYPE_NORMAL) {
             type = TYPE_PLAYING;
-            animation.moveAnimation.setRealPosition(Engine.canvasWidth, 0, ANIMATION_MOVEMENT_SPEED);
+            animation.moveAnimation.setRealPosition(Engine.windowWidth, 0, ANIMATION_MOVEMENT_SPEED);
             animation.colorAnimation.setColor(COLOR_BACKGROUND_PLAYING, ANIMATION_FADE_SPEED);
         } else if (!Player.isStarted() && type == TYPE_PLAYING) {
             type = TYPE_NORMAL;
@@ -416,7 +437,7 @@ public class ButtonBar {
     }
 
     private void calculatePosition() {
-        renderWidth = Engine.canvasWidth;
+        renderWidth = Engine.windowWidth;
         renderHeight = BUTTONBAR_HEIGHT;
         renderX = (int) animation.moveAnimation.renderX;
         renderY = Engine.canvasHeight - renderHeight;
@@ -425,16 +446,19 @@ public class ButtonBar {
     private void renderBackground(Graphics g) {
         g.setColor(animation.colorAnimation.getColor());
         if (!animation.moveAnimation.isMoving()) {
-            g.fillRect(0, renderY, Engine.canvasWidth, renderHeight);
+            g.fillRect(0, renderY, Engine.windowWidth, renderHeight);
         } else {
             g.fillRect(0, renderY, renderX, renderHeight);
-            g.fillRect(renderX, renderY, Engine.canvasWidth - renderX, renderHeight);
+            g.fillRect(renderX, renderY, Engine.windowWidth - renderX, renderHeight);
         }
     }
 
     private void renderButtons(Graphics g) {
         for (Button button : buttons) {
             button.setOffset(renderX, renderY);
+        }
+        restrictTerminalButtonToWindow();
+        for (Button button : buttons) {
             button.render(g);
         }
         for (Button button : pluginButtons) {
@@ -442,11 +466,18 @@ public class ButtonBar {
             button.render(g);
         }
     }
-    
+
+    private void restrictTerminalButtonToWindow() {
+        int maxX = (deviceButtons.isEmpty() ? Engine.windowWidth : deviceButtons.get(deviceButtons.size() - 1).getRenderX()) - BUTTON_PADDING;
+        if (terminalButton.getX() + terminalButton.getOffsetX() > maxX) {
+            terminalButton.setOffset(maxX - terminalButton.getX(), renderY);
+        }
+    }
+
     private void renderDevices(Graphics2D g) {
-        if (deviceButtons.size() == 0) {
+        if (deviceButtons.isEmpty()) {
             g.setColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
-            g.drawString(TEXT_NO_DEVICES, Engine.canvasWidth - Engine.fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + Engine.fontMetrics.getHeight()) / 2) - 3);
+            g.drawString(TEXT_NO_DEVICES, Engine.windowWidth - Engine.fontMetrics.stringWidth(TEXT_NO_DEVICES) - BUTTON_PADDING, renderY + ((renderHeight + Engine.fontMetrics.getHeight()) / 2) - 3);
         } else {
             for (DeviceButton button : deviceButtons) {
                 button.setOffset(0, renderY);

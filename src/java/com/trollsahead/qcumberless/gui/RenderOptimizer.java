@@ -45,7 +45,7 @@ public class RenderOptimizer {
         graphicsConfiguration = graphicsDevice.getDefaultConfiguration();
     }
 
-    public static void reset() {
+    public static void initialize() {
         templates = new HashMap<String, ImageTemplate>();
     }
 

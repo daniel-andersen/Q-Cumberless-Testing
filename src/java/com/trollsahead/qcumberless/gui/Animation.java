@@ -42,8 +42,9 @@ public class Animation {
     public static final float FADE_ALPHA_DEFAULT = 0.8f;
     public static final float FADE_ALPHA_DRAG    = 0.5f;
 
-    public static final float MOVEMENT_SPEED_NORMAL    = 0.8f;
-    public static final float MOVEMENT_SPEED_ENTRANCE  = 0.9f;
+    public static final float MOVEMENT_SPEED_NORMAL   = 0.8f;
+    public static final float MOVEMENT_SPEED_ENTRANCE = 0.9f;
+    public static final float MOVEMENT_SPEED_TERMINAL = 0.8f;
 
     public static final float RESIZE_SPEED = 20.0f;
 

@@ -468,7 +468,7 @@ public abstract class BaseBarElement extends Element {
     public static int calculateRenderWidthFromRoot(int rootType) {
         int maxPadding = PADDING_HORIZONTAL[TYPE_FEATURE] + PADDING_HORIZONTAL[TYPE_SCENARIO] + PADDING_HORIZONTAL[TYPE_STEP];
         int wantedWidth = RENDER_WIDTH_MAX_FEATURE_EDITOR;
-        int maxWidth = Engine.canvasWidth;
+        int maxWidth = Engine.windowWidth;
         if (rootType == ROOT_FEATURE_EDITOR) {
             wantedWidth = RENDER_WIDTH_MAX_FEATURE_EDITOR;
             maxWidth = Engine.featuresRoot.renderWidth - (maxPadding - (int) Engine.featuresRoot.animation.moveAnimation.renderX);
@@ -828,7 +828,7 @@ public abstract class BaseBarElement extends Element {
         if (!animation.alphaAnimation.isVisible()) {
             return;
         }
-        if (animation.moveAnimation.renderX > Engine.canvasWidth || animation.moveAnimation.renderY > Engine.canvasHeight ||
+        if (animation.moveAnimation.renderX > Engine.windowWidth || animation.moveAnimation.renderY > Engine.canvasHeight ||
             animation.moveAnimation.renderX + renderWidth < 0 || animation.moveAnimation.renderY + renderHeight < 0) {
             return;
         }

@@ -57,7 +57,7 @@ public class FlashingMessageManager {
     private static void repositionMessages() {
         int y = MESSAGES_TOP;
         for (FlashingMessage message : messages) {
-            message.setPosition((Engine.canvasWidth - message.getWidth()) / 2, y);
+            message.setPosition((Engine.windowWidth - message.getWidth()) / 2, y);
             y += message.getHeight() + MESSAGES_GAP;
         }
     }

@@ -80,7 +80,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private static boolean canvasHasMouseFocus = true;
 
-    public static int canvasWidth;
+    public static int windowWidth;
+    public static int windowHeight;
     public static int canvasHeight;
 
     public static final int DETAILS_HIGH = 0;
@@ -125,13 +126,11 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public Engine() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        canvasWidth = screenSize.width;
-        canvasHeight = screenSize.height;
+        windowWidth = screenSize.width;
+        windowHeight = screenSize.height;
         createBackbuffer();
-
-        RenderOptimizer.reset();
-
-        FlashingMessageManager.initialize();
+        
+        RenderOptimizer.initialize();
 
         mouseListener = new CumberlessMouseListener();
 
@@ -148,6 +147,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         cucumberRoot = new RootElement();
         scratchFeatures(false);
         resetStepDefinitions(false);
+
+        Terminal.initialize();
+        FlashingMessageManager.initialize();
 
         resetFps();
     }
@@ -210,6 +212,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         int lastFpsCount = fpsLastCount > 0 ? fpsLastCount : FRAME_RATE;
         int count = Math.max(1, FRAME_RATE / lastFpsCount);
         for (int i = 0; i < count; i++) {
+            Terminal.update();
             Button.isOneTouched = false;
             pollForDevices();
             updateScroll();
@@ -265,6 +268,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private void render() {
+        calculateCanvasHeight();
         renderCounter++;
         setLevelOfDetails(backbufferGraphics);
         canvas.clear(backbufferGraphics);
@@ -278,6 +282,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         FlashingMessageManager.render(backbufferGraphics);
         cucumberRoot.renderHints(backbufferGraphics);
         renderFps(backbufferGraphics);
+        Terminal.render(backbufferGraphics);
     }
 
     private void setLevelOfDetails(Graphics2D g) {
@@ -297,7 +302,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             return;
         }
         String str = "FPS: " + fpsLastCount;
-        int x = (canvasWidth - fontMetrics.stringWidth(str)) / 2;
+        int x = (windowWidth - fontMetrics.stringWidth(str)) / 2;
         int y = canvasHeight - 5 - ButtonBar.BUTTONBAR_HEIGHT;
         g.setColor(Color.BLACK);
         g.drawString(str, x + 1, y + 1);
@@ -337,18 +342,18 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void createBackbuffer() {
-        backbuffer = RenderOptimizer.graphicsConfiguration.createCompatibleImage(canvasWidth, canvasHeight);
+        backbuffer = RenderOptimizer.graphicsConfiguration.createCompatibleImage(windowWidth, windowHeight);
         backbufferGraphics = backbuffer.createGraphics();
         backbufferGraphics.setFont(FONT_DEFAULT);
         fontMetrics = backbufferGraphics.getFontMetrics();
         backbufferGraphics.setColor(Color.BLACK);
-        backbufferGraphics.fillRect(0, 0, canvasWidth + 1, canvasHeight + 1);
+        backbufferGraphics.fillRect(0, 0, windowWidth + 1, windowHeight + 1);
     }
 
     public static void setWindowSize(int width, int height) {
-        canvasWidth = width;
-        canvasHeight = height;
-        RenderOptimizer.reset();
+        windowWidth = width;
+        windowHeight = height;
+        RenderOptimizer.initialize();
         if (width > backbuffer.getWidth() || height > backbuffer.getHeight()) {
             createBackbuffer();
         }
@@ -360,6 +365,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             synchronized (DATA_LOCK) {
                 setWindowSize(canvas.getWidth(), canvas.getHeight());
                 buttonBar.resize();
+                Terminal.resize();
             }
         } catch (Exception e) {
             // Ignore!
@@ -488,7 +494,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             toggleHighlight(oldTouchedElement, false);
             oldTouchedElement = touchedElement;
         }
-        if (CumberlessMouseListener.mouseY > Engine.canvasHeight - ButtonBar.BUTTONBAR_HEIGHT) {
+        if (CumberlessMouseListener.mouseY > canvasHeight - ButtonBar.BUTTONBAR_HEIGHT) {
             return;
         }
         toggleHighlight(touchedElement, true);
@@ -648,15 +654,15 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         updateLastAddedElement(scenario);
     }
 
-    private static void updateRootPositions() {
-        dragSplitterX = BaseBarElement.RENDER_WIDTH_MAX_FEATURE_EDITOR + ((canvasWidth - BaseBarElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - BaseBarElement.RENDER_WIDTH_MAX_FEATURE_EDITOR) / 2);
-        int divider = Math.max(dragSplitterX, canvasWidth - BaseBarElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - RootElement.PADDING_HORIZONTAL * 2);
+    public static void updateRootPositions() {
+        dragSplitterX = BaseBarElement.RENDER_WIDTH_MAX_FEATURE_EDITOR + ((windowWidth - BaseBarElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - BaseBarElement.RENDER_WIDTH_MAX_FEATURE_EDITOR) / 2);
+        int divider = Math.max(dragSplitterX, windowWidth - BaseBarElement.RENDER_WIDTH_MAX_STEP_DEFINITIONS - RootElement.PADDING_HORIZONTAL * 2);
         cucumberRoot.setBounds(0, 0, 0, 0);
         if (featuresRoot != null) {
             featuresRoot.setBounds(0, 10, divider - 20, canvasHeight);
         }
         if (stepsRoot != null) {
-            stepsRoot.setBounds(divider, 10, canvasWidth - divider, canvasHeight);
+            stepsRoot.setBounds(divider, 10, windowWidth - divider, canvasHeight);
         }
     }
 
@@ -726,5 +732,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         } else {
             setColorScheme(ColorScheme.DESIGN);
         }
+    }
+
+    public static void toggleTerminal() {
+        Terminal.toggleTerminal();
+    }
+
+    private static void calculateCanvasHeight() {
+        canvasHeight = windowHeight - Terminal.getHeight();
     }
 }

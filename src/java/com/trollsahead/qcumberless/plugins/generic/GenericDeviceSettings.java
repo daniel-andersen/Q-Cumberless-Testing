@@ -46,7 +46,7 @@ public class GenericDeviceSettings implements ButtonBarMethodCallback {
             thumbnailHighlight = ImageIO.read(GenericDeviceSettings.class.getResource("/resources/pictures/generic_device_settings_highlight.png"));
             thumbnailPressed = ImageIO.read(GenericDeviceSettings.class.getResource("/resources/pictures/generic_device_settings_pressed.png"));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Q-Cumberless Testing refused to start", e);
         }
     }
 

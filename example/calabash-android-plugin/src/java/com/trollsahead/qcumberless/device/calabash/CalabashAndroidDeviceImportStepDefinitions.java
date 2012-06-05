@@ -48,7 +48,7 @@ public class CalabashAndroidDeviceImportStepDefinitions implements ButtonBarMeth
             thumbnailHighlight = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_highlight.png"));
             thumbnailPressed = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_pressed.png"));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Calabash Android-plugin refused to start", e);
         }
     }
 

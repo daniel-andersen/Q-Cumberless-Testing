@@ -193,7 +193,7 @@ public class EasterEgg {
     }
 
     private static void updateStick() {
-        stickX = Engine.canvasWidth - STICK_WIDTH - 40;
+        stickX = Engine.windowWidth - STICK_WIDTH - 40;
         stickY = CumberlessMouseListener.mouseY;
         if (stickY < 0) {
             stickY = 0;
@@ -257,7 +257,7 @@ public class EasterEgg {
             ballX = -ballX;
             ballVelX = -ballVelX;
         }
-        if (ballX > Engine.canvasWidth && ballVelX > 0.0f) {
+        if (ballX > Engine.windowWidth && ballVelX > 0.0f) {
             hide();
         }
         if (ballY < 0.0f && ballVelY < 0.0f) {
@@ -396,13 +396,13 @@ public class EasterEgg {
             int height = Math.min(animation - (y / BACKGROUND_ANIMATION_DELAY), BACKGROUND_ANIMATION_SIZE);
             if (height < BACKGROUND_ANIMATION_SIZE) {
                 if (height >= 0) {
-                    g.fillRect(0, top, Engine.canvasWidth, y - top + height);
+                    g.fillRect(0, top, Engine.windowWidth, y - top + height);
                 }
                 top = y + BACKGROUND_ANIMATION_SIZE;
             }
         }
         if (top < Engine.canvasHeight) {
-            g.fillRect(0, top, Engine.canvasWidth, Engine.canvasHeight - top);
+            g.fillRect(0, top, Engine.windowWidth, Engine.canvasHeight - top);
         }
     }
 

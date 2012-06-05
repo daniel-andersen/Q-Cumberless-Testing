@@ -75,18 +75,18 @@ public class FlashingMessage {
     }
 
     public void render(Graphics2D g) {
-        int x = (Engine.canvasWidth - getWidth()) / 2;
+        int x = (Engine.windowWidth - getWidth()) / 2;
         int y = (int) moveAnimation.renderY;
 
         g.setColor(BACKGROUND_COLOR);
         g.fillRoundRect(x, y, getWidth(), getHeight(), 20, 20);
 
         g.setColor(TEXT_COLOR);
-        g.drawString(title, (Engine.canvasWidth - Engine.fontMetrics.stringWidth(title)) / 2, (int) moveAnimation.renderY + TEXT_GAP_VERTICAL + Engine.fontMetrics.getHeight());
+        g.drawString(title, (Engine.windowWidth - Engine.fontMetrics.stringWidth(title)) / 2, (int) moveAnimation.renderY + TEXT_GAP_VERTICAL + Engine.fontMetrics.getHeight());
     }
 
     public int getWidth() {
-        return Math.min(Engine.fontMetrics.stringWidth(title) + TEXT_GAP_HORIZONTAL, Engine.canvasWidth * 5 / 6);
+        return Math.min(Engine.fontMetrics.stringWidth(title) + TEXT_GAP_HORIZONTAL, Engine.windowWidth * 5 / 6);
     }
 
     public int getHeight() {

@@ -23,47 +23,42 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.model;
 
-import com.trollsahead.qcumberless.gui.Images;
-import com.trollsahead.qcumberless.model.ConsoleOutput;
+import com.trollsahead.qcumberless.util.Util;
 
-import java.awt.*;
-import java.util.Set;
+public class ConsoleOutput {
+    private StringBuilder log;
+    private ConsoleOutputListener outputListener = null;
 
-public abstract class Device {
-    public enum Capability {PLAY, PAUSE, STOP}
-
-    private boolean enabled = false;
-
-    private ConsoleOutput consoleOutput = new ConsoleOutput();
-
-    public abstract void setDeviceCallback(DeviceCallback deviceCallback);
-
-    public abstract Set<Capability> getCapabilities();
-
-    public abstract Image getThumbnail(Images.ThumbnailState thumbnailState);
-
-    public abstract String name();
-
-    public abstract void play(StringBuilder feature, Set<String> tags);
-    public abstract void pause();
-    public abstract void resume();
-    public abstract void stop();
-
-    public void enable() {
-        enabled = true;
+    public ConsoleOutput() {
+        log = new StringBuilder();
+    }
+    
+    public void appendLog(String line) {
+        if (Util.isEmpty(line)) {
+            return;
+        }
+        line = Util.appendNewlineIfNotPresent(line);
+        log.append(line);
+        if (outputListener != null) {
+            outputListener.lineAppended(line);
+        }
     }
 
-    public void disable() {
-        enabled = false;
+    public void setOutputListener(ConsoleOutputListener outputListener) {
+        this.outputListener = outputListener;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public void removeOutputListener() {
+        this.outputListener = null;
     }
 
-    public ConsoleOutput getConsoleOutput() {
-        return consoleOutput;
+    public StringBuilder getLog() {
+        return log;
+    }
+
+    public static interface ConsoleOutputListener {
+        public void lineAppended(String line);
     }
 }

@@ -37,6 +37,8 @@ public interface DeviceCallback {
 
     void afterPlayed();
     void afterPlayFailed(String errorMessage);
+    
+    void logLine(String line);
 
     void beforeFeatures();
     void beforeFeature(String name);

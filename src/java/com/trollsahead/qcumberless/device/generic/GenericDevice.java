@@ -76,7 +76,7 @@ public class GenericDevice extends Device {
             thumbnailHighlight = ImageIO.read(GenericDevice.class.getResource("/resources/pictures/generic_device_highlight.png"));
             thumbnailPressed = ImageIO.read(GenericDevice.class.getResource("/resources/pictures/generic_device_pressed.png"));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Q-Cumberless Testing refused to start", e);
         }
     }
 
@@ -149,6 +149,7 @@ public class GenericDevice extends Device {
         }
 
         public void logLine(String log) {
+            deviceCallback.logLine(log);
             checkStarting(log);
             checkStartingFeature(log);
             checkStartingBackground(log);

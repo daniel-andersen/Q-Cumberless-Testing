@@ -166,6 +166,14 @@ public class Util {
         return s.replaceAll("\\s*$", "");
     }
 
+    public static String appendNewlineIfNotPresent(String s) {
+        if (isEmpty(s)) {
+            return s;
+        } else {
+            return !s.endsWith("\n") ? s + "\n" : s;
+        }
+    }
+    
     public static Color blendColor(Color source, Color dest) {
         return new Color(
                 (int) (source.getRed()   + (float) (dest.getRed()   - source.getRed())   * (dest.getAlpha() / 255.0f)),

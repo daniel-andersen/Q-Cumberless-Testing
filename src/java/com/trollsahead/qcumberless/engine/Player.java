@@ -216,7 +216,7 @@ public class Player implements DeviceCallback {
         final int WIDTH = MESSAGE_WIDTH;
         final int HEIGHT = MESSAGE_HEIGHT;
 
-        int x = (Engine.canvasWidth - WIDTH) / 2;
+        int x = (Engine.windowWidth - WIDTH) / 2;
         int y = 20;
         
         int textX = x + (WIDTH - Engine.fontMetrics.stringWidth(text)) / 2;
@@ -264,6 +264,10 @@ public class Player implements DeviceCallback {
         failure();
         reset();
         messageTimeout = System.currentTimeMillis() + MESSAGE_TIMEOUT_PLAYER;
+    }
+
+    public void logLine(String line) {
+        device.getConsoleOutput().appendLog(line);
     }
 
     public void beforeFeatures() {

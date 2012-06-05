@@ -53,7 +53,7 @@ public class CalabashAndroidDevice extends GenericDevice {
             thumbnailHighlight = ImageIO.read(CalabashAndroidDevice.class.getResource("/resources/pictures/calabash_android_device_highlight.png"));
             thumbnailPressed = ImageIO.read(CalabashAndroidDevice.class.getResource("/resources/pictures/calabash_android_device_pressed.png"));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Calabash Android-plugin refused to start", e);
         }
     }
 
