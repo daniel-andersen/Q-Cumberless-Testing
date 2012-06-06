@@ -29,6 +29,10 @@ import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -85,6 +89,28 @@ public class ConsoleOutput {
             return list;
         } else {
             return Util.wrapText(line, textWrapWidth, textWrapMetrics);
+        }
+    }
+
+    public void clearLog() {
+        synchronized (Engine.DATA_LOCK) {
+            log = new LinkedList<String>();
+            textWrappedLog = new LinkedList<String>();
+        }
+    }
+
+    public void exportLog(String filename) {
+        BufferedWriter out = null;
+        try {
+            File file = new File(filename);
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+            for (String line : log) {
+                out.write(line + "\n");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Util.close(out);
         }
     }
 }

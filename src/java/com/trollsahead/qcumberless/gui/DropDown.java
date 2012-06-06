@@ -70,6 +70,11 @@ public class DropDown {
         DropDown.alignTop = true;
     }
 
+    public static void showUpright(int x, int y, DropDownCallback callbackHandler, List<String> items) {
+        show(x, y, callbackHandler, items);
+        DropDown.alignTop = false;
+    }
+
     public static void showInToggleMode(int x, int y, DropDownToggleModeCallback toggledModeCallbackHandler, List<String> items) {
         DropDown.x = x;
         DropDown.y = y;

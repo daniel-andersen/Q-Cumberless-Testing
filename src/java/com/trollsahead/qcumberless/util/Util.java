@@ -288,4 +288,12 @@ public class Util {
         }
         return lines;
     }
+
+    public static String convertSpacesToSlashes(String s) {
+        if (Util.isEmpty(s)) {
+            return s;
+        } else {
+            return s.replaceAll(" ", "_");
+        }
+    }
 }

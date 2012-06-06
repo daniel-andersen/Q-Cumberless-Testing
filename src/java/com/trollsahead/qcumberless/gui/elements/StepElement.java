@@ -105,7 +105,7 @@ public class StepElement extends BaseBarElement {
                 null,
                 Images.getImage(Images.IMAGE_TABLE, Images.ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_TABLE, Images.ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_TABLE, Images.ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         if (table == null) {
                             createTable();

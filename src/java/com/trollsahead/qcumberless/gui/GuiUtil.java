@@ -106,7 +106,7 @@ public class GuiUtil {
                         0,
                         callback.getThumbnail(ThumbnailState.NORMAL), callback.getThumbnail(ThumbnailState.HIGHLIGHTED), callback.getThumbnail(ThumbnailState.PRESSED),
                         Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                        new Button.CucumberButtonNotification() {
+                        new Button.ButtonNotification() {
                             public void onClick() {
                                 callback.trigger(element);
                             }

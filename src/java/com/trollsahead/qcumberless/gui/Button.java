@@ -42,7 +42,8 @@ public class Button {
 
     private static final Color TEXT_COLOR_DISABLED = new Color(1.0f, 1.0f, 1.0f, 0.3f);
     private static final Color[] TEXT_COLOR = {new Color(1.0f, 1.0f, 1.0f, 1.0f), new Color(1.0f, 1.0f, 0.2f, 1.0f), new Color(0.7f, 0.7f, 0.1f, 1.0f)};
-    private static final Color[] TEXT_BACKGROUND_COLOR_FILL = {new Color(0.5f, 0.5f, 0.5f, 0.4f), new Color(0.2f, 0.2f, 0.2f, 0.1f), new Color(0.2f, 0.2f, 0.2f, 0.2f)};
+    private static final Color[] TEXT_BACKGROUND_COLOR_FILL = {new Color(0.5f, 0.5f, 0.5f, 0.4f), new Color(0.3f, 0.3f, 0.3f, 0.4f), new Color(0.1f, 0.1f, 0.1f, 0.4f)};
+    private static final Color[] TEXT_BACKGROUND_COLOR_FILL_MARKED = {new Color(0.5f, 0.5f, 0.5f, 0.8f), new Color(0.3f, 0.3f, 0.3f, 0.8f), new Color(0.1f, 0.1f, 0.1f, 0.8f)};
     private static final Color[] TEXT_BACKGROUND_COLOR_BORDER = {new Color(0.0f, 0.0f, 0.0f, 0.3f), new Color(0.0f, 0.0f, 0.0f, 0.3f), new Color(0.0f, 0.0f, 0.0f, 0.3f)};
 
     public static final int TEXT_BACKGROUND_PADDING_HORIZONTAL = 8;
@@ -66,9 +67,7 @@ public class Button {
     private String text;
     private Element parent;
     private int alignment;
-    private CucumberButtonNotification notification;
-
-    private boolean visible;
+    private ButtonNotification notification;
 
     private Image[] image = new BufferedImage[3];
 
@@ -77,28 +76,30 @@ public class Button {
     public int renderWidth;
     public int renderHeight;
 
-    private int state;
+    private int state = STATE_NORMAL;
+    private boolean visible = true;
+    private boolean marked = false;
     private boolean enabled = true;
     private String hint;
 
     public static boolean isOneTouched = false;
 
-    public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Element parent) {
+    public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, ButtonNotification notification, Element parent) {
         this(x, y, text, normalImage, highlightImage, pressedImage, alignment, notification);
         this.parent = parent;
     }
 
-    public Button(int x, int y, String text, int alignment, CucumberButtonNotification notification, Element parent) {
+    public Button(int x, int y, String text, int alignment, ButtonNotification notification, Element parent) {
         this(x, y, text, null, null, null, alignment, notification);
         this.parent = parent;
     }
 
-    public Button(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Element parent) {
+    public Button(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, ButtonNotification notification, Element parent) {
         this(x, y, null, normalImage, highlightImage, pressedImage, alignment, notification);
         this.parent = parent;
     }
 
-    public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification) {
+    public Button(int x, int y, String text, Image normalImage, Image highlightImage, Image pressedImage, int alignment, ButtonNotification notification) {
         this.x = x;
         this.y = y;
         this.offsetX = 0;
@@ -110,8 +111,6 @@ public class Button {
         this.alignment = alignment;
         this.notification = notification;
         this.parent = null;
-        this.state = STATE_NORMAL;
-        this.visible = true;
     }
 
     public void setAlignment(int alignment) {
@@ -195,7 +194,7 @@ public class Button {
 
     private void drawBackground(Graphics g) {
         if (text != null) {
-            g.setColor(TEXT_BACKGROUND_COLOR_FILL[state]);
+            g.setColor(!marked ? TEXT_BACKGROUND_COLOR_FILL[state] : TEXT_BACKGROUND_COLOR_FILL_MARKED[state]);
             g.fillRoundRect(
                     renderX - TEXT_BACKGROUND_PADDING_HORIZONTAL, renderY - TEXT_BACKGROUND_PADDING_VERTICAL,
                     renderWidth + TEXT_BACKGROUND_PADDING_HORIZONTAL * 2, renderHeight + TEXT_BACKGROUND_PADDING_VERTICAL * 2,
@@ -302,7 +301,15 @@ public class Button {
         return image != null && image.length > 0 ? image[0].getHeight(null) : 0;
     }
 
-    public interface CucumberButtonNotification {
+    public boolean isMarked() {
+        return marked;
+    }
+
+    public void setMarked(boolean marked) {
+        this.marked = marked;
+    }
+
+    public interface ButtonNotification {
         void onClick();
     }
 }

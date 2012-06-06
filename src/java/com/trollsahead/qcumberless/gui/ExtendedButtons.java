@@ -35,7 +35,12 @@ public class ExtendedButtons {
     public static class DeviceButton extends Button {
         private Device device;
 
-        public DeviceButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Device device) {
+        public DeviceButton(int x, int y, String text, int alignment, ButtonNotification notification, Device device) {
+            super(x, y, text, alignment, notification, null);
+            this.device = device;
+        }
+
+        public DeviceButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, ButtonNotification notification, Device device) {
             super(x, y, normalImage, highlightImage, pressedImage, alignment, notification, null);
             this.device = device;
         }
@@ -56,7 +61,7 @@ public class ExtendedButtons {
     public static class ElementPluginButton extends Button {
         private ElementMethodCallback callback;
 
-        public ElementPluginButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, CucumberButtonNotification notification, Element parent, ElementMethodCallback callback) {
+        public ElementPluginButton(int x, int y, Image normalImage, Image highlightImage, Image pressedImage, int alignment, ButtonNotification notification, Element parent, ElementMethodCallback callback) {
             super(x, y, normalImage, highlightImage, pressedImage, alignment, notification, parent);
             this.callback = callback;
         }

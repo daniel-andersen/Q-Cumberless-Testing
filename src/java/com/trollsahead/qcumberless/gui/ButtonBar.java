@@ -47,7 +47,7 @@ public class ButtonBar {
     public static final int TYPE_PLAYING = 1;
 
     public static final int BUTTONBAR_HEIGHT = 30;
-    private static final int BUTTON_PADDING = 10 + Button.TEXT_BACKGROUND_PADDING_HORIZONTAL * 2;
+    public static final int BUTTON_PADDING = 10 + Button.TEXT_BACKGROUND_PADDING_HORIZONTAL * 2;
     private static final int DEVICE_BUTTON_WIDTH = 30;
 
     private static final float ANIMATION_MOVEMENT_SPEED = 0.8f;
@@ -115,7 +115,7 @@ public class ButtonBar {
                 Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.HIGHLIGHTED.ordinal()),
                 Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         if (!Player.isPaused()) {
                             Player.pause();
@@ -132,7 +132,7 @@ public class ButtonBar {
                 Images.getImage(Images.IMAGE_STOP, ThumbnailState.HIGHLIGHTED.ordinal()),
                 Images.getImage(Images.IMAGE_STOP, ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         Player.stop();
                     }
@@ -143,7 +143,7 @@ public class ButtonBar {
                 0, 0,
                 "Scratch",
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         if (Engine.spotlight.visible && "black knight mode".equalsIgnoreCase(Engine.spotlight.searchString)) {
                             EasterEgg.show();
@@ -158,7 +158,7 @@ public class ButtonBar {
                 0, 0,
                 "Load",
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         File[] files = CucumberlessDialog.instance.fileChooser();
                         if (files != null) {
@@ -172,7 +172,7 @@ public class ButtonBar {
                 0, 0,
                 "Save",
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         Engine.saveFeatures();
                     }
@@ -183,7 +183,7 @@ public class ButtonBar {
                 0, 0,
                 "Export",
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         File directory = CucumberlessDialog.instance.directoryChooser();
                         if (directory != null) {
@@ -197,7 +197,7 @@ public class ButtonBar {
                 0, 0,
                 "Quit",
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         Engine.stop();
                     }
@@ -210,7 +210,7 @@ public class ButtonBar {
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.HIGHLIGHTED.ordinal()),
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         showTagsDropDown();
                     }
@@ -223,7 +223,7 @@ public class ButtonBar {
                 Images.getImage(Images.IMAGE_TERMINAL, ThumbnailState.HIGHLIGHTED.ordinal()),
                 Images.getImage(Images.IMAGE_TERMINAL, ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         Engine.toggleTerminal();
                     }
@@ -248,7 +248,7 @@ public class ButtonBar {
                         callback.getThumbnail(ThumbnailState.HIGHLIGHTED),
                         callback.getThumbnail(ThumbnailState.PRESSED),
                         Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                        new Button.CucumberButtonNotification() {
+                        new Button.ButtonNotification() {
                             public void onClick() {
                                 callback.trigger();
                             }
@@ -316,7 +316,7 @@ public class ButtonBar {
                     device.getThumbnail(ThumbnailState.HIGHLIGHTED),
                     device.getThumbnail(ThumbnailState.PRESSED),
                     Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                    new Button.CucumberButtonNotification() {
+                    new Button.ButtonNotification() {
                         public void onClick() {
                             if (device.isEnabled()) {
                                 if (Player.isDeviceStarted(device)) {

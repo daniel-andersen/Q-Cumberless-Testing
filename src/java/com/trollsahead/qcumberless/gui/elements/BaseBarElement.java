@@ -197,7 +197,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EXPAND, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_TOP,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                     }
                 },
@@ -209,7 +209,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_TRASHCAN, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_RIGHT_OF_PARENT | Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER_OF_PARENT,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         trashElement();
                     }
@@ -222,7 +222,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_PLAY, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         play();
                     }
@@ -235,7 +235,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_EDIT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_EDIT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_EDIT, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         EditBox.showEditElement(BaseBarElement.this);
                     }
@@ -248,7 +248,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_ADD, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         addTags(false);
                     }
@@ -261,7 +261,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_AT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         addTags(true);
                     }
@@ -274,7 +274,7 @@ public abstract class BaseBarElement extends Element {
                 null,
                 Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_MINUS, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal()),
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
-                new Button.CucumberButtonNotification() {
+                new Button.ButtonNotification() {
                     public void onClick() {
                         removeTags();
                     }

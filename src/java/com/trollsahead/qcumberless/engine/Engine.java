@@ -247,6 +247,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 synchronized (DATA_LOCK) {
                     devices = newDevices;
                     buttonBar.updateDevices(devices);
+                    Terminal.updateDevices(devices);
                 }
                 isPollingForDevices = false;
                 lastTimePolledForDevices = System.currentTimeMillis();
@@ -260,9 +261,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         setLevelOfDetails(backbufferGraphics);
         canvas.clear(backbufferGraphics);
         cucumberRoot.render(backbufferGraphics);
-        if (DropDown.isVisible) {
-            DropDown.render(backbufferGraphics);
-        }
         buttonBar.render(backbufferGraphics);
         spotlight.render(backbufferGraphics);
         Player.render(backbufferGraphics);
@@ -270,6 +268,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         cucumberRoot.renderHints(backbufferGraphics);
         renderFps(backbufferGraphics);
         Terminal.render(backbufferGraphics);
+        if (DropDown.isVisible) {
+            DropDown.render(backbufferGraphics);
+        }
     }
 
     private void setLevelOfDetails(Graphics2D g) {
@@ -379,6 +380,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             if (EditBox.click()) {
                 return;
             }
+            if (Terminal.click()) {
+                return;
+            }
             if (touchedElement != null) {
                 touchedElement.click(clickCount);
             }
@@ -431,9 +435,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static void mouseWheelMoved(int unitsToScroll) {
         if (isMouseInsideCanvasArea()) {
             if (CumberlessMouseListener.mouseX < dragSplitterX) {
-                featuresRoot.scroll(unitsToScroll * SCROLL_WHEEL_IMPACT_CANVAS);
+                featuresRoot.scroll(-unitsToScroll * SCROLL_WHEEL_IMPACT_CANVAS);
             } else {
-                stepsRoot.scroll(unitsToScroll * SCROLL_WHEEL_IMPACT_CANVAS);
+                stepsRoot.scroll(-unitsToScroll * SCROLL_WHEEL_IMPACT_CANVAS);
             }
         } else if (isMouseInsideTerminalArea()) {
             Terminal.scroll(unitsToScroll);
@@ -452,6 +456,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             }
         } else if (isMouseInsideTerminalArea()) {
             dragMode = DragMode.DRAGGING_TERMINAL;
+            Terminal.mouseDragged();
         } else {
             dragMode = DragMode.NOT_DRAGGING;
         }
@@ -461,26 +466,34 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         if (dragMode == DragMode.NOT_DRAGGING) {
             return;
         }
-        dragMode = DragMode.NOT_DRAGGING;
-        synchronized (Engine.DATA_LOCK) {
-            if (touchedElement != null) {
-                touchedElement.endDrag();
-            } else if (touchedRootElement != null) {
-                touchedRootElement.endDrag();
+        if (dragMode == DragMode.DRAGGING_CANVAS) {
+            synchronized (Engine.DATA_LOCK) {
+                if (touchedElement != null) {
+                    touchedElement.endDrag();
+                } else if (touchedRootElement != null) {
+                    touchedRootElement.endDrag();
+                }
             }
+        } else if (dragMode == DragMode.DRAGGING_TERMINAL) {
+            Terminal.mouseDragged();
         }
+        dragMode = DragMode.NOT_DRAGGING;
     }
 
     private static void updateDrag() {
         if (dragMode == DragMode.NOT_DRAGGING || !CumberlessMouseListener.isButtonPressed) {
             return;
         }
-        synchronized (Engine.DATA_LOCK) {
-            if (touchedElement != null && touchedElement.isBeingDragged()) {
-                touchedElement.applyDragOffset();
-            } else if (touchedRootElement != null && touchedRootElement.isDragable()) {
-                touchedRootElement.scroll(CumberlessMouseListener.mouseY - CumberlessMouseListener.oldMouseY);
+        if (dragMode == DragMode.DRAGGING_CANVAS) {
+            synchronized (Engine.DATA_LOCK) {
+                if (touchedElement != null && touchedElement.isBeingDragged()) {
+                    touchedElement.applyDragOffset();
+                } else if (touchedRootElement != null && touchedRootElement.isDragable()) {
+                    touchedRootElement.scroll(CumberlessMouseListener.mouseY - CumberlessMouseListener.oldMouseY);
+                }
             }
+        } else if (dragMode == DragMode.DRAGGING_TERMINAL) {
+            Terminal.mouseDragged();
         }
     }
 

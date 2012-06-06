@@ -27,19 +27,27 @@ package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.FlashingMessageManager;
 import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.model.ConsoleOutput;
+import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Animation.MoveAnimation;
+import static com.trollsahead.qcumberless.gui.ExtendedButtons.DeviceButton;
 
 import java.awt.*;
+import java.io.File;
+import java.util.*;
 import java.util.List;
 
 public class Terminal {
+    private static final int BUTTON_PADDING_HORIZONTAL = ButtonBar.BUTTON_PADDING;
+    private static final int BUTTON_PADDING_VERTICAL = 4;
+
     private static final Font TERMINAL_FONT = new Font("Courier New", Font.PLAIN, 13);
     private static final float TERMINAL_PROPORTIONAL_HEIGHT = 0.5f;
 
-    private static final Color TEXT_COLOR = new Color(0.4f, 1.0f, 0.4f);
+    private static final Color COLOR_TEXT = new Color(0.4f, 1.0f, 0.4f);
 
     private static FontMetrics fontMetrics = null;
 
@@ -53,19 +61,75 @@ public class Terminal {
 
     private static Device currentDevice = null;
 
+    private static List<Button> buttons;
+    private static List<DeviceButton> deviceButtons = new LinkedList<DeviceButton>();
+
     public static void initialize() {
+        initButtons();
         resize();
+    }
+
+    private static void initButtons() {
+        Button clearLogButton = new Button(
+                0, 0,
+                "Clear log",
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        currentDevice.getConsoleOutput().clearLog();
+                        scroll = -1;
+                    }
+                },
+                null);
+        Button exportLogButton = new Button(
+                0, 0,
+                "Export log",
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        File path = CucumberlessDialog.instance.askExportLogPath();
+                        String filename = Util.convertSpacesToSlashes(currentDevice.name()) + ".log";
+                        currentDevice.getConsoleOutput().exportLog(Util.addSlashToPath(path.getAbsolutePath()) + filename);
+                        FlashingMessageManager.addMessage(new FlashingMessage("Log saved as '" + filename + "'", FlashingMessage.STANDARD_TIMEOUT));
+                    }
+                },
+                null);
+        buttons = new LinkedList<Button>();
+        buttons.add(clearLogButton);
+        buttons.add(exportLogButton);
     }
 
     public static void resize() {
         setPosition();
         position.setRenderPosition(position.realX, position.realY);
+        positionButtons();
+    }
+
+    private static void positionButtons() {
+        int y = getProportionalHeight() - BUTTON_PADDING_VERTICAL;
+        int x = BUTTON_PADDING_HORIZONTAL;
+        for (Button button : buttons) {
+            button.setPosition(x, y);
+            x += BUTTON_PADDING_HORIZONTAL + Engine.fontMetrics.stringWidth(button.toString());
+        }
+        x += BUTTON_PADDING_HORIZONTAL;
+        for (DeviceButton button : deviceButtons) {
+            button.setPosition(x, y);
+            x += BUTTON_PADDING_HORIZONTAL + Engine.fontMetrics.stringWidth(button.toString());
+        }
     }
 
     public static void update() {
         position.update(false);
         if (position.isMoving()) {
             Engine.updateRootPositions();
+        }
+        for (Button button : buttons) {
+            button.update();
+        }
+        for (DeviceButton button : deviceButtons) {
+            button.setMarked(button.getDevice() == currentDevice);
+            button.update();
         }
     }
 
@@ -77,13 +141,21 @@ public class Terminal {
         g.setColor(Color.BLACK);
         g.fillRect(0, (int) position.renderY, Engine.windowWidth, height);
         drawText(g);
+        for (Button button : buttons) {
+            button.setOffset(0, (int) position.renderY);
+            button.render(g);
+        }
+        for (Button button : deviceButtons) {
+            button.setOffset(0, (int) position.renderY);
+            button.render(g);
+        }
     }
 
     private static void drawText(Graphics2D g) {
         if (currentDevice == null) {
             return;
         }
-        g.setColor(TEXT_COLOR);
+        g.setColor(COLOR_TEXT);
         Font oldFont = g.getFont();
         g.setFont(TERMINAL_FONT);
         if (fontMetrics == null) {
@@ -156,7 +228,7 @@ public class Terminal {
     }
     
     private static int getNumberOfRows() {
-        return (getProportionalHeight() / fontMetrics.getHeight()) + 1;
+        return (getProportionalHeight() / fontMetrics.getHeight()) - 2;
     }
 
     private static List<String> getConsoleOutput() {
@@ -164,12 +236,81 @@ public class Terminal {
         return console.getTextWrappedLog(Engine.windowWidth, fontMetrics);
     }
 
-    public static void scroll(int unitsToScroll) {
+    private static boolean hasDevices() {
+        List<Device> deviceList = ButtonBar.instance.getDevices();
+        return deviceList != null && !deviceList.isEmpty();
+    }
+
+    private static List<String> getDevicesAsList() {
+        List<Device> deviceList = ButtonBar.instance.getDevices();
+        if (deviceList == null || deviceList.isEmpty()) {
+            return null;
+        }
+        String[] devices = new String[deviceList.size()];
+        for (int i = 0; i < deviceList.size(); i++) {
+            devices[i] = deviceList.get(i).name();
+        }
+        Arrays.sort(devices);
+        return Arrays.asList(devices);
+    }
+
+   public static void scroll(int unitsToScroll) {
         int lastIndex = getConsoleOutput().size() - getNumberOfRows();
         if (scroll == -1) {
-            scroll = lastIndex;
+            scroll = 0;
         }
-        scroll += unitsToScroll;
+        scroll -= unitsToScroll;
         scroll = Math.max(0, Math.min(lastIndex, scroll));
+    }
+
+    public static void mouseDragged() {
+    }
+
+    public static boolean click() {
+        for (Button button : buttons) {
+            if (button.click()) {
+                return true;
+            }
+        }
+        for (Button button : deviceButtons) {
+            if (button.click()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void updateDevices(Set<Device> devices) {
+        deviceButtons = new LinkedList<DeviceButton>();
+        for (final Device device : devices) {
+            DeviceButton button = new DeviceButton(
+                    0,
+                    0,
+                    device.name(),
+                    Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
+                    new Button.ButtonNotification() {
+                        public void onClick() {
+                            currentDevice = device;
+                            scroll = -1;
+                        }
+                    },
+                    device);
+            deviceButtons.add(button);
+        }
+        sortDeviceButtons();
+        positionButtons();
+    }
+
+    private static void sortDeviceButtons() {
+        if (deviceButtons == null || deviceButtons.isEmpty()) {
+            return;
+        }
+        DeviceButton buttons[] = deviceButtons.toArray(new DeviceButton[0]);
+        Arrays.sort(buttons, new Comparator<DeviceButton>() {
+            public int compare(DeviceButton b1, DeviceButton b2) {
+                return b2.getDevice().name().compareTo(b1.getDevice().name());
+            }
+        });
+        deviceButtons = Arrays.asList(buttons);
     }
 }
