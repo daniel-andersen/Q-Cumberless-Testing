@@ -38,7 +38,7 @@ import java.util.List;
 public class StepElement extends BaseBarElement {
     protected Table table = null;
     
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xFF6666), new Color(0xDD9999)};
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0xEE6666), new Color(0xDD9999)};
     public static final Color[] BG_COLOR_UNRECOGNIZED_STEP = {new Color(0xFF66FF), new Color(0xDD99DD)};
 
     protected Button tableButton;

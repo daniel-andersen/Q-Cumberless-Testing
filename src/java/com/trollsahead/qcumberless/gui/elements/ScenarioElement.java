@@ -31,7 +31,7 @@ import com.trollsahead.qcumberless.util.ElementHelper;
 import java.awt.*;
 
 public class ScenarioElement extends BaseBarElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0x88FF88), new Color(0xAADDAA)};
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0x77EE77), new Color(0xAADDAA)};
 
     public ScenarioElement(int rootType) {
         super(TYPE_SCENARIO, rootType);
