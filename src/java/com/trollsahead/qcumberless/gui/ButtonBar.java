@@ -536,4 +536,12 @@ public class ButtonBar {
     public void setFailed() {
         animation.colorAnimation.setColor(COLOR_BACKGROUND_FAILED, ANIMATION_FADE_SPEED);
     }
+
+    public List<Device> getDevices() {
+        List<Device> devices = new LinkedList<Device>();
+        for (DeviceButton button : deviceButtons) {
+            devices.add(button.getDevice());
+        }
+        return devices;
+    }
 }

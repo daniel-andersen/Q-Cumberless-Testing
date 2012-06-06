@@ -166,11 +166,11 @@ public class Util {
         return s.replaceAll("\\s*$", "");
     }
 
-    public static String appendNewlineIfNotPresent(String s) {
+    public static String removePostfixedNewline(String s) {
         if (isEmpty(s)) {
             return s;
         } else {
-            return !s.endsWith("\n") ? s + "\n" : s;
+            return s.endsWith("\n") ? s.substring(0, s.length() - 1) : s;
         }
     }
     
@@ -252,13 +252,12 @@ public class Util {
     }
 
     public static float[] colorToFloatArray(Color color) {
-        float[] floatColor = {
+        return new float[] {
             (float) color.getRed() / 255.0f,
             (float) color.getGreen() / 255.0f,
             (float) color.getBlue() / 255.0f,
             (float) color.getAlpha() / 255.0f
         };
-        return floatColor;
     }
 
     public static float decrease(float a, float pct) {
@@ -267,5 +266,26 @@ public class Util {
             a = 0.0f;
         }
         return a;
+    }
+
+    public static List<String> wrapText(String text, int width, FontMetrics fontMetrics) {
+        LinkedList<String> lines = new LinkedList<String>();
+        if (isEmpty(text) || fontMetrics.stringWidth(text) <= width) {
+            lines.add(text);
+            return lines;
+        }
+        text = removePostfixedNewline(text);
+        StringBuilder currentLine = new StringBuilder();
+        for (String word : text.split(" ")) {
+            if (fontMetrics.stringWidth(currentLine.toString() + word) > width) {
+                lines.add(currentLine.toString());
+                currentLine = new StringBuilder();
+            }
+            currentLine = currentLine.append(word).append(" ");
+        }
+        if (!isEmpty(currentLine.toString())) {
+            lines.add(currentLine.toString());
+        }
+        return lines;
     }
 }

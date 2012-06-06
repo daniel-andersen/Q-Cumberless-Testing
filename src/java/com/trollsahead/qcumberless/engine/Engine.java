@@ -70,6 +70,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     public static CumberlessMouseListener mouseListener;
 
+    private static enum DragMode {NOT_DRAGGING, DRAGGING_CANVAS, DRAGGING_TERMINAL}
+    private static DragMode dragMode = DragMode.NOT_DRAGGING;
+
     private static Element oldTouchedElement = null;
     private static Element touchedElement = null;
     private static RootElement touchedRootElement = null;
@@ -116,11 +119,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private static Graphics2D backbufferGraphics = null;
 
-    private static final int SCROLL_WHEEL_IMPACT = 10;
-    private static final float SCROLL_WHEEL_DECREASE = 0.9f;
-
-    private static float scrollWheelAmountFeatures = 0;
-    private static float scrollWheelAmountStepDefinitions = 0;
+    private static final int SCROLL_WHEEL_IMPACT_CANVAS = BaseBarElement.RENDER_HEIGHT_MINIMUM;
 
     public static ColorScheme colorScheme = ColorScheme.DESIGN;
 
@@ -215,7 +214,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             Terminal.update();
             Button.isOneTouched = false;
             pollForDevices();
-            updateScroll();
             RenderOptimizer.update();
             updateHighlight();
             buttonBar.update();
@@ -226,17 +224,6 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             }
             EasterEgg.update();
             FlashingMessageManager.update();
-        }
-    }
-
-    private void updateScroll() {
-        if (scrollWheelAmountFeatures != 0) {
-            featuresRoot.scroll((int) -scrollWheelAmountFeatures);
-            scrollWheelAmountFeatures = Util.decrease(scrollWheelAmountFeatures, SCROLL_WHEEL_DECREASE);
-        }
-        if (scrollWheelAmountStepDefinitions != 0) {
-            stepsRoot.scroll((int) -scrollWheelAmountStepDefinitions);
-            scrollWheelAmountStepDefinitions = Util.decrease(scrollWheelAmountStepDefinitions, SCROLL_WHEEL_DECREASE);
         }
     }
 
@@ -442,24 +429,39 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void mouseWheelMoved(int unitsToScroll) {
-        if (CumberlessMouseListener.mouseX < dragSplitterX) {
-            scrollWheelAmountFeatures = unitsToScroll * SCROLL_WHEEL_IMPACT;
-        } else {
-            scrollWheelAmountStepDefinitions = unitsToScroll * SCROLL_WHEEL_IMPACT;
+        if (isMouseInsideCanvasArea()) {
+            if (CumberlessMouseListener.mouseX < dragSplitterX) {
+                featuresRoot.scroll(unitsToScroll * SCROLL_WHEEL_IMPACT_CANVAS);
+            } else {
+                stepsRoot.scroll(unitsToScroll * SCROLL_WHEEL_IMPACT_CANVAS);
+            }
+        } else if (isMouseInsideTerminalArea()) {
+            Terminal.scroll(unitsToScroll);
         }
     }
 
     private static void startDrag(boolean isControlDown) {
-        synchronized (Engine.DATA_LOCK) {
-            if (touchedElement != null && touchedElement.isDragable()) {
-                touchedElement.startDrag(isControlDown);
-            } else if (touchedRootElement != null) {
-                touchedRootElement.startDrag(isControlDown);
+        if (isMouseInsideCanvasArea()) {
+            dragMode = DragMode.DRAGGING_CANVAS;
+            synchronized (Engine.DATA_LOCK) {
+                if (touchedElement != null && touchedElement.isDragable()) {
+                    touchedElement.startDrag(isControlDown);
+                } else if (touchedRootElement != null) {
+                    touchedRootElement.startDrag(isControlDown);
+                }
             }
+        } else if (isMouseInsideTerminalArea()) {
+            dragMode = DragMode.DRAGGING_TERMINAL;
+        } else {
+            dragMode = DragMode.NOT_DRAGGING;
         }
     }
 
     private static void endDrag() {
+        if (dragMode == DragMode.NOT_DRAGGING) {
+            return;
+        }
+        dragMode = DragMode.NOT_DRAGGING;
         synchronized (Engine.DATA_LOCK) {
             if (touchedElement != null) {
                 touchedElement.endDrag();
@@ -470,7 +472,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void updateDrag() {
-        if (!CumberlessMouseListener.isButtonPressed) {
+        if (dragMode == DragMode.NOT_DRAGGING || !CumberlessMouseListener.isButtonPressed) {
             return;
         }
         synchronized (Engine.DATA_LOCK) {
@@ -494,10 +496,18 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             toggleHighlight(oldTouchedElement, false);
             oldTouchedElement = touchedElement;
         }
-        if (CumberlessMouseListener.mouseY > canvasHeight - ButtonBar.BUTTONBAR_HEIGHT) {
+        if (!isMouseInsideCanvasArea()) {
             return;
         }
         toggleHighlight(touchedElement, true);
+    }
+
+    private static boolean isMouseInsideCanvasArea() {
+        return CumberlessMouseListener.mouseY < canvasHeight - ButtonBar.BUTTONBAR_HEIGHT;
+    }
+
+    private static boolean isMouseInsideTerminalArea() {
+        return CumberlessMouseListener.mouseY > windowHeight - Terminal.getHeight();
     }
 
     private static void findTouchedElement() {

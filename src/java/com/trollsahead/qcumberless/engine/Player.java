@@ -32,7 +32,9 @@ import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
+import java.util.List;
 
 public class Player implements DeviceCallback {
     private static final Set<Color> PLAYING_COLORS = new HashSet<Color>();
@@ -525,5 +527,13 @@ public class Player implements DeviceCallback {
             }
         }
         return false;
+    }
+
+    public static List<Device> getStartedDevices() {
+        List<Device> devices = new LinkedList<Device>();
+        for (Player player : players) {
+            devices.add(player.device);
+        }
+        return devices;
     }
 }

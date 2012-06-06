@@ -25,40 +25,66 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.Util;
 
-public class ConsoleOutput {
-    private StringBuilder log;
-    private ConsoleOutputListener outputListener = null;
+import java.awt.*;
+import java.util.LinkedList;
+import java.util.List;
 
+public class ConsoleOutput {
+    private List<String> log;
+    private List<String> textWrappedLog;
+
+    private int textWrapWidth = -1;
+    private FontMetrics textWrapMetrics = null;
+    
     public ConsoleOutput() {
-        log = new StringBuilder();
+        log = new LinkedList<String>();
+        textWrappedLog = new LinkedList<String>();
     }
     
     public void appendLog(String line) {
         if (Util.isEmpty(line)) {
             return;
         }
-        line = Util.appendNewlineIfNotPresent(line);
-        log.append(line);
-        if (outputListener != null) {
-            outputListener.lineAppended(line);
+        line = Util.removePostfixedNewline(line);
+        synchronized (Engine.DATA_LOCK) {
+            log.add(line);
         }
+        textWrappedLog.addAll(wrapLine(line));
     }
 
-    public void setOutputListener(ConsoleOutputListener outputListener) {
-        this.outputListener = outputListener;
-    }
-
-    public void removeOutputListener() {
-        this.outputListener = null;
-    }
-
-    public StringBuilder getLog() {
+    public List<String> getLog() {
         return log;
     }
 
-    public static interface ConsoleOutputListener {
-        public void lineAppended(String line);
+    public List<String> getTextWrappedLog(int wrapWidth, FontMetrics fontMetrics) {
+        if (textWrapWidth != wrapWidth || fontMetrics != textWrapMetrics || textWrappedLog == null) {
+            textWrapMetrics = fontMetrics;
+            textWrapWidth = wrapWidth;
+            wrapText();
+        }
+        return textWrappedLog;
+    }
+
+    private void wrapText() {
+        textWrappedLog = new LinkedList<String>();
+        for (String line : log) {
+            textWrappedLog.addAll(wrapLine(line));
+        }
+    }
+
+    private List<String> wrapLine(String line) {
+        if (Util.isEmpty(line)) {
+            return new LinkedList<String>();
+        }
+        if (textWrapWidth == -1) {
+            LinkedList<String> list = new LinkedList<String>();
+            list.add(line);
+            return list;
+        } else {
+            return Util.wrapText(line, textWrapWidth, textWrapMetrics);
+        }
     }
 }

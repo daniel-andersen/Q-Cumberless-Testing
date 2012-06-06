@@ -36,7 +36,7 @@ public class Animation {
     public static final float FADE_SPEED_FOLD                    = 0.05f;
     public static final float FADE_SPEED_REENTRANCE              = 0.05f;
     public static final float FADE_SPEED_APPEAR                  = 0.05f;
-    public static final float FADE_SPEED_CHANGE_COLOR_SCHEME     = 0.005f;
+    public static final float FADE_SPEED_CHANGE_COLOR_SCHEME     = 0.01f;
     public static final float FADE_SPEED_CHANGE_PLAY_COLOR_STATE = 0.1f;
 
     public static final float FADE_ALPHA_DEFAULT = 0.8f;
