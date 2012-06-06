@@ -283,26 +283,11 @@ public class ButtonBar {
     }
 
     public void resize() {
-        int x = BUTTON_PADDING;
-        scratchFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(scratchFeaturesButton.toString());
-        loadFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(loadFeaturesButton.toString());
-        saveFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(saveFeaturesButton.toString());
-        exportFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(exportFeaturesButton.toString());
-        x += BUTTON_PADDING;
-        closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(closeButton.toString());
-        x += BUTTON_PADDING;
-        tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING;
-        terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING;
-        pluginButtonsX = x;
-        pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
-        stopButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth + 30, BUTTONBAR_HEIGHT);
+        positionButtons();
+    }
+
+    private void positionButtons() {
+        positionStaticButtons();
         positionPluginButtons();
         positionDeviceButtons();
     }
@@ -334,6 +319,31 @@ public class ButtonBar {
         }
         sortDeviceButtons();
         positionDeviceButtons();
+    }
+
+    private void positionStaticButtons() {
+        int x = BUTTON_PADDING;
+        scratchFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(scratchFeaturesButton.toString());
+        loadFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(loadFeaturesButton.toString());
+        saveFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(saveFeaturesButton.toString());
+        exportFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(exportFeaturesButton.toString());
+        x += BUTTON_PADDING;
+        closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(closeButton.toString());
+        x += BUTTON_PADDING;
+        if (isTagsButtonVisible()) {
+            tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
+        terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING;
+        pluginButtonsX = x;
+        pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
+        stopButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth + 30, BUTTONBAR_HEIGHT);
     }
 
     private void positionPluginButtons() {
@@ -372,10 +382,20 @@ public class ButtonBar {
     }
 
     private void updateButtons() {
+        boolean shouldUpdateButtonPositions = false;
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
-        tagsButton.setVisible(isTagsButtonVisible());
-        terminalButton.setVisible(isTerminalButtonVisible());
+        if (tagsButton.isVisible() != isTagsButtonVisible()) {
+            tagsButton.setVisible(isTagsButtonVisible());
+            shouldUpdateButtonPositions = true;
+        }
+        if (terminalButton.isVisible() != isTerminalButtonVisible()) {
+            terminalButton.setVisible(isTerminalButtonVisible());
+            shouldUpdateButtonPositions = true;
+        }
+        if (shouldUpdateButtonPositions) {
+            positionButtons();
+        }
         for (Button button : buttons) {
             button.update();
         }

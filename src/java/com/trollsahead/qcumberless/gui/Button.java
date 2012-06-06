@@ -281,6 +281,10 @@ public class Button {
         return (alignment & type) != 0;
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
