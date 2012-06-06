@@ -38,6 +38,9 @@ import java.util.List;
 
 public class CucumberStepDefinitionLoader {
     public static void parseStepDefinitions(List<StepDefinition> stepDefinitions) {
+        if (stepDefinitions == null) {
+            return;
+        }
         List<BaseBarElement> elements = new ArrayList<BaseBarElement>();
         Engine.resetStepDefinitions(true);
         for (StepDefinition stepDefinition : stepDefinitions) {
