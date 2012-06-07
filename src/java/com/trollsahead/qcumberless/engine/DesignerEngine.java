@@ -474,6 +474,10 @@ public class DesignerEngine implements CucumberlessEngine {
         return Arrays.asList(featuresRoot.getTags().toArray(new String[0]));
     }
 
+    public static List<String> getDefinedTags(int typeFilter) {
+        return Arrays.asList(featuresRoot.getTags(typeFilter).toArray(new String[0]));
+    }
+
     public static void toggleRunTag(String tag) {
         String negatedTag = Util.negatedTag(tag);
         if (runTags.contains(tag)) {

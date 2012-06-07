@@ -437,6 +437,17 @@ public abstract class Element {
         return tags;
     }
 
+    public Set<String> getTags(int typeFilter) {
+        Set<String> tags = new HashSet<String>();
+        if (typeFilter == type) {
+            tags.addAll(getTagsInternal());
+        }
+        for (Element element : children) {
+            tags.addAll(element.getTags(typeFilter));
+        }
+        return tags;
+    }
+
     public abstract Set<String> getTagsInternal();
 
     public boolean isVisible() {

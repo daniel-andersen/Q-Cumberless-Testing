@@ -213,10 +213,11 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        showTagsDropDown();
+                        Engine.showEngine(Engine.tagsFilterEngine);
                     }
                 },
                 null);
+        tagsButton.setHint("Filter tags");
         buttons.add(tagsButton);
         terminalButton = new Button(
                 0, 0,
@@ -230,6 +231,7 @@ public class ButtonBar {
                     }
                 },
                 null);
+        terminalButton.setHint("Show terminal output");
         buttons.add(terminalButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
@@ -259,28 +261,6 @@ public class ButtonBar {
                 pluginButtons.add(button);
             }
         }
-    }
-
-    private void showTagsDropDown() {
-        DropDown.showInToggleMode(
-                tagsButton.renderX,
-                tagsButton.renderY - tagsButton.getImageHeight(),
-                new DropDown.DropDownToggleModeCallback() {
-                    public void toggleItem(String item) {
-                        DesignerEngine.toggleRunTag("@" + item);
-                    }
-
-                    public BufferedImage getToggledImage(String item) {
-                        if (DesignerEngine.isRunTagEnabled(Util.negatedTag("@" + item))) {
-                            return Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal());
-                        } else if (DesignerEngine.isRunTagEnabled("@" + item)) {
-                            return Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal());
-                        } else {
-                            return null;
-                        }
-                    }
-                },
-                DesignerEngine.getDefinedTags());
     }
 
     public void resize() {
@@ -336,10 +316,8 @@ public class ButtonBar {
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(closeButton.toString());
         x += BUTTON_PADDING;
-        if (isTagsButtonVisible()) {
-            tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-            x += BUTTON_PADDING;
-        }
+        tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING;
         terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING;
         pluginButtonsX = x;
@@ -386,10 +364,7 @@ public class ButtonBar {
         boolean shouldUpdateButtonPositions = false;
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
-        if (tagsButton.isVisible() != isTagsButtonVisible()) {
-            tagsButton.setVisible(isTagsButtonVisible());
-            shouldUpdateButtonPositions = true;
-        }
+        tagsButton.setVisible(true);
         if (terminalButton.isVisible() != isTerminalButtonVisible()) {
             terminalButton.setVisible(isTerminalButtonVisible());
             shouldUpdateButtonPositions = true;
@@ -414,10 +389,6 @@ public class ButtonBar {
 
     private boolean isSaveFeaturesButtonEnabled() {
         return DesignerEngine.featuresRoot.isLoaded;
-    }
-
-    private boolean isTagsButtonVisible() {
-        return !Util.isEmpty(DesignerEngine.getDefinedTags());
     }
 
     private boolean isTerminalButtonVisible() {

@@ -52,8 +52,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static FontMetrics fontMetrics;
 
     private static List<CucumberlessEngine> engines;
-    private static DesignerEngine designerEngine;
     private static CucumberlessEngine currentEngine = null;
+    public static DesignerEngine designerEngine;
+    public static TagsFilterEngine tagsFilterEngine;
 
     public static CumberlessCanvas canvas;
 
@@ -66,7 +67,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static final int DETAILS_MEDIUM = 1;
     public static final int DETAILS_LOW = 2;
 
-    public static long fpsTimer;
+    public static long fpsSecondTimer;
+    public static long fpsFrameTimer;
     public static int fpsUpdateCount;
     public static int fpsLastCount;
     public static int fpsDetails = DETAILS_HIGH;
@@ -105,15 +107,18 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         canvas.addKeyListener(this);
 
         designerEngine = new DesignerEngine();
+        tagsFilterEngine = new TagsFilterEngine();
 
         engines = new LinkedList<CucumberlessEngine>();
         engines.add(designerEngine);
+        engines.add(tagsFilterEngine);
 
         resetFps();
     }
 
     public static void resetFps() {
-        fpsTimer = System.currentTimeMillis();
+        fpsSecondTimer = System.currentTimeMillis();
+        fpsFrameTimer = fpsSecondTimer;
         fpsUpdateCount = 0;
         fpsLastCount = 0;
     }
@@ -137,7 +142,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         showEngine(designerEngine);
     }
 
-    private void showEngine(CucumberlessEngine engine) {
+    public static void showEngine(CucumberlessEngine engine) {
         if (currentEngine == engine) {
             return;
         }
@@ -212,7 +217,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     
     private void synchFramerate() {
         long time = System.currentTimeMillis();
-        if (time > fpsTimer + 1000L) {
+        if (time > fpsSecondTimer + 1000L) {
             fpsLastCount = fpsUpdateCount;
             String configDetails = ConfigurationManager.get("renderDetails");
             if (Util.isEmpty(configDetails) || "auto".equalsIgnoreCase(configDetails)) {
@@ -235,10 +240,11 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 }
             }
             fpsUpdateCount = 0;
-            fpsTimer = time;
+            fpsSecondTimer = time;
         }
         fpsUpdateCount++;
-        Util.sleep(5);
+        Util.sleep(Math.max(5, (1000L / FRAME_RATE) - (time - fpsFrameTimer)));
+        fpsFrameTimer = System.currentTimeMillis();
     }
 
     private static void createBackbuffer() {
@@ -317,31 +323,43 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void mouseMoved() {
-        currentEngine.mouseMoved();
+        if (currentEngine != null) {
+            currentEngine.mouseMoved();
+        }
         updateDrag();
     }
 
     public static void mouseWheelMoved(int unitsToScroll) {
-        currentEngine.mouseWheelMoved(unitsToScroll);
+        if (currentEngine != null) {
+            currentEngine.mouseWheelMoved(unitsToScroll);
+        }
     }
 
     private static void startDrag(boolean isControlDown) {
-        currentEngine.startDrag(isControlDown);
+        if (currentEngine != null) {
+            currentEngine.startDrag(isControlDown);
+        }
     }
 
     private static void endDrag() {
-        currentEngine.endDrag();
+        if (currentEngine != null) {
+            currentEngine.endDrag();
+        }
     }
 
     private static void updateDrag() {
-        currentEngine.updateDrag();
+        if (currentEngine != null) {
+            currentEngine.updateDrag();
+        }
     }
 
     public void keyTyped(KeyEvent keyEvent) {
     }
 
     public void keyPressed(KeyEvent keyEvent) {
-        currentEngine.keyPressed(keyEvent);
+        if (currentEngine != null) {
+            currentEngine.keyPressed(keyEvent);
+        }
     }
 
     public void keyReleased(KeyEvent keyEvent) {
