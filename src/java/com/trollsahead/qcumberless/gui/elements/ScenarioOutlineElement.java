@@ -67,4 +67,8 @@ public class ScenarioOutlineElement extends ScenarioElement {
     public ExamplesElement getExamplesElement() {
         return children != null && children.size() > 0 ? (ExamplesElement) children.get(children.size() - 1) : null;
     }
+
+    protected boolean canBeFilteredByTags() {
+        return true;
+    }
 }

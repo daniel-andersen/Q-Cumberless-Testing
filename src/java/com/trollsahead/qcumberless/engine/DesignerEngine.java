@@ -71,6 +71,7 @@ public class DesignerEngine implements CucumberlessEngine {
     public static String featuresBaseDir = null;
 
     private static Set<String> runTags = new HashSet<String>();
+    public static String tagsFilter = null;
 
     public static ColorScheme colorScheme = ColorScheme.DESIGN;
 
@@ -509,5 +510,17 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static void toggleTerminal() {
         Terminal.toggleTerminal();
+    }
+
+    public static void filterByTagsAtFeatureLevel(String tags) {
+        featuresRoot.showAll(false);
+        featuresRoot.filterFeaturesAtTopLevel(tags);
+        featuresRoot.scrollToTop();
+    }
+
+    public static void filterByTagsAtAnyLevel(String tags) {
+        featuresRoot.showAll(false);
+        featuresRoot.filterFeaturesAtAnyLevel(tags);
+        featuresRoot.scrollToTop();
     }
 }

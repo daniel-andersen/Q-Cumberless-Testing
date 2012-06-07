@@ -412,20 +412,37 @@ public abstract class Element {
     public abstract boolean export(File directory);
     public abstract boolean save();
 
-    public void show() {
+    public void show(boolean animate) {
         if (visible) {
             return;
         }
         visible = true;
-        animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
+        if (animate) {
+            animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
+        } else {
+            animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT);
+            shouldStickToParentRenderPosition = true;
+        }
     }
 
-    public void hide() {
+    public void showAll(boolean animate) {
+        show(animate);
+        for (Element child : children) {
+            child.showAll(animate);
+        }
+    }
+
+    public void hide(boolean animate) {
         if (!visible) {
             return;
         }
         visible = false;
-        animation.alphaAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
+        if (animate) {
+            animation.alphaAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
+        } else {
+            animation.alphaAnimation.setAlpha(0.0f);
+            shouldStickToParentRenderPosition = true;
+        }
     }
 
     public Set<String> getTags() {
@@ -449,6 +466,62 @@ public abstract class Element {
     }
 
     public abstract Set<String> getTagsInternal();
+
+    public void filterFeaturesAtTopLevel(String tags) {
+        if (type == BaseBarElement.TYPE_FEATURE) {
+            if (containsAnyOfTags(tags)) {
+                show(false);
+            } else {
+                hide(false);
+            }
+            return;
+        }
+        for (Element child : children) {
+            child.filterFeaturesAtTopLevel(tags);
+        }
+    }
+
+    public boolean filterFeaturesAtAnyLevel(String tags) {
+        if (!canBeFilteredByTags()) {
+            return false;
+        }
+        boolean childrenHasTags = false;
+        for (Element child : children) {
+            if (child.containsAnyOfTags(tags)) {
+                childrenHasTags = true;
+            } else {
+                childrenHasTags |= child.filterFeaturesAtAnyLevel(tags);
+            }
+        }
+        if (type == BaseBarElement.TYPE_FEATURE) {
+            if (childrenHasTags) {
+                show(false);
+            } else {
+                hide(false);
+            }
+        }
+        return childrenHasTags;
+    }
+
+    public boolean containsAnyOfTags(String tags) {
+        for (String tag : Util.stringToTagList(tags)) {
+            if (containsTag(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean containsTag(String tag) {
+        for (String otherTag : getTags()) {
+            if (otherTag.equals(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    protected abstract boolean canBeFilteredByTags();
 
     public boolean isVisible() {
         return visible;

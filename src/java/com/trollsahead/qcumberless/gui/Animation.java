@@ -173,6 +173,18 @@ public class Animation {
             }
         }
 
+        public void setAlpha(float alpha) {
+            this.fromColor = currentColor.clone();
+            this.fromColor[3] = alpha;
+            this.destColor[3] = alpha;
+            this.currentColor[3] = alpha;
+            this.progress = 1.0f;
+            this.isFading = false;
+            if (getAlpha() <= 0.0f) {
+                becameVisibleAtCount = Engine.renderCounter;
+            }
+        }
+
         public void setColor(float[] color, float speed) {
             this.fromColor = currentColor.clone();
             this.destColor = color.clone();

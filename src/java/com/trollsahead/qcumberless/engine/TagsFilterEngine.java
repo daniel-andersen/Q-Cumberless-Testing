@@ -28,20 +28,33 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.gui.RenderOptimizer;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 public class TagsFilterEngine implements CucumberlessEngine {
     private static final Color TEXT_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    private static final Color TITLE_UNDERLINE_COLOR = new Color(0.3f, 0.3f, 0.3f, 1.0f);
 
     private static final String NO_FEATURE_TAGS = "NO FEATURE TAGS DEFINED";
     private static final String NO_TAGS = "NO TAGS DEFINED";
+
+    private static final String FEATURE_TAGS_TITLE = "FEATURE TAGS";
+    private static final String ALL_TAGS_TITLE = "ALL TAGS";
+
+    private static final int TAG_WIDTH = 100;
+    private static final int TAG_HEIGHT = 50;
+
+    private static final int TAG_PADDING_HORIZONTAL = 50;
+    private static final int TAG_PADDING_VERTICAL = 50;
+    private static final int TAGS_TITLE_PADDING = 10;
 
     private BufferedImage background = null;
     private Graphics2D backgroundGraphics = null;
@@ -55,7 +68,9 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private static final Color TAGS_COLOR = new Color(0.6f, 0.6f, 0.65f);
 
     private enum AppearState {VISIBLE, HIDDEN, APPEARING, DISAPPEARING}
+
     private AppearState appearState = AppearState.HIDDEN;
+    private AppearState appearStateOld = AppearState.HIDDEN;
     private float appearAnimation;
 
     private List<String> featureTags;
@@ -71,6 +86,9 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private int allTagsWidth;
     private int allTagsHeight;
 
+    private List<Button> featureTagsButtons;
+    private List<Button> allTagsButtons;
+
     public void initialize() {
     }
 
@@ -82,6 +100,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         appearState = AppearState.APPEARING;
         featureTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_FEATURE);
         allTags = DesignerEngine.getDefinedTags();
+        updateTagsButtons();
     }
 
     public void hide() {
@@ -92,6 +111,12 @@ public class TagsFilterEngine implements CucumberlessEngine {
 
     public void update() {
         updateAppearAnimation();
+        for (Button button : featureTagsButtons) {
+            button.update();
+        }
+        for (Button button : allTagsButtons) {
+            button.update();
+        }
     }
 
     private void updateAppearAnimation() {
@@ -111,11 +136,64 @@ public class TagsFilterEngine implements CucumberlessEngine {
         }
     }
 
+    private void updateTagsButtons() {
+        featureTagsButtons = new LinkedList<Button>();
+        for (final String tag : featureTags) {
+            featureTagsButtons.add(
+                    new Button(
+                            0,
+                            0,
+                            tag,
+                            Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                            new Button.ButtonNotification() {
+                                public void onClick() {
+                                    DesignerEngine.filterByTagsAtFeatureLevel("@" + tag);
+                                    startHiding();
+                                }
+                            },
+                            null));
+        }
+        allTagsButtons = new LinkedList<Button>();
+        for (final String tag : allTags) {
+            allTagsButtons.add(
+                    new Button(
+                            0,
+                            0,
+                            tag,
+                            Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                            new Button.ButtonNotification() {
+                                public void onClick() {
+                                    DesignerEngine.filterByTagsAtAnyLevel("@" + tag);
+                                    startHiding();
+                                }
+                            },
+                            null));
+        }
+    }
+
+    private void startHiding() {
+        appearState = AppearState.DISAPPEARING;
+    }
+
     public void render(Graphics2D g) {
+        if (appearState == AppearState.DISAPPEARING) {
+            if (appearStateOld != AppearState.DISAPPEARING) {
+                renderDesignModeToBackgroundImage();
+            }
+        }
         calculatePosition();
         renderBackground(g);
-        renderFeatureTags(g);
-        renderTags(g);
+        if (appearState == AppearState.VISIBLE) {
+            renderFeatureTags(g);
+            renderTags(g);
+        }
+        appearStateOld = appearState;
+    }
+
+    private void renderDesignModeToBackgroundImage() {
+        Engine.designerEngine.update();
+        Engine.designerEngine.render(backgroundGraphics);
+        Engine.designerEngine.postRender();
     }
 
     private void calculatePosition() {
@@ -128,58 +206,103 @@ public class TagsFilterEngine implements CucumberlessEngine {
         allTagsHeight = (int) (Engine.windowHeight * 0.45f);
         allTagsX = (Engine.windowWidth - allTagsWidth) / 2;
         allTagsY = (((Engine.windowHeight / 2) - allTagsHeight) / 2) + (Engine.windowHeight / 2);
+
+        updateButtonPositions();
+    }
+
+    private void updateButtonPositions() {
+        int i = 0;
+        for (Button button : featureTagsButtons) {
+            setButtonPosition(button, i, featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
+            i++;
+        }
+        i = 0;
+        for (Button button : allTagsButtons) {
+            setButtonPosition(button, i, allTagsX, allTagsY, allTagsWidth, allTagsHeight);
+            i++;
+        }
+    }
+
+    private void setButtonPosition(Button button, int index, int x, int y, int width, int height) {
+        int tagWidthPlusPadding = TAG_WIDTH + TAG_PADDING_HORIZONTAL;
+        int tagHeightPlusPadding = TAG_HEIGHT + TAG_PADDING_VERTICAL;
+        int countX = width / tagWidthPlusPadding;
+        int countY = height / tagHeightPlusPadding;
+        int offsetX = x + (width - ((countX * tagWidthPlusPadding) - TAG_PADDING_HORIZONTAL)) / 2;
+        int offsetY = y + (height - ((countY * tagHeightPlusPadding) - TAG_PADDING_VERTICAL)) / 2;
+        button.setPosition(
+                offsetX + (index % countX) * tagWidthPlusPadding,
+                offsetY + (index / countX) * tagHeightPlusPadding);
     }
 
     private void renderFeatureTags(Graphics2D g) {
-        g.setColor(new Color(TAGS_COLOR.getRed() / 255.0f, TAGS_COLOR.getGreen() / 255.0f, TAGS_COLOR.getBlue() / 255.0f, appearAnimation * TAGS_FADE));
-        g.fillRect(featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
-
         if (Util.isEmpty(featureTags)) {
             g.setColor(TEXT_COLOR);
             g.drawString(NO_FEATURE_TAGS, (Engine.windowWidth - Engine.fontMetrics.stringWidth(NO_FEATURE_TAGS)) / 2, featureTagsY + ((featureTagsHeight - Engine.fontMetrics.getHeight()) / 2));
             return;
         }
+        drawTitle(g, FEATURE_TAGS_TITLE, featureTagsY);
+        for (Button button : featureTagsButtons) {
+            button.render(g);
+        }
     }
 
     private void renderTags(Graphics2D g) {
-        g.setColor(new Color(TAGS_COLOR.getRed() / 255.0f, TAGS_COLOR.getGreen() / 255.0f, TAGS_COLOR.getBlue() / 255.0f, appearAnimation * TAGS_FADE));
-        g.fillRect(allTagsX, allTagsY, allTagsWidth, allTagsHeight);
-
         if (Util.isEmpty(allTags)) {
             g.setColor(TEXT_COLOR);
             g.drawString(NO_TAGS, (Engine.windowWidth - Engine.fontMetrics.stringWidth(NO_TAGS)) / 2, allTagsY + ((allTagsHeight - Engine.fontMetrics.getHeight()) / 2));
             return;
         }
+        drawTitle(g, ALL_TAGS_TITLE, allTagsY);
+        for (Button button : allTagsButtons) {
+            button.render(g);
+        }
+    }
+    
+    private void drawTitle(Graphics g, String title, int y) {
+        int titleWidth = Engine.fontMetrics.stringWidth(title);
+        int titleX = (Engine.windowWidth - titleWidth) / 2;
+        int titleY = y + Engine.fontMetrics.getHeight() + TAGS_TITLE_PADDING;
+        g.setColor(Color.BLACK);
+        g.drawString(title, titleX + 1, titleY + 1);
+        g.setColor(TEXT_COLOR);
+        g.drawString(title, titleX, titleY);
+        g.setColor(TITLE_UNDERLINE_COLOR);
+        g.drawLine(titleX - 25, titleY + 5, titleX + titleWidth + 25, titleY + 5);
     }
 
     private void renderBackground(Graphics2D g) {
         if (appearState == AppearState.VISIBLE) {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
-            return;
-        }
-        if (Engine.fpsDetails != Engine.DETAILS_LOW) {
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
-
-            float scale = 1.0f + (appearAnimation * BACKGROUND_SIZE);
-
-            int width = (int) (Engine.windowWidth * scale);
-            int height = (int) (Engine.windowHeight * scale);
-            int x = (Engine.windowWidth - width) / 2;
-            int y = (Engine.windowHeight - height) / 2;
-
-            AffineTransform transform = g.getTransform();
-            g.translate(x, y);
-            g.scale(scale, scale);
-            g.drawImage(background, 0, 0, null);
-            g.setTransform(transform);
         } else {
-            g.drawImage(background, 0, 0, null);
+            if (Engine.fpsDetails != Engine.DETAILS_LOW) {
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
+
+                float scale = 1.0f + (appearAnimation * BACKGROUND_SIZE);
+
+                int width = (int) (Engine.windowWidth * scale);
+                int height = (int) (Engine.windowHeight * scale);
+                int x = (Engine.windowWidth - width) / 2;
+                int y = (Engine.windowHeight - height) / 2;
+
+                AffineTransform transform = g.getTransform();
+                g.translate(x, y);
+                g.scale(scale, scale);
+                g.drawImage(background, 0, 0, null);
+                g.setTransform(transform);
+            } else {
+                g.drawImage(background, 0, 0, null);
+            }
         }
 
         g.setColor(new Color(0.0f, 0.0f, 0.0f, appearAnimation * BACKGROUND_FADE));
         g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
+
+        g.setColor(new Color(TAGS_COLOR.getRed() / 255.0f, TAGS_COLOR.getGreen() / 255.0f, TAGS_COLOR.getBlue() / 255.0f, appearAnimation * TAGS_FADE));
+        g.fillRect(featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
+        g.fillRect(allTagsX, allTagsY, allTagsWidth, allTagsHeight);
     }
 
     public void postRender() {
@@ -195,6 +318,12 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void click(int clickCount) {
+        for (Button button : featureTagsButtons) {
+            button.click();
+        }
+        for (Button button : allTagsButtons) {
+            button.click();
+        }
     }
 
     public void keyPressed(KeyEvent keyEvent) {

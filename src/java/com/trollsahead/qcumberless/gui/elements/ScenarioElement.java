@@ -84,4 +84,8 @@ public class ScenarioElement extends BaseBarElement {
     protected StringBuilder buildFeatureInternalSkipThis() {
         return super.buildFeatureInternal();
     }
+
+    protected boolean canBeFilteredByTags() {
+        return true;
+    }
 }

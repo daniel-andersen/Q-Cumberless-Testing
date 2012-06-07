@@ -1251,4 +1251,8 @@ public abstract class BaseBarElement extends Element {
     public Set<String> getTagsInternal() {
         return tags.toSet();
     }
+
+    protected boolean canBeFilteredByTags() {
+        return false;
+    }
 }

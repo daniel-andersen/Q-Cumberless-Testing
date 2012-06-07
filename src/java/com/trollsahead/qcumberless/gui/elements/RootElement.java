@@ -264,9 +264,9 @@ public class RootElement extends Element {
     public void filterChildren(String regexp) {
         for (Element child : children) {
             if (!child.getTitle().matches(regexp)) {
-                child.hide();
+                child.hide(true);
             } else {
-                child.show();
+                child.show(true);
             }
         }
         scrollToTop();
@@ -279,6 +279,10 @@ public class RootElement extends Element {
 
     public Set<String> getTagsInternal() {
         return new HashSet<String>();
+    }
+
+    protected boolean canBeFilteredByTags() {
+        return true;
     }
 
     public void toggleColorSchemeInternal() {

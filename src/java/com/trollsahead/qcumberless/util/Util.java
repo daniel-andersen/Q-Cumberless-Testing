@@ -226,6 +226,16 @@ public class Util {
         return tags;
     }
 
+    public static List<String> stringToTagList(String tags) {
+        List<String> tagList = new LinkedList<String>();
+        for (String tag : tags.split("@")) {
+            if (!isEmpty(tag)) {
+                tagList.add(tag);
+            }
+        }
+        return tagList;
+    }
+
     public static String negatedTag(String tag) {
         return tag.startsWith("~") ? tag.substring(1) : ("~" + tag);
     }

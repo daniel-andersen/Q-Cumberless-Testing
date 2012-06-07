@@ -83,4 +83,8 @@ public class FeatureElement extends BaseBarElement {
     private String convertNewlines(String title) {
         return title.replaceAll("\\s\\*\\s", "\n");
     }
+
+    protected boolean canBeFilteredByTags() {
+        return true;
+    }
 }
