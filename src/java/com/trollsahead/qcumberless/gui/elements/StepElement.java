@@ -73,7 +73,7 @@ public class StepElement extends BaseBarElement {
     public BaseBarElement duplicate() {
         StepElement element = new StepElement(rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
         if (table != null) {
-            element.table = table.duplicate();
+            element.table = table.duplicate(element);
         }
         duplicatePropertiesTo(element);
         return element;

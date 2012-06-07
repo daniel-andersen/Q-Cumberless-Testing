@@ -89,8 +89,8 @@ public class Player implements DeviceCallback {
     public static void prepareRun() {
         hasDeviceFailures = false;
         notifiedStopped = false;
-        Engine.featuresRoot.setPlayColorStateIncludingChildren(Element.PlayColorState.NOT_YET_PLAYED);
-        Engine.setColorScheme(Element.ColorScheme.PLAY);
+        DesignerEngine.featuresRoot.setPlayColorStateIncludingChildren(Element.PlayColorState.NOT_YET_PLAYED);
+        DesignerEngine.setColorScheme(Element.ColorScheme.PLAY);
     }
 
     public Player() {
@@ -240,7 +240,7 @@ public class Player implements DeviceCallback {
 
     public void onPlay() {
         success = true;
-        Engine.cucumberRoot.clearRunStatus();
+        DesignerEngine.cucumberRoot.clearRunStatus();
     }
 
     public void onPause() {
@@ -281,7 +281,7 @@ public class Player implements DeviceCallback {
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
         resetCurrentScenario();
-        currentFeature = (BaseBarElement) Engine.featuresRoot.findChild(name);
+        currentFeature = (BaseBarElement) DesignerEngine.featuresRoot.findChild(name);
         setSuccess(currentFeature);
     }
 
@@ -378,7 +378,7 @@ public class Player implements DeviceCallback {
     private void setFailed() {
         success = false;
         hasDeviceFailures = true;
-        Engine.buttonBar.setFailed();
+        DesignerEngine.buttonBar.setFailed();
     }
 
     private void resetCurrentScenario() {

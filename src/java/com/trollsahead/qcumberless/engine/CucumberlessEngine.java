@@ -23,23 +23,34 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.gui;
+package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.device.Device;
 
-import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.Set;
 
-public class CumberlessCanvas extends JPanel {
-    public CumberlessCanvas() {
-        setFocusable(true);
-        setIgnoreRepaint(true);
-        setBackground(Color.BLACK);
-    }
+public interface CucumberlessEngine {
+    void initialize();
+    void show();
+    void hide();
 
-    public void paintComponent(Graphics g) {
-        synchronized (Engine.RENDER_LOCK) {
-            g.drawImage(Engine.backbuffer, 0, 0, this);
-        }
-    }
+    void update();
+    void render(Graphics2D g);
+    void postRender();
+
+    void resize();
+
+    void mouseMoved();
+    void mouseWheelMoved(int unitsToScroll);
+    void click(int clickCount);
+
+    void keyPressed(KeyEvent keyEvent);
+
+    void startDrag(boolean isControlDown);
+    void endDrag();
+    void updateDrag();
+
+    void updateDevices(Set<Device> devices);
 }

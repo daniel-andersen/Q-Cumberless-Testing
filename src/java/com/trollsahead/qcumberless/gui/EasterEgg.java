@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.*;
 
@@ -87,7 +88,7 @@ public class EasterEgg {
     }
 
     private static void updateElements() {
-        if (Engine.featuresRoot.children.size() == 0 && customElements.size() == 0) {
+        if (DesignerEngine.featuresRoot.children.size() == 0 && customElements.size() == 0) {
             createCustomElements();
         }
         for (Element element : customElements) {
@@ -198,8 +199,8 @@ public class EasterEgg {
         if (stickY < 0) {
             stickY = 0;
         }
-        if (stickY + STICK_HEIGHT > Engine.canvasHeight) {
-            stickY = Engine.canvasHeight - STICK_HEIGHT;
+        if (stickY + STICK_HEIGHT > DesignerEngine.canvasHeight) {
+            stickY = DesignerEngine.canvasHeight - STICK_HEIGHT;
         }
     }
 
@@ -264,8 +265,8 @@ public class EasterEgg {
             ballY = -ballY;
             ballVelY = -ballVelY;
         }
-        if (ballY > Engine.canvasHeight && ballVelY > 0.0f) {
-            ballY = Engine.canvasHeight - (ballY - Engine.canvasHeight);
+        if (ballY > DesignerEngine.canvasHeight && ballVelY > 0.0f) {
+            ballY = DesignerEngine.canvasHeight - (ballY - DesignerEngine.canvasHeight);
             ballVelY = -ballVelY;
         }
         if (ballVelX > 0.0f &&
@@ -314,7 +315,7 @@ public class EasterEgg {
     }
 
     private static void removeElement(Element element) {
-        if (Engine.featuresRoot.children.size() > 0) {
+        if (DesignerEngine.featuresRoot.children.size() > 0) {
             if (element.children.size() <= 0) {
                 element.trashElement();
             } else if (element.isFolded()) {
@@ -347,7 +348,7 @@ public class EasterEgg {
                 }
             }
         } else {
-            return Engine.cucumberRoot.findElement(x, y);
+            return DesignerEngine.cucumberRoot.findElement(x, y);
         }
         return null;
     }
@@ -387,12 +388,12 @@ public class EasterEgg {
 
     private static void drawBackground(Graphics g) {
         animation += enabled ? 1 : -1;
-        int animationMax = Engine.canvasHeight * 2 / BACKGROUND_ANIMATION_SIZE;
+        int animationMax = DesignerEngine.canvasHeight * 2 / BACKGROUND_ANIMATION_SIZE;
         animation = Math.max(0, Math.min(animation, animationMax));
         backgroundCoveringCanvas = animation >= animationMax;
         g.setColor(Color.BLACK);
         int top = 0;
-        for (int y = 0; y < Engine.canvasHeight; y += BACKGROUND_ANIMATION_SIZE) {
+        for (int y = 0; y < DesignerEngine.canvasHeight; y += BACKGROUND_ANIMATION_SIZE) {
             int height = Math.min(animation - (y / BACKGROUND_ANIMATION_DELAY), BACKGROUND_ANIMATION_SIZE);
             if (height < BACKGROUND_ANIMATION_SIZE) {
                 if (height >= 0) {
@@ -401,8 +402,8 @@ public class EasterEgg {
                 top = y + BACKGROUND_ANIMATION_SIZE;
             }
         }
-        if (top < Engine.canvasHeight) {
-            g.fillRect(0, top, Engine.windowWidth, Engine.canvasHeight - top);
+        if (top < DesignerEngine.canvasHeight) {
+            g.fillRect(0, top, Engine.windowWidth, DesignerEngine.canvasHeight - top);
         }
     }
 
@@ -417,7 +418,7 @@ public class EasterEgg {
                 backgroundCoveringCanvas = false;
             }
             ballSticky = true;
-            Engine.featuresRoot.scrollToTop();
+            DesignerEngine.featuresRoot.scrollToTop();
             BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
             Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
             savedCursor = Engine.canvas.getCursor();
@@ -428,7 +429,7 @@ public class EasterEgg {
     public static void hide() {
         synchronized (Engine.DATA_LOCK) {
             enabled = false;
-            Engine.spotlight.clear();
+            DesignerEngine.spotlight.clear();
             Engine.canvas.setCursor(savedCursor);
         }
     }

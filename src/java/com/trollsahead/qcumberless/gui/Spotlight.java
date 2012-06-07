@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.util.Util;
@@ -62,9 +63,9 @@ public class Spotlight {
     public void clear() {
         visible = false;
         animation.colorAnimation.setAlpha(0.0f, COLOR_DISAPPEAR_SPEED);
-        if (Engine.stepsRoot != null) {
-            Engine.stepsRoot.pushToPosition(0);
-            Engine.stepsRoot.filterChildren(".*");
+        if (DesignerEngine.stepsRoot != null) {
+            DesignerEngine.stepsRoot.pushToPosition(0);
+            DesignerEngine.stepsRoot.filterChildren(".*");
         }
     }
 
@@ -107,7 +108,7 @@ public class Spotlight {
             regexp += "[" + s.toLowerCase() + s.toUpperCase() + "]";
         }
         regexp += ".*";
-        Engine.stepsRoot.filterChildren(regexp);
+        DesignerEngine.stepsRoot.filterChildren(regexp);
     }
     
     public void addCharacter(char ch) {
@@ -121,7 +122,7 @@ public class Spotlight {
         searchString = "";
         animation = new Animation(COLOR_BACKGROUND_NORMAL);
         visible = true;
-        Engine.stepsRoot.pushToPosition(BAR_HEIGHT + PADDING_VERTICAL);
+        DesignerEngine.stepsRoot.pushToPosition(BAR_HEIGHT + PADDING_VERTICAL);
     }
 
     public void update() {
@@ -134,7 +135,7 @@ public class Spotlight {
         }
         BufferedImage spotlightImage = Images.getImage(Images.IMAGE_SPOTLIGHT, ThumbnailState.NORMAL.ordinal());
         int width = spotlightImage.getWidth() + PADDING_IMAGE_TO_TEXT + Engine.fontMetrics.stringWidth(searchString) + (PADDING_HORIZONTAL * 2);
-        int x = (int) Engine.stepsRoot.animation.moveAnimation.renderX;
+        int x = (int) DesignerEngine.stepsRoot.animation.moveAnimation.renderX;
         int y = PADDING_VERTICAL;
 
         g.setColor(animation.colorAnimation.getColor());

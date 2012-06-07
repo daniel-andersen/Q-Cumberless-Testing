@@ -25,7 +25,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
-import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.elements.StepElement;
 import com.trollsahead.qcumberless.model.Step;
@@ -42,11 +42,11 @@ public class CucumberStepDefinitionLoader {
             return;
         }
         List<BaseBarElement> elements = new ArrayList<BaseBarElement>();
-        Engine.resetStepDefinitions(true);
+        DesignerEngine.resetStepDefinitions(true);
         for (StepDefinition stepDefinition : stepDefinitions) {
             Step currentStep = new Step(stepDefinition);
             currentStep.setShouldRenderKeyword(false);
-            Engine.stepDefinitions.add(currentStep);
+            DesignerEngine.stepDefinitions.add(currentStep);
             elements.add(new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
         }
         Collections.sort(elements, new Comparator<BaseBarElement>() {
@@ -55,7 +55,7 @@ public class CucumberStepDefinitionLoader {
             }
         });
         for (BaseBarElement element : elements) {
-            Engine.stepsRoot.addChild(element);
+            DesignerEngine.stepsRoot.addChild(element);
         }
     }
 }

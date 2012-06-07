@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
@@ -145,10 +146,10 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        if (Engine.spotlight.visible && "black knight mode".equalsIgnoreCase(Engine.spotlight.searchString)) {
+                        if (DesignerEngine.spotlight.visible && "black knight mode".equalsIgnoreCase(DesignerEngine.spotlight.searchString)) {
                             EasterEgg.show();
                         } else {
-                            Engine.scratchFeatures(true);
+                            DesignerEngine.scratchFeatures(true);
                         }
                     }
                 },
@@ -162,7 +163,7 @@ public class ButtonBar {
                     public void onClick() {
                         File[] files = CucumberlessDialog.instance.fileChooser();
                         if (files != null) {
-                            Engine.importFeatures(files);
+                            DesignerEngine.importFeatures(files);
                         }
                     }
                 },
@@ -174,7 +175,7 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        Engine.saveFeatures();
+                        DesignerEngine.saveFeatures();
                     }
                 },
                 null);
@@ -187,7 +188,7 @@ public class ButtonBar {
                     public void onClick() {
                         File directory = CucumberlessDialog.instance.directoryChooser();
                         if (directory != null) {
-                            Engine.exportFeatures(directory);
+                            DesignerEngine.exportFeatures(directory);
                         }
                     }
                 },
@@ -225,7 +226,7 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        Engine.toggleTerminal();
+                        DesignerEngine.toggleTerminal();
                     }
                 },
                 null);
@@ -266,20 +267,20 @@ public class ButtonBar {
                 tagsButton.renderY - tagsButton.getImageHeight(),
                 new DropDown.DropDownToggleModeCallback() {
                     public void toggleItem(String item) {
-                        Engine.toggleRunTag("@" + item);
+                        DesignerEngine.toggleRunTag("@" + item);
                     }
 
                     public BufferedImage getToggledImage(String item) {
-                        if (Engine.isRunTagEnabled(Util.negatedTag("@" + item))) {
+                        if (DesignerEngine.isRunTagEnabled(Util.negatedTag("@" + item))) {
                             return Images.getImage(Images.IMAGE_MINUS, ThumbnailState.NORMAL.ordinal());
-                        } else if (Engine.isRunTagEnabled("@" + item)) {
+                        } else if (DesignerEngine.isRunTagEnabled("@" + item)) {
                             return Images.getImage(Images.IMAGE_ADD, ThumbnailState.NORMAL.ordinal());
                         } else {
                             return null;
                         }
                     }
                 },
-                Engine.getDefinedTags());
+                DesignerEngine.getDefinedTags());
     }
 
     public void resize() {
@@ -408,15 +409,15 @@ public class ButtonBar {
     }
 
     private boolean isExportFeaturesButtonEnabled() {
-        return Engine.featuresRoot.children.size() > 0;
+        return DesignerEngine.featuresRoot.children.size() > 0;
     }
 
     private boolean isSaveFeaturesButtonEnabled() {
-        return Engine.featuresRoot.isLoaded;
+        return DesignerEngine.featuresRoot.isLoaded;
     }
 
     private boolean isTagsButtonVisible() {
-        return !Util.isEmpty(Engine.getDefinedTags());
+        return !Util.isEmpty(DesignerEngine.getDefinedTags());
     }
 
     private boolean isTerminalButtonVisible() {
@@ -460,7 +461,7 @@ public class ButtonBar {
         renderWidth = Engine.windowWidth;
         renderHeight = BUTTONBAR_HEIGHT;
         renderX = (int) animation.moveAnimation.renderX;
-        renderY = Engine.canvasHeight - renderHeight;
+        renderY = DesignerEngine.canvasHeight - renderHeight;
     }
 
     private void renderBackground(Graphics g) {

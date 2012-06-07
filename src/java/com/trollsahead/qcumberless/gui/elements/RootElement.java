@@ -25,7 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.ButtonBar;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
@@ -157,7 +157,7 @@ public class RootElement extends Element {
     }
 
     protected void renderAfter(Graphics2D g) {
-        if (this == Engine.cucumberRoot) {
+        if (this == DesignerEngine.cucumberRoot) {
             return;
         }
         renderScrollbar(g);
@@ -169,7 +169,7 @@ public class RootElement extends Element {
 
     private void renderScrollbar(Graphics g) {
         scrollbarX = (int) animation.moveAnimation.renderX - PADDING_HORIZONTAL;
-        if (this == Engine.featuresRoot) {
+        if (this == DesignerEngine.featuresRoot) {
             scrollbarX += SCROLLBAR_PADDING_HORIZONTAL;
         } else {
             scrollbarX += renderWidth - SCROLLBAR_PADDING_HORIZONTAL - SCROLLBAR_WIDTH;
@@ -194,7 +194,7 @@ public class RootElement extends Element {
     }
 
     protected void calculateRenderPosition(Graphics2D g) {
-        if (this == Engine.cucumberRoot) {
+        if (this == DesignerEngine.cucumberRoot) {
             return;
         }
         updatePosition();
@@ -213,8 +213,8 @@ public class RootElement extends Element {
     }
 
     private boolean isScrollbarTouched() {
-        return (this == Engine.featuresRoot && CumberlessMouseListener.mouseX <= scrollbarX + SCROLLBAR_WIDTH) ||
-               (this == Engine.stepsRoot && CumberlessMouseListener.mouseX >= scrollbarX);
+        return (this == DesignerEngine.featuresRoot && CumberlessMouseListener.mouseX <= scrollbarX + SCROLLBAR_WIDTH) ||
+               (this == DesignerEngine.stepsRoot && CumberlessMouseListener.mouseX >= scrollbarX);
     }
 
     protected void foldFadeAnimation(float alpha) {

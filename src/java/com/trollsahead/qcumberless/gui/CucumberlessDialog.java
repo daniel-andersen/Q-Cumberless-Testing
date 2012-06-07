@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
@@ -146,14 +147,14 @@ public class CucumberlessDialog extends JFrame {
     public String askFeatureFilename() {
         String filename = (String) JOptionPane.showInputDialog(
                 this,
-                Util.isEmpty(Engine.featuresBaseDir) ? "Enter filename with full path" : ("Enter filename relative to features directory:\n" + Engine.featuresBaseDir),
+                Util.isEmpty(DesignerEngine.featuresBaseDir) ? "Enter filename with full path" : ("Enter filename relative to features directory:\n" + DesignerEngine.featuresBaseDir),
                 "Enter filename",
                 JOptionPane.PLAIN_MESSAGE,
                 null,
                 null,
                 "noname.feature");
-        if (!Util.isEmpty(filename) && !Util.isEmpty(Engine.featuresBaseDir)) {
-            return Util.addSlashToPath(Engine.featuresBaseDir) + Util.removeTrailingSlash(filename);
+        if (!Util.isEmpty(filename) && !Util.isEmpty(DesignerEngine.featuresBaseDir)) {
+            return Util.addSlashToPath(DesignerEngine.featuresBaseDir) + Util.removeTrailingSlash(filename);
         } else {
             return filename;
         }

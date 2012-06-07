@@ -99,11 +99,14 @@ public class ConsoleOutput {
         }
     }
 
-    public void exportLog(String filename) {
+    public void exportLog(String filename, StringBuilder preample) {
         BufferedWriter out = null;
         try {
             File file = new File(filename);
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+            if (!Util.isEmpty(preample)) {
+                out.write(preample.toString());
+            }
             for (String line : log) {
                 out.write(line + "\n");
             }

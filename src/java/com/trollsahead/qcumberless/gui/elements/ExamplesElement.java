@@ -47,7 +47,7 @@ public class ExamplesElement extends StepElement {
     public BaseBarElement duplicate() {
         ExamplesElement element = new ExamplesElement();
         if (table != null) {
-            element.table = table.duplicate();
+            element.table = table.duplicate(element);
         }
         duplicatePropertiesTo(element);
         return element;

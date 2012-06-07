@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.Animation;
@@ -160,7 +161,7 @@ public class Table {
     }
 
     private void renderPlayState(Graphics2D g) {
-        if (Engine.colorScheme != Element.ColorScheme.PLAY) {
+        if (DesignerEngine.colorScheme != Element.ColorScheme.PLAY) {
             return;
         }
         for (int i = 0; i < rows; i++) {
@@ -321,8 +322,8 @@ public class Table {
         calculateCellSize();
     }
 
-    public Table duplicate() {
-        Table newTable = new Table(parent, cols, rows);
+    public Table duplicate(BaseBarElement newParent) {
+        Table newTable = new Table(newParent, cols, rows);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 newTable.cells[i][j] = new Cell(cells[i][j].text);

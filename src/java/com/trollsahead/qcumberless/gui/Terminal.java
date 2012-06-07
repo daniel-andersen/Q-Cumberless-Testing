@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.FlashingMessageManager;
 import com.trollsahead.qcumberless.engine.Player;
@@ -87,9 +88,12 @@ public class Terminal {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.ButtonNotification() {
                     public void onClick() {
+                        Date now = new Date();
                         File path = CucumberlessDialog.instance.askExportLogPath();
-                        String filename = Util.convertSpacesToSlashes(currentDevice.name()) + ".log";
-                        currentDevice.getConsoleOutput().exportLog(Util.addSlashToPath(path.getAbsolutePath()) + filename);
+                        String filename = Util.convertSpacesToSlashes(currentDevice.name()) + "_" + Util.prettyFilenameDate(now) + ".log";
+                        currentDevice.getConsoleOutput().exportLog(
+                                Util.addSlashToPath(path.getAbsolutePath()) + filename,
+                                new StringBuilder("Q-Cumberless Testing\n" + currentDevice.name() + "\n" + Util.prettyDate(now) + "\n\n"));
                         FlashingMessageManager.addMessage(new FlashingMessage("Log saved as '" + filename + "'", FlashingMessage.STANDARD_TIMEOUT));
                     }
                 },
@@ -122,7 +126,7 @@ public class Terminal {
     public static void update() {
         position.update(false);
         if (position.isMoving()) {
-            Engine.updateRootPositions();
+            DesignerEngine.updateRootPositions();
         }
         for (Button button : buttons) {
             button.update();

@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 public class FeatureLoader {
     public static void parseFeatureFiles(String[] files) {
-        Engine.resetFeatures();
+        DesignerEngine.resetFeatures();
         for (String filename : files) {
             parseFeatureFile(filename);
         }
@@ -48,7 +48,7 @@ public class FeatureLoader {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
             FeatureElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
             feature.setFilename(filename);
-            Engine.featuresRoot.addChild(feature);
+            DesignerEngine.featuresRoot.addChild(feature);
             ScenarioElement scenario = null;
             BackgroundElement background = null;
             StepElement step = null;
@@ -151,7 +151,7 @@ public class FeatureLoader {
     }
 
     public static Step findMatchingStep(String line) {
-        for (Step step : Engine.stepDefinitions) {
+        for (Step step : DesignerEngine.stepDefinitions) {
             if (step.matches(line)) {
                 return new Step(step, line);
             }

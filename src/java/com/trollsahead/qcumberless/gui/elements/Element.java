@@ -25,7 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.util.Util;
@@ -80,7 +80,7 @@ public abstract class Element {
     public void addChild(Element element) {
         children.add(element);
         element.groupParent = this;
-        if (this == Engine.stepsRoot) {
+        if (this == DesignerEngine.stepsRoot) {
             element.animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
         }
     }
@@ -95,7 +95,7 @@ public abstract class Element {
             return;
         }
         if (children.contains(element)) {
-            if (this == Engine.stepsRoot) {
+            if (this == DesignerEngine.stepsRoot) {
                 Element stepDefinitionElement = element.duplicate();
                 if (stepDefinitionElement instanceof BaseBarElement) {
                     ((BaseBarElement) stepDefinitionElement).step.setShouldRenderKeyword(false);
@@ -104,7 +104,7 @@ public abstract class Element {
                     ((BaseBarElement) element).step.setShouldRenderKeyword(true);
                     element.toggleColorScheme();
                 }
-                Engine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
+                DesignerEngine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
                 element.rootType = ROOT_FEATURE_EDITOR;
                 //element.animation.sizeAnimation.setWidth(CucumberTextElement.calculateRenderWidthFromRoot(ROOT_FEATURE_EDITOR), CucumberAnimation.RESIZE_SPEED); // TODO! Causes flickers when inserting!

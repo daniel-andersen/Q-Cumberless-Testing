@@ -30,6 +30,7 @@ import com.trollsahead.qcumberless.model.Locale;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -57,6 +58,10 @@ public class Util {
 
     public static boolean isEmpty(List list) {
         return list == null || list.size() == 0;
+    }
+
+    public static boolean isEmpty(StringBuilder sb) {
+        return sb == null || isEmpty(sb.toString());
     }
 
     public static boolean isEmptyOrContainsOnlyTabs(String str) {
@@ -260,14 +265,6 @@ public class Util {
         };
     }
 
-    public static float decrease(float a, float pct) {
-        a = a * pct;
-        if (Math.abs(a) < 0.1f) {
-            a = 0.0f;
-        }
-        return a;
-    }
-
     public static List<String> wrapText(String text, int width, FontMetrics fontMetrics) {
         LinkedList<String> lines = new LinkedList<String>();
         if (isEmpty(text) || fontMetrics.stringWidth(text) <= width) {
@@ -295,5 +292,13 @@ public class Util {
         } else {
             return s.replaceAll(" ", "_");
         }
+    }
+
+    public static String prettyDate(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+    }
+
+    public static String prettyFilenameDate(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").format(date);
     }
 }

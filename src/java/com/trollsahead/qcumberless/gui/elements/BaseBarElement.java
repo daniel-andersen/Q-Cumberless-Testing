@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.FeatureLoader;
 import com.trollsahead.qcumberless.engine.Player;
@@ -365,7 +366,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void updateButtons() {
-        if (groupParent == Engine.stepsRoot) {
+        if (groupParent == DesignerEngine.stepsRoot) {
             return;
         }
         for (Button button : buttons) {
@@ -451,7 +452,7 @@ public abstract class BaseBarElement extends Element {
         if (buttonGroupVisible != buttonGroupVisibleOld) {
             animation.moveAnimation.renderY = animation.moveAnimation.realY;
             if (buttonGroupVisible && animation.moveAnimation.realY < 0) {
-                Engine.featuresRoot.scroll(-animation.moveAnimation.realY);
+                DesignerEngine.featuresRoot.scroll(-animation.moveAnimation.realY);
             }
         }
     }
@@ -471,10 +472,10 @@ public abstract class BaseBarElement extends Element {
         int maxWidth = Engine.windowWidth;
         if (rootType == ROOT_FEATURE_EDITOR) {
             wantedWidth = RENDER_WIDTH_MAX_FEATURE_EDITOR;
-            maxWidth = Engine.featuresRoot.renderWidth - (maxPadding - (int) Engine.featuresRoot.animation.moveAnimation.renderX);
+            maxWidth = DesignerEngine.featuresRoot.renderWidth - (maxPadding - (int) DesignerEngine.featuresRoot.animation.moveAnimation.renderX);
         } else if (rootType == ROOT_STEP_DEFINITIONS) {
             wantedWidth = RENDER_WIDTH_MAX_STEP_DEFINITIONS;
-            maxWidth = Engine.stepsRoot.renderWidth - (RootElement.PADDING_HORIZONTAL * 2);
+            maxWidth = DesignerEngine.stepsRoot.renderWidth - (RootElement.PADDING_HORIZONTAL * 2);
         }
         return Math.min(maxWidth, wantedWidth);
     }
@@ -544,7 +545,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void doubleClick() {
-        if (groupParent != Engine.stepsRoot) {
+        if (groupParent != DesignerEngine.stepsRoot) {
             return;
         }
         new Thread(new Runnable() {
@@ -566,14 +567,14 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void play() {
-        Engine.runTests(this);
+        DesignerEngine.runTests(this);
     }
 
     public void trashElement() {
         synchronized (Engine.DATA_LOCK) {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
-                Engine.cucumberRoot.removeChild(this);
+                DesignerEngine.cucumberRoot.removeChild(this);
             }
         }
     }
@@ -651,7 +652,7 @@ public abstract class BaseBarElement extends Element {
         if (isThrowingElementToFeaturesGroup()) {
             throwElementToFeaturesGroup();
         }
-        Engine.updateLastAddedElement(this);
+        DesignerEngine.updateLastAddedElement(this);
     }
 
     public boolean isDragable() {
@@ -660,7 +661,7 @@ public abstract class BaseBarElement extends Element {
 
     protected void applyDrag() {
         updateDragPositionHistory();
-        Element touchedGroup = Engine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
+        Element touchedGroup = DesignerEngine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
         if (type == TYPE_BACKGROUND && touchedGroup != null && touchedGroup.type == TYPE_FEATURE) {
             BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(touchedGroup);
             if (backgroundElement != null && backgroundElement != this) {
@@ -668,13 +669,13 @@ public abstract class BaseBarElement extends Element {
             }
         }
         if (touchedGroup == null && type == TYPE_FEATURE) {
-            touchedGroup = Engine.featuresRoot;
+            touchedGroup = DesignerEngine.featuresRoot;
         }
         if (touchedGroup == null || touchedGroup instanceof RootElement) {
             lastBubbledElement = null;
             return;
         }
-        Element touchedElement = Engine.cucumberRoot.findElementRealPosition(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
+        Element touchedElement = DesignerEngine.cucumberRoot.findElementRealPosition(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
         if (touchedElement == lastBubbledElement) {
             return;
         }
@@ -703,7 +704,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private boolean isThrowingElementToFeaturesGroup() {
-        if (groupParent != Engine.stepsRoot || Engine.lastAddedElement == null) {
+        if (groupParent != DesignerEngine.stepsRoot || DesignerEngine.lastAddedElement == null) {
             return false;
         }
         int oldestIndex = (dragHistoryIndex + 1) % DRAG_HISTORY_LENGTH;
@@ -720,15 +721,15 @@ public abstract class BaseBarElement extends Element {
     private void throwElementToFeaturesGroup() {
         groupParent.removeChild(this);
         if (type == TYPE_FEATURE) {
-            Engine.featuresRoot.addChild(this);
+            DesignerEngine.featuresRoot.addChild(this);
         } else if (type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_SCENARIO_OUTLINE) {
             Element elementToAddChildTo;
-            if (Engine.lastAddedElement.type == TYPE_FEATURE) {
-                elementToAddChildTo = Engine.lastAddedElement;
-            } else if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND || Engine.lastAddedElement.type == TYPE_SCENARIO_OUTLINE) {
-                elementToAddChildTo = Engine.lastAddedElement.groupParent;
+            if (DesignerEngine.lastAddedElement.type == TYPE_FEATURE) {
+                elementToAddChildTo = DesignerEngine.lastAddedElement;
+            } else if (DesignerEngine.lastAddedElement.type == TYPE_SCENARIO || DesignerEngine.lastAddedElement.type == TYPE_BACKGROUND || DesignerEngine.lastAddedElement.type == TYPE_SCENARIO_OUTLINE) {
+                elementToAddChildTo = DesignerEngine.lastAddedElement.groupParent;
             } else {
-                elementToAddChildTo = Engine.lastAddedElement.groupParent.groupParent;
+                elementToAddChildTo = DesignerEngine.lastAddedElement.groupParent.groupParent;
             }
             if (type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || (type == TYPE_BACKGROUND && !hasBackgroundElement(elementToAddChildTo))) {
                 elementToAddChildTo.addChild(this);
@@ -737,19 +738,19 @@ public abstract class BaseBarElement extends Element {
                 return;
             }
         } else {
-            if (Engine.lastAddedElement.type == TYPE_FEATURE) {
+            if (DesignerEngine.lastAddedElement.type == TYPE_FEATURE) {
                 return;
             }
-            if (Engine.lastAddedElement.type == TYPE_SCENARIO || Engine.lastAddedElement.type == TYPE_BACKGROUND || Engine.lastAddedElement.type == TYPE_SCENARIO_OUTLINE) {
-                Engine.lastAddedElement.addChild(this);
-                Engine.lastAddedElement.unfold();
+            if (DesignerEngine.lastAddedElement.type == TYPE_SCENARIO || DesignerEngine.lastAddedElement.type == TYPE_BACKGROUND || DesignerEngine.lastAddedElement.type == TYPE_SCENARIO_OUTLINE) {
+                DesignerEngine.lastAddedElement.addChild(this);
+                DesignerEngine.lastAddedElement.unfold();
             } else {
-                int index = Engine.lastAddedElement.groupParent.findChildIndex(Engine.lastAddedElement);
-                Engine.lastAddedElement.groupParent.addChild(this, index + 1);
-                Engine.lastAddedElement.groupParent.unfold();
+                int index = DesignerEngine.lastAddedElement.groupParent.findChildIndex(DesignerEngine.lastAddedElement);
+                DesignerEngine.lastAddedElement.groupParent.addChild(this, index + 1);
+                DesignerEngine.lastAddedElement.groupParent.unfold();
             }
         }
-        Engine.updateLastAddedElement(this);
+        DesignerEngine.updateLastAddedElement(this);
     }
 
     public void addChild(Element element, int index) {
@@ -790,7 +791,7 @@ public abstract class BaseBarElement extends Element {
         if (index == -1) {
             return;
         }
-        Engine.cucumberRoot.removeChild(element);
+        DesignerEngine.cucumberRoot.removeChild(element);
         if (currentIndex == -1) {
             addChild(element, index);
         } else {
@@ -814,7 +815,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private int calculateIndexInList(Element touchedGroup) {
-        Element touchedElement = Engine.cucumberRoot.findElementRealPosition(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
+        Element touchedElement = DesignerEngine.cucumberRoot.findElementRealPosition(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY);
         if (touchedElement == touchedGroup) {
             return touchedGroup.folded ? -1 : 0;
         }
@@ -828,7 +829,7 @@ public abstract class BaseBarElement extends Element {
         if (!animation.alphaAnimation.isVisible()) {
             return;
         }
-        if (animation.moveAnimation.renderX > Engine.windowWidth || animation.moveAnimation.renderY > Engine.canvasHeight ||
+        if (animation.moveAnimation.renderX > Engine.windowWidth || animation.moveAnimation.renderY > DesignerEngine.canvasHeight ||
             animation.moveAnimation.renderX + renderWidth < 0 || animation.moveAnimation.renderY + renderHeight < 0) {
             return;
         }
@@ -925,7 +926,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private Color getBackgroundColorAccordingToState() {
-        if (Engine.colorScheme == ColorScheme.DESIGN || groupParent == Engine.stepsRoot) {
+        if (DesignerEngine.colorScheme == ColorScheme.DESIGN || groupParent == DesignerEngine.stepsRoot) {
             return getNormalBackgroundColor();
         }
         if (this instanceof CommentElement) {
@@ -1073,7 +1074,7 @@ public abstract class BaseBarElement extends Element {
             return;
         }
         int x = CumberlessMouseListener.mouseX + 15;
-        int y = Math.min(CumberlessMouseListener.mouseY + 10, Engine.canvasHeight - errorScreenshots[0].getHeight(null));
+        int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - errorScreenshots[0].getHeight(null));
 
         g.setColor(Color.BLACK);
 
@@ -1200,7 +1201,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void addTags(boolean isNewButton) {
-        List<String> nonUsedTags = new ArrayList<String>(Engine.getDefinedTags());
+        List<String> nonUsedTags = new ArrayList<String>(DesignerEngine.getDefinedTags());
         nonUsedTags.removeAll(tags.toSet());
         if (!nonUsedTags.isEmpty()) {
             nonUsedTags.add("*");

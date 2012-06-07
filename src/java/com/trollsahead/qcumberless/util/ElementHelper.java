@@ -25,7 +25,7 @@
 
 package com.trollsahead.qcumberless.util;
 
-import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.gui.DropDown;
 import com.trollsahead.qcumberless.gui.elements.Element;
@@ -37,8 +37,8 @@ public class ElementHelper {
     public static final String EXPORT_INDENT = "    ";
 
     public static String getRelativePath(String filename) {
-        if (!Util.isEmpty(Engine.featuresBaseDir) && filename.startsWith(Engine.featuresBaseDir)) {
-            return Util.stripLeadingSlash(filename.substring(Engine.featuresBaseDir.length()));
+        if (!Util.isEmpty(DesignerEngine.featuresBaseDir) && filename.startsWith(DesignerEngine.featuresBaseDir)) {
+            return Util.stripLeadingSlash(filename.substring(DesignerEngine.featuresBaseDir.length()));
         }
         return new File(filename).getName();
     }
