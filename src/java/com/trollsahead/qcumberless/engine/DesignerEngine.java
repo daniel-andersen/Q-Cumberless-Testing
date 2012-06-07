@@ -512,15 +512,10 @@ public class DesignerEngine implements CucumberlessEngine {
         Terminal.toggleTerminal();
     }
 
-    public static void filterByTagsAtFeatureLevel(String tags) {
+    public static void filterFeaturesByTags(String tags) {
         featuresRoot.showAll(false);
-        featuresRoot.filterFeaturesAtTopLevel(tags);
+        featuresRoot.filterFeaturesByTags(tags);
         featuresRoot.scrollToTop();
-    }
-
-    public static void filterByTagsAtAnyLevel(String tags) {
-        featuresRoot.showAll(false);
-        featuresRoot.filterFeaturesAtAnyLevel(tags);
-        featuresRoot.scrollToTop();
+        tagsFilter = tags;
     }
 }

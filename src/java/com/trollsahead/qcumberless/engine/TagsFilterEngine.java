@@ -26,10 +26,13 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.gui.RenderOptimizer;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.util.Util;
+
+import static com.trollsahead.qcumberless.gui.ExtendedButtons.TagButton;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -49,12 +52,15 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private static final String FEATURE_TAGS_TITLE = "FEATURE TAGS";
     private static final String ALL_TAGS_TITLE = "ALL TAGS";
 
-    private static final int TAG_WIDTH = 100;
-    private static final int TAG_HEIGHT = 50;
+    public static final int TAG_WIDTH = 120;
+    public static final int TAG_HEIGHT = 50;
 
-    private static final int TAG_PADDING_HORIZONTAL = 50;
-    private static final int TAG_PADDING_VERTICAL = 50;
-    private static final int TAGS_TITLE_PADDING = 10;
+    public static final int TAG_PADDING_HORIZONTAL = 30;
+    public static final int TAG_PADDING_VERTICAL = 50;
+    public static final int TAGS_TITLE_PADDING = 10;
+
+    private static final int TAG_BUTTON_OFFSET_HORIZONTAL = 5;
+    private static final int TAG_BUTTON_OFFSET_VERTICAL = 5;
 
     private BufferedImage background = null;
     private Graphics2D backgroundGraphics = null;
@@ -65,7 +71,10 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private static final float BACKGROUND_SIZE = 0.5f;
 
     private static final float TAGS_FADE = 0.3f;
-    private static final Color TAGS_COLOR = new Color(0.6f, 0.6f, 0.65f);
+    private static final Color TAGS_BACKGROUND_COLOR = new Color(0.6f, 0.6f, 0.65f);
+
+    public static final Color TAGS_OUTLINE_COLOR = new Color(0.3f, 0.3f, 0.325f);
+    public static final int TAGS_OUTLINE_ROUNDING = 20;
 
     private enum AppearState {VISIBLE, HIDDEN, APPEARING, DISAPPEARING}
 
@@ -86,8 +95,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private int allTagsWidth;
     private int allTagsHeight;
 
-    private List<Button> featureTagsButtons;
-    private List<Button> allTagsButtons;
+    private List<TagButton> featureTagsButtons;
+    private List<TagButton> allTagsButtons;
 
     public void initialize() {
     }
@@ -137,37 +146,37 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     private void updateTagsButtons() {
-        featureTagsButtons = new LinkedList<Button>();
+        featureTagsButtons = new LinkedList<TagButton>();
         for (final String tag : featureTags) {
             featureTagsButtons.add(
-                    new Button(
+                    new TagButton(
                             0,
                             0,
                             tag,
-                            Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                            Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_TOP,
                             new Button.ButtonNotification() {
                                 public void onClick() {
-                                    DesignerEngine.filterByTagsAtFeatureLevel("@" + tag);
+                                    DesignerEngine.filterFeaturesByTags("@" + tag);
                                     startHiding();
                                 }
                             },
-                            null));
+                            tag));
         }
-        allTagsButtons = new LinkedList<Button>();
+        allTagsButtons = new LinkedList<TagButton>();
         for (final String tag : allTags) {
             allTagsButtons.add(
-                    new Button(
+                    new TagButton(
                             0,
                             0,
                             tag,
-                            Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                            Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_TOP,
                             new Button.ButtonNotification() {
                                 public void onClick() {
-                                    DesignerEngine.filterByTagsAtAnyLevel("@" + tag);
+                                    DesignerEngine.filterFeaturesByTags("@" + tag);
                                     startHiding();
                                 }
                             },
-                            null));
+                            tag));
         }
     }
 
@@ -214,11 +223,13 @@ public class TagsFilterEngine implements CucumberlessEngine {
         int i = 0;
         for (Button button : featureTagsButtons) {
             setButtonPosition(button, i, featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
+            button.setOffset(TAG_BUTTON_OFFSET_HORIZONTAL, TAG_BUTTON_OFFSET_VERTICAL);
             i++;
         }
         i = 0;
         for (Button button : allTagsButtons) {
             setButtonPosition(button, i, allTagsX, allTagsY, allTagsWidth, allTagsHeight);
+            button.setOffset(TAG_BUTTON_OFFSET_HORIZONTAL, TAG_BUTTON_OFFSET_VERTICAL);
             i++;
         }
     }
@@ -230,9 +241,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         int countY = height / tagHeightPlusPadding;
         int offsetX = x + (width - ((countX * tagWidthPlusPadding) - TAG_PADDING_HORIZONTAL)) / 2;
         int offsetY = y + (height - ((countY * tagHeightPlusPadding) - TAG_PADDING_VERTICAL)) / 2;
-        button.setPosition(
-                offsetX + (index % countX) * tagWidthPlusPadding,
-                offsetY + (index / countX) * tagHeightPlusPadding);
+        button.setPosition(offsetX + (index % countX) * tagWidthPlusPadding, offsetY + (index / countX) * tagHeightPlusPadding);
     }
 
     private void renderFeatureTags(Graphics2D g) {
@@ -242,8 +251,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
             return;
         }
         drawTitle(g, FEATURE_TAGS_TITLE, featureTagsY);
-        for (Button button : featureTagsButtons) {
-            button.render(g);
+        for (TagButton button : featureTagsButtons) {
+            renderButton(g, button);
         }
     }
 
@@ -254,9 +263,13 @@ public class TagsFilterEngine implements CucumberlessEngine {
             return;
         }
         drawTitle(g, ALL_TAGS_TITLE, allTagsY);
-        for (Button button : allTagsButtons) {
-            button.render(g);
+        for (TagButton button : allTagsButtons) {
+            renderButton(g, button);
         }
+    }
+    
+    private void renderButton(Graphics2D g, TagButton button) {
+        button.render(g);
     }
     
     private void drawTitle(Graphics g, String title, int y) {
@@ -300,7 +313,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         g.setColor(new Color(0.0f, 0.0f, 0.0f, appearAnimation * BACKGROUND_FADE));
         g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
 
-        g.setColor(new Color(TAGS_COLOR.getRed() / 255.0f, TAGS_COLOR.getGreen() / 255.0f, TAGS_COLOR.getBlue() / 255.0f, appearAnimation * TAGS_FADE));
+        g.setColor(new Color(TAGS_BACKGROUND_COLOR.getRed() / 255.0f, TAGS_BACKGROUND_COLOR.getGreen() / 255.0f, TAGS_BACKGROUND_COLOR.getBlue() / 255.0f, appearAnimation * TAGS_FADE));
         g.fillRect(featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
         g.fillRect(allTagsX, allTagsY, allTagsWidth, allTagsHeight);
     }
@@ -324,6 +337,21 @@ public class TagsFilterEngine implements CucumberlessEngine {
         for (Button button : allTagsButtons) {
             button.click();
         }
+        if (!isMouseInsideTagsArea()) {
+            startHiding();
+        }
+    }
+
+    private boolean isMouseInsideTagsArea() {
+        if (CumberlessMouseListener.mouseX >= featureTagsX && CumberlessMouseListener.mouseY >= featureTagsY &&
+            CumberlessMouseListener.mouseX <= featureTagsX + featureTagsWidth && CumberlessMouseListener.mouseY <= featureTagsY + featureTagsHeight) {
+            return true;
+        }
+        if (CumberlessMouseListener.mouseX >= allTagsX && CumberlessMouseListener.mouseY >= allTagsY &&
+            CumberlessMouseListener.mouseX <= allTagsX + featureTagsWidth && CumberlessMouseListener.mouseY <= allTagsY + allTagsHeight) {
+            return true;
+        }
+        return false;
     }
 
     public void keyPressed(KeyEvent keyEvent) {

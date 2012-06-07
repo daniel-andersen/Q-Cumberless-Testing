@@ -467,21 +467,7 @@ public abstract class Element {
 
     public abstract Set<String> getTagsInternal();
 
-    public void filterFeaturesAtTopLevel(String tags) {
-        if (type == BaseBarElement.TYPE_FEATURE) {
-            if (containsAnyOfTags(tags)) {
-                show(false);
-            } else {
-                hide(false);
-            }
-            return;
-        }
-        for (Element child : children) {
-            child.filterFeaturesAtTopLevel(tags);
-        }
-    }
-
-    public boolean filterFeaturesAtAnyLevel(String tags) {
+    public boolean filterFeaturesByTags(String tags) {
         if (!canBeFilteredByTags()) {
             return false;
         }
@@ -490,7 +476,7 @@ public abstract class Element {
             if (child.containsAnyOfTags(tags)) {
                 childrenHasTags = true;
             } else {
-                childrenHasTags |= child.filterFeaturesAtAnyLevel(tags);
+                childrenHasTags |= child.filterFeaturesByTags(tags);
             }
         }
         if (type == BaseBarElement.TYPE_FEATURE) {
