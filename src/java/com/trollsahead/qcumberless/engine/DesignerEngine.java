@@ -70,7 +70,7 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static String featuresBaseDir = null;
 
-    private static Set<String> runTags = new HashSet<String>();
+    public static Set<String> runTags = new HashSet<String>();
     public static String tagsFilter = null;
 
     public static ColorScheme colorScheme = ColorScheme.DESIGN;
@@ -300,13 +300,33 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests(BaseBarElement cucumberTextElement) {
-        final StringBuilder feature = FeatureBuilder.buildFeature(cucumberTextElement);
-        System.out.println(feature.toString());
+        runTests(cucumberTextElement, runTags);
+    }
+
+    public static void runTests(BaseBarElement cucumberTextElement, Set<String> tags) {
+        List<StringBuilder> features = new LinkedList<StringBuilder>();
+        features.add(FeatureBuilder.buildFeature(cucumberTextElement));
+        runTests(features, tags);
+    }
+
+    public static void runTests() {
+        runTests(new HashSet<String>());
+    }
+
+    public static void runTests(Set<String> tags) {
+        List<StringBuilder> features = new LinkedList<StringBuilder>();
+        for (int i = 0; i < featuresRoot.children.size(); i++) {
+            features.add(FeatureBuilder.buildFeature((BaseBarElement) featuresRoot.children.get(i)));
+        }
+        runTests(features, tags);
+    }
+
+    public static void runTests(List<StringBuilder> features, Set<String> tags) {
         Player.prepareRun();
         for (final Device device : Engine.devices) {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
                 System.out.println("Running tests on device: " + device.name());
-                new Player().play(feature, device, runTags);
+                new Player().play(features, device, tags);
             }
         }
     }

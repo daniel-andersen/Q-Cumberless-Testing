@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,7 +62,9 @@ public class ExecutionHelper {
     }
 
     public static void executeCommand(String command, String dir, LogListener logListener, ExecutionStopper executionStopper) {
-        System.out.println("Executing: '" + command + (!Util.isEmpty(dir) ? "' from dir '" + dir + "'" : "'"));
+        logListener.logLine("# " + Util.prettyDate(new Date()));
+        logListener.logLine("# Executing: '" + command + (!Util.isEmpty(dir) ? "' from dir '" + dir + "'" : "'"));
+        logListener.logLine("");
         BufferedReader stdin = null;
         try {
             logListener.start();
@@ -94,6 +97,7 @@ public class ExecutionHelper {
             logListener.finish();
         } catch (Throwable t) {
             t.printStackTrace();
+            logListener.logLine(Util.stacktraceToString(t));
             logListener.error(t);
         } finally {
             Util.close(stdin);

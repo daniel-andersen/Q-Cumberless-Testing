@@ -54,9 +54,11 @@ public class ConsoleOutput {
         }
         line = Util.removePostfixedNewline(line);
         synchronized (Engine.DATA_LOCK) {
-            log.add(line);
+            for (String s : line.split("\n")) {
+                log.add(s);
+                textWrappedLog.addAll(wrapLine(s));
+            }
         }
-        textWrappedLog.addAll(wrapLine(line));
     }
 
     public List<String> getLog() {

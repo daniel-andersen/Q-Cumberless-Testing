@@ -1122,7 +1122,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     protected boolean hasPlayButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled();
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled() && !Player.isStarted();
     }
 
     protected boolean hasEditButton() {

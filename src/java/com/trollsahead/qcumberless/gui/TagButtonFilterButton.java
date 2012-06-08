@@ -78,13 +78,14 @@ public class TagButtonFilterButton {
                 Images.getImage(Images.IMAGE_PLAY, Images.ThumbnailState.NORMAL.ordinal()),
                 Images.getImage(Images.IMAGE_PLAY, Images.ThumbnailState.HIGHLIGHTED.ordinal()),
                 Images.getImage(Images.IMAGE_PLAY, Images.ThumbnailState.NORMAL.ordinal()),
-                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
                 new ButtonNotification() {
                     public void onClick() {
                         playClickNotification.onClick();
                     }
                 },
                 null);
+        playButton.setHint("Play this tag");
         buttons.add(playButton);
         filterButton = new Button(
                 0,
@@ -92,13 +93,14 @@ public class TagButtonFilterButton {
                 Images.getImage(Images.IMAGE_FILTER, Images.ThumbnailState.NORMAL.ordinal()),
                 Images.getImage(Images.IMAGE_FILTER, Images.ThumbnailState.HIGHLIGHTED.ordinal()),
                 Images.getImage(Images.IMAGE_FILTER, Images.ThumbnailState.NORMAL.ordinal()),
-                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_TOP,
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_TOP,
                 new ButtonNotification() {
                     public void onClick() {
                         filterClickNotification.onClick();
                     }
                 },
                 null);
+        filterButton.setHint("Filter this tag");
         buttons.add(filterButton);
         setCenterPosition(x, y);
     }
@@ -118,8 +120,8 @@ public class TagButtonFilterButton {
     }
 
     private void updateButtonPositions() {
-        playButton.setPosition(leftX + BUTTON_PADDING_HORIZONTAL, topY + (height / 2) - (BUTTON_PADDING_VERTICAL / 2));
-        filterButton.setPosition(leftX + BUTTON_PADDING_HORIZONTAL, topY + (height / 2) + (BUTTON_PADDING_VERTICAL / 2));
+        playButton.setPosition(leftX + BUTTON_PADDING_HORIZONTAL + 10, topY + (height / 2) - (BUTTON_PADDING_VERTICAL / 2));
+        filterButton.setPosition(leftX + BUTTON_PADDING_HORIZONTAL + 10, topY + (height / 2) + (BUTTON_PADDING_VERTICAL / 2));
     }
 
     private void updateButtons() {

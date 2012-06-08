@@ -153,6 +153,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
                             TAG_HEIGHT,
                             new Button.ButtonNotification() {
                                 public void onClick() {
+                                    DesignerEngine.runTests(Util.stringToTagSet("@" + tag));
+                                    startHiding();
                                 }
                             },
                             new Button.ButtonNotification() {
@@ -173,6 +175,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
                             TAG_HEIGHT,
                             new Button.ButtonNotification() {
                                 public void onClick() {
+                                    DesignerEngine.runTests(Util.stringToTagSet("@" + tag));
+                                    startHiding();
                                 }
                             },
                             new Button.ButtonNotification() {
@@ -336,26 +340,16 @@ public class TagsFilterEngine implements CucumberlessEngine {
 
     public void click(int clickCount) {
         for (TagButtonFilterButton button : featureTagsButtons) {
-            button.click();
+            if (button.click()) {
+                return;
+            }
         }
         for (TagButtonFilterButton button : scenarioTagsButtons) {
-            button.click();
+            if (button.click()) {
+                return;
+            }
         }
-        if (!isMouseInsideTagsArea()) {
-            startHiding();
-        }
-    }
-
-    private boolean isMouseInsideTagsArea() {
-        if (CumberlessMouseListener.mouseX >= featureTagsX && CumberlessMouseListener.mouseY >= featureTagsY &&
-            CumberlessMouseListener.mouseX <= featureTagsX + featureTagsWidth && CumberlessMouseListener.mouseY <= featureTagsY + featureTagsHeight) {
-            return true;
-        }
-        if (CumberlessMouseListener.mouseX >= scenarioTagsX && CumberlessMouseListener.mouseY >= scenarioTagsY &&
-            CumberlessMouseListener.mouseX <= scenarioTagsX + featureTagsWidth && CumberlessMouseListener.mouseY <= scenarioTagsY + scenarioTagsHeight) {
-            return true;
-        }
-        return false;
+        startHiding();
     }
 
     public void keyPressed(KeyEvent keyEvent) {

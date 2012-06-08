@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,7 +114,7 @@ public class GenericDevice extends Device {
         return "Generic Device";
     }
 
-    public void play(StringBuilder feature, Set<String> tags) {
+    public void play(List<StringBuilder> features, Set<String> tags) {
         if (isRunning) {
             return;
         }
@@ -121,10 +122,11 @@ public class GenericDevice extends Device {
             reset();
             isRunning = true;
             deviceCallback.onPlay();
-            GenericDeviceHelper.runTests(feature, tags, deviceLogListener, executionStopper);
+            GenericDeviceHelper.runTests(features, tags, deviceLogListener, executionStopper);
             deviceCallback.afterPlayed();
         } catch (Exception e) {
             e.printStackTrace();
+            deviceLogListener.logLine(Util.stacktraceToString(e));
             deviceCallback.afterPlayFailed(e.getMessage());
         } finally {
             isRunning = false;

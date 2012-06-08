@@ -35,23 +35,34 @@ import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStoppe
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 public class GenericDeviceHelper {
-    private static final String FEATURE_FILENAME = "qcumberless_singlerun.feature";
+    private static final String FEATURE_FILENAME = "qcumberless_singlerun";
     private static final String QCUMBERLESS_TAG = "@qcumberless";
 
-    public static void runTests(StringBuilder feature, Set<String> tags, LogListener logListener, ExecutionStopper executionStopper) {
-        File file = ExecutionHelper.writeFeatureToFile(Util.insertTagIntoFeature(feature, QCUMBERLESS_TAG), Util.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME);
+    public static void runTests(List<StringBuilder> features, Set<String> tags, LogListener logListener, ExecutionStopper executionStopper) {
+        StringBuilder filesArgument = new StringBuilder();
+        String delimiter = "";
+        File[] files = new File[features.size()];
+        for (int i = 0; i < features.size(); i++) {
+            files[i] = ExecutionHelper.writeFeatureToFile(Util.insertTagIntoFeature(features.get(i), QCUMBERLESS_TAG), Util.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME + "_" + i + "_" + System.currentTimeMillis() + ".feature");
+            filesArgument.append(delimiter).append(files[i].getAbsolutePath());
+            delimiter = " ";
+        }
         try {
             String command = getCommand();
             String path = getPath();
             command = command.replaceAll("\\\\", "/");
-            command = command.replaceAll("\\$1", file.getAbsolutePath());
+            command = command.replaceAll("\\$1", filesArgument.toString());
             command = command.replaceAll("\\$2", getTags(Util.tagsToString(tags)));
             ExecutionHelper.executeCommand(command, path, logListener, executionStopper);
         } finally {
-            file.delete();
+            for (File file : files) {
+                file.delete();
+            }
         }
     }
 

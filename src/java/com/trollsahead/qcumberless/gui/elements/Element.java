@@ -491,7 +491,7 @@ public abstract class Element {
     
     public boolean containsTag(String tag) {
         for (String otherTag : getTags()) {
-            if (otherTag.equals(tag)) {
+            if (tag.equals("@" + otherTag)) {
                 return true;
             }
         }

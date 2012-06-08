@@ -57,6 +57,7 @@ public class ButtonBar {
     private static final float[] COLOR_BACKGROUND_NORMAL = {0.0f, 0.0f, 0.0f, 0.6f};
     private static final float[] COLOR_BACKGROUND_PLAYING = {0.0f, 0.3f, 0.0f, 0.8f};
     private static final float[] COLOR_BACKGROUND_FAILED = {0.5f, 0.0f, 0.0f, 0.8f};
+    private static final Color COLOR_BUTTON_DELIMITER = new Color(0.5f, 0.5f, 0.5f);
 
     private static final String TEXT_NO_DEVICES = "No devices found";
 
@@ -72,6 +73,7 @@ public class ButtonBar {
     private Button closeButton;
     private Button pauseButton;
     private Button stopButton;
+    private Button playButton;
     private Button tagsButton;
     private Button terminalButton;
     private List<Button> buttons;
@@ -84,6 +86,7 @@ public class ButtonBar {
     public int renderWidth;
     public int renderHeight;
 
+    private int iconButtonsX;
     private int pluginButtonsX;
 
     private Animation animation;
@@ -205,6 +208,20 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(closeButton);
+        playButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_PLAY, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_PLAY, ThumbnailState.NORMAL.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        DesignerEngine.runTests();
+                    }
+                },
+                null);
+        playButton.setHint("Play");
+        buttons.add(playButton);
         tagsButton = new Button(
                 0, 0,
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
@@ -315,11 +332,22 @@ public class ButtonBar {
         x += BUTTON_PADDING;
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(closeButton.toString());
+        x += BUTTON_PADDING * 2;
+        iconButtonsX = x;
         x += BUTTON_PADDING;
-        tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING;
-        terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
-        x += BUTTON_PADDING;
+        if (playButton.isVisible()) {
+            playButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
+        if (tagsButton.isVisible()) {
+            tagsButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
+        if (terminalButton.isVisible()) {
+            terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
+        x += BUTTON_PADDING * 2;
         pluginButtonsX = x;
         pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
         stopButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth + 30, BUTTONBAR_HEIGHT);
@@ -364,6 +392,12 @@ public class ButtonBar {
         boolean shouldUpdateButtonPositions = false;
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
+        if (playButton.isVisible() != isPlayButtonVisible()) {
+            playButton.setVisible(isPlayButtonVisible());
+            shouldUpdateButtonPositions = true;
+        }
+        String runTags = Util.tagsToString(DesignerEngine.runTags);
+        playButton.setHint(!Util.isEmpty(runTags) ? "Play tags: " + runTags.replaceAll(",", " ") : "Play all features");
         tagsButton.setVisible(true);
         if (terminalButton.isVisible() != isTerminalButtonVisible()) {
             terminalButton.setVisible(isTerminalButtonVisible());
@@ -389,6 +423,10 @@ public class ButtonBar {
 
     private boolean isSaveFeaturesButtonEnabled() {
         return DesignerEngine.featuresRoot.isLoaded;
+    }
+
+    private boolean isPlayButtonVisible() {
+        return Engine.isPlayableDeviceEnabled();
     }
 
     private boolean isTerminalButtonVisible() {
@@ -443,6 +481,9 @@ public class ButtonBar {
             g.fillRect(0, renderY, renderX, renderHeight);
             g.fillRect(renderX, renderY, Engine.windowWidth - renderX, renderHeight);
         }
+        g.setColor(COLOR_BUTTON_DELIMITER);
+        g.fillRect(renderX + iconButtonsX, renderY + 5, 1, renderHeight - 10);
+        g.fillRect(renderX + pluginButtonsX - (BUTTON_PADDING * 2), renderY + 5, 1, renderHeight - 10);
     }
 
     private void renderButtons(Graphics g) {

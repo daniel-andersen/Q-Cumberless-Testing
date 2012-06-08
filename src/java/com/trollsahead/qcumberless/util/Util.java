@@ -30,6 +30,8 @@ import com.trollsahead.qcumberless.model.Locale;
 import java.awt.*;
 import java.io.Closeable;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -227,13 +229,24 @@ public class Util {
     }
 
     public static List<String> stringToTagList(String tags) {
+        tags = tags.trim();
         List<String> tagList = new LinkedList<String>();
-        for (String tag : tags.split("@")) {
+        for (String tag : tags.split(" ")) {
             if (!isEmpty(tag)) {
                 tagList.add(tag);
             }
         }
         return tagList;
+    }
+
+    public static Set<String> stringToTagSet(String tags) {
+        Set<String> tagSet = new HashSet<String>();
+        for (String tag : tags.split(" ")) {
+            if (!isEmpty(tag)) {
+                tagSet.add(tag);
+            }
+        }
+        return tagSet;
     }
 
     public static String negatedTag(String tag) {
@@ -323,5 +336,12 @@ public class Util {
             }
             return false;
         }
+    }
+    
+    public static String stacktraceToString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        return sw.toString();
     }
 }
