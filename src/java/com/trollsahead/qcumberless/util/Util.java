@@ -311,4 +311,17 @@ public class Util {
     public static String prettyFilenameDate(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").format(date);
     }
+
+    public static boolean isInArray(int type, int[] typeFilter) {
+        if (typeFilter == null) {
+            return false;
+        } else {
+            for (int t : typeFilter) {
+                if (t == type) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 }

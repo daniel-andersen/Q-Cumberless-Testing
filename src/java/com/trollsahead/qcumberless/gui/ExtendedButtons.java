@@ -26,7 +26,6 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.engine.TagsFilterEngine;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.plugins.ElementMethodCallback;
 
@@ -69,27 +68,6 @@ public class ExtendedButtons {
 
         public ElementMethodCallback getCallback() {
             return callback;
-        }
-    }
-
-    public static class TagButton extends Button {
-        private String tag;
-
-        public TagButton(int x, int y, String text, int alignment, ButtonNotification notification, String tag) {
-            super(x, y, text, alignment, notification, null);
-            this.tag = tag;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-        
-        public void render(Graphics g) {
-            int boundsX = getX() - getOffsetX();
-            int boundsY = getY() - getOffsetY();
-            g.setColor(TagsFilterEngine.TAGS_OUTLINE_COLOR);
-            g.drawRoundRect(boundsX, boundsY, TagsFilterEngine.TAG_WIDTH, TagsFilterEngine.TAG_HEIGHT, TagsFilterEngine.TAGS_OUTLINE_ROUNDING, TagsFilterEngine.TAGS_OUTLINE_ROUNDING);
-            super.render(g);
         }
     }
 }

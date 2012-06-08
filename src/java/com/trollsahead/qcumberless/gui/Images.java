@@ -48,6 +48,7 @@ public class Images {
     public static int IMAGE_SPOTLIGHT = 11;
     public static int IMAGE_TABLE = 12;
     public static int IMAGE_TERMINAL = 13;
+    public static int IMAGE_FILTER = 14;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -114,6 +115,11 @@ public class Images {
         });
         images.put(IMAGE_SPOTLIGHT, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/spotlight.png"))
+        });
+        images.put(IMAGE_FILTER, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/filter_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/filter_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/filter_pressed.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {

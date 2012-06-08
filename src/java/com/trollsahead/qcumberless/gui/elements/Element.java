@@ -445,18 +445,9 @@ public abstract class Element {
         }
     }
 
-    public Set<String> getTags() {
+    public Set<String> getTags(int ... typeFilter) {
         Set<String> tags = new HashSet<String>();
-        tags.addAll(getTagsInternal());
-        for (Element element : children) {
-            tags.addAll(element.getTags());
-        }
-        return tags;
-    }
-
-    public Set<String> getTags(int typeFilter) {
-        Set<String> tags = new HashSet<String>();
-        if (typeFilter == type) {
+        if (typeFilter == null || typeFilter.length == 0 || Util.isInArray(type, typeFilter)) {
             tags.addAll(getTagsInternal());
         }
         for (Element element : children) {
