@@ -74,8 +74,8 @@ public class FeatureElement extends BaseBarElement {
         return type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_SCENARIO_OUTLINE;
     }
 
-    public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = super.buildFeatureInternal();
+    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+        StringBuilder sb = super.buildFeatureInternal(addRunOutcome, time);
         sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
         return sb;
     }

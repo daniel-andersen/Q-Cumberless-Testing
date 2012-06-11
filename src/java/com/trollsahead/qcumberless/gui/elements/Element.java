@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui.elements;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
+import com.trollsahead.qcumberless.model.PlayState;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -39,7 +40,6 @@ import java.util.Set;
 
 public abstract class Element {
     public enum ColorScheme {DESIGN, PLAY}
-    public enum PlayColorState {NOT_YET_PLAYED, SUCCESS, FAILURE}
 
     public static final int ROOT_NONE = 0;
     public static final int ROOT_FEATURE_EDITOR = 1;
@@ -62,12 +62,6 @@ public abstract class Element {
     protected boolean visible = true;
 
     protected boolean shouldStickToParentRenderPosition = false;
-
-    public boolean isFailed = false;
-    public boolean isSuccess = false;
-
-    public String errorMessage = null;
-    public Image[] errorScreenshots = null;
 
     public Animation animation = new Animation();
 
@@ -207,24 +201,14 @@ public abstract class Element {
     public abstract String getTitle();
 
     public void setFailed() {
-        isFailed = true;
-        setPlayColorState(PlayColorState.FAILURE);
+        setPlayState(PlayState.State.FAILED);
         if (groupParent != null) {
             groupParent.setFailed();
         }
     }
 
     public void setSuccess() {
-        isSuccess = true;
-        setPlayColorState(PlayColorState.SUCCESS);
-    }
-
-    public void setErrorMessage(String message) {
-        this.errorMessage = message;
-    }
-
-    public void setErrorScreenshots(Image[] images) {
-        errorScreenshots = images;
+        setPlayState(PlayState.State.SUCCESS);
     }
 
     public abstract void trashElement();
@@ -315,10 +299,6 @@ public abstract class Element {
     }
 
     public void clearRunStatus() {
-        isFailed = false;
-        isSuccess = false;
-        errorMessage = null;
-        errorScreenshots = null;
         for (Element child : children) {
             child.clearRunStatus();
         }
@@ -387,18 +367,22 @@ public abstract class Element {
 
     public abstract Element duplicate();
 
-    public StringBuilder buildFeature() {
-        StringBuilder sb = buildFeatureInternal();
+    public StringBuilder buildFeature(boolean addRunOutcome) {
+        return buildFeature(addRunOutcome, System.currentTimeMillis());
+    }
+    
+    public StringBuilder buildFeature(boolean addRunOutcome, long time) {
+        StringBuilder sb = buildFeatureInternal(addRunOutcome, time);
         for (Element child : children) {
-            sb.append(child.buildFeature());
+            sb.append(child.buildFeature(addRunOutcome, time));
         }
         if (type == BaseBarElement.TYPE_FEATURE || type == BaseBarElement.TYPE_BACKGROUND || type == BaseBarElement.TYPE_SCENARIO || type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
             sb.append("\n");
         }
         return sb;
     }
-    
-    protected abstract StringBuilder buildFeatureInternal();
+
+    protected abstract StringBuilder buildFeatureInternal(boolean addRunOutcome, long time);
 
     public void updateSteps() {
         updateStepsInternal();
@@ -504,14 +488,14 @@ public abstract class Element {
         return visible;
     }
 
-    public void setPlayColorStateIncludingChildren(PlayColorState playColorState) {
-        setPlayColorState(playColorState);
+    public void setPlayStateIncludingChildren(PlayState.State playState) {
+        setPlayState(playState);
         for (Element element : children) {
-            element.setPlayColorStateIncludingChildren(playColorState);
+            element.setPlayStateIncludingChildren(playState);
         }
     }
 
-    public abstract void setPlayColorState(PlayColorState playColorState);
+    public abstract void setPlayState(PlayState.State playState);
 
     public void toggleColorScheme() {
         toggleColorSchemeInternal();

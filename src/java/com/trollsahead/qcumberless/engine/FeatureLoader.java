@@ -27,7 +27,10 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.Locale;
+import com.trollsahead.qcumberless.model.PlayState;
+import com.trollsahead.qcumberless.model.RunOutcome;
 import com.trollsahead.qcumberless.model.Step;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
@@ -36,13 +39,17 @@ import java.util.regex.Pattern;
 
 public class FeatureLoader {
     public static void parseFeatureFiles(String[] files) {
+        parseFeatureFiles(files, false);
+    }
+
+    public static void parseFeatureFiles(String[] files, boolean includePlayStateInfo) {
         DesignerEngine.resetFeatures();
         for (String filename : files) {
-            parseFeatureFile(filename);
+            parseFeatureFile(filename, includePlayStateInfo);
         }
     }
 
-    private static void parseFeatureFile(String filename) {
+    private static void parseFeatureFile(String filename, boolean includePlayStateInfo) {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
@@ -55,24 +62,33 @@ public class FeatureLoader {
             String line;
             String tags = null;
             String comment = null;
+            PlayState playResult = null;
             while ((line = in.readLine()) != null) {
                 line = Util.removeTrailingSpaces(line);
                 if (Util.isEmptyOrContainsOnlyTabs(line)) {
                     continue;
                 }
-                if (line.matches(getFeaturePattern())) {
+                if (line.startsWith(getPlayResultPattern())) {
+                    if (includePlayStateInfo) {
+                        playResult = RunOutcome.getPlayResultFromComment(line);
+                    }
+                } else if (line.matches(getFeaturePattern())) {
                     feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
                     feature.setTags(tags);
                     feature.setComment(comment);
+                    feature.setPlayState(playResult);
                     tags = null;
                     comment = null;
+                    playResult = null;
                 } else if (line.matches(getBackgroundPattern())) {
                     background = new BackgroundElement(BaseBarElement.ROOT_FEATURE_EDITOR);
                     background.setTitle("Background");
                     background.setTags(tags);
                     background.setComment(comment);
+                    background.setPlayState(playResult);
                     tags = null;
                     comment = null;
+                    playResult = null;
                     feature.addChild(background);
                 } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
                     if (line.matches(getScenarioPattern())) {
@@ -84,8 +100,10 @@ public class FeatureLoader {
                     }
                     scenario.setTags(tags);
                     scenario.setComment(comment);
+                    scenario.setPlayState(playResult);
                     tags = null;
                     comment = null;
+                    playResult = null;
                     feature.addChild(scenario);
                 } else if (line.matches(getTagPattern())) {
                     tags = extractTags(line);
@@ -104,14 +122,16 @@ public class FeatureLoader {
                     if (element instanceof StepElement || element instanceof ExamplesElement) {
                         step = (StepElement) element;
                     }
+                    element.setPlayState(playResult);
                     tags = null;
                     comment = null;
+                    playResult = null;
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException("Error reading supported feature file " + filename, e);
         } finally {
-            Util.close(in);
+            FileUtil.close(in);
         }
     }
 
@@ -199,6 +219,10 @@ public class FeatureLoader {
 
     private static String getCommentPattern() {
         return "^\\s*(#.*)";
+    }
+
+    private static String getPlayResultPattern() {
+        return RunOutcome.COMMENT_QCUMBERLESS;
     }
 
     private static String getExamplesPattern() {

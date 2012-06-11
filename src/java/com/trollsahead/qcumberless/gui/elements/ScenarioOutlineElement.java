@@ -58,8 +58,8 @@ public class ScenarioOutlineElement extends ScenarioElement {
         return element;
     }
 
-    public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = buildFeatureInternalSkipThis();
+    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+        StringBuilder sb = buildFeatureInternalSkipThis(addRunOutcome, time);
         sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario outline")).append(": ").append(title).append("\n");
         return sb;
     }

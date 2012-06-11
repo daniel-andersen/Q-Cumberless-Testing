@@ -70,8 +70,8 @@ public class CommentElement extends BaseBarElement {
         return false;
     }
 
-    public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = super.buildFeatureInternal();
+    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+        StringBuilder sb = super.buildFeatureInternal(addRunOutcome, time);
         sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# ").append(title).append("\n");
         return sb;
     }

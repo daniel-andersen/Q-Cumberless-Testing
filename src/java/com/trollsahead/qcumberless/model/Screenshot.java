@@ -23,34 +23,46 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.model;
 
-import com.trollsahead.qcumberless.gui.elements.Element;
-import com.trollsahead.qcumberless.model.Screenshot;
+import com.trollsahead.qcumberless.util.Util;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.io.File;
 
-public interface DeviceCallback {
-    void onPlay();
-    void onPause();
-    void onResume();
-    void onStop();
-
-    void afterPlayed();
-    void afterPlayFailed(String errorMessage);
+public class Screenshot {
+    private Image image = null;
+    private String filename = null;
     
-    void logLine(String line);
+    public Screenshot(Image image, String filename) {
+        this.image = image;
+        this.filename = filename;
+    }
 
-    void beforeFeatures();
-    void beforeFeature(String name);
-    void beforeScenario(String name);
-    void beforeBackground(String name);
-    void beforeStep(String name);
-    void beforeOutlineTable();
-    void beforeTableRow(String tableRow);
-    void afterStepFailed(String errorMessage);
-    
-    void attachScreenshots(Element element, Screenshot... screenshots);
+    public Image getImage() {
+        if (image != null) {
+            return image;
+        }
+        if (Util.isEmpty(filename)) {
+            return null;
+        }
+        try {
+            return ImageIO.read(new File(filename));
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-    Element getCurrentElement();
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 }

@@ -32,10 +32,9 @@ import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.gui.EditBox;
 import com.trollsahead.qcumberless.gui.GuiUtil;
+import com.trollsahead.qcumberless.model.PlayState;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
-
-import static com.trollsahead.qcumberless.gui.elements.Element.PlayColorState;
 
 import java.awt.*;
 
@@ -67,8 +66,7 @@ public class Table {
     private Cell editedCell = null;
 
     private BaseBarElement parent;
-    private PlayColorState[] colorState;
-    private String[] errorMessage;
+    private PlayState[] playStates;
 
     public Table(BaseBarElement parent) {
         this(parent, 2, 2);
@@ -116,8 +114,9 @@ public class Table {
         if (highlightedRow == -1) {
             return;
         }
-        if (!Util.isEmpty(errorMessage[highlightedRow])) {
-            parent.drawHint(g, errorMessage[highlightedRow], CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, BaseBarElement.COLOR_TEXT_ERROR_MESSAGE, BaseBarElement.COLOR_BG_ERROR_MESSAGE);
+        if (playStates[highlightedRow].hasErrorMessage()) {
+            //playStates[highlightedRow].renderError(g, CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY); // TODO!
+            parent.drawHint(g, playStates[highlightedRow].getErrorMessage(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, BaseBarElement.COLOR_TEXT_ERROR_MESSAGE, BaseBarElement.COLOR_BG_ERROR_MESSAGE);
         }
     }
 
@@ -165,10 +164,10 @@ public class Table {
             return;
         }
         for (int i = 0; i < rows; i++) {
-            if (colorState[i] == PlayColorState.NOT_YET_PLAYED) {
+            if (playStates[i].isNotYetPlayed()) {
                 continue;
             }
-            g.setColor(colorState[i] == PlayColorState.SUCCESS ? BaseBarElement.BAR_COLOR_SUCCESS : BaseBarElement.BAR_COLOR_FAILURE);
+            g.setColor(playStates[i].isSuccess() ? BaseBarElement.BAR_COLOR_SUCCESS : BaseBarElement.BAR_COLOR_FAILURE);
             g.fillRect(cells[i][0].x, cells[i][0].y, width, cells[i][0].height);
         }
     }
@@ -304,8 +303,7 @@ public class Table {
         this.rows = rows;
         colWidth = new int[cols];
         colCharWidth = new int[cols];
-        colorState = new PlayColorState[rows];
-        errorMessage = new String[rows];
+        playStates = new PlayState[rows];
         Cell[][] newCells = new Cell[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -315,8 +313,7 @@ public class Table {
                     newCells[i][j] = new Cell();
                 }
             }
-            colorState[i] = PlayColorState.NOT_YET_PLAYED;
-            errorMessage[i] = null;
+            playStates[i] = new PlayState(PlayState.State.NOT_YET_PLAYED);
         }
         cells = newCells;
         calculateCellSize();
@@ -328,30 +325,26 @@ public class Table {
             for (int j = 0; j < cols; j++) {
                 newTable.cells[i][j] = new Cell(cells[i][j].text);
             }
-            newTable.colorState[i] = PlayColorState.NOT_YET_PLAYED;
-            newTable.errorMessage[i] = null;
+            newTable.playStates[i] = new PlayState(PlayState.State.NOT_YET_PLAYED);
         }
         newTable.calculateCellSize();
         return newTable;
     }
 
     public boolean isFailed(int row) {
-        return colorState[row] == PlayColorState.FAILURE;
+        return playStates[row].isFailed();
     }
 
     public void setNotYetPlayed(int row) {
-        this.colorState[row] = PlayColorState.NOT_YET_PLAYED;
-        this.errorMessage[row] = null;
+        this.playStates[row] = new PlayState(PlayState.State.NOT_YET_PLAYED);
     }
 
     public void setSuccess(int row) {
-        this.colorState[row] = PlayColorState.SUCCESS;
-        this.errorMessage[row] = null;
+        this.playStates[row] = new PlayState(PlayState.State.SUCCESS);
     }
 
     public void setFailed(int row, String errorMessage) {
-        this.colorState[row] = PlayColorState.FAILURE;
-        this.errorMessage[row] = errorMessage;
+        this.playStates[row] = new PlayState(PlayState.State.FAILED, errorMessage);
     }
 
     public void clearRunStatus() {

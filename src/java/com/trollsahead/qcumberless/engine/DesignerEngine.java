@@ -31,6 +31,7 @@ import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.*;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
@@ -304,8 +305,8 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests(BaseBarElement cucumberTextElement, Set<String> tags) {
-        List<StringBuilder> features = new LinkedList<StringBuilder>();
-        features.add(FeatureBuilder.buildFeature(cucumberTextElement));
+        List<BaseBarElement> features = new LinkedList<BaseBarElement>();
+        features.add(cucumberTextElement);
         runTests(features, tags);
     }
 
@@ -314,14 +315,14 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests(Set<String> tags) {
-        List<StringBuilder> features = new LinkedList<StringBuilder>();
+        List<BaseBarElement> features = new LinkedList<BaseBarElement>();
         for (int i = 0; i < featuresRoot.children.size(); i++) {
-            features.add(FeatureBuilder.buildFeature((BaseBarElement) featuresRoot.children.get(i)));
+            features.add((BaseBarElement) featuresRoot.children.get(i));
         }
         runTests(features, tags);
     }
 
-    public static void runTests(List<StringBuilder> features, Set<String> tags) {
+    public static void runTests(List<BaseBarElement> features, Set<String> tags) {
         Player.prepareRun();
         for (final Device device : Engine.devices) {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
@@ -408,7 +409,7 @@ public class DesignerEngine implements CucumberlessEngine {
         }
         synchronized (Engine.DATA_LOCK) {
             try {
-                FeatureLoader.parseFeatureFiles(Util.getFeatureFiles(files));
+                FeatureLoader.parseFeatureFiles(FileUtil.getFeatureFiles(files));
             } catch (Exception e) {
                 e.printStackTrace();
             }

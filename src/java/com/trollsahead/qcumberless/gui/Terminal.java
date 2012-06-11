@@ -31,6 +31,7 @@ import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.FlashingMessageManager;
 import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.model.ConsoleOutput;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Animation.MoveAnimation;
@@ -92,7 +93,7 @@ public class Terminal {
                         File path = CucumberlessDialog.instance.askExportLogPath();
                         String filename = Util.convertSpacesToSlashes(currentDevice.name()) + "_" + Util.prettyFilenameDate(now) + ".log";
                         currentDevice.getConsoleOutput().exportLog(
-                                Util.addSlashToPath(path.getAbsolutePath()) + filename,
+                                FileUtil.addSlashToPath(path.getAbsolutePath()) + filename,
                                 new StringBuilder("Q-Cumberless Testing\n" + currentDevice.name() + "\n" + Util.prettyDate(now) + "\n\n"));
                         FlashingMessageManager.addMessage(new FlashingMessage("Log saved as '" + filename + "'", FlashingMessage.STANDARD_TIMEOUT));
                     }

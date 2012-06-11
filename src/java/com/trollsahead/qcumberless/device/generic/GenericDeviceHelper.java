@@ -29,13 +29,13 @@ import com.trollsahead.qcumberless.engine.ExecutionHelper;
 import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +48,7 @@ public class GenericDeviceHelper {
         String delimiter = "";
         File[] files = new File[features.size()];
         for (int i = 0; i < features.size(); i++) {
-            files[i] = ExecutionHelper.writeFeatureToFile(Util.insertTagIntoFeature(features.get(i), QCUMBERLESS_TAG), Util.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME + "_" + i + "_" + System.currentTimeMillis() + ".feature");
+            files[i] = ExecutionHelper.writeFeatureToFile(Util.insertTagIntoFeature(features.get(i), QCUMBERLESS_TAG), FileUtil.addSlashToPath(getPath()) + "features/" + FEATURE_FILENAME + "_" + i + "_" + System.currentTimeMillis() + ".feature");
             filesArgument.append(delimiter).append(files[i].getAbsolutePath());
             delimiter = " ";
         }

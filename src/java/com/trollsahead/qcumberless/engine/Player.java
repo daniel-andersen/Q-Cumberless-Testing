@@ -28,6 +28,9 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.gui.elements.*;
+import com.trollsahead.qcumberless.model.PlayState;
+import com.trollsahead.qcumberless.model.RunOutcome;
+import com.trollsahead.qcumberless.model.Screenshot;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
@@ -89,7 +92,7 @@ public class Player implements DeviceCallback {
     public static void prepareRun() {
         hasDeviceFailures = false;
         notifiedStopped = false;
-        DesignerEngine.featuresRoot.setPlayColorStateIncludingChildren(Element.PlayColorState.NOT_YET_PLAYED);
+        DesignerEngine.featuresRoot.setPlayStateIncludingChildren(PlayState.State.NOT_YET_PLAYED);
         DesignerEngine.setColorScheme(Element.ColorScheme.PLAY);
     }
 
@@ -148,14 +151,16 @@ public class Player implements DeviceCallback {
         return notifiedStopped;
     }
 
-    public void play(final List<StringBuilder> features, final Device device, final Set<String> tags) {
+    public void play(final List<BaseBarElement> features, final Device device, final Set<String> tags) {
         this.device = device;
         device.setDeviceCallback(this);
         new Thread(new Runnable() {
             public void run() {
                 success = true;
                 started = true;
-                device.play(features, tags);
+                long startTime = System.currentTimeMillis();
+                device.play(FeatureBuilder.buildFeatures(features), tags);
+                RunOutcome.saveRunOutcome(features, startTime);
                 cleanup();
             }
         }).start();
@@ -346,8 +351,8 @@ public class Player implements DeviceCallback {
         failure(errorMessage);
     }
 
-    public void attachScreenshots(Element element, Image... screenshots) {
-        element.setErrorScreenshots(screenshots);
+    public void attachScreenshots(Element element, Screenshot... screenshots) {
+        ((BaseBarElement) element).getPlayState().setScreenshots(screenshots);
     }
 
     public Element getCurrentElement() {
@@ -498,11 +503,11 @@ public class Player implements DeviceCallback {
         return false;
     }
     
-    private void setSuccess(Element element) {
-        if ((element instanceof StepElement) && (currentScenario.isFailed || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
+    private void setSuccess(BaseBarElement element) {
+        if ((element instanceof StepElement) && (currentScenario.getPlayState().isFailed() || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
             return;
         }
-        if (element != null && !element.isFailed) {
+        if (element != null && !element.getPlayState().isFailed()) {
             element.setSuccess();
         }
     }

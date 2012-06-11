@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.model;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -115,7 +116,7 @@ public class ConsoleOutput {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            Util.close(out);
+            FileUtil.close(out);
         }
     }
 }

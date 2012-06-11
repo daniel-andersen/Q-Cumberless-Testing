@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.engine;
 
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
@@ -100,7 +101,7 @@ public class ExecutionHelper {
             logListener.logLine(Util.stacktraceToString(t));
             logListener.error(t);
         } finally {
-            Util.close(stdin);
+            FileUtil.close(stdin);
         }
     }
 
@@ -120,7 +121,7 @@ public class ExecutionHelper {
             e.printStackTrace();
             return null;
         } finally {
-            Util.close(out);
+            FileUtil.close(out);
         }
     }
 
@@ -135,7 +136,7 @@ public class ExecutionHelper {
             e.printStackTrace();
             return null;
         } finally {
-            Util.close(out);
+            FileUtil.close(out);
         }
     }
     

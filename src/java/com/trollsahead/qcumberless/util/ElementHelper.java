@@ -103,4 +103,16 @@ public class ElementHelper {
         return !Button.isOneTouched && !DropDown.isVisible;
 
     }
+
+    public static String suggestFilenameIfNotPresent(Element element) {
+        BaseBarElement baseBarElement = element instanceof BaseBarElement ? (BaseBarElement) element : null;
+        if (baseBarElement != null && !Util.isEmpty(baseBarElement.getFilename())) {
+            return FileUtil.removePostfixFromFilename(FileUtil.removePathFromFilename(baseBarElement.getFilename()));
+        }
+        if (element.groupParent != null) {
+            String filename = suggestFilenameIfNotPresent(element.groupParent);
+            return filename + "_" + element.groupParent.findChildIndex(element);
+        }
+        return "Feature";
+    }
 }

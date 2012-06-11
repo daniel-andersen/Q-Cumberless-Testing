@@ -31,14 +31,21 @@ import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class FeatureBuilder {
-    public static StringBuilder buildFeature(BaseBarElement cucumberTextElement) {
-        if (cucumberTextElement.type == BaseBarElement.TYPE_FEATURE) {
-            return cucumberTextElement.buildFeature();
+    public static StringBuilder buildFeature(BaseBarElement element) {
+        return buildFeature(element, false, 0);
+    }
+
+    public static StringBuilder buildFeature(BaseBarElement element, boolean addRunOutcome, long time) {
+        if (element.type == BaseBarElement.TYPE_FEATURE) {
+            return element.buildFeature(addRunOutcome, time);
         }
         StringBuilder sb = new StringBuilder();
-        if (cucumberTextElement.type == BaseBarElement.TYPE_SCENARIO || cucumberTextElement.type == BaseBarElement.TYPE_BACKGROUND || cucumberTextElement.type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
-            BaseBarElement parentTextElement = (BaseBarElement) cucumberTextElement.groupParent;
+        if (element.type == BaseBarElement.TYPE_SCENARIO || element.type == BaseBarElement.TYPE_BACKGROUND || element.type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
+            BaseBarElement parentTextElement = (BaseBarElement) element.groupParent;
             if (!Util.isEmpty(parentTextElement.getComment())) {
                 sb.append(parentTextElement.getComment()).append("\n");
             }
@@ -46,19 +53,31 @@ public class FeatureBuilder {
                 sb.append(parentTextElement.getTagsString()).append("\n");
             }
             sb.append(Locale.getString("feature")).append(": ").append(parentTextElement.getTitle()).append("\n\n");
-            if (cucumberTextElement.type != BaseBarElement.TYPE_BACKGROUND) {
+            if (element.type != BaseBarElement.TYPE_BACKGROUND) {
                 Element background = ElementHelper.findBackgroundElement(parentTextElement);
                 if (background != null) {
-                    sb.append(background.buildFeature());
+                    sb.append(background.buildFeature(addRunOutcome, time));
                 }
             }
         }
-        sb.append(cucumberTextElement.buildFeature());
-        if (cucumberTextElement.type == BaseBarElement.TYPE_BACKGROUND) {
+        sb.append(element.buildFeature(addRunOutcome, time));
+        if (element.type == BaseBarElement.TYPE_BACKGROUND) {
             sb.append("\n");
             sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": Testing background\n");
             sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# Just for testing background\n");
         }
         return sb;
+    }
+
+    public static List<StringBuilder> buildFeatures(List<BaseBarElement> features) {
+        return buildFeatures(features, false, 0);
+    }
+
+    public static List<StringBuilder> buildFeatures(List<BaseBarElement> features, boolean addRunOutcome, long time) {
+        List<StringBuilder> featureList = new LinkedList<StringBuilder>();
+        for (BaseBarElement element : features) {
+            featureList.add(buildFeature(element, addRunOutcome, time));
+        }
+        return featureList;
     }
 }

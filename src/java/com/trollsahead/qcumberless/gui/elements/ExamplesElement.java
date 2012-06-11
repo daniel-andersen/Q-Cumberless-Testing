@@ -57,10 +57,10 @@ public class ExamplesElement extends StepElement {
         return Arrays.asList(new String[] {"Add row", "Add column", "Delete row", "Delete column"});
     }
 
-    public StringBuilder buildFeatureInternal() {
+    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        sb.append(super.buildFeatureInternal());
+        sb.append(super.buildFeatureInternal(addRunOutcome, time));
         return sb;
     }
 

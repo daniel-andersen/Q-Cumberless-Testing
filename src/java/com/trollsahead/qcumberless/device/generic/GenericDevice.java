@@ -29,6 +29,8 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.model.Screenshot;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;
@@ -260,8 +262,9 @@ public class GenericDevice extends Device {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    Image screenshot = ImageIO.read(new File(Util.addSlashToPath(GenericDeviceHelper.getPath()) + screenshotFilename));
-                    deviceCallback.attachScreenshots(element, screenshot);
+                    String filename = FileUtil.addSlashToPath(GenericDeviceHelper.getPath()) + screenshotFilename;
+                    Image screenshot = ImageIO.read(new File(filename));
+                    deviceCallback.attachScreenshots(element, new Screenshot(screenshot, filename));
                 } catch (Exception e) {
                     System.out.println("Error while loading screenshots!");
                     e.printStackTrace();

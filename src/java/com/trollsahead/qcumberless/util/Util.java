@@ -88,64 +88,11 @@ public class Util {
         }
     }
 
-    public static void close(Closeable closeable) {
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            // Ignore!
-        }
-    }
-
-    public static String[] getFeatureFiles(File[] files) {
-        return traverseDirectory(files, ".feature").toArray(new String[0]);
-    }
-
-    public static List<String> traverseDirectory(File[] files, String suffix) {
-        List<String> foundFiles = new LinkedList<String>();
-        if (files == null) {
-            return foundFiles;
-        }
-        for (File file : files) {
-            if (file.isDirectory()) {
-                foundFiles.addAll(traverseDirectory(file.listFiles(), suffix));
-            } else if (file.getAbsolutePath().endsWith(suffix)) {
-                foundFiles.add(file.getAbsolutePath());
-            }
-        }
-        return foundFiles;
-    }
-
     public static String stripLeadingSlash(String str) {
         if (!isEmpty(str) && str.startsWith("/")) {
             return str.substring(1);
         } else {
             return str;
-        }
-    }
-
-    public static String getPath(String filename) {
-        if (isEmpty(filename)) {
-            return filename;
-        }
-        if (!filename.contains("/")) {
-            return filename;
-        }
-        return filename.substring(0, filename.lastIndexOf("/"));
-    }
-
-    public static String addSlashToPath(String path) {
-        if (Util.isEmpty(path)) {
-            return "";
-        } else {
-            return path.endsWith("/") ? path : (path + "/");
-        }
-    }
-
-    public static String removeTrailingSlash(String filename) {
-        if (!isEmpty(filename) && filename.startsWith("/")) {
-            return filename.substring(1);
-        } else {
-            return filename;
         }
     }
 

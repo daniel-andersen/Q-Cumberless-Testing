@@ -111,7 +111,7 @@ public class SimpleRubyStepDefinitionParser {
             e.printStackTrace();
             return null;
         } finally {
-            Util.close(in);
+            FileUtil.close(in);
         }
         return stepDefinitions;
     }

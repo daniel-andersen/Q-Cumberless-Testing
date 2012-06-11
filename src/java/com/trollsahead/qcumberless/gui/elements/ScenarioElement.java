@@ -75,14 +75,14 @@ public class ScenarioElement extends BaseBarElement {
         return type == TYPE_STEP || type == TYPE_COMMENT;
     }
 
-    public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = super.buildFeatureInternal();
+    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+        StringBuilder sb = super.buildFeatureInternal(addRunOutcome, time);
         sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
         return sb;
     }
 
-    protected StringBuilder buildFeatureInternalSkipThis() {
-        return super.buildFeatureInternal();
+    protected StringBuilder buildFeatureInternalSkipThis(boolean addRunOutcome, long time) {
+        return super.buildFeatureInternal(addRunOutcome, time);
     }
 
     protected boolean canBeFilteredByTags() {

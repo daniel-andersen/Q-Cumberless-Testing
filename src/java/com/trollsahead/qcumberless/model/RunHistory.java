@@ -23,34 +23,24 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.model;
 
-import com.trollsahead.qcumberless.gui.elements.Element;
-import com.trollsahead.qcumberless.model.Screenshot;
+import java.util.LinkedList;
+import java.util.List;
 
-import java.awt.*;
+public class RunHistory {
+    public static final String RUN_HISTORY_DIR = "runhistory";
 
-public interface DeviceCallback {
-    void onPlay();
-    void onPause();
-    void onResume();
-    void onStop();
-
-    void afterPlayed();
-    void afterPlayFailed(String errorMessage);
+    private String filename;
     
-    void logLine(String line);
-
-    void beforeFeatures();
-    void beforeFeature(String name);
-    void beforeScenario(String name);
-    void beforeBackground(String name);
-    void beforeStep(String name);
-    void beforeOutlineTable();
-    void beforeTableRow(String tableRow);
-    void afterStepFailed(String errorMessage);
+    private List<RunOutcome> runOutcomes;
     
-    void attachScreenshots(Element element, Screenshot... screenshots);
-
-    Element getCurrentElement();
+    public RunHistory(String filename) {
+        this.filename = filename;
+        runOutcomes = new LinkedList<RunOutcome>();
+    }
+    
+    public void addRunOutcome(RunOutcome outcome) {
+        runOutcomes.add(outcome);
+    }
 }

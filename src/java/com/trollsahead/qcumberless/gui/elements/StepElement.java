@@ -160,8 +160,8 @@ public class StepElement extends BaseBarElement {
         return table != null ? (table.getHeight() + TEXT_PADDING_VERTICAL) : 0;
     }
 
-    public StringBuilder buildFeatureInternal() {
-        StringBuilder sb = super.buildFeatureInternal();
+    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+        StringBuilder sb = super.buildFeatureInternal(addRunOutcome, time);
         sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append(step.toString()).append("\n");
         if (table != null) {
             sb.append(table.buildFeature());

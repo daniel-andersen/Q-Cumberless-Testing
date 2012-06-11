@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.ButtonBar;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
+import com.trollsahead.qcumberless.model.PlayState;
 
 import java.awt.*;
 import java.io.File;
@@ -238,7 +239,7 @@ public class RootElement extends Element {
         return new RootElement();
     }
 
-    protected StringBuilder buildFeatureInternal() {
+    protected StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
         return new StringBuilder();
     }
 
@@ -288,6 +289,6 @@ public class RootElement extends Element {
     public void toggleColorSchemeInternal() {
     }
 
-    public void setPlayColorState(PlayColorState playColorState) {
+    public void setPlayState(PlayState.State playState) {
     }
 }

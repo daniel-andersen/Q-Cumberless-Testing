@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
@@ -154,7 +155,7 @@ public class CucumberlessDialog extends JFrame {
                 null,
                 "noname.feature");
         if (!Util.isEmpty(filename) && !Util.isEmpty(DesignerEngine.featuresBaseDir)) {
-            return Util.addSlashToPath(DesignerEngine.featuresBaseDir) + Util.removeTrailingSlash(filename);
+            return FileUtil.addSlashToPath(DesignerEngine.featuresBaseDir) + FileUtil.removeTrailingSlash(filename);
         } else {
             return filename;
         }
