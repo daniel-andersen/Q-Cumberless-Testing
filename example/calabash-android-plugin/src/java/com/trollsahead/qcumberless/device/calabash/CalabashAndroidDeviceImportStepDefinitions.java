@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.device.calabash;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
 import com.trollsahead.qcumberless.plugins.calabash.CalabashAndroidPlugin;
@@ -57,7 +58,7 @@ public class CalabashAndroidDeviceImportStepDefinitions implements ButtonBarMeth
     }
 
     public void trigger() {
-        Engine.importStepDefinitions(plugin);
+        DesignerEngine.importStepDefinitions(plugin);
     }
 
     public Image getThumbnail(ThumbnailState thumbnailState) {
