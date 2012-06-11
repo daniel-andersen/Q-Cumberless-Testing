@@ -23,48 +23,42 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.gui.elements;
+package com.trollsahead.qcumberless.model;
 
-import com.trollsahead.qcumberless.model.Locale;
-import com.trollsahead.qcumberless.util.ElementHelper;
+public class TagHistory {
+    private String tag;
+    private int successCount = 0;
+    private int failureCount = 0;
 
-public class ScenarioOutlineElement extends ScenarioElement {
-    public ScenarioOutlineElement(int rootType) {
-        super(rootType);
-        type = TYPE_SCENARIO_OUTLINE;
-        appendExamples();
+    public TagHistory(String tag) {
+        this.tag = tag;
     }
 
-    public ScenarioOutlineElement(int rootType, String title) {
-        super(rootType, title);
-        type = TYPE_SCENARIO_OUTLINE;
-        appendExamples();
+    public void update(PlayResult playResult) {
+        if (playResult.isFailed()) {
+            failureCount++;
+        } else if (playResult.isSuccess()) {
+            successCount++;
+        }
     }
 
-    public ScenarioOutlineElement(int rootType, String title, int width) {
-        super(rootType, title, width);
-        type = TYPE_SCENARIO_OUTLINE;
-        appendExamples();
+    public String getTag() {
+        return tag;
     }
 
-    private void appendExamples() {
-        addChild(new ExamplesElement());
+    public int getSuccessCount() {
+        return successCount;
     }
 
-    public BaseBarElement duplicate() {
-        ScenarioOutlineElement element = new ScenarioOutlineElement(rootType, title, calculateRenderWidthFromRoot(rootType));
-        element.removeChild(element.getExamplesElement());
-        duplicatePropertiesTo(element);
-        return element;
+    public int getFailureCount() {
+        return failureCount;
+    }
+    
+    public int getRunCount() {
+        return successCount + failureCount;
     }
 
-    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
-        StringBuilder sb = buildFeatureInternalSkipThis(addRunOutcome, time);
-        sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario outline")).append(": ").append(title).append("\n");
-        return sb;
-    }
-
-    public ExamplesElement getExamplesElement() {
-        return children != null && children.size() > 0 ? (ExamplesElement) children.get(children.size() - 1) : null;
+    public boolean hasRun() {
+        return getRunCount() > 0;
     }
 }

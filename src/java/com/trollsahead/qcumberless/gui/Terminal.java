@@ -199,9 +199,9 @@ public class Terminal {
 
     private static int getPlayStateIndex(LogLine logLine) {
         if (logLine.element != null) {
-            if (logLine.element.getPlayState().isFailed()) {
+            if (logLine.element.getPlayResult().isFailed()) {
                 return 1;
-            } else if (logLine.element.getPlayState().isSuccess()) {
+            } else if (logLine.element.getPlayResult().isSuccess()) {
                 return 0;
             }
         }

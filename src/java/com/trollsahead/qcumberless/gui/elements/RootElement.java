@@ -29,7 +29,7 @@ import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.ButtonBar;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
-import com.trollsahead.qcumberless.model.PlayState;
+import com.trollsahead.qcumberless.model.PlayResult;
 
 import java.awt.*;
 import java.io.File;
@@ -282,13 +282,9 @@ public class RootElement extends Element {
         return new HashSet<String>();
     }
 
-    protected boolean canBeFilteredByTags() {
-        return true;
-    }
-
     public void toggleColorSchemeInternal() {
     }
 
-    public void setPlayState(PlayState.State playState) {
+    public void setPlayResult(PlayResult.State playState) {
     }
 }

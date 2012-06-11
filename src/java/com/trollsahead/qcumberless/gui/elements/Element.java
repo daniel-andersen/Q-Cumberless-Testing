@@ -28,7 +28,7 @@ package com.trollsahead.qcumberless.gui.elements;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
-import com.trollsahead.qcumberless.model.PlayState;
+import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -201,14 +201,14 @@ public abstract class Element {
     public abstract String getTitle();
 
     public void setFailed() {
-        setPlayState(PlayState.State.FAILED);
+        setPlayResult(PlayResult.State.FAILED);
         if (groupParent != null) {
             groupParent.setFailed();
         }
     }
 
     public void setSuccess() {
-        setPlayState(PlayState.State.SUCCESS);
+        setPlayResult(PlayResult.State.SUCCESS);
     }
 
     public abstract void trashElement();
@@ -397,6 +397,9 @@ public abstract class Element {
     public abstract boolean save();
 
     public void show(boolean animate) {
+        if (!animate) {
+            shouldStickToParentRenderPosition = true;
+        }
         if (visible) {
             return;
         }
@@ -405,18 +408,13 @@ public abstract class Element {
             animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
         } else {
             animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT);
-            shouldStickToParentRenderPosition = true;
-        }
-    }
-
-    public void showAll(boolean animate) {
-        show(animate);
-        for (Element child : children) {
-            child.showAll(animate);
         }
     }
 
     public void hide(boolean animate) {
+        if (!animate) {
+            shouldStickToParentRenderPosition = true;
+        }
         if (!visible) {
             return;
         }
@@ -425,7 +423,6 @@ public abstract class Element {
             animation.alphaAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
         } else {
             animation.alphaAnimation.setAlpha(0.0f);
-            shouldStickToParentRenderPosition = true;
         }
     }
 
@@ -441,28 +438,6 @@ public abstract class Element {
     }
 
     public abstract Set<String> getTagsInternal();
-
-    public boolean filterFeaturesByTags(String tags) {
-        if (!canBeFilteredByTags()) {
-            return false;
-        }
-        boolean childrenHasTags = false;
-        for (Element child : children) {
-            if (child.containsAnyOfTags(tags)) {
-                childrenHasTags = true;
-            } else {
-                childrenHasTags |= child.filterFeaturesByTags(tags);
-            }
-        }
-        if (type == BaseBarElement.TYPE_FEATURE) {
-            if (childrenHasTags) {
-                show(false);
-            } else {
-                hide(false);
-            }
-        }
-        return childrenHasTags;
-    }
 
     public boolean containsAnyOfTags(String tags) {
         for (String tag : Util.stringToTagList(tags)) {
@@ -482,20 +457,18 @@ public abstract class Element {
         return false;
     }
     
-    protected abstract boolean canBeFilteredByTags();
-
     public boolean isVisible() {
         return visible;
     }
 
-    public void setPlayStateIncludingChildren(PlayState.State playState) {
-        setPlayState(playState);
+    public void setPlayStateIncludingChildren(PlayResult.State playState) {
+        setPlayResult(playState);
         for (Element element : children) {
             element.setPlayStateIncludingChildren(playState);
         }
     }
 
-    public abstract void setPlayState(PlayState.State playState);
+    public abstract void setPlayResult(PlayResult.State playState);
 
     public void toggleColorScheme() {
         toggleColorSchemeInternal();

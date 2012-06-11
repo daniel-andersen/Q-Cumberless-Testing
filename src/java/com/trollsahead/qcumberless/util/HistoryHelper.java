@@ -23,14 +23,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.model;
+package com.trollsahead.qcumberless.util;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.FeatureBuilder;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
-import com.trollsahead.qcumberless.util.ElementHelper;
-import com.trollsahead.qcumberless.util.FileUtil;
-import com.trollsahead.qcumberless.util.Util;
+import com.trollsahead.qcumberless.model.ConsoleOutput;
+import com.trollsahead.qcumberless.model.PlayResult;
+import com.trollsahead.qcumberless.model.RunHistory;
+import com.trollsahead.qcumberless.model.Screenshot;
 
 import java.io.File;
 import java.util.Date;
@@ -38,7 +39,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RunOutcome {
+public class HistoryHelper {
+    private static final String RUN_HISTORY_DIR = "runhistory";
+
     private static final String COMMENT_DELIMITER_START = "<#";
     private static final String COMMENT_DELIMITER_END = "#>";
     private static final String PATTERN_DELIMITER_START = "<#";
@@ -59,28 +62,19 @@ public class RunOutcome {
     private static final String COMMENT_SCREENSHOT = COMMENT_DELIMITER_START + "screenshot: $screenshot" + COMMENT_DELIMITER_END;
     private static final String PATTERN_SCREENSHOT = PATTERN_DELIMITER_START + "screenshot: (.*)" + PATTERN_DELIMITER_END;
 
-    private String filename;
-    
-    private StringBuilder featuresWithOutcome;
-
-    public RunOutcome(String filename, StringBuilder featuresWithOutcome) {
-        this.filename = filename;
-        this.featuresWithOutcome = featuresWithOutcome;
-    }
-
     public static String getRunOutcomeComment(BaseBarElement element, long time) {
         StringBuilder sb = new StringBuilder();
         sb.append(COMMENT_QCUMBERLESS);
         sb.append(COMMENT_DATE.replaceAll("\\$date", Long.toString(time)));
-        if (element.getPlayState().isFailed()) {
+        if (element.getPlayResult().isFailed()) {
             sb.append(COMMENT_STATUS.replaceAll("\\$status", "failed"));
-            if (element.getPlayState().hasErrorMessage()) {
-                sb.append(COMMENT_ERROR_MESSAGE.replaceAll("\\$errmsg", element.getPlayState().getErrorMessage()));
+            if (element.getPlayResult().hasErrorMessage()) {
+                sb.append(COMMENT_ERROR_MESSAGE.replaceAll("\\$errmsg", element.getPlayResult().getErrorMessage()));
             }
-            if (element.getPlayState().hasScreenshots()) {
+            if (element.getPlayResult().hasScreenshots()) {
                 sb.append(getRunOutcomeScreenshotComment(element));
             }
-        } else if (element.getPlayState().isSuccess()) {
+        } else if (element.getPlayResult().isSuccess()) {
             sb.append(COMMENT_STATUS.replaceAll("\\$status", "success"));
         } else {
             sb.append(COMMENT_STATUS.replaceAll("\\$status", "not yet played"));
@@ -89,19 +83,12 @@ public class RunOutcome {
         return sb.toString();
     }
 
-    private static String getRunOutcomeScreenshotComment(BaseBarElement element) {
-        if (!element.getPlayState().hasScreenshots()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Screenshot screenshot : element.getPlayState().getScreenshots()) {
-            sb.append(COMMENT_SCREENSHOT.replaceAll("\\$screenshot", screenshot.getFilename()));
-        }
-        return sb.toString();
+    public static List<String> findFeatureFiles() {
+        return FileUtil.getFeatureFiles(RUN_HISTORY_DIR);
     }
 
     public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime) {
-        File dir = new File(RunHistory.RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
+        File dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
         if (!dir.mkdirs()) {
             throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
         }
@@ -109,6 +96,7 @@ public class RunOutcome {
             String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + ElementHelper.suggestFilenameIfNotPresent(element) + ".feature";
             File file = FileUtil.writeToFile(filename, FeatureBuilder.buildFeature(element, true, startTime));
             System.out.println("Wrote feature history to: " + file.getAbsolutePath());
+            RunHistory.addFeature(file.getAbsolutePath());
         }
         String logFilename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + FileUtil.toFilename(device.name()) + ".log";
         device.getConsoleOutput().exportLog(logFilename, ConsoleOutput.getPreample(device, new Date(startTime)));
@@ -116,27 +104,38 @@ public class RunOutcome {
         return dir;
     }
 
-    public static PlayState getPlayResultFromComment(String line) {
+    public static PlayResult getPlayResultFromComment(String line) {
         Matcher matcher = Pattern.compile(PATTERN_STATUS).matcher(line);
         if (!matcher.find()) {
-            return new PlayState(PlayState.State.NOT_YET_PLAYED);
+            return new PlayResult(PlayResult.State.NOT_PLAYED);
         }
         if ("success".equalsIgnoreCase(matcher.group(1))) {
-            return new PlayState(PlayState.State.SUCCESS);
+            return new PlayResult(PlayResult.State.SUCCESS);
         } else if ("failed".equalsIgnoreCase(matcher.group(1))) {
             return extractFailedPlayStateFromComment(line);
         } else {
-            return new PlayState(PlayState.State.NOT_YET_PLAYED);
+            return new PlayResult(PlayResult.State.NOT_PLAYED);
         }
     }
 
-    private static PlayState extractFailedPlayStateFromComment(String line) {
-        PlayState playState = new PlayState(PlayState.State.FAILED);
+    private static PlayResult extractFailedPlayStateFromComment(String line) {
+        PlayResult playResult = new PlayResult(PlayResult.State.FAILED);
         Matcher matcher = Pattern.compile(PATTERN_ERROR_MESSAGE.replaceAll("\\$errmsg", "(.*)")).matcher(line);
         if (matcher.find()) {
-            playState.setErrorMessage(matcher.group(2));
+            playResult.setErrorMessage(matcher.group(2));
         }
         // TODO! Screenshot!
-        return playState;
+        return playResult;
+    }
+
+    private static String getRunOutcomeScreenshotComment(BaseBarElement element) {
+        if (!element.getPlayResult().hasScreenshots()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Screenshot screenshot : element.getPlayResult().getScreenshots()) {
+            sb.append(COMMENT_SCREENSHOT.replaceAll("\\$screenshot", screenshot.getFilename()));
+        }
+        return sb.toString();
     }
 }

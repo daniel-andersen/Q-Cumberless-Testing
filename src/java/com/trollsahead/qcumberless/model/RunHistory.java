@@ -25,22 +25,63 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.engine.FeatureLoader;
+import com.trollsahead.qcumberless.util.HistoryHelper;
+
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class RunHistory {
-    public static final String RUN_HISTORY_DIR = "runhistory";
+    private static final Object LOCK = new Object();
 
-    private String filename;
+    private static List<String> features;
+    private static Map<String, TagHistory> tagHistory;
     
-    private List<RunOutcome> runOutcomes;
-    
-    public RunHistory(String filename) {
-        this.filename = filename;
-        runOutcomes = new LinkedList<RunOutcome>();
+    public static void initialize() {
+        clear();
+        new Thread(new Runnable() {
+            public void run() {
+                updateTagHistory(HistoryHelper.findFeatureFiles());
+            }
+        }).start();
     }
     
-    public void addRunOutcome(RunOutcome outcome) {
-        runOutcomes.add(outcome);
+    public static void clear() {
+        synchronized (LOCK) {
+            features = new LinkedList<String>();
+            tagHistory = new HashMap<String, TagHistory>();
+        }
+    }
+    
+    public static TagHistory getTagHistory(String tag) {
+        synchronized (LOCK) {
+            return tagHistory.get(tag);
+        }
+    }
+    
+    public static void addFeature(String filename) {
+        synchronized (LOCK) {
+            features.add(filename);
+            updateTagHistory(filename);
+        }
+    }
+
+    private static void updateTagHistory(List<String> features) {
+        for (String feature : features) {
+            updateTagHistory(feature);
+        }
+        synchronized (LOCK) {
+            for (TagHistory history : tagHistory.values()) {
+                System.out.println("Tag: " + history.getTag() + ", successes: " + history.getSuccessCount() + ", failures: " + history.getFailureCount());
+            }
+        }
+    }
+
+    private static void updateTagHistory(String feature) {
+        synchronized (LOCK) {
+            FeatureLoader.extractTagHistory(tagHistory, feature);
+        }
     }
 }

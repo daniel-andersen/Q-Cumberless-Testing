@@ -31,6 +31,7 @@ import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.*;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -79,6 +80,8 @@ public class DesignerEngine implements CucumberlessEngine {
     public static DesignerEngine instance = null;
 
     public DesignerEngine() {
+        RunHistory.initialize();
+
         buttonBar = new ButtonBar();
         spotlight = new Spotlight();
         instance = this;
@@ -534,9 +537,20 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void filterFeaturesByTags(String tags) {
-        featuresRoot.showAll(false);
-        featuresRoot.filterFeaturesByTags(tags);
+        ElementHelper.filterFeaturesByTags(tags);
         featuresRoot.scrollToTop();
         tagsFilter = tags;
+    }
+
+    public static void filterScenariosByTags(String tags) {
+        ElementHelper.filterScenariosByTags(tags);
+        featuresRoot.scrollToTop();
+        tagsFilter = tags;
+    }
+
+    public static void removeTagsFilter() {
+        ElementHelper.removeTagsFilter();
+        featuresRoot.scrollToTop();
+        tagsFilter = null;
     }
 }

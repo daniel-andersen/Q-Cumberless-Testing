@@ -28,8 +28,8 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.gui.elements.*;
-import com.trollsahead.qcumberless.model.PlayState;
-import com.trollsahead.qcumberless.model.RunOutcome;
+import com.trollsahead.qcumberless.model.PlayResult;
+import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.model.Screenshot;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
@@ -92,7 +92,7 @@ public class Player implements DeviceCallback {
     public static void prepareRun() {
         hasDeviceFailures = false;
         notifiedStopped = false;
-        DesignerEngine.featuresRoot.setPlayStateIncludingChildren(PlayState.State.NOT_YET_PLAYED);
+        DesignerEngine.featuresRoot.setPlayStateIncludingChildren(PlayResult.State.NOT_PLAYED);
         DesignerEngine.setColorScheme(Element.ColorScheme.PLAY);
     }
 
@@ -161,7 +161,7 @@ public class Player implements DeviceCallback {
                 started = true;
                 long startTime = System.currentTimeMillis();
                 device.play(FeatureBuilder.buildFeatures(features), tags);
-                RunOutcome.saveRunOutcome(device, features, startTime);
+                HistoryHelper.saveRunOutcome(device, features, startTime);
                 cleanup();
             }
         }).start();
@@ -353,7 +353,7 @@ public class Player implements DeviceCallback {
     }
 
     public void attachScreenshots(Element element, Screenshot... screenshots) {
-        ((BaseBarElement) element).getPlayState().setScreenshots(screenshots);
+        ((BaseBarElement) element).getPlayResult().setScreenshots(screenshots);
     }
 
     public Element getCurrentElement() {
@@ -505,10 +505,10 @@ public class Player implements DeviceCallback {
     }
     
     private void setSuccess(BaseBarElement element) {
-        if ((element instanceof StepElement) && (currentScenario.getPlayState().isFailed() || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
+        if ((element instanceof StepElement) && (currentScenario.getPlayResult().isFailed() || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
             return;
         }
-        if (element != null && !element.getPlayState().isFailed()) {
+        if (element != null && !element.getPlayResult().isFailed()) {
             element.setSuccess();
         }
     }

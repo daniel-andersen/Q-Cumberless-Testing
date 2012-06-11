@@ -181,7 +181,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
                             },
                             new Button.ButtonNotification() {
                                 public void onClick() {
-                                    DesignerEngine.filterFeaturesByTags("@" + tag);
+                                    DesignerEngine.filterScenariosByTags("@" + tag);
                                     startHiding();
                                 }
                             }));
@@ -349,6 +349,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
                 return;
             }
         }
+        DesignerEngine.removeTagsFilter();
         startHiding();
     }
 

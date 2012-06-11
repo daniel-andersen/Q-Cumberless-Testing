@@ -34,6 +34,7 @@ import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.*;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.FileUtil;
+import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
@@ -149,7 +150,7 @@ public abstract class BaseBarElement extends Element {
     protected Element lastBubbledElement = null;
     protected long lastRenderCount = 0;
 
-    protected PlayState playState;
+    protected PlayResult playResult;
 
     protected BaseBarElement(int type, int rootType) {
         this(type, rootType, "Untitled");
@@ -179,7 +180,7 @@ public abstract class BaseBarElement extends Element {
         this.title = title;
         this.step = step != null ? step : new Step(title);
         this.tags = new Tag(tags);
-        this.playState = new PlayState();
+        this.playResult = new PlayResult();
         folded = type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND;
         animation.colorAnimation.setColor(getNormalBackgroundColor());
         if (type == TYPE_FEATURE) {
@@ -813,7 +814,7 @@ public abstract class BaseBarElement extends Element {
         element.renderHeight = renderHeight;
         element.animation.sizeAnimation.currentWidth = renderWidth;
         element.animation.sizeAnimation.currentHeight = renderHeight;
-        element.setPlayState(playState.getState());
+        element.setPlayResult(playResult.getState());
         element.animation.colorAnimation.setColor(animation.colorAnimation.getColor());
         element.folded = folded;
     }
@@ -865,11 +866,11 @@ public abstract class BaseBarElement extends Element {
         if (!isHighlighted()) {
             return;
         }
-        if (playState.hasScreenshots()) {
+        if (playResult.hasScreenshots()) {
             drawScreenshot(g);
         }
-        if (playState.hasErrorMessage()) {
-            drawHint(g, playState.getErrorMessage(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
+        if (playResult.hasErrorMessage()) {
+            drawHint(g, playResult.getErrorMessage(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
         }
     }
 
@@ -917,28 +918,28 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void clearRunStatus() {
-        playState = new PlayState();
+        playResult = new PlayResult();
         super.clearRunStatus();
     }
 
-    public void setPlayState(PlayState.State state) {
-        setPlayState(new PlayState(state));
+    public void setPlayResult(PlayResult.State state) {
+        setPlayState(new PlayResult(state));
     }
 
-    public void setPlayState(PlayState playState) {
-        if (playState == null) {
+    public void setPlayState(PlayResult playResult) {
+        if (playResult == null) {
             return;
         }
-        this.playState = playState;
+        this.playResult = playResult;
         animation.colorAnimation.setColor(getBackgroundColorAccordingToState(), Animation.FADE_SPEED_CHANGE_PLAY_COLOR_STATE);
     }
 
     public void setErrorMessage(String message) {
-        playState.setErrorMessage(message);
+        playResult.setErrorMessage(message);
     }
 
     public void setErrorScreenshots(Screenshot[] screenshots) {
-        playState.addScreenshots(screenshots);
+        playResult.addScreenshots(screenshots);
     }
 
     public void toggleColorSchemeInternal() {
@@ -955,9 +956,9 @@ public abstract class BaseBarElement extends Element {
         }
         if (this instanceof CommentElement) {
             return BAR_COLOR_PLAYING_COMMENT;
-        } else if (playState.isSuccess()) {
+        } else if (playResult.isSuccess()) {
             return BAR_COLOR_SUCCESS;
-        } else if (playState.isFailed()) {
+        } else if (playResult.isFailed()) {
             return BAR_COLOR_FAILURE;
         } else {
             return BAR_COLOR_NOT_YET_PLAYED;
@@ -1090,12 +1091,12 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void drawScreenshot(Graphics g) {
-        if (!playState.hasScreenshots()) {
+        if (!playResult.hasScreenshots()) {
             return;
         }
         int x = CumberlessMouseListener.mouseX + 15;
-        for (Screenshot screenshot : playState.getScreenshots()) {
-            int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - playState.getScreenshots().get(0).getImage().getHeight(null));
+        for (Screenshot screenshot : playResult.getScreenshots()) {
+            int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - playResult.getScreenshots().get(0).getImage().getHeight(null));
         
             g.setColor(Color.BLACK);
         
@@ -1164,14 +1165,14 @@ public abstract class BaseBarElement extends Element {
         if (!Util.isEmpty(comment)) {
             sb.append(comment).append("\n");
         }
-        if (addRunOutcome) {
-            sb.append(RunOutcome.getRunOutcomeComment(this, time));
-        }
         if (!Util.isEmpty(tags.toString())) {
             if (type == TYPE_SCENARIO) {
                 sb.append(ElementHelper.EXPORT_INDENT);
             }
             sb.append(tags.toString()).append("\n");
+        }
+        if (addRunOutcome) {
+            sb.append(HistoryHelper.getRunOutcomeComment(this, time));
         }
         return sb;
     }
@@ -1272,11 +1273,7 @@ public abstract class BaseBarElement extends Element {
         return tags.toSet();
     }
 
-    protected boolean canBeFilteredByTags() {
-        return false;
-    }
-
-    public PlayState getPlayState() {
-        return playState;
+    public PlayResult getPlayResult() {
+        return playResult;
     }
 }

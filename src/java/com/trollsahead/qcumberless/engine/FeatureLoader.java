@@ -27,13 +27,16 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.Locale;
-import com.trollsahead.qcumberless.model.PlayState;
-import com.trollsahead.qcumberless.model.RunOutcome;
+import com.trollsahead.qcumberless.model.PlayResult;
+import com.trollsahead.qcumberless.model.TagHistory;
+import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +65,7 @@ public class FeatureLoader {
             String line;
             String tags = null;
             String comment = null;
-            PlayState playResult = null;
+            PlayResult playResult = null;
             while ((line = in.readLine()) != null) {
                 line = Util.removeTrailingSpaces(line);
                 if (Util.isEmptyOrContainsOnlyTabs(line)) {
@@ -70,7 +73,7 @@ public class FeatureLoader {
                 }
                 if (line.startsWith(getPlayResultPattern())) {
                     if (includePlayStateInfo) {
-                        playResult = RunOutcome.getPlayResultFromComment(line);
+                        playResult = HistoryHelper.getPlayResultFromComment(line);
                     }
                 } else if (line.matches(getFeaturePattern())) {
                     feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
@@ -134,6 +137,46 @@ public class FeatureLoader {
             throw new RuntimeException("Error reading supported feature file " + filename, e);
         } finally {
             FileUtil.close(in);
+        }
+    }
+
+    public static Map<String, TagHistory> extractTagHistory(Map<String, TagHistory> tagHistory, String... features) {
+        for (String filename : features) {
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
+                String tags = null;
+                String line;
+                while ((line = in.readLine()) != null) {
+                    line = Util.removeTrailingSpaces(line);
+                    if (line.startsWith(getPlayResultPattern())) {
+                        updateTagHistory(line, tags, tagHistory);
+                        tags = null;
+                    } else if (line.matches(getTagPattern())) {
+                        tags = extractTags(line);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                FileUtil.close(in);
+            }
+        }
+        return tagHistory;
+    }
+
+    private static void updateTagHistory(String line, String tags, Map<String, TagHistory> tagHistory) {
+        if (Util.isEmpty(tags)) {
+            return;
+        }
+        PlayResult playResult = HistoryHelper.getPlayResultFromComment(line);
+        for (String tag : Util.stringToTagList(tags)) {
+            TagHistory history = tagHistory.get(tag);
+            if (history == null) {
+                history = new TagHistory(tag);
+                tagHistory.put(tag, history);
+            }
+            history.update(playResult);
         }
     }
 
@@ -224,7 +267,7 @@ public class FeatureLoader {
     }
 
     private static String getPlayResultPattern() {
-        return RunOutcome.COMMENT_QCUMBERLESS;
+        return HistoryHelper.COMMENT_QCUMBERLESS;
     }
 
     private static String getExamplesPattern() {

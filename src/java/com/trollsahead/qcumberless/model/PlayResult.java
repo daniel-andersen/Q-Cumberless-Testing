@@ -30,21 +30,21 @@ import com.trollsahead.qcumberless.util.Util;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PlayState {
-    public enum State {NOT_YET_PLAYED, SUCCESS, FAILED}
+public class PlayResult {
+    public enum State {NOT_PLAYED, SUCCESS, FAILED}
 
-    private State state = State.NOT_YET_PLAYED;
+    private State state = State.NOT_PLAYED;
     private String errorMessage = null;
     private List<Screenshot> screenshots = null;
 
-    public PlayState() {
+    public PlayResult() {
     }
 
-    public PlayState(State state) {
+    public PlayResult(State state) {
         this.state = state;
     }
 
-    public PlayState(State state, String errorMessage) {
+    public PlayResult(State state, String errorMessage) {
         this.state = state;
         this.errorMessage = errorMessage;
     }
@@ -62,7 +62,7 @@ public class PlayState {
     }
 
     public boolean isNotYetPlayed() {
-        return state == State.NOT_YET_PLAYED;
+        return state == State.NOT_PLAYED;
     }
 
     public String getErrorMessage() {

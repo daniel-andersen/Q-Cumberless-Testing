@@ -36,6 +36,57 @@ import java.io.File;
 public class ElementHelper {
     public static final String EXPORT_INDENT = "    ";
 
+    public static void filterFeaturesByTags(String tags) {
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            boolean hideChildren;
+            if (element.containsAnyOfTags(tags)) {
+                element.show(false);
+                hideChildren = false;
+            } else {
+                element.hide(false);
+                hideChildren = true;
+            }
+            for (Element child : element.children) {
+                if (hideChildren) {
+                    child.hide(false);
+                } else {
+                    child.show(false);
+                }
+                child.stickChildrenToParentRenderPosition(true);
+            }
+        }
+    }
+
+    public static void filterScenariosByTags(String tags) {
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            boolean childrenHasTags = false;
+            for (Element child : element.children) {
+                if (child.containsAnyOfTags(tags)) {
+                    child.show(false);
+                    childrenHasTags = true;
+                } else {
+                    child.hide(false);
+                }
+                child.stickChildrenToParentRenderPosition(true);
+            }
+            if (childrenHasTags) {
+                element.show(false);
+            } else {
+                element.hide(false);
+            }
+        }
+    }
+    
+    public static void removeTagsFilter() {
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            for (Element child : element.children) {
+                child.show(false);
+                child.stickChildrenToParentRenderPosition(true);
+            }
+            element.show(false);
+        }
+    }
+    
     public static String getRelativePath(String filename) {
         if (!Util.isEmpty(DesignerEngine.featuresBaseDir) && filename.startsWith(DesignerEngine.featuresBaseDir)) {
             return Util.stripLeadingSlash(filename.substring(DesignerEngine.featuresBaseDir.length()));

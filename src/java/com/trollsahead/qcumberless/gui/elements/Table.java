@@ -32,7 +32,7 @@ import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.gui.EditBox;
 import com.trollsahead.qcumberless.gui.GuiUtil;
-import com.trollsahead.qcumberless.model.PlayState;
+import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -66,7 +66,7 @@ public class Table {
     private Cell editedCell = null;
 
     private BaseBarElement parent;
-    private PlayState[] playStates;
+    private PlayResult[] playResults;
 
     public Table(BaseBarElement parent) {
         this(parent, 2, 2);
@@ -114,9 +114,9 @@ public class Table {
         if (highlightedRow == -1) {
             return;
         }
-        if (playStates[highlightedRow].hasErrorMessage()) {
+        if (playResults[highlightedRow].hasErrorMessage()) {
             //playStates[highlightedRow].renderError(g, CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY); // TODO!
-            parent.drawHint(g, playStates[highlightedRow].getErrorMessage(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, BaseBarElement.COLOR_TEXT_ERROR_MESSAGE, BaseBarElement.COLOR_BG_ERROR_MESSAGE);
+            parent.drawHint(g, playResults[highlightedRow].getErrorMessage(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, BaseBarElement.COLOR_TEXT_ERROR_MESSAGE, BaseBarElement.COLOR_BG_ERROR_MESSAGE);
         }
     }
 
@@ -164,10 +164,10 @@ public class Table {
             return;
         }
         for (int i = 0; i < rows; i++) {
-            if (playStates[i].isNotYetPlayed()) {
+            if (playResults[i].isNotYetPlayed()) {
                 continue;
             }
-            g.setColor(playStates[i].isSuccess() ? BaseBarElement.BAR_COLOR_SUCCESS : BaseBarElement.BAR_COLOR_FAILURE);
+            g.setColor(playResults[i].isSuccess() ? BaseBarElement.BAR_COLOR_SUCCESS : BaseBarElement.BAR_COLOR_FAILURE);
             g.fillRect(cells[i][0].x, cells[i][0].y, width, cells[i][0].height);
         }
     }
@@ -303,7 +303,7 @@ public class Table {
         this.rows = rows;
         colWidth = new int[cols];
         colCharWidth = new int[cols];
-        playStates = new PlayState[rows];
+        playResults = new PlayResult[rows];
         Cell[][] newCells = new Cell[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -313,7 +313,7 @@ public class Table {
                     newCells[i][j] = new Cell();
                 }
             }
-            playStates[i] = new PlayState(PlayState.State.NOT_YET_PLAYED);
+            playResults[i] = new PlayResult(PlayResult.State.NOT_PLAYED);
         }
         cells = newCells;
         calculateCellSize();
@@ -325,26 +325,26 @@ public class Table {
             for (int j = 0; j < cols; j++) {
                 newTable.cells[i][j] = new Cell(cells[i][j].text);
             }
-            newTable.playStates[i] = new PlayState(PlayState.State.NOT_YET_PLAYED);
+            newTable.playResults[i] = new PlayResult(PlayResult.State.NOT_PLAYED);
         }
         newTable.calculateCellSize();
         return newTable;
     }
 
     public boolean isFailed(int row) {
-        return playStates[row].isFailed();
+        return playResults[row].isFailed();
     }
 
     public void setNotYetPlayed(int row) {
-        this.playStates[row] = new PlayState(PlayState.State.NOT_YET_PLAYED);
+        this.playResults[row] = new PlayResult(PlayResult.State.NOT_PLAYED);
     }
 
     public void setSuccess(int row) {
-        this.playStates[row] = new PlayState(PlayState.State.SUCCESS);
+        this.playResults[row] = new PlayResult(PlayResult.State.SUCCESS);
     }
 
     public void setFailed(int row, String errorMessage) {
-        this.playStates[row] = new PlayState(PlayState.State.FAILED, errorMessage);
+        this.playResults[row] = new PlayResult(PlayResult.State.FAILED, errorMessage);
     }
 
     public void clearRunStatus() {
