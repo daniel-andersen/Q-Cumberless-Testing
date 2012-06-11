@@ -50,8 +50,8 @@ public class Terminal {
     private static final Font TERMINAL_FONT = new Font("Courier New", Font.PLAIN, 13);
     private static final float TERMINAL_PROPORTIONAL_HEIGHT = 0.5f;
 
-    private static final Color[] COLOR_TEXT = {new Color(0.4f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 0.0f), new Color(0.8f, 0.8f, 0.8f)};
-    private static final Color[] COLOR_BACKGROUND = {new Color(0.0f, 0.0f, 0.0f), new Color(0.5f, 0.0f, 0.0f), new Color(0.0f, 0.0f, 0.0f)};
+    private static final Color[] COLOR_TEXT = {new Color(0.4f, 1.0f, 0.4f), new Color(0.8f, 0.8f, 0.8f), new Color(0.8f, 0.8f, 0.8f)};
+    private static final Color[] COLOR_BACKGROUND = {new Color(0.0f, 0.0f, 0.0f), new Color(0.5f, 0.1f, 0.1f), new Color(0.0f, 0.0f, 0.0f)};
 
     private static FontMetrics fontMetrics = null;
 
@@ -93,11 +93,13 @@ public class Terminal {
                     public void onClick() {
                         Date now = new Date();
                         File path = CucumberlessDialog.instance.askExportLogPath();
-                        String filename = Util.convertSpacesToSlashes(currentDevice.name()) + "_" + Util.prettyFilenameDate(now) + ".log";
-                        currentDevice.getConsoleOutput().exportLog(
-                                FileUtil.addSlashToPath(path.getAbsolutePath()) + filename,
-                                new StringBuilder("Q-Cumberless Testing\n" + currentDevice.name() + "\n" + Util.prettyDate(now) + "\n\n"));
-                        FlashingMessageManager.addMessage(new FlashingMessage("Log saved as '" + filename + "'", FlashingMessage.STANDARD_TIMEOUT));
+                        if (path != null) {
+                            String filename = Util.convertSpacesToSlashes(currentDevice.name()) + "_" + FileUtil.prettyFilenameDateAndTime(now) + ".log";
+                            currentDevice.getConsoleOutput().exportLog(
+                                    FileUtil.addSlashToPath(path.getAbsolutePath()) + filename,
+                                    ConsoleOutput.getPreample(currentDevice, now));
+                            FlashingMessageManager.addMessage(new FlashingMessage("Log saved as '" + filename + "'", FlashingMessage.STANDARD_TIMEOUT));
+                        }
                     }
                 },
                 null);

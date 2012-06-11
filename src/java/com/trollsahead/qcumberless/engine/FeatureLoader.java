@@ -122,7 +122,9 @@ public class FeatureLoader {
                     if (element instanceof StepElement || element instanceof ExamplesElement) {
                         step = (StepElement) element;
                     }
-                    element.setPlayState(playResult);
+                    if (element != null) {
+                        element.setPlayState(playResult);
+                    }
                     tags = null;
                     comment = null;
                     playResult = null;

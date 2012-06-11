@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.util.FileUtil;
@@ -35,6 +36,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -127,15 +129,28 @@ public class ConsoleOutput {
             FileUtil.close(out);
         }
     }
-    
+
+    public StringBuilder getPlainTextLog() {
+        StringBuilder sb = new StringBuilder();
+        for (LogLine logLine : log) {
+            sb.append(logLine.log).append("\n");
+        }
+        return sb;
+    }
+
+    public static StringBuilder getPreample(Device device, Date date) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("# Q-Cumberless Testing\n");
+        sb.append("# ").append(device.name()).append("\n");
+        sb.append("# ").append(Util.prettyDate(date)).append("\n");
+        sb.append("\n");
+        return sb;
+    }
+
     public static class LogLine {
         public String log = null;
         public BaseBarElement element = null;
         
-        public LogLine(String log) {
-            this(log, null);
-        }
-
         public LogLine(String log, BaseBarElement element) {
             this.log = log;
             this.element = element;

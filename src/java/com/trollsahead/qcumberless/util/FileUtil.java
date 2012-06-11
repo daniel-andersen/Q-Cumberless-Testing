@@ -26,6 +26,8 @@
 package com.trollsahead.qcumberless.util;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -118,5 +120,23 @@ public class FileUtil {
             return filename.substring(0, dotIndex);
         }
         return filename;
+    }
+
+    public static String prettyFilenameDateAndTime(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").format(date);
+    }
+
+    public static String prettyFilenameDate(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd").format(date);
+    }
+
+    public static String prettyFilenameTime(Date date) {
+        return new SimpleDateFormat("HH_mm").format(date);
+    }
+    
+    public static String toFilename(String str) {
+        return str
+                .replaceAll("\\s", "_")
+                .replaceAll(":", "_");
     }
 }

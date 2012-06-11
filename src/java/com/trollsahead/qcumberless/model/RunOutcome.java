@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.FeatureBuilder;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.util.ElementHelper;
@@ -99,16 +100,19 @@ public class RunOutcome {
         return sb.toString();
     }
 
-    public static File saveRunOutcome(List<BaseBarElement> features, long startTime) {
-        File dir = new File(RunHistory.RUN_HISTORY_DIR + "/" + Util.prettyFilenameDate(new Date(startTime)));
+    public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime) {
+        File dir = new File(RunHistory.RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
         if (!dir.mkdirs()) {
             throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
         }
         for (BaseBarElement element : features) {
             String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + ElementHelper.suggestFilenameIfNotPresent(element) + ".feature";
             File file = FileUtil.writeToFile(filename, FeatureBuilder.buildFeature(element, true, startTime));
-            System.out.println("Wrote history to: " + file.getAbsolutePath());
+            System.out.println("Wrote feature history to: " + file.getAbsolutePath());
         }
+        String logFilename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + FileUtil.toFilename(device.name()) + ".log";
+        device.getConsoleOutput().exportLog(logFilename, ConsoleOutput.getPreample(device, new Date(startTime)));
+        System.out.println("Wrote log history to: " + logFilename);
         return dir;
     }
 

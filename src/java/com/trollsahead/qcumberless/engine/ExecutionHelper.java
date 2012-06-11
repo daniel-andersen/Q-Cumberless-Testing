@@ -63,7 +63,7 @@ public class ExecutionHelper {
     }
 
     public static void executeCommand(String command, String dir, LogListener logListener, ExecutionStopper executionStopper) {
-        logListener.logLine("# " + Util.prettyDate(new Date()));
+        logListener.logLine("# Time: " + Util.prettyDate(new Date()));
         logListener.logLine("# Executing: '" + command + (!Util.isEmpty(dir) ? "' from dir '" + dir + "'" : "'"));
         logListener.logLine("");
         BufferedReader stdin = null;

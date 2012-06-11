@@ -28,8 +28,6 @@ package com.trollsahead.qcumberless.util;
 import com.trollsahead.qcumberless.model.Locale;
 
 import java.awt.*;
-import java.io.Closeable;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -266,10 +264,6 @@ public class Util {
 
     public static String prettyDate(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
-    }
-
-    public static String prettyFilenameDate(Date date) {
-        return new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").format(date);
     }
 
     public static boolean isInArray(int type, int[] typeFilter) {

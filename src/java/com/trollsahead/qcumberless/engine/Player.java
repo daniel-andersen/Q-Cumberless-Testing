@@ -154,13 +154,14 @@ public class Player implements DeviceCallback {
     public void play(final List<BaseBarElement> features, final Device device, final Set<String> tags) {
         this.device = device;
         device.setDeviceCallback(this);
+        device.getConsoleOutput().clearLog();
         new Thread(new Runnable() {
             public void run() {
                 success = true;
                 started = true;
                 long startTime = System.currentTimeMillis();
                 device.play(FeatureBuilder.buildFeatures(features), tags);
-                RunOutcome.saveRunOutcome(features, startTime);
+                RunOutcome.saveRunOutcome(device, features, startTime);
                 cleanup();
             }
         }).start();
@@ -274,7 +275,7 @@ public class Player implements DeviceCallback {
     }
 
     public void logLine(String line) {
-        device.getConsoleOutput().appendLog(line, currentExamples != null ? currentExamples : currentStep);
+        device.getConsoleOutput().appendLog(line, getCurrentLoglineElement());
     }
 
     public void beforeFeatures() {
@@ -540,5 +541,9 @@ public class Player implements DeviceCallback {
             devices.add(player.device);
         }
         return devices;
+    }
+
+    private BaseBarElement getCurrentLoglineElement() {
+        return currentExamples != null ? currentExamples : currentStep;
     }
 }

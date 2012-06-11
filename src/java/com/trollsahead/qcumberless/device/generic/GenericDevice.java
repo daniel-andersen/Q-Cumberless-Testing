@@ -153,7 +153,6 @@ public class GenericDevice extends Device {
         }
 
         public void logLine(String log) {
-            deviceCallback.logLine(log);
             checkStarting(log);
             checkStartingFeature(log);
             checkStartingBackground(log);
@@ -165,6 +164,7 @@ public class GenericDevice extends Device {
             checkStepFailed(log);
             checkScreenshotBeingTaken(log);
             checkScreenshotTaken(log);
+            deviceCallback.logLine(log);
         }
 
         public void error(Throwable t) {
