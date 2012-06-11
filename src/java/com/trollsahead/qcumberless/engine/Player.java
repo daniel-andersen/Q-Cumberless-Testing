@@ -274,7 +274,7 @@ public class Player implements DeviceCallback {
     }
 
     public void logLine(String line) {
-        device.getConsoleOutput().appendLog(line);
+        device.getConsoleOutput().appendLog(line, currentExamples != null ? currentExamples : currentStep);
     }
 
     public void beforeFeatures() {

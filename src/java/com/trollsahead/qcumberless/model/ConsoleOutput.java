@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.model;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -38,35 +39,39 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ConsoleOutput {
-    private List<String> log;
-    private List<String> textWrappedLog;
+    private List<LogLine> log;
+    private List<LogLine> textWrappedLog;
 
     private int textWrapWidth = -1;
     private FontMetrics textWrapMetrics = null;
     
     public ConsoleOutput() {
-        log = new LinkedList<String>();
-        textWrappedLog = new LinkedList<String>();
+        log = new LinkedList<LogLine>();
+        textWrappedLog = new LinkedList<LogLine>();
+    }
+
+    public void appendLog(String line) {
+        appendLog(line, null);
     }
     
-    public void appendLog(String line) {
+    public void appendLog(String line, BaseBarElement element) {
         if (Util.isEmpty(line)) {
             return;
         }
         line = Util.removePostfixedNewline(line);
         synchronized (Engine.DATA_LOCK) {
             for (String s : line.split("\n")) {
-                log.add(s);
-                textWrappedLog.addAll(wrapLine(s));
+                log.add(new LogLine(s, element));
+                textWrappedLog.addAll(wrapLine(new LogLine(s, element)));
             }
         }
     }
 
-    public List<String> getLog() {
+    public List<LogLine> getLog() {
         return log;
     }
 
-    public List<String> getTextWrappedLog(int wrapWidth, FontMetrics fontMetrics) {
+    public List<LogLine> getTextWrappedLog(int wrapWidth, FontMetrics fontMetrics) {
         if (textWrapWidth != wrapWidth || fontMetrics != textWrapMetrics || textWrappedLog == null) {
             textWrapMetrics = fontMetrics;
             textWrapWidth = wrapWidth;
@@ -76,29 +81,32 @@ public class ConsoleOutput {
     }
 
     private void wrapText() {
-        textWrappedLog = new LinkedList<String>();
-        for (String line : log) {
-            textWrappedLog.addAll(wrapLine(line));
+        textWrappedLog = new LinkedList<LogLine>();
+        for (LogLine logLine : log) {
+            textWrappedLog.addAll(wrapLine(logLine));
         }
     }
 
-    private List<String> wrapLine(String line) {
-        if (Util.isEmpty(line)) {
-            return new LinkedList<String>();
+    private List<LogLine> wrapLine(LogLine logLine) {
+        if (Util.isEmpty(logLine.log)) {
+            return new LinkedList<LogLine>();
         }
+        LinkedList<LogLine> list = new LinkedList<LogLine>();
         if (textWrapWidth == -1) {
-            LinkedList<String> list = new LinkedList<String>();
-            list.add(line);
-            return list;
+            list.add(logLine);
         } else {
-            return Util.wrapText(line, textWrapWidth, textWrapMetrics);
+            List<String> wrappedLine = Util.wrapText(logLine.log, textWrapWidth, textWrapMetrics);
+            for (String s : wrappedLine) {
+                list.add(new LogLine(s, logLine.element));
+            }
         }
+        return list;
     }
 
     public void clearLog() {
         synchronized (Engine.DATA_LOCK) {
-            log = new LinkedList<String>();
-            textWrappedLog = new LinkedList<String>();
+            log = new LinkedList<LogLine>();
+            textWrappedLog = new LinkedList<LogLine>();
         }
     }
 
@@ -110,13 +118,27 @@ public class ConsoleOutput {
             if (!Util.isEmpty(preample)) {
                 out.write(preample.toString());
             }
-            for (String line : log) {
-                out.write(line + "\n");
+            for (LogLine logLine : log) {
+                out.write(logLine.log + "\n");
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             FileUtil.close(out);
+        }
+    }
+    
+    public static class LogLine {
+        public String log = null;
+        public BaseBarElement element = null;
+        
+        public LogLine(String log) {
+            this(log, null);
+        }
+
+        public LogLine(String log, BaseBarElement element) {
+            this.log = log;
+            this.element = element;
         }
     }
 }

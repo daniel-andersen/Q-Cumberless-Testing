@@ -34,6 +34,7 @@ import com.trollsahead.qcumberless.model.ConsoleOutput;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.model.ConsoleOutput.LogLine;
 import static com.trollsahead.qcumberless.gui.Animation.MoveAnimation;
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.DeviceButton;
 
@@ -49,7 +50,8 @@ public class Terminal {
     private static final Font TERMINAL_FONT = new Font("Courier New", Font.PLAIN, 13);
     private static final float TERMINAL_PROPORTIONAL_HEIGHT = 0.5f;
 
-    private static final Color COLOR_TEXT = new Color(0.4f, 1.0f, 0.4f);
+    private static final Color[] COLOR_TEXT = {new Color(0.4f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 0.0f), new Color(0.8f, 0.8f, 0.8f)};
+    private static final Color[] COLOR_BACKGROUND = {new Color(0.0f, 0.0f, 0.0f), new Color(0.5f, 0.0f, 0.0f), new Color(0.0f, 0.0f, 0.0f)};
 
     private static FontMetrics fontMetrics = null;
 
@@ -160,14 +162,13 @@ public class Terminal {
         if (currentDevice == null) {
             return;
         }
-        g.setColor(COLOR_TEXT);
         Font oldFont = g.getFont();
         g.setFont(TERMINAL_FONT);
         if (fontMetrics == null) {
             fontMetrics = g.getFontMetrics();
         }
 
-        List<String> output = getConsoleOutput();
+        List<LogLine> output = getConsoleOutput();
 
         int rows = getNumberOfRows();
         int y = (int) position.renderY + PADDING_TOP;
@@ -177,13 +178,32 @@ public class Terminal {
             if (idx < 0 || idx >= output.size()) {
                 continue;
             }
+            int oldY = y;
             y += fontMetrics.getHeight();
             if (y > Engine.windowHeight) {
                 break;
             }
-            g.drawString(output.get(idx), PADDING_LEFT, y);
+            LogLine logLine = output.get(idx);
+            int playStateIndex = getPlayStateIndex(logLine);
+            if (playStateIndex == 1) {
+                g.setColor(COLOR_BACKGROUND[playStateIndex]);
+                g.fillRect(0, oldY + 3, Engine.windowWidth, fontMetrics.getHeight());
+            }
+            g.setColor(COLOR_TEXT[playStateIndex]);
+            g.drawString(logLine.log, PADDING_LEFT, y);
         }
         g.setFont(oldFont);
+    }
+
+    private static int getPlayStateIndex(LogLine logLine) {
+        if (logLine.element != null) {
+            if (logLine.element.getPlayState().isFailed()) {
+                return 1;
+            } else if (logLine.element.getPlayState().isSuccess()) {
+                return 0;
+            }
+        }
+        return 2;
     }
 
     public static void toggleTerminal() {
@@ -236,7 +256,7 @@ public class Terminal {
         return (getProportionalHeight() / fontMetrics.getHeight()) - 2;
     }
 
-    private static List<String> getConsoleOutput() {
+    private static List<LogLine> getConsoleOutput() {
         ConsoleOutput console = currentDevice.getConsoleOutput();
         return console.getTextWrappedLog(Engine.windowWidth, fontMetrics);
     }
