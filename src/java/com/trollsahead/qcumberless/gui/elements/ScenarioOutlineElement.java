@@ -56,7 +56,6 @@ public class ScenarioOutlineElement extends ScenarioElement {
 
     public BaseBarElement duplicate() {
         ScenarioOutlineElement element = new ScenarioOutlineElement(rootType, title, calculateRenderWidthFromRoot(rootType));
-        //element.removeChild(element.getExamplesElement());
         duplicatePropertiesTo(element);
         return element;
     }
