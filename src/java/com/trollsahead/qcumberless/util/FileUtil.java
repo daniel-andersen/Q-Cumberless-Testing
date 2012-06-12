@@ -109,8 +109,10 @@ public class FileUtil {
             return filename;
         }
         int slashIndex = filename.lastIndexOf("/");
-        if (slashIndex != -1) {
-            return filename.substring(slashIndex + 1);
+        int backslashIndex = filename.lastIndexOf("\\");
+        int index = Math.max(slashIndex, backslashIndex);
+        if (index != -1) {
+            return filename.substring(index + 1);
         }
         return filename;
     }
