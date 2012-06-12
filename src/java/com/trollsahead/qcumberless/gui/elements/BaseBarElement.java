@@ -594,7 +594,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void foldToggle() {
-        if (!isFoldable()) {
+        if (!isFoldableByClicking()) {
             return;
         }
         if (children.size() == 0 || isParentFolded()) {
@@ -618,6 +618,10 @@ public abstract class BaseBarElement extends Element {
         }
         folded = false;
         foldFadeAnimation(BAR_TRANSPARENCY);
+    }
+
+    protected boolean isFoldableByClicking() {
+        return isFoldable();
     }
 
     protected abstract boolean isFoldable();

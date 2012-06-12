@@ -262,17 +262,6 @@ public class RootElement extends Element {
         return success;
     }
 
-    public void filterChildren(String regexp) {
-        for (Element child : children) {
-            if (!child.getTitle().matches(regexp)) {
-                child.hide(true);
-            } else {
-                child.show(true);
-            }
-        }
-        scrollToTop();
-    }
-
     public void scrollToTop() {
         scrollbarY = 0;
         offsetY = 0;

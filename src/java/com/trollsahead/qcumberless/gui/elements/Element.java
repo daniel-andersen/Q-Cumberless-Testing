@@ -439,6 +439,13 @@ public abstract class Element {
         }
     }
 
+    public void hideChildren(boolean animate) {
+        for (Element child : children) {
+            child.hide(animate);
+            child.hideChildren(animate);
+        }
+    }
+
     public Set<String> getTags(int ... typeFilter) {
         Set<String> tags = new HashSet<String>();
         if (typeFilter == null || typeFilter.length == 0 || Util.isInArray(type, typeFilter)) {
@@ -491,4 +498,20 @@ public abstract class Element {
     }
 
     public abstract void toggleColorSchemeInternal();
+
+    public boolean filter(String regexp) {
+        boolean anyChildrenVisible = false;
+        for (Element child : children) {
+            if (child.filter(regexp)) {
+                anyChildrenVisible = true;
+            }
+        }
+        if (getTitle().matches(regexp) || anyChildrenVisible) {
+            show(true);
+            anyChildrenVisible = true;
+        } else {
+            hide(true);
+        }
+        return anyChildrenVisible;
+    }
 }

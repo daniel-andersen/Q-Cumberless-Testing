@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.model.Constants;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -36,8 +37,8 @@ import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Spotlight {
     private static final int PADDING_IMAGE_TO_TEXT = 8;
@@ -57,10 +58,37 @@ public class Spotlight {
 
     private Animation animation;
     
+    private List<Element> foldedElements = new LinkedList<Element>();
+    private List<Element> unfoldedElements = new LinkedList<Element>();
+
     public Spotlight() {
         searchString = "";
         animation = new Animation();
         clear();
+    }
+
+    private void storeFoldStatusOfElements() {
+        foldedElements = new LinkedList<Element>();
+        unfoldedElements = new LinkedList<Element>();
+        for (Element element : DesignerEngine.stepsRoot.children) {
+            if (element.type != BaseBarElement.TYPE_GROUPING) {
+                continue;
+            }
+            if (element.isFolded()) {
+                foldedElements.add(element);
+            } else {
+                unfoldedElements.add(element);
+            }
+        }
+    }
+
+    private void restoreFoldStatusOfElements() {
+        for (Element element : foldedElements) {
+            element.fold();
+        }
+        for (Element element : unfoldedElements) {
+            element.unfold();
+        }
     }
 
     public void clear() {
@@ -68,14 +96,20 @@ public class Spotlight {
         animation.colorAnimation.setAlpha(0.0f, COLOR_DISAPPEAR_SPEED);
         if (DesignerEngine.stepsRoot != null) {
             DesignerEngine.stepsRoot.pushToPosition(0);
-            DesignerEngine.stepsRoot.filterChildren(".*");
+            DesignerEngine.stepsRoot.scrollToTop();
+            restoreFoldStatusOfElements();
+            filter(".*");
+            for (Element element : DesignerEngine.stepsRoot.children) {
+                if (element.type != BaseBarElement.TYPE_GROUPING) {
+                    element.hideChildren(false);
+                }
+            }
         }
     }
 
     public void searchKeyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            clear();
-            EasterEgg.hide();
+            turnOffTheLight();
             return;
         }
         if (Util.isEmpty(searchString) && Constants.reservedKeys.contains(e.getKeyChar())) {
@@ -85,6 +119,9 @@ public class Spotlight {
             if (!Util.isEmpty(searchString)) {
                 searchString = searchString.substring(0, searchString.length() - 1);
                 filter();
+            }
+            if (Util.isEmpty(searchString)) {
+                turnOffTheLight();
             }
             return;
         }
@@ -111,9 +148,16 @@ public class Spotlight {
             regexp += "[" + s.toLowerCase() + s.toUpperCase() + "]";
         }
         regexp += ".*";
-        DesignerEngine.stepsRoot.filterChildren(regexp);
+        filter(regexp);
     }
-    
+
+    private void filter(String regexp) {
+        for (Element element : DesignerEngine.stepsRoot.children) {
+            element.filter(regexp);
+        }
+        DesignerEngine.stepsRoot.scrollToTop();
+    }
+
     public void addCharacter(char ch) {
         if (!visible) {
             letThereBeLight();
@@ -126,6 +170,13 @@ public class Spotlight {
         animation = new Animation(COLOR_BACKGROUND_NORMAL);
         visible = true;
         DesignerEngine.stepsRoot.pushToPosition(BAR_HEIGHT + PADDING_VERTICAL);
+        storeFoldStatusOfElements();
+        DesignerEngine.stepsRoot.unfoldAll();
+    }
+
+    private void turnOffTheLight() {
+        clear();
+        EasterEgg.hide();
     }
 
     public void update() {

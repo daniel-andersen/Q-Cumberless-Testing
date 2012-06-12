@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.model.Locale;
 
 import java.awt.*;
@@ -77,6 +78,10 @@ public class GroupingElement extends BaseBarElement {
 
     protected boolean isFoldable() {
         return rootType == ROOT_STEP_DEFINITIONS;
+    }
+
+    protected boolean isFoldableByClicking() {
+        return isFoldable() && !DesignerEngine.spotlight.visible;
     }
 
     protected boolean isAttachable(int type) {
