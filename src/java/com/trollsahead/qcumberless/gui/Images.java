@@ -50,6 +50,7 @@ public class Images {
     public static int IMAGE_TERMINAL = 13;
     public static int IMAGE_FILTER = 14;
     public static int IMAGE_PALETTE = 15;
+    public static int IMAGE_TIMEGLASS = 16;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -126,6 +127,11 @@ public class Images {
                 ImageIO.read(Images.class.getResource("/resources/pictures/palette_normal.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/palette_highlight.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/palette_pressed.png"))
+        });
+        images.put(IMAGE_TIMEGLASS, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/timeglass_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/timeglass_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/timeglass_pressed.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {
