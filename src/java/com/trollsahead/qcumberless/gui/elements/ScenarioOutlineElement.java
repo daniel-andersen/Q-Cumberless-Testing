@@ -52,11 +52,15 @@ public class ScenarioOutlineElement extends ScenarioElement {
 
     private void appendExamples() {
         addChild(new ExamplesElement());
+        if (rootType == ROOT_STEP_DEFINITIONS) {
+            getExamplesElement().hide(false);
+        }
     }
 
     public BaseBarElement duplicate() {
         ScenarioOutlineElement element = new ScenarioOutlineElement(rootType, title, calculateRenderWidthFromRoot(rootType));
         duplicatePropertiesTo(element);
+        getExamplesElement().show(false);
         return element;
     }
 
