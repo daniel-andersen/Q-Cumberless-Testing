@@ -371,7 +371,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void updateButtons() {
-        if (groupParent == DesignerEngine.stepsRoot) {
+        if (groupParent.rootType == ROOT_STEP_DEFINITIONS) {
             return;
         }
         for (Button button : buttons) {
@@ -550,7 +550,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void doubleClick() {
-        if (groupParent != DesignerEngine.stepsRoot) {
+        if (groupParent.rootType != ROOT_STEP_DEFINITIONS) {
             return;
         }
         new Thread(new Runnable() {
@@ -721,7 +721,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private boolean isThrowingElementToFeaturesGroup() {
-        if (groupParent != DesignerEngine.stepsRoot || DesignerEngine.lastAddedElement == null) {
+        if (groupParent.rootType != ROOT_STEP_DEFINITIONS || DesignerEngine.lastAddedElement == null) {
             return false;
         }
         int oldestIndex = (dragHistoryIndex + 1) % DRAG_HISTORY_LENGTH;
@@ -966,7 +966,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private Color getBackgroundColorAccordingToState() {
-        if (DesignerEngine.colorScheme == ColorScheme.DESIGN || groupParent == DesignerEngine.stepsRoot) {
+        if (DesignerEngine.colorScheme == ColorScheme.DESIGN || groupParent.rootType == ROOT_STEP_DEFINITIONS) {
             return getNormalBackgroundColor();
         }
         if (this instanceof CommentElement) {

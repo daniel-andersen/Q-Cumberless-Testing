@@ -74,7 +74,7 @@ public abstract class Element {
     public void addChild(Element element) {
         children.add(element);
         element.groupParent = this;
-        if (this == DesignerEngine.stepsRoot) {
+        if (rootType == ROOT_STEP_DEFINITIONS) {
             element.animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_ENTRANCE);
         }
     }
@@ -89,7 +89,7 @@ public abstract class Element {
             return;
         }
         if (children.contains(element)) {
-            if (this == DesignerEngine.stepsRoot) {
+            if (this == DesignerEngine.stepsRoot || this instanceof GroupingElement) {
                 Element stepDefinitionElement = element.duplicate();
                 if (stepDefinitionElement instanceof BaseBarElement) {
                     ((BaseBarElement) stepDefinitionElement).step.setShouldRenderKeyword(false);
@@ -98,7 +98,7 @@ public abstract class Element {
                     ((BaseBarElement) element).step.setShouldRenderKeyword(true);
                     element.toggleColorScheme();
                 }
-                DesignerEngine.stepsRoot.addChild(stepDefinitionElement, findChildIndex(element));
+                addChild(stepDefinitionElement, findChildIndex(element));
                 element.folded = false;
                 element.rootType = ROOT_FEATURE_EDITOR;
                 //element.animation.sizeAnimation.setWidth(CucumberTextElement.calculateRenderWidthFromRoot(ROOT_FEATURE_EDITOR), CucumberAnimation.RESIZE_SPEED); // TODO! Causes flickers when inserting!

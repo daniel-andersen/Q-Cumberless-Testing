@@ -36,6 +36,7 @@ import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
+import static com.trollsahead.qcumberless.gui.elements.Element.ROOT_STEP_DEFINITIONS;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -464,6 +465,7 @@ public class DesignerEngine implements CucumberlessEngine {
 
             cucumberRoot.removeChild(stepsRoot);
             stepsRoot = new RootElement();
+            stepsRoot.rootType = ROOT_STEP_DEFINITIONS;
             cucumberRoot.addChild(stepsRoot, 1);
 
             if (addTemplate) {
@@ -504,7 +506,7 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void updateLastAddedElement(Element element) {
-        if (element.groupParent != stepsRoot) {
+        if (element.rootType != ROOT_STEP_DEFINITIONS) {
             lastAddedElement = element;
         }
     }
