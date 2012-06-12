@@ -1044,7 +1044,7 @@ public abstract class BaseBarElement extends Element {
 
     private void drawText(Graphics2D g) {
         for (CucumberStepPart part : step.getParts()) {
-            if (!part.render) {
+            if (!part.render || part.wrappedText == null) {
                 continue;
             }
             if (part.type == CucumberStepPart.PartType.TEXT) {
