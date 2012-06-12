@@ -87,7 +87,11 @@ public class StepElement extends BaseBarElement {
         }
         super.click(clickCount);
     }
-    
+
+    protected boolean isFoldable() {
+        return false;
+    }
+
     protected void drawAdditionals(Graphics2D g) {
         if (table != null) {
             table.render(g, getTextPaddingLeft(), renderHeight - table.getHeight() - TEXT_PADDING_VERTICAL);

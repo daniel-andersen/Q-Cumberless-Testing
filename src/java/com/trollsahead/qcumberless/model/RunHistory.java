@@ -72,11 +72,6 @@ public class RunHistory {
         for (String feature : features) {
             updateTagHistory(feature);
         }
-        synchronized (LOCK) {
-            for (TagHistory history : tagHistory.values()) {
-                System.out.println("Tag: " + history.getTag() + ", successes: " + history.getSuccessCount() + ", failures: " + history.getFailureCount());
-            }
-        }
     }
 
     private static void updateTagHistory(String feature) {

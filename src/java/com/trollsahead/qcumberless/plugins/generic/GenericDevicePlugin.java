@@ -48,7 +48,7 @@ public class GenericDevicePlugin implements Plugin {
         return devices;
     }
 
-    public List<StepDefinition> getStepDefinitions() {
+    public Map<String, List<StepDefinition>> getStepDefinitions() {
         return null;
     }
 

@@ -37,19 +37,17 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SimpleRubyStepDefinitionParser {
-    public static List<StepDefinition> parseFiles(String[] filenames) {
+    public static Map<String, List<StepDefinition>> parseFiles(String[] filenames) {
         return parseFiles(filenames, null);
     }
 
-    public static List<StepDefinition> parseFiles(String[] filenames, ProgressBar progressBar) {
-        List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
+    public static Map<String, List<StepDefinition>> parseFiles(String[] filenames, ProgressBar progressBar) {
+        Map<String, List<StepDefinition>> stepDefinitionMap = new HashMap<String, List<StepDefinition>>();
         int count = 0;
         for (String filename : filenames) {
             System.out.println("Parsing ruby file: " + filename);
@@ -57,21 +55,21 @@ public class SimpleRubyStepDefinitionParser {
                 progressBar.setProcess(((float) count / (float) filenames.length) * 100.0f);
             }
             try {
-                stepDefinitions.addAll(parseFile(new FileInputStream(filename)));
+                stepDefinitionMap.put(FileUtil.removePostfixFromFilename(FileUtil.removePathFromFilename(filename)), parseFile(new FileInputStream(filename)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
             count++;
         }
-        return stepDefinitions;
+        return stepDefinitionMap;
     }
 
-    public static List<StepDefinition> parseFiles(URL[] urls) {
+    public static Map<String, List<StepDefinition>> parseFiles(URL[] urls) {
         return parseFiles(urls, null);
     }
 
-    public static List<StepDefinition> parseFiles(URL[] urls, ProgressBar progressBar) {
-        List<StepDefinition> stepDefinitions = new LinkedList<StepDefinition>();
+    public static Map<String, List<StepDefinition>> parseFiles(URL[] urls, ProgressBar progressBar) {
+        Map<String, List<StepDefinition>> stepDefinitionMap = new HashMap<String, List<StepDefinition>>();
         int count = 0;
         for (URL url : urls) {
             System.out.println("Parsing URL: " + url.toString());
@@ -79,13 +77,13 @@ public class SimpleRubyStepDefinitionParser {
                 progressBar.setProcess(((float) count / (float) urls.length) * 100.0f);
             }
             try {
-                stepDefinitions.addAll(parseFile(url.openStream()));
+                stepDefinitionMap.put(FileUtil.removePostfixFromFilename(FileUtil.removePathFromFilename(url.toString())), parseFile(url.openStream()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
             count++;
         }
-        return stepDefinitions;
+        return stepDefinitionMap;
     }
 
     private static List<StepDefinition> parseFile(InputStream inputStream) {

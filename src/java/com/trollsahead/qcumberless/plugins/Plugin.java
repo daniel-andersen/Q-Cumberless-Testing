@@ -35,7 +35,7 @@ public interface Plugin {
 
     Set<Device> getDevices();
 
-    List<StepDefinition> getStepDefinitions();
+    Map<String, List<StepDefinition>> getStepDefinitions();
 
     List<ElementMethodCallback> getDefinedElementMethodsApplicableFor(int type);
     List<ButtonBarMethodCallback> getButtonBarMethods();

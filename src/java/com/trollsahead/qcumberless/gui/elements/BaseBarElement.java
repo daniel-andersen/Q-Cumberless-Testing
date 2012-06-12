@@ -59,6 +59,9 @@ public abstract class BaseBarElement extends Element {
     public static final int TYPE_COMMENT          = 4;
     public static final int TYPE_EXAMPLES         = 5;
     public static final int TYPE_SCENARIO_OUTLINE = 6;
+    public static final int TYPE_GROUPING         = 7;
+
+    public static final float BAR_TRANSPARENCY = 0.7f;
 
     public static final Color COLOR_TEXT_NORMAL        = new Color(0x000000);
     public static final Color COLOR_TEXT_PARAMETER     = new Color(0xDDDD88);
@@ -86,8 +89,8 @@ public abstract class BaseBarElement extends Element {
     public static final int RENDER_HEIGHT_MINIMUM = 20;
     public static final int SHADOW_SIZE = 5;
 
-    public static final int[] PADDING_HORIZONTAL = new int[] {50, 50, 50, 50, 50, 50, 50};
-    public static final int[] PADDING_VERTICAL   = new int[] {10, 10, 10,  5,  5, 10,  5};
+    public static final int[] PADDING_HORIZONTAL = new int[] {50, 50, 50, 50, 50, 50, 50,  0};
+    public static final int[] PADDING_VERTICAL   = new int[] {10, 10, 10,  5,  5, 10,  5, 10};
 
     public static final int BAR_ROUNDING = 20;
     private static final int HINT_ROUNDING = 12;
@@ -181,11 +184,8 @@ public abstract class BaseBarElement extends Element {
         this.step = step != null ? step : new Step(title);
         this.tags = new Tag(tags);
         this.playResult = new PlayResult();
-        folded = type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND;
+        folded = false;
         animation.colorAnimation.setColor(getNormalBackgroundColor());
-        if (type == TYPE_FEATURE) {
-            animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
-        }
         animation.sizeAnimation.currentWidth = this.renderWidth;
         animation.sizeAnimation.currentHeight = this.renderHeight;
         addButtons();
@@ -594,25 +594,33 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void foldToggle() {
+        if (!isFoldable()) {
+            return;
+        }
         if (children.size() == 0 || isParentFolded()) {
             return;
         }
-        if (type != TYPE_FEATURE && type != TYPE_SCENARIO && type != TYPE_SCENARIO_OUTLINE && type != TYPE_BACKGROUND) {
-            return;
-        }
         folded = !folded;
-        foldFadeAnimation(folded ? 0.0f : Animation.FADE_ALPHA_DEFAULT);
+        foldFadeAnimation(folded ? 0.0f : BAR_TRANSPARENCY);
     }
 
     public void fold() {
+        if (!isFoldable()) {
+            return;
+        }
         folded = true;
         foldFadeAnimation(0.0f);
     }
 
     public void unfold() {
+        if (!isFoldable()) {
+            return;
+        }
         folded = false;
-        foldFadeAnimation(Animation.FADE_ALPHA_DEFAULT);
+        foldFadeAnimation(BAR_TRANSPARENCY);
     }
+
+    protected abstract boolean isFoldable();
 
     public void foldFadeAnimation(float alpha) {
         for (Element child : children) {
@@ -625,7 +633,7 @@ public abstract class BaseBarElement extends Element {
 
     private void dragFadeAnimation() {
         highlight(false);
-        float alpha = isDragged ? Animation.FADE_ALPHA_DRAG : Animation.FADE_ALPHA_DEFAULT;
+        float alpha = isDragged ? Animation.FADE_ALPHA_DRAG : BAR_TRANSPARENCY;
         animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_DRAG);
         if (!folded) {
             for (Element child : children) {
@@ -661,7 +669,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public boolean isDragable() {
-        return type != TYPE_FEATURE && !animation.moveAnimation.isMoving() && !isParentFolded() && visible;
+        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible;
     }
 
     protected void applyDrag() {
@@ -724,6 +732,9 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void throwElementToFeaturesGroup() {
+        if (type == TYPE_GROUPING) {
+            return;
+        }
         groupParent.removeChild(this);
         if (type == TYPE_FEATURE) {
             DesignerEngine.featuresRoot.addChild(this);
@@ -807,7 +818,7 @@ public abstract class BaseBarElement extends Element {
     public abstract BaseBarElement duplicate();
 
     protected void duplicatePropertiesTo(BaseBarElement element) {
-        element.animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
+        element.animation.alphaAnimation.setAlpha(BAR_TRANSPARENCY, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(animation.moveAnimation, true);
         element.animation.moveAnimation.setRenderPosition(animation.moveAnimation, true);
         element.renderWidth = renderWidth;
@@ -967,6 +978,14 @@ public abstract class BaseBarElement extends Element {
 
     public abstract Color getNormalBackgroundColor();
 
+    protected Color getTextColor() {
+        return COLOR_TEXT_NORMAL;
+    }
+
+    protected Color getParameterColor() {
+        return COLOR_TEXT_PARAMETER;
+    }
+
     protected int highlightToColorIndex() {
         return isHighlighted() ? 1 : 0;
     }
@@ -1025,9 +1044,9 @@ public abstract class BaseBarElement extends Element {
                 continue;
             }
             if (part.type == CucumberStepPart.PartType.TEXT) {
-                g.setColor(COLOR_TEXT_NORMAL);
+                g.setColor(getTextColor());
             } else {
-                g.setColor(COLOR_TEXT_PARAMETER);
+                g.setColor(getParameterColor());
             }
             int x = part.startX;
             int y = part.startY;

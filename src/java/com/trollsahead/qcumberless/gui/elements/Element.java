@@ -75,7 +75,7 @@ public abstract class Element {
         children.add(element);
         element.groupParent = this;
         if (this == DesignerEngine.stepsRoot) {
-            element.animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_ENTRANCE);
+            element.animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_ENTRANCE);
         }
     }
 
@@ -291,8 +291,21 @@ public abstract class Element {
     }
 
     public abstract void fold();
-
     public abstract void unfold();
+
+    public void foldAll() {
+        fold();
+        for (Element child : children) {
+            child.foldAll();
+        }
+    }
+
+    public void unfoldAll() {
+        unfold();
+        for (Element child : children) {
+            child.unfoldAll();
+        }
+    }
 
     public boolean isFolded() {
         return folded;
@@ -405,9 +418,9 @@ public abstract class Element {
         }
         visible = true;
         if (animate) {
-            animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_APPEAR);
+            animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_APPEAR);
         } else {
-            animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT);
+            animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY);
         }
     }
 

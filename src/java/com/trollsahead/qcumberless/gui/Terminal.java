@@ -80,6 +80,9 @@ public class Terminal {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.ButtonNotification() {
                     public void onClick() {
+                        if (currentDevice == null) {
+                            return;
+                        }
                         currentDevice.getConsoleOutput().clearLog();
                         scroll = -1;
                     }
@@ -91,6 +94,9 @@ public class Terminal {
                 Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.ButtonNotification() {
                     public void onClick() {
+                        if (currentDevice == null) {
+                            return;
+                        }
                         Date now = new Date();
                         File path = CucumberlessDialog.instance.askExportLogPath();
                         if (path != null) {

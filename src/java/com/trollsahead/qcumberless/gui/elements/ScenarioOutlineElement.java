@@ -32,18 +32,21 @@ public class ScenarioOutlineElement extends ScenarioElement {
     public ScenarioOutlineElement(int rootType) {
         super(rootType);
         type = TYPE_SCENARIO_OUTLINE;
+        folded = true;
         appendExamples();
     }
 
     public ScenarioOutlineElement(int rootType, String title) {
         super(rootType, title);
         type = TYPE_SCENARIO_OUTLINE;
+        folded = true;
         appendExamples();
     }
 
     public ScenarioOutlineElement(int rootType, String title, int width) {
         super(rootType, title, width);
         type = TYPE_SCENARIO_OUTLINE;
+        folded = true;
         appendExamples();
     }
 

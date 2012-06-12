@@ -27,34 +27,41 @@ package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.GroupingElement;
 import com.trollsahead.qcumberless.gui.elements.StepElement;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.model.StepDefinition;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class CucumberStepDefinitionLoader {
-    public static void parseStepDefinitions(List<StepDefinition> stepDefinitions) {
-        if (stepDefinitions == null) {
+    public static void parseStepDefinitions(Map<String, List<StepDefinition>> stepDefinitionMap) {
+        if (stepDefinitionMap == null) {
             return;
         }
-        List<BaseBarElement> elements = new ArrayList<BaseBarElement>();
         DesignerEngine.resetStepDefinitions(true);
-        for (StepDefinition stepDefinition : stepDefinitions) {
-            Step currentStep = new Step(stepDefinition);
-            currentStep.setShouldRenderKeyword(false);
-            DesignerEngine.stepDefinitions.add(currentStep);
-            elements.add(new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
-        }
-        Collections.sort(elements, new Comparator<BaseBarElement>() {
-            public int compare(BaseBarElement element1, BaseBarElement element2) {
-                return element1.step.toString().compareTo(element2.step.toString());
+        List<BaseBarElement> groups = new ArrayList<BaseBarElement>();
+        for (String name : stepDefinitionMap.keySet()) {
+            GroupingElement groupingElement = new GroupingElement(BaseBarElement.ROOT_STEP_DEFINITIONS, name);
+            groups.add(groupingElement);
+            List<BaseBarElement> elements = new ArrayList<BaseBarElement>();
+            for (StepDefinition stepDefinition : stepDefinitionMap.get(name)) {
+                Step currentStep = new Step(stepDefinition);
+                currentStep.setShouldRenderKeyword(false);
+                DesignerEngine.stepDefinitions.add(currentStep);
+                elements.add(new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, stepDefinition.getStepDefinition(), currentStep));
             }
-        });
-        for (BaseBarElement element : elements) {
+            Collections.sort(elements, new Comparator<BaseBarElement>() {
+                public int compare(BaseBarElement e1, BaseBarElement e2) {
+                    return e1.step.toString().compareTo(e2.step.toString());
+                }
+            });
+            for (BaseBarElement element : elements) {
+                groupingElement.addChild(element);
+            }
+            groupingElement.fold();
+        }
+        for (BaseBarElement element : groups) {
             DesignerEngine.stepsRoot.addChild(element);
         }
     }

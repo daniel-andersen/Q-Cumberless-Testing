@@ -66,6 +66,10 @@ public class CommentElement extends BaseBarElement {
         return 0;
     }
 
+    protected boolean isFoldable() {
+        return false;
+    }
+
     protected boolean isAttachable(int type) {
         return false;
     }

@@ -35,14 +35,17 @@ public class ScenarioElement extends BaseBarElement {
 
     public ScenarioElement(int rootType) {
         super(TYPE_SCENARIO, rootType);
+        folded = true;
     }
 
     public ScenarioElement(int rootType, String title) {
         super(TYPE_SCENARIO, rootType, title);
+        folded = true;
     }
 
     public ScenarioElement(int rootType, String title, int width) {
         super(TYPE_SCENARIO, rootType, title, width);
+        folded = true;
     }
 
     public Color getNormalBackgroundColor() {
@@ -69,6 +72,10 @@ public class ScenarioElement extends BaseBarElement {
 
     protected int getAdditionalRenderHeight() {
         return 0;
+    }
+
+    protected boolean isFoldable() {
+        return rootType == ROOT_FEATURE_EDITOR;
     }
 
     protected boolean isAttachable(int type) {

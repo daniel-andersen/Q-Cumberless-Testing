@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.model.Constants;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
@@ -35,6 +36,8 @@ import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Spotlight {
     private static final int PADDING_IMAGE_TO_TEXT = 8;
@@ -53,7 +56,7 @@ public class Spotlight {
     public String searchString;
 
     private Animation animation;
-
+    
     public Spotlight() {
         searchString = "";
         animation = new Animation();
@@ -75,7 +78,7 @@ public class Spotlight {
             EasterEgg.hide();
             return;
         }
-        if (Util.isEmpty(searchString) && e.getKeyChar() == ' ') {
+        if (Util.isEmpty(searchString) && Constants.reservedKeys.contains(e.getKeyChar())) {
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {

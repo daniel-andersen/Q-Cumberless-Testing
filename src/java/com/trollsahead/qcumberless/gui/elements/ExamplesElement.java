@@ -44,6 +44,10 @@ public class ExamplesElement extends StepElement {
         return BG_COLOR_NORMAL[highlightToColorIndex()];
     }
 
+    protected boolean isFoldable() {
+        return false;
+    }
+
     public BaseBarElement duplicate() {
         ExamplesElement element = new ExamplesElement();
         if (table != null) {

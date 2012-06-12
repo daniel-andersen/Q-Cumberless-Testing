@@ -205,8 +205,18 @@ public class DesignerEngine implements CucumberlessEngine {
             if (keyEvent.getKeyChar() == '!') {
                 Engine.fpsShow = !Engine.fpsShow;
             }
-            if (Util.isEmpty(spotlight.searchString) && keyEvent.getKeyChar() == ' ') {
-                switchColorScheme();
+            if (Util.isEmpty(spotlight.searchString)) {
+                if (keyEvent.getKeyChar() == ' ') {
+                    switchColorScheme();
+                }
+                if (keyEvent.getKeyChar() == '+') {
+                    stepsRoot.unfoldAll();
+                    featuresRoot.unfoldAll();
+                }
+                if (keyEvent.getKeyChar() == '-') {
+                    stepsRoot.foldAll();
+                    featuresRoot.foldAll();
+                }
             }
         }
     }
@@ -215,8 +225,10 @@ public class DesignerEngine implements CucumberlessEngine {
         if (isMouseInsideCanvasArea()) {
             dragMode = DragMode.DRAGGING_CANVAS;
             synchronized (Engine.DATA_LOCK) {
-                if (touchedElement != null && touchedElement.isDragable()) {
-                    touchedElement.startDrag(isControlDown);
+                if (touchedElement != null) {
+                    if (touchedElement.isDragable()) {
+                        touchedElement.startDrag(isControlDown);
+                    }
                 } else if (touchedRootElement != null) {
                     touchedRootElement.startDrag(isControlDown);
                 }
@@ -253,8 +265,10 @@ public class DesignerEngine implements CucumberlessEngine {
         }
         if (dragMode == DragMode.DRAGGING_CANVAS) {
             synchronized (Engine.DATA_LOCK) {
-                if (touchedElement != null && touchedElement.isBeingDragged()) {
-                    touchedElement.applyDragOffset();
+                if (touchedElement != null) {
+                    if (touchedElement.isBeingDragged()) {
+                        touchedElement.applyDragOffset();
+                    }
                 } else if (touchedRootElement != null && touchedRootElement.isDragable()) {
                     touchedRootElement.scroll(CumberlessMouseListener.mouseY - CumberlessMouseListener.oldMouseY);
                 }
@@ -396,9 +410,9 @@ public class DesignerEngine implements CucumberlessEngine {
     public static void importStepDefinitions(final Plugin plugin) {
         new Thread(new Runnable() {
             public void run() {
-                List<StepDefinition> stepDefinitions = plugin.getStepDefinitions();
+                Map<String, List<StepDefinition>> stepDefinitionMap = plugin.getStepDefinitions();
                 synchronized (Engine.DATA_LOCK) {
-                    CucumberStepDefinitionLoader.parseStepDefinitions(stepDefinitions);
+                    CucumberStepDefinitionLoader.parseStepDefinitions(stepDefinitionMap);
                     featuresRoot.updateSteps();
                 }
             }

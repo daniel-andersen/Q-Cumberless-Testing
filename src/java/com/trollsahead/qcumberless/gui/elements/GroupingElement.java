@@ -25,38 +25,36 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.model.Locale;
 
 import java.awt.*;
 
-public class FeatureElement extends BaseBarElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAFF), new Color(0xBBBBEE)};
+public class GroupingElement extends BaseBarElement {
+    public static final Color TEXT_COLOR = new Color(0xDDDDDD);
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0.0f, 0.0f, 0.0f, 0.7f), new Color(0x222222)};
 
-    public FeatureElement(int rootType) {
-        super(TYPE_FEATURE, rootType);
-        animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_ENTRANCE);
-        folded = true;
+    public GroupingElement(int rootType) {
+        super(TYPE_GROUPING, rootType);
     }
 
-    public FeatureElement(int rootType, String title) {
-        super(TYPE_FEATURE, rootType, title);
-        animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_ENTRANCE);
-        folded = true;
+    public GroupingElement(int rootType, String title) {
+        super(TYPE_GROUPING, rootType, title);
     }
 
-    public FeatureElement(int rootType, String title, int width) {
-        super(TYPE_FEATURE, rootType, title, width);
-        animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_ENTRANCE);
-        folded = true;
+    public GroupingElement(int rootType, String title, int width) {
+        super(TYPE_GROUPING, rootType, title, width);
     }
 
     public Color getNormalBackgroundColor() {
         return BG_COLOR_NORMAL[highlightToColorIndex()];
     }
 
+    protected Color getTextColor() {
+        return TEXT_COLOR;
+    }
+
     public BaseBarElement duplicate() {
-        BaseBarElement element = new FeatureElement(rootType, title, calculateRenderWidthFromRoot(rootType));
+        BaseBarElement element = new GroupingElement(rootType, title, calculateRenderWidthFromRoot(rootType));
         duplicatePropertiesTo(element);
         return element;
     }
@@ -78,11 +76,11 @@ public class FeatureElement extends BaseBarElement {
     }
 
     protected boolean isFoldable() {
-        return rootType == ROOT_FEATURE_EDITOR;
+        return rootType == ROOT_STEP_DEFINITIONS;
     }
 
     protected boolean isAttachable(int type) {
-        return type == TYPE_SCENARIO || type == TYPE_BACKGROUND || type == TYPE_SCENARIO_OUTLINE;
+        return false;
     }
 
     public boolean isDragable() {

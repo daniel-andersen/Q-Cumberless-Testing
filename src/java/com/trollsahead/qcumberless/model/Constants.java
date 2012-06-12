@@ -26,17 +26,25 @@
 package com.trollsahead.qcumberless.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.trollsahead.qcumberless.model.Locale.Language;
 
 public class Constants {
     private static Map<Language, String[]> stepPrefixs;
-    
+
+    public static final Set<Character> reservedKeys = new HashSet<Character>();
+
     static {
         stepPrefixs = new HashMap<Language, String[]>();
         stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", "*"});
         stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", "*"});
+
+        reservedKeys.add(' ');
+        reservedKeys.add('+');
+        reservedKeys.add('-');
     }
 
     public static String[] getStepPrefixs() {
