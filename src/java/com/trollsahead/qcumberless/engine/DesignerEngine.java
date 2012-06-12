@@ -524,7 +524,7 @@ public class DesignerEngine implements CucumberlessEngine {
         cucumberRoot.toggleColorScheme();
     }
 
-    private void switchColorScheme() {
+    public static void switchColorScheme() {
         if (colorScheme == ColorScheme.DESIGN) {
             setColorScheme(ColorScheme.PLAY);
         } else {

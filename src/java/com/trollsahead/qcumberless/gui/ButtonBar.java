@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.Util;
@@ -76,6 +77,7 @@ public class ButtonBar {
     private Button playButton;
     private Button tagsButton;
     private Button terminalButton;
+    private Button paletteButton;
     private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
@@ -250,6 +252,21 @@ public class ButtonBar {
                 null);
         terminalButton.setHint("Show terminal output");
         buttons.add(terminalButton);
+        paletteButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_PALETTE, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_PALETTE, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_PALETTE, ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        DesignerEngine.switchColorScheme();
+                        paletteButton.setHint("Switch color scheme to " + (DesignerEngine.colorScheme == Element.ColorScheme.DESIGN ? "play" : "design") + " theme");
+                    }
+                },
+                null);
+        paletteButton.setHint("Switch color scheme to play theme");
+        buttons.add(paletteButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
     }
@@ -347,6 +364,10 @@ public class ButtonBar {
             terminalButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
             x += BUTTON_PADDING;
         }
+        if (paletteButton.isVisible()) {
+            paletteButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
         x += BUTTON_PADDING * 2;
         pluginButtonsX = x;
         pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
@@ -399,6 +420,7 @@ public class ButtonBar {
         String runTags = Util.tagsToString(DesignerEngine.runTags);
         playButton.setHint(!Util.isEmpty(runTags) ? "Play tags: " + runTags.replaceAll(",", " ") : "Play all features");
         tagsButton.setVisible(true);
+        paletteButton.setVisible(true);
         if (terminalButton.isVisible() != isTerminalButtonVisible()) {
             terminalButton.setVisible(isTerminalButtonVisible());
             shouldUpdateButtonPositions = true;

@@ -26,9 +26,8 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.gui.RenderOptimizer;
-import com.trollsahead.qcumberless.gui.TagButtonFilterButton;
+import com.trollsahead.qcumberless.gui.TagFilterButton;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.util.Util;
@@ -91,8 +90,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private int scenarioTagsWidth;
     private int scenarioTagsHeight;
 
-    private List<TagButtonFilterButton> featureTagsButtons;
-    private List<TagButtonFilterButton> scenarioTagsButtons;
+    private List<TagFilterButton> featureTagsButtons;
+    private List<TagFilterButton> scenarioTagsButtons;
 
     public void initialize() {
     }
@@ -116,10 +115,10 @@ public class TagsFilterEngine implements CucumberlessEngine {
 
     public void update() {
         updateAppearAnimation();
-        for (TagButtonFilterButton button : featureTagsButtons) {
+        for (TagFilterButton button : featureTagsButtons) {
             button.update();
         }
-        for (TagButtonFilterButton button : scenarioTagsButtons) {
+        for (TagFilterButton button : scenarioTagsButtons) {
             button.update();
         }
     }
@@ -142,10 +141,10 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     private void updateTagsButtons() {
-        featureTagsButtons = new LinkedList<TagButtonFilterButton>();
+        featureTagsButtons = new LinkedList<TagFilterButton>();
         for (final String tag : featureTags) {
             featureTagsButtons.add(
-                    new TagButtonFilterButton(
+                    new TagFilterButton(
                             tag,
                             0,
                             0,
@@ -164,10 +163,10 @@ public class TagsFilterEngine implements CucumberlessEngine {
                                 }
                             }));
         }
-        scenarioTagsButtons = new LinkedList<TagButtonFilterButton>();
+        scenarioTagsButtons = new LinkedList<TagFilterButton>();
         for (final String tag : scenarioTags) {
             scenarioTagsButtons.add(
-                    new TagButtonFilterButton(
+                    new TagFilterButton(
                             tag,
                             0,
                             0,
@@ -231,18 +230,18 @@ public class TagsFilterEngine implements CucumberlessEngine {
 
     private void updateButtonPositions() {
         int i = 0;
-        for (TagButtonFilterButton button : featureTagsButtons) {
+        for (TagFilterButton button : featureTagsButtons) {
             setButtonPosition(button, i, featureTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL, featureTagsWidth, featureTagsHeight);
             i++;
         }
         i = 0;
-        for (TagButtonFilterButton button : scenarioTagsButtons) {
+        for (TagFilterButton button : scenarioTagsButtons) {
             setButtonPosition(button, i, scenarioTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL, scenarioTagsWidth, scenarioTagsHeight);
             i++;
         }
     }
 
-    private void setButtonPosition(TagButtonFilterButton button, int index, int x, int y, int width, int height) {
+    private void setButtonPosition(TagFilterButton button, int index, int x, int y, int width, int height) {
         int tagWidthPlusPadding = TAG_WIDTH + TAG_PADDING_HORIZONTAL;
         int tagHeightPlusPadding = TAG_HEIGHT + TAG_PADDING_VERTICAL;
         int countX = width / tagWidthPlusPadding;
@@ -259,7 +258,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
             return;
         }
         drawTitle(g, FEATURE_TAGS_TITLE, featureTagsY);
-        for (TagButtonFilterButton button : featureTagsButtons) {
+        for (TagFilterButton button : featureTagsButtons) {
             renderButton(g, button);
         }
     }
@@ -271,12 +270,12 @@ public class TagsFilterEngine implements CucumberlessEngine {
             return;
         }
         drawTitle(g, SCENARIO_TAGS_TITLE, scenarioTagsY);
-        for (TagButtonFilterButton button : scenarioTagsButtons) {
+        for (TagFilterButton button : scenarioTagsButtons) {
             renderButton(g, button);
         }
     }
     
-    private void renderButton(Graphics2D g, TagButtonFilterButton button) {
+    private void renderButton(Graphics2D g, TagFilterButton button) {
         button.render(g);
     }
     
@@ -339,12 +338,12 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void click(int clickCount) {
-        for (TagButtonFilterButton button : featureTagsButtons) {
+        for (TagFilterButton button : featureTagsButtons) {
             if (button.click()) {
                 return;
             }
         }
-        for (TagButtonFilterButton button : scenarioTagsButtons) {
+        for (TagFilterButton button : scenarioTagsButtons) {
             if (button.click()) {
                 return;
             }

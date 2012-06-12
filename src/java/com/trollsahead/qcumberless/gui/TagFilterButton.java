@@ -36,7 +36,7 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TagButtonFilterButton {
+public class TagFilterButton {
     private static final Color TEXT_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
     private static final Color[][] OUTLINE_COLOR = {
@@ -77,7 +77,7 @@ public class TagButtonFilterButton {
     private int leftX;
     private int topY;
 
-    public TagButtonFilterButton(String tag, int x, int y, int width, int height, final ButtonNotification playClickNotification, final ButtonNotification filterClickNotification) {
+    public TagFilterButton(String tag, int x, int y, int width, int height, final ButtonNotification playClickNotification, final ButtonNotification filterClickNotification) {
         this.tag = tag;
         this.width = width;
         this.height = height;
