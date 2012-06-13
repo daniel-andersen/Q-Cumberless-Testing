@@ -402,14 +402,22 @@ public class Player implements DeviceCallback {
     }
 
     private boolean isRunningElement(BaseBarElement element) {
-        return (element.type == BaseBarElement.TYPE_FEATURE && currentFeature == element) ||
-               (element.type == BaseBarElement.TYPE_BACKGROUND && currentBackground == element) ||
-               (element.type == BaseBarElement.TYPE_SCENARIO && currentScenario == element) ||
-               (element.type == BaseBarElement.TYPE_SCENARIO_OUTLINE && currentScenario == element) ||
-               (element.type == BaseBarElement.TYPE_STEP && currentStep == element) ||
-               (element.type == BaseBarElement.TYPE_EXAMPLES && currentExamples == element);
+        return  currentFeature == element ||
+                currentBackground == element ||
+                currentScenario == element ||
+                currentStep == element ||
+                currentExamples == element;
     }
-    
+
+    public static boolean isElementRunning(BaseBarElement element) {
+        for (Player player : players) {
+            if (player.isRunningElement(element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isCurrentFeature(BaseBarElement element) {
         for (Player player : players) {
             if (player.currentFeature == element) {
@@ -505,7 +513,7 @@ public class Player implements DeviceCallback {
     }
     
     private void setSuccess(BaseBarElement element) {
-        if ((element instanceof StepElement) && (currentScenario.getPlayResult().isFailed() || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
+        if ((element instanceof StepElement) && ((currentScenario != null && currentScenario.getPlayResult().isFailed()) || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
             return;
         }
         if (element != null && !element.getPlayResult().isFailed()) {

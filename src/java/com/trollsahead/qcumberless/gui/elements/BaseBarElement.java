@@ -1032,10 +1032,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private boolean isRunning() {
-        return (type == TYPE_FEATURE && Player.isCurrentFeature(this)) ||
-               (type == TYPE_BACKGROUND && Player.isCurrentBackground(this)) ||
-               ((type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE) && Player.isCurrentScenario(this)) ||
-               (type == TYPE_STEP && Player.isCurrentStep(this));
+        return Player.isElementRunning(this);
     }
     
     private boolean isRunnable() {
