@@ -594,7 +594,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void foldToggle() {
-        if (!isFoldableByClicking()) {
+        if (!isFoldableByClicking() || !visible) {
             return;
         }
         if (children.size() == 0 || isParentFolded()) {
@@ -605,7 +605,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void fold() {
-        if (!isFoldable()) {
+        if (!isFoldable() || !visible) {
             return;
         }
         folded = true;
@@ -613,7 +613,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void unfold() {
-        if (!isFoldable()) {
+        if (!isFoldable() || !visible) {
             return;
         }
         folded = false;
@@ -628,6 +628,10 @@ public abstract class BaseBarElement extends Element {
 
     public void foldFadeAnimation(float alpha) {
         for (Element child : children) {
+            if (!child.visible) {
+                child.animation.alphaAnimation.setAlpha(0.0f);
+                continue;
+            }
             child.animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
             if (!child.folded) {
                 child.foldFadeAnimation(alpha);

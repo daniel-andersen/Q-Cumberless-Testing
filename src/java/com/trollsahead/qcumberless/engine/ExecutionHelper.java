@@ -93,7 +93,9 @@ public class ExecutionHelper {
                     throw new RuntimeException("Process failed with return value: " + res);
                 }
             } else {
-                logListener.error(new RuntimeException("Stopped by user!"));
+                if (!executionStopper.isQuietlyStopped()) {
+                    logListener.error(new RuntimeException("Stopped by user!"));
+                }
             }
             logListener.finish();
         } catch (Throwable t) {
@@ -143,6 +145,7 @@ public class ExecutionHelper {
     public static class ExecutionStopper {
         private boolean stopped = false;
         private Process process = null;
+        private boolean quietlyStopped = false;
 
         public void stop() {
             if (process != null) {
@@ -151,12 +154,24 @@ public class ExecutionHelper {
             stopped = true;
         }
 
+        public void stopQuietly() {
+            if (process != null) {
+                process.destroy();
+            }
+            stopped = true;
+            quietlyStopped = true;
+        }
+
         public boolean isStopped() {
             return stopped;
         }
 
         public void setProcess(Process process) {
             this.process = process;
+        }
+
+        public boolean isQuietlyStopped() {
+            return quietlyStopped;
         }
     }
 }

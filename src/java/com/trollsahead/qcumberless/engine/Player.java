@@ -283,7 +283,6 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeFeature(String name) {
-        System.out.println("Starting feature: '" + name + "'");
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
         resetCurrentScenario();
@@ -292,7 +291,6 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeScenario(String name) {
-        System.out.println("Starting scenario: '" + name + "'");
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
         resetCurrentStep();
@@ -311,17 +309,18 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeStep(String name) {
-        System.out.println("Running step: '" + name + "'");
         setSuccess(currentStep);
         BaseBarElement scenarioOrBackground = currentScenario;
-        BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
-        if (!didFinishBackground && backgroundElement != null) {
-            currentBackground = backgroundElement;
-            scenarioOrBackground = currentBackground;
-            
+        if (!didFinishBackground) {
+            BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
+            if (backgroundElement != null) {
+                setSuccess(currentBackground);
+                currentBackground = backgroundElement;
+                scenarioOrBackground = backgroundElement;
+            }
         }
         currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, currentStepIndex + 1) : null;
-        if ((scenarioOrBackground == currentScenario || currentStep == null) && backgroundElement != null) {
+        if (!didFinishBackground && currentStep == null) {
             currentBackground = null;
             didFinishBackground = true;
             currentStepIndex = -1;

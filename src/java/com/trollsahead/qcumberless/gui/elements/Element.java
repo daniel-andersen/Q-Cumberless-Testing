@@ -417,6 +417,9 @@ public abstract class Element {
             return;
         }
         visible = true;
+        if (isParentFolded()) {
+            return;
+        }
         if (animate) {
             animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY, Animation.FADE_SPEED_APPEAR);
         } else {
@@ -432,6 +435,9 @@ public abstract class Element {
             return;
         }
         visible = false;
+        if (isParentFolded()) {
+            return;
+        }
         if (animate) {
             animation.alphaAnimation.setAlpha(0.0f, Animation.FADE_SPEED_APPEAR);
         } else {
