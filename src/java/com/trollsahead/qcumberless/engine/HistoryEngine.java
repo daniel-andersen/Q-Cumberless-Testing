@@ -127,8 +127,8 @@ public class HistoryEngine implements CucumberlessEngine {
             return;
         }
         historyDirsIndex = -1;
-        restoreCucumberRoot();
         showHistory(AnimationState.DEACTIVATING);
+        restoreCucumberRoot();
         FlashingMessageManager.removeAllMessages();
     }
 
@@ -154,8 +154,11 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private void showHistory(AnimationState newAnimationState) {
         synchronized (Engine.DATA_LOCK) {
+            if (newAnimationState != AnimationState.DEACTIVATING) {
+                animationState = newAnimationState;
+            }
+            renderCurrentRootToBackground(newAnimationState == AnimationState.DEACTIVATING);
             animationState = newAnimationState;
-            renderCurrentRootToBackground();
             if (historyDirsIndex != -1) {
                 createNewRoot();
                 loadFeatures(historyDirs.get(historyDirsIndex));
@@ -168,7 +171,7 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private void showNoHistory() {
         animationState = AnimationState.ACTIVATING;
-        renderCurrentRootToBackground();
+        renderCurrentRootToBackground(false);
         createNewRoot();
         moveAnimation = 0.0f;
         FlashingMessageManager.addMessage(new FlashingMessage(NO_HISTORY));
@@ -179,11 +182,11 @@ public class HistoryEngine implements CucumberlessEngine {
         historyDate = new SimpleDateFormat("MM-dd-yyyy HH:mm").format(date);
     }
 
-    private void renderCurrentRootToBackground() {
+    private void renderCurrentRootToBackground(boolean willDeactivate) {
         if (animationState == AnimationState.ACTIVATING) {
             backgroundGraphics.drawImage(Engine.backbuffer, 0, 0, null);
         } else {
-            render(backgroundGraphics, 0);
+            render(backgroundGraphics, willDeactivate ? 1 : 0);
         }
     }
 
@@ -213,7 +216,7 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void render(Graphics2D g) {
-        render(g, animationState == AnimationState.ACTIVATING ? 2 : 1);
+        render(g, animationState == AnimationState.ACTIVATING || animationState == AnimationState.DEACTIVATING ? 2 : 1);
     }
 
     private void render(Graphics2D g, int whenToRenderButtonBar) {
