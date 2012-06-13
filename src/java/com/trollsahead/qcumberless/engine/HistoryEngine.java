@@ -219,13 +219,13 @@ public class HistoryEngine implements CucumberlessEngine {
         render(g, animationState == AnimationState.ACTIVATING || animationState == AnimationState.DEACTIVATING ? 2 : 1);
     }
 
-    private void render(Graphics2D g, int whenToRenderButtonBar) {
+    private void render(Graphics2D g, int buttonBarMode) {
         if (animationState == AnimationState.DEACTIVATING) {
             Engine.designerEngine.render(g);
         } else {
             Engine.designerEngine.clear(g);
             Engine.designerEngine.renderOnlyElements(g);
-            if (whenToRenderButtonBar == 2) {
+            if (buttonBarMode == 2) {
                 renderButtonbar(g);
             }
         }
@@ -245,7 +245,7 @@ public class HistoryEngine implements CucumberlessEngine {
             }
             g.drawImage(background, x, 0, null);
         }
-        if (whenToRenderButtonBar == 1) {
+        if (buttonBarMode == 1) {
             renderButtonbar(g);
         }
     }
