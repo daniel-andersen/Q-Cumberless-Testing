@@ -26,15 +26,13 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.gui.ButtonBar;
-import com.trollsahead.qcumberless.gui.FlashingMessage;
-import com.trollsahead.qcumberless.gui.RenderOptimizer;
+import com.trollsahead.qcumberless.gui.*;
+import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.gui.elements.RootElement;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.util.Util;
 
-import static com.trollsahead.qcumberless.gui.Animation.MoveAnimation;
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
 
 import java.awt.*;
@@ -46,7 +44,13 @@ import java.util.List;
 import java.util.Set;
 
 public class HistoryEngine implements CucumberlessEngine {
-    private static final float DISAPPEAR_SPEED = 0.85f;
+    private static final float DISAPPEAR_SPEED = 0.03f;
+
+    private static final int SHADOW_WIDTH = 200;
+    private static final int SHADOW_STEP = SHADOW_WIDTH / 10;
+    private static final float SHADOW_DEPTH = 0.5f;
+
+    private static final int BUTTON_PADDING = 50;
 
     private static final String NO_HISTORY = "NO HISTORY";
     private static final String HISTORY_VIEW = "HISTORY VIEW";
@@ -62,14 +66,40 @@ public class HistoryEngine implements CucumberlessEngine {
     private static enum AnimationState {NONE, ACTIVATING, DEACTIVATING, FORWARD, BACKWARD}
 
     private static AnimationState animationState;
-    private static MoveAnimation moveAnimation;
+    private static float moveAnimation;
 
     private static List<String> historyDirs;
     private static String historyDate;
     private static int historyDirsIndex;
 
+    private static Button leftArrowButton;
+    private static Button rightArrowButton;
+
     public void initialize() {
-        moveAnimation = new MoveAnimation();
+        leftArrowButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_ARROW_LEFT, Images.ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_ARROW_LEFT, Images.ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_ARROW_LEFT, Images.ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        prevDate();
+                    }
+                },
+                null);
+        rightArrowButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_ARROW_RIGHT, Images.ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_ARROW_RIGHT, Images.ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_ARROW_RIGHT, Images.ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        nextDate();
+                    }
+                },
+                null);
     }
 
     public void show() {
@@ -86,12 +116,6 @@ public class HistoryEngine implements CucumberlessEngine {
         }
     }
 
-    private void reset() {
-        historyDirs = null;
-        historyDate = null;
-        historyDirsIndex = 0;
-    }
-
     public void hide() {
         backgroundGraphics.dispose();
         backgroundGraphics = null;
@@ -99,10 +123,19 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     private void startHiding() {
+        if (moveAnimation < 1.0f) {
+            return;
+        }
         historyDirsIndex = -1;
         restoreCucumberRoot();
         showHistory(AnimationState.DEACTIVATING);
         FlashingMessageManager.removeAllMessages();
+    }
+
+    private void reset() {
+        historyDirs = null;
+        historyDate = null;
+        historyDirsIndex = 0;
     }
 
     private void backupCucumberRoot() {
@@ -129,8 +162,7 @@ public class HistoryEngine implements CucumberlessEngine {
                 getHistoryDate(historyDirs.get(historyDirsIndex));
                 DesignerEngine.setColorScheme(ColorScheme.PLAY);
             }
-            moveAnimation.setRealPosition(Engine.windowWidth, 0.0f);
-            moveAnimation.setRenderPosition(0.0f, 0.0f, DISAPPEAR_SPEED);
+            moveAnimation = 0.0f;
         }
     }
 
@@ -138,8 +170,7 @@ public class HistoryEngine implements CucumberlessEngine {
         animationState = AnimationState.ACTIVATING;
         renderCurrentRootToBackground();
         createNewRoot();
-        moveAnimation.setRealPosition(Engine.windowWidth, 0.0f);
-        moveAnimation.setRenderPosition(0.0f, 0.0f, DISAPPEAR_SPEED);
+        moveAnimation = 0.0f;
         FlashingMessageManager.addMessage(new FlashingMessage(NO_HISTORY));
     }
 
@@ -152,7 +183,7 @@ public class HistoryEngine implements CucumberlessEngine {
         if (animationState == AnimationState.ACTIVATING) {
             backgroundGraphics.drawImage(Engine.backbuffer, 0, 0, null);
         } else {
-            render(backgroundGraphics);
+            render(backgroundGraphics, 0);
         }
     }
 
@@ -169,25 +200,50 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void update() {
+        leftArrowButton.update();
+        rightArrowButton.update();
         Engine.designerEngine.update();
         FlashingMessageManager.update();
-        moveAnimation.update(false);
-        if (animationState == AnimationState.DEACTIVATING && !moveAnimation.isMoving()) {
+        if (moveAnimation < 1.0f) {
+            moveAnimation = Math.min(1.0f, moveAnimation + DISAPPEAR_SPEED);
+        }
+        if (animationState == AnimationState.DEACTIVATING && moveAnimation >= 1.0f) {
             Engine.showEngine(Engine.designerEngine);
         }
     }
 
     public void render(Graphics2D g) {
+        render(g, animationState == AnimationState.ACTIVATING ? 2 : 1);
+    }
+
+    private void render(Graphics2D g, int whenToRenderButtonBar) {
         if (animationState == AnimationState.DEACTIVATING) {
             Engine.designerEngine.render(g);
         } else {
             Engine.designerEngine.clear(g);
             Engine.designerEngine.renderOnlyElements(g);
-            renderButtonbar(g);
+            if (whenToRenderButtonBar == 2) {
+                renderButtonbar(g);
+            }
         }
         if (animationState != AnimationState.NONE) {
-            int x = (int) moveAnimation.renderX * (animationState == AnimationState.BACKWARD || animationState == AnimationState.DEACTIVATING ? 1 : -1);
+            boolean rightwards = animationState == AnimationState.BACKWARD || animationState == AnimationState.DEACTIVATING;
+            int x = (int) ((1.0f - Math.cos((moveAnimation + 0.1f) * Math.PI / 2.0f)) * (Engine.windowWidth + SHADOW_WIDTH)) * (rightwards ? 1 : -1);
+            if (Engine.fpsDetails != Engine.DETAILS_LOW) {
+                int sx = x + (rightwards ? -SHADOW_STEP : Engine.windowWidth);
+                for (int i = 0; i < SHADOW_WIDTH; i += SHADOW_STEP) {
+                    g.setColor(new Color(0.0f, 0.0f, 0.0f, SHADOW_DEPTH - ((float) i / SHADOW_WIDTH) * SHADOW_DEPTH));
+                    g.fillRect(sx, 0, SHADOW_STEP, Engine.windowHeight);
+                    sx += SHADOW_STEP * (rightwards ? -1 : 1);
+                }
+            } else {
+                g.setColor(new Color(0.0f, 0.0f, 0.0f, SHADOW_DEPTH));
+                g.fillRect(x + (rightwards ? -SHADOW_WIDTH : Engine.windowWidth), 0, SHADOW_WIDTH, Engine.windowHeight);
+            }
             g.drawImage(background, x, 0, null);
+        }
+        if (whenToRenderButtonBar == 1) {
+            renderButtonbar(g);
         }
     }
 
@@ -198,10 +254,22 @@ public class HistoryEngine implements CucumberlessEngine {
         if (animationState == AnimationState.DEACTIVATING) {
             return;
         }
+
         g.setColor(ButtonBar.COLOR_BACKGROUND_NORMAL);
         g.fillRect(0, Engine.windowHeight - ButtonBar.BUTTONBAR_HEIGHT, Engine.windowWidth, ButtonBar.BUTTONBAR_HEIGHT);
+        
+        int dateWidth = Engine.fontMetrics.stringWidth(historyDate);
+        int dateX = (Engine.windowWidth - dateWidth) / 2;
+
         g.setColor(Color.WHITE);
-        g.drawString(historyDate, (Engine.windowWidth - Engine.fontMetrics.stringWidth(historyDate)) / 2, Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT + Engine.fontMetrics.getHeight()) / 2 + Engine.fontMetrics.getHeight() - 3);
+        g.drawString(historyDate, dateX, Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT + Engine.fontMetrics.getHeight()) / 2 + Engine.fontMetrics.getHeight() - 3);
+
+        int buttonY = Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT / 2);
+        leftArrowButton.setPosition(dateX - BUTTON_PADDING, buttonY);
+        rightArrowButton.setPosition(dateX + dateWidth + BUTTON_PADDING, buttonY);
+
+        leftArrowButton.render(g);
+        rightArrowButton.render(g);
     }
 
     public void postRender() {
@@ -221,24 +289,44 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void click(int clickCount) {
+        if (leftArrowButton.click()) {
+            return;
+        }
+        if (rightArrowButton.click()) {
+            return;
+        }
         Engine.designerEngine.click(clickCount);
     }
 
     public void keyPressed(KeyEvent keyEvent) {
         if (keyEvent.getKeyCode() == KeyEvent.VK_LEFT) {
-            if (!Util.isEmpty(historyDirs) && historyDirsIndex > 0) {
-                historyDirsIndex--;
-                showHistory(AnimationState.BACKWARD);
-            }
+            prevDate();
         }
         if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT) {
-            if (!Util.isEmpty(historyDirs) && historyDirsIndex < historyDirs.size() - 1) {
-                historyDirsIndex++;
-                showHistory(AnimationState.FORWARD);
-            }
+            nextDate();
         }
         if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
             startHiding();
+        }
+    }
+
+    public void nextDate() {
+        if (moveAnimation < 1.0f) {
+            return;
+        }
+        if (!Util.isEmpty(historyDirs) && historyDirsIndex < historyDirs.size() - 1) {
+            historyDirsIndex++;
+            showHistory(AnimationState.FORWARD);
+        }
+    }
+
+    public void prevDate() {
+        if (moveAnimation < 1.0f) {
+            return;
+        }
+        if (!Util.isEmpty(historyDirs) && historyDirsIndex > 0) {
+            historyDirsIndex--;
+            showHistory(AnimationState.BACKWARD);
         }
     }
 

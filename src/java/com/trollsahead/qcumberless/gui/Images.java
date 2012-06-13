@@ -51,6 +51,8 @@ public class Images {
     public static int IMAGE_FILTER = 14;
     public static int IMAGE_PALETTE = 15;
     public static int IMAGE_TIMEGLASS = 16;
+    public static int IMAGE_ARROW_LEFT = 17;
+    public static int IMAGE_ARROW_RIGHT = 18;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -132,6 +134,16 @@ public class Images {
                 ImageIO.read(Images.class.getResource("/resources/pictures/timeglass_normal.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/timeglass_highlight.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/timeglass_pressed.png"))
+        });
+        images.put(IMAGE_ARROW_LEFT, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/arrow_left_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/arrow_left_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/arrow_left_pressed.png"))
+        });
+        images.put(IMAGE_ARROW_RIGHT, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/arrow_right_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/arrow_right_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/arrow_right_pressed.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {

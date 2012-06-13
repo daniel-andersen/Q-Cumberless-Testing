@@ -512,6 +512,10 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void click(int clickCount) {
+        if (!canEdit()) {
+            foldToggle();
+            return;
+        }
         if (clickCount > 1) {
             doubleClick();
             return;
@@ -576,6 +580,9 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void trashElement() {
+        if (!canEdit()) {
+            return;
+        }
         synchronized (Engine.DATA_LOCK) {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
@@ -677,7 +684,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public boolean isDragable() {
-        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible && Engine.currentEngine == Engine.designerEngine;
+        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible && canEdit();
     }
 
     protected void applyDrag() {
@@ -1160,24 +1167,28 @@ public abstract class BaseBarElement extends Element {
     }
 
     protected boolean hasTrashcanButton() {
-        return true;
+        return canEdit();
     }
 
     protected boolean hasPlayButton() {
-        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND) && Engine.isPlayableDeviceEnabled() && !Player.isStarted();
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND)
+                && Engine.isPlayableDeviceEnabled()
+                && !Player.isStarted()
+                && canEdit();
     }
 
     protected boolean hasEditButton() {
-        return  type == TYPE_FEATURE ||
+        return canEdit() &&
+               (type == TYPE_FEATURE ||
                 type == TYPE_SCENARIO ||
                 type == TYPE_SCENARIO_OUTLINE ||
                 type == TYPE_BACKGROUND ||
                 type == TYPE_COMMENT ||
-                (type == TYPE_STEP && !step.matchedByStepDefinition());
+               (type == TYPE_STEP && !step.matchedByStepDefinition()));
     }
 
     protected boolean hasTagsAddButton() {
-        return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE;
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE) && canEdit();
     }
 
     private boolean shouldRenderTags() {
@@ -1299,5 +1310,9 @@ public abstract class BaseBarElement extends Element {
 
     public PlayResult getPlayResult() {
         return playResult;
+    }
+    
+    protected boolean canEdit() {
+        return Engine.currentEngine == Engine.designerEngine;
     }
 }

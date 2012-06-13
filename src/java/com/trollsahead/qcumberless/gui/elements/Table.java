@@ -135,6 +135,9 @@ public class Table {
     private void findHighlightedCell() {
         highlightedCol = -1;
         highlightedRow = -1;
+        if (!parent.canEdit()) {
+            return;
+        }
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 int x = (int) parent.animation.moveAnimation.renderX + cells[i][j].x;

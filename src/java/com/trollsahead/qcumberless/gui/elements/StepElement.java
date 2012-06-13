@@ -153,11 +153,14 @@ public class StepElement extends BaseBarElement {
     }
 
     protected void updateAdditionalButtonPositions() {
+        if (!canEdit()) {
+            return;
+        }
         buttonGroupWidth = addGroupButton(tableButton, buttonGroupWidth);
     }
 
     protected void updateAdditionalButtonsVisibleState() {
-        tableButton.setVisible(buttonGroupVisible);
+        tableButton.setVisible(buttonGroupVisible && canEdit());
     }
 
     protected int getAdditionalRenderHeight() {
