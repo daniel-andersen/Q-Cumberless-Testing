@@ -285,4 +285,19 @@ public class Util {
         t.printStackTrace(pw);
         return sw.toString();
     }
+
+    public static <T> List<T> restrictListSize(List<T> list, int size) {
+        if (Util.isEmpty(list) || list.size() <= size) {
+            return list;
+        }
+        List<T> newList = new LinkedList<T>();
+        int i = 0;
+        for (T element : list) {
+            newList.add(element);
+            if (i++ > size) {
+                break;
+            }
+        }
+        return newList;
+    }
 }

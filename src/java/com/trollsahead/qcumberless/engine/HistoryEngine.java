@@ -40,16 +40,21 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 public class HistoryEngine implements CucumberlessEngine {
     private static final float DISAPPEAR_SPEED = 0.03f;
 
+    private static final Color COLOR_HISTORY_DATE_NORMAL = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    private static final Color COLOR_HISTORY_DATE_HIGHLIGHT = new Color(1.0f, 1.0f, 0.0f, 1.0f);
+
     private static final int SHADOW_WIDTH = 200;
     private static final int SHADOW_STEP = SHADOW_WIDTH / 10;
     private static final float SHADOW_DEPTH = 0.5f;
 
+    private static final int DATES_PADDING = 40;
     private static final int BUTTON_PADDING = 50;
 
     private static final String NO_HISTORY = "NO HISTORY";
@@ -69,6 +74,7 @@ public class HistoryEngine implements CucumberlessEngine {
     private static float moveAnimation;
 
     private static List<String> historyDirs;
+    private static List<String> historyDates;
     private static String historyDate;
     private static int historyDirsIndex;
 
@@ -107,7 +113,11 @@ public class HistoryEngine implements CucumberlessEngine {
         background = RenderOptimizer.graphicsConfiguration.createCompatibleImage(Engine.windowWidth, Engine.windowHeight);
         backgroundGraphics = background.createGraphics();
         backupCucumberRoot();
-        historyDirs = HistoryHelper.sortDirs(HistoryHelper.findHistoryDirs());
+        historyDirs = Util.restrictListSize(HistoryHelper.sortDirs(HistoryHelper.findHistoryDirs()), 20);
+        historyDates = new LinkedList<String>();
+        for (String dir : historyDirs) {
+            historyDates.add(getHistoryDate(dir));
+        }
         if (!Util.isEmpty(historyDirs)) {
             showHistory(AnimationState.ACTIVATING);
             FlashingMessageManager.addMessage(new FlashingMessage(HISTORY_VIEW));
@@ -162,7 +172,7 @@ public class HistoryEngine implements CucumberlessEngine {
             if (historyDirsIndex != -1) {
                 createNewRoot();
                 loadFeatures(historyDirs.get(historyDirsIndex));
-                getHistoryDate(historyDirs.get(historyDirsIndex));
+                historyDate = getHistoryDate(historyDirs.get(historyDirsIndex));
                 DesignerEngine.setColorScheme(ColorScheme.PLAY);
             }
             moveAnimation = 0.0f;
@@ -177,9 +187,9 @@ public class HistoryEngine implements CucumberlessEngine {
         FlashingMessageManager.addMessage(new FlashingMessage(NO_HISTORY));
     }
 
-    private void getHistoryDate(String dir) {
+    private String getHistoryDate(String dir) {
         Date date = HistoryHelper.extractDateFromDir(dir);
-        historyDate = new SimpleDateFormat("MM-dd-yyyy HH:mm").format(date);
+        return new SimpleDateFormat("MM-dd-yyyy HH:mm").format(date);
     }
 
     private void renderCurrentRootToBackground(boolean willDeactivate) {
@@ -219,13 +229,16 @@ public class HistoryEngine implements CucumberlessEngine {
         render(g, animationState == AnimationState.ACTIVATING || animationState == AnimationState.DEACTIVATING ? 2 : 1);
     }
 
-    private void render(Graphics2D g, int buttonBarMode) {
+    private void render(Graphics2D g, int renderMode) {
         if (animationState == AnimationState.DEACTIVATING) {
             Engine.designerEngine.render(g);
         } else {
             Engine.designerEngine.clear(g);
             Engine.designerEngine.renderOnlyElements(g);
-            if (buttonBarMode == 2) {
+            if (renderMode != 0) {
+                renderDates(g);
+            }
+            if (renderMode == 2) {
                 renderButtonbar(g);
             }
         }
@@ -245,8 +258,24 @@ public class HistoryEngine implements CucumberlessEngine {
             }
             g.drawImage(background, x, 0, null);
         }
-        if (buttonBarMode == 1) {
+        if (renderMode == 1) {
+            renderDates(g);
             renderButtonbar(g);
+        }
+    }
+
+    private void renderDates(Graphics2D g) {
+        if (Util.isEmpty(historyDates)) {
+            return;
+        }
+        int x = Engine.windowWidth - Engine.fontMetrics.stringWidth(historyDates.get(0)) - DATES_PADDING;
+        int y = DATES_PADDING + Engine.fontMetrics.getHeight() - 3;
+        int i = 0;
+        for (String date : historyDates) {
+            g.setColor(i != historyDirsIndex ? COLOR_HISTORY_DATE_NORMAL : COLOR_HISTORY_DATE_HIGHLIGHT);
+            g.drawString(date, x, y);
+            y += Engine.fontMetrics.getHeight() + 5;
+            i++;
         }
     }
 
@@ -257,7 +286,6 @@ public class HistoryEngine implements CucumberlessEngine {
         if (animationState == AnimationState.DEACTIVATING) {
             return;
         }
-
         g.setColor(ButtonBar.COLOR_BACKGROUND_NORMAL);
         g.fillRect(0, Engine.windowHeight - ButtonBar.BUTTONBAR_HEIGHT, Engine.windowWidth, ButtonBar.BUTTONBAR_HEIGHT);
         
