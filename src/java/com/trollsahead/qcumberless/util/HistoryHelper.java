@@ -34,8 +34,8 @@ import com.trollsahead.qcumberless.model.RunHistory;
 import com.trollsahead.qcumberless.model.Screenshot;
 
 import java.io.File;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,16 +51,18 @@ public class HistoryHelper {
     public static final String PATTERN_QCUMBERLESS = "# qcumberless run: ";
 
     private static final String COMMENT_STATUS = COMMENT_DELIMITER_START + "status: $status" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_STATUS = PATTERN_DELIMITER_START + "status: (.*)" + PATTERN_DELIMITER_END;
+    private static final String PATTERN_STATUS = ".*" + PATTERN_DELIMITER_START + "status: (.*?)" + PATTERN_DELIMITER_END + ".*";
 
     private static final String COMMENT_DATE = COMMENT_DELIMITER_START + "date: $date" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_DATE = PATTERN_DELIMITER_START + "date: (.*)" + PATTERN_DELIMITER_END;
+    private static final String PATTERN_DATE = ".*" + PATTERN_DELIMITER_START + "date: (.*?)" + PATTERN_DELIMITER_END + ".*";
 
     private static final String COMMENT_ERROR_MESSAGE = COMMENT_DELIMITER_START + "errmsg: $errmsg" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_ERROR_MESSAGE = PATTERN_DELIMITER_START + "errmsg: (.*)" + PATTERN_DELIMITER_END;
+    private static final String PATTERN_ERROR_MESSAGE = ".*" + PATTERN_DELIMITER_START + "errmsg: (.*?)" + PATTERN_DELIMITER_END + ".*";
 
     private static final String COMMENT_SCREENSHOT = COMMENT_DELIMITER_START + "screenshot: $screenshot" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_SCREENSHOT = PATTERN_DELIMITER_START + "screenshot: (.*)" + PATTERN_DELIMITER_END;
+    private static final String PREFIX_SCREENSHOT = PATTERN_DELIMITER_START + "screenshot: ";
+
+    private static final String PATTERN_FILE_DATE = ".*(\\d{4}-\\d{2}-\\d{2})[\\\\/](\\d{2}_\\d{2}_\\d{2}).*";
 
     public static String getRunOutcomeComment(BaseBarElement element, long time) {
         StringBuilder sb = new StringBuilder();
@@ -85,6 +87,17 @@ public class HistoryHelper {
 
     public static List<String> findFeatureFiles() {
         return FileUtil.getFeatureFiles(RUN_HISTORY_DIR);
+    }
+
+    public static List<String> findHistoryDirs() {
+        List<String> features = findFeatureFiles();
+        Set<String> dirSet = new HashSet<String>();
+        for (String feature : features) {
+            dirSet.add(FileUtil.getPath(feature));
+        }
+        List<String> dirList = new LinkedList<String>();
+        dirList.addAll(dirSet);
+        return dirList;
     }
 
     public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime) {
@@ -122,11 +135,17 @@ public class HistoryHelper {
 
     private static PlayResult extractFailedPlayStateFromComment(String line) {
         PlayResult playResult = new PlayResult(PlayResult.State.FAILED);
-        Matcher matcher = Pattern.compile(PATTERN_ERROR_MESSAGE.replaceAll("\\$errmsg", "(.*)")).matcher(line);
+        Matcher matcher = Pattern.compile(PATTERN_ERROR_MESSAGE).matcher(line);
         if (matcher.find()) {
-            playResult.setErrorMessage(matcher.group(2));
+            playResult.setErrorMessage(matcher.group(1));
         }
-        // TODO! Screenshot!
+        int startIdx;
+        while ((startIdx = line.indexOf(PREFIX_SCREENSHOT)) != -1) {
+            int endIdx = line.indexOf(COMMENT_DELIMITER_END);
+            String filename = line.substring(startIdx + PREFIX_SCREENSHOT.length(), endIdx);
+            playResult.addScreenshots(new Screenshot(filename));
+            line = line.substring(endIdx + COMMENT_DELIMITER_END.length());
+        }
         return playResult;
     }
 
@@ -136,8 +155,39 @@ public class HistoryHelper {
         }
         StringBuilder sb = new StringBuilder();
         for (Screenshot screenshot : element.getPlayResult().getScreenshots()) {
-            sb.append(COMMENT_SCREENSHOT.replaceAll("\\$screenshot", screenshot.getFilename()));
+            if (!Util.isEmpty(screenshot.getFilename())) {
+                sb.append(COMMENT_SCREENSHOT.replaceAll("\\$screenshot", screenshot.getFilename()));
+            }
         }
         return sb.toString();
     }
+
+    public static List<String> sortDirs(List<String> historyDirs) {
+        String[] dirs = historyDirs.toArray(new String[0]);
+        Arrays.sort(dirs, historyDirComparator);
+        List<String> dirList = new LinkedList<String>();
+        dirList.addAll(Arrays.asList(dirs));
+        return dirList;
+    }
+    
+    public static Date extractDateFromDir(String historyDir) {
+        if (historyDir.contains(RUN_HISTORY_DIR)) {
+            historyDir = historyDir.substring(historyDir.indexOf(RUN_HISTORY_DIR) + RUN_HISTORY_DIR.length() + 1);
+        }
+        historyDir = historyDir
+                .replaceAll("\\\\", "/")
+                .replaceAll("/", "_");
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").parse(historyDir);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Date();
+        }
+    }
+
+    public static Comparator historyDirComparator = new Comparator<String>() {
+        public int compare(String s1, String s2) {
+            return extractDateFromDir(s2).compareTo(extractDateFromDir(s1));
+        }
+    };
 }

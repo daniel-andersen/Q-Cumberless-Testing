@@ -55,9 +55,9 @@ public class ButtonBar {
     private static final float ANIMATION_MOVEMENT_SPEED = 0.8f;
     private static final float ANIMATION_FADE_SPEED = 0.05f;
 
-    private static final float[] COLOR_BACKGROUND_NORMAL = {0.0f, 0.0f, 0.0f, 0.6f};
-    private static final float[] COLOR_BACKGROUND_PLAYING = {0.0f, 0.3f, 0.0f, 0.8f};
-    private static final float[] COLOR_BACKGROUND_FAILED = {0.5f, 0.0f, 0.0f, 0.8f};
+    public static final Color COLOR_BACKGROUND_NORMAL = new Color(0.0f, 0.0f, 0.0f, 0.6f);
+    private static final Color COLOR_BACKGROUND_PLAYING = new Color(0.0f, 0.3f, 0.0f, 0.8f);
+    private static final Color COLOR_BACKGROUND_FAILED = new Color(0.5f, 0.0f, 0.0f, 0.8f);
     private static final Color COLOR_BUTTON_DELIMITER = new Color(0.5f, 0.5f, 0.5f);
 
     private static final String TEXT_NO_DEVICES = "No devices found";
@@ -276,7 +276,7 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        // TODO!
+                        Engine.showEngine(Engine.historyEngine);
                     }
                 },
                 null);

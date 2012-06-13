@@ -677,7 +677,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public boolean isDragable() {
-        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible;
+        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible && Engine.currentEngine == Engine.designerEngine;
     }
 
     protected void applyDrag() {
@@ -970,7 +970,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private Color getBackgroundColorAccordingToState() {
-        if (DesignerEngine.colorScheme == ColorScheme.DESIGN || groupParent.rootType == ROOT_STEP_DEFINITIONS) {
+        if (DesignerEngine.colorScheme == ColorScheme.DESIGN || (groupParent != null && groupParent.rootType == ROOT_STEP_DEFINITIONS)) {
             return getNormalBackgroundColor();
         }
         if (this instanceof CommentElement) {

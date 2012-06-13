@@ -353,6 +353,10 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void keyPressed(KeyEvent keyEvent) {
+        if (keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE) {
+            DesignerEngine.removeTagsFilter();
+            startHiding();
+        }
     }
 
     public void startDrag(boolean isControlDown) {

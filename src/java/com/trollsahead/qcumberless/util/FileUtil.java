@@ -137,9 +137,9 @@ public class FileUtil {
     }
 
     public static String prettyFilenameTime(Date date) {
-        return new SimpleDateFormat("HH_mm").format(date);
+        return new SimpleDateFormat("HH_mm_ss").format(date);
     }
-    
+
     public static String toFilename(String str) {
         return str
                 .replaceAll("\\s", "_")

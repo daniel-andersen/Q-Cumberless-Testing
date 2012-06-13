@@ -77,6 +77,12 @@ public class Animation {
         this.colorAnimation.currentColor = color.clone();
     }
 
+    public Animation(Color color) {
+        this.colorAnimation.fromColor = Util.colorToFloatArray(color);
+        this.colorAnimation.destColor = Util.colorToFloatArray(color);
+        this.colorAnimation.currentColor = Util.colorToFloatArray(color);
+    }
+
     public void update(boolean retainPosition) {
         colorAnimation.update();
         alphaAnimation.update();

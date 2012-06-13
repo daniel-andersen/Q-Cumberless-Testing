@@ -52,9 +52,10 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static FontMetrics fontMetrics;
 
     private static List<CucumberlessEngine> engines;
-    private static CucumberlessEngine currentEngine = null;
+    public static CucumberlessEngine currentEngine = null;
     public static DesignerEngine designerEngine;
     public static TagsFilterEngine tagsFilterEngine;
+    public static HistoryEngine historyEngine;
 
     public static CumberlessCanvas canvas;
 
@@ -108,10 +109,12 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
         designerEngine = new DesignerEngine();
         tagsFilterEngine = new TagsFilterEngine();
+        historyEngine = new HistoryEngine();
 
         engines = new LinkedList<CucumberlessEngine>();
         engines.add(designerEngine);
         engines.add(tagsFilterEngine);
+        engines.add(historyEngine);
 
         resetFps();
     }

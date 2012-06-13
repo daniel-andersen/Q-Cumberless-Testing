@@ -34,7 +34,11 @@ import java.io.File;
 public class Screenshot {
     private Image image = null;
     private String filename = null;
-    
+
+    public Screenshot(String filename) {
+        this(null, filename);
+    }
+
     public Screenshot(Image image, String filename) {
         this.image = image;
         this.filename = filename;

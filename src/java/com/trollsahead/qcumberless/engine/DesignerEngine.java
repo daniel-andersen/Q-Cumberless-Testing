@@ -148,6 +148,13 @@ public class DesignerEngine implements CucumberlessEngine {
         cucumberRoot.stickToParentRenderPosition(false);
     }
 
+    public void renderOnlyElements(Graphics2D g) {
+        canvasHeight = Engine.windowHeight;
+        cucumberRoot.render(g);
+        cucumberRoot.renderHints(g);
+        FlashingMessageManager.render(g);
+    }
+
     public void resize() {
         synchronized (Engine.DATA_LOCK) {
             buttonBar.resize();

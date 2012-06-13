@@ -53,7 +53,14 @@ public class FlashingMessageManager {
             repositionMessages();
         }
     }
-    
+
+    public static void removeAllMessages() {
+        synchronized (Engine.DATA_LOCK) {
+            messages.clear();
+            repositionMessages();
+        }
+    }
+
     private static void repositionMessages() {
         int y = MESSAGES_TOP;
         for (FlashingMessage message : messages) {
