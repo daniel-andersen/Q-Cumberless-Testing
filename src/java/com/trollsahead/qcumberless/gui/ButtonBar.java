@@ -605,7 +605,7 @@ public class ButtonBar {
                 return true;
             }
         }
-        return false;
+        return DesignerEngine.isMouseInsideButtonBarArea();
     }
 
     public void setFailed() {

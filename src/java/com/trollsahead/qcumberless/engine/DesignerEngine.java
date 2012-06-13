@@ -183,10 +183,10 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public void click(int clickCount) {
         synchronized (Engine.DATA_LOCK) {
-            if (buttonBar.click()) {
+            if (EditBox.click()) {
                 return;
             }
-            if (EditBox.click()) {
+            if (buttonBar.click()) {
                 return;
             }
             if (Terminal.click()) {
@@ -384,11 +384,15 @@ public class DesignerEngine implements CucumberlessEngine {
         }
     }
 
-    private static boolean isMouseInsideCanvasArea() {
+    public static boolean isMouseInsideCanvasArea() {
         return CumberlessMouseListener.mouseY < canvasHeight - ButtonBar.BUTTONBAR_HEIGHT;
     }
 
-    private static boolean isMouseInsideTerminalArea() {
+    public static boolean isMouseInsideButtonBarArea() {
+        return CumberlessMouseListener.mouseY >= canvasHeight - ButtonBar.BUTTONBAR_HEIGHT && CumberlessMouseListener.mouseY <= canvasHeight;
+    }
+
+    public static boolean isMouseInsideTerminalArea() {
         return CumberlessMouseListener.mouseY > Engine.windowHeight - Terminal.getHeight();
     }
 
