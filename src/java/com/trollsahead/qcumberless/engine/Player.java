@@ -157,12 +157,15 @@ public class Player implements DeviceCallback {
         device.getConsoleOutput().clearLog();
         new Thread(new Runnable() {
             public void run() {
-                success = true;
-                started = true;
-                long startTime = System.currentTimeMillis();
-                device.play(FeatureBuilder.buildFeatures(features), tags);
-                HistoryHelper.saveRunOutcome(device, features, startTime);
-                cleanup();
+                try {
+                    success = true;
+                    started = true;
+                    long startTime = System.currentTimeMillis();
+                    device.play(FeatureBuilder.buildFeatures(features), tags);
+                    HistoryHelper.saveRunOutcome(device, features, startTime);
+                } finally {
+                    cleanup();
+                }
             }
         }).start();
     }

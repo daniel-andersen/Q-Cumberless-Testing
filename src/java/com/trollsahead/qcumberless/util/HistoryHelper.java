@@ -89,8 +89,10 @@ public class HistoryHelper {
 
     public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime) {
         File dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
-        if (!dir.mkdirs()) {
-            throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
+            }
         }
         for (BaseBarElement element : features) {
             String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + ElementHelper.suggestFilenameIfNotPresent(element) + ".feature";
