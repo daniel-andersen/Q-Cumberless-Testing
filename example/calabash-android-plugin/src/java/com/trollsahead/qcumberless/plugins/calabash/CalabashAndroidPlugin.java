@@ -53,7 +53,7 @@ public class CalabashAndroidPlugin implements Plugin {
         return devices;
     }
 
-    public List<StepDefinition[]> getStepDefinitions() {
+    public Map<String, List<StepDefinition>> getStepDefinitions() {
         ProgressBar progressBar = new ProgressBar("Importing step definitions");
         FlashingMessageManager.addMessage(progressBar);
         try {
