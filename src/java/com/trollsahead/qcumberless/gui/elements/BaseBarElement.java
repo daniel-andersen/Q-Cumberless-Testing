@@ -371,7 +371,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void updateButtons() {
-        if (groupParent.rootType == ROOT_STEP_DEFINITIONS) {
+        if (groupParent == null || groupParent == DesignerEngine.stepsRoot || groupParent.rootType == ROOT_STEP_DEFINITIONS) {
             return;
         }
         for (Button button : buttons) {

@@ -177,7 +177,7 @@ public class EasterEgg {
                 element = new StepElement(BaseBarElement.ROOT_NONE, text);
                 break;
         }
-        element.animation.colorAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
+        element.animation.alphaAnimation.setAlpha(Animation.FADE_ALPHA_DEFAULT, Animation.FADE_SPEED_REENTRANCE);
         element.animation.moveAnimation.setRealPosition(x, y);
         element.animation.moveAnimation.setRenderPosition(x, y);
         element.renderWidth = width;
