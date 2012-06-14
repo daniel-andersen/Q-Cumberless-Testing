@@ -35,11 +35,37 @@ import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
 public class GuiUtil {
     public static final Color[] SHADOW_COLOR = {new Color(0.0f, 0.0f, 0.0f, 0.2f), new Color(0.0f, 0.0f, 0.0f, 0.4f), new Color(0.0f, 0.0f, 0.0f, 0.6f)};
+
+    public static enum AnimationState {NONE, ACTIVATING, DEACTIVATING, FORWARD, BACKWARD}
+
+    public static final float DISAPPEAR_SPEED = 0.03f;
+
+    public static final int SHADOW_WIDTH = 200;
+    public static final int SHADOW_STEP = SHADOW_WIDTH / 10;
+    public static final float SHADOW_DEPTH = 0.5f;
+
+    public static void renderAppearAnimation(Graphics2D g, BufferedImage background, AnimationState animationState, float progress) {
+        boolean rightwards = animationState == AnimationState.BACKWARD || animationState == AnimationState.DEACTIVATING;
+        int x = (int) ((1.0f - Math.cos((progress + 0.1f) * Math.PI / 2.0f)) * (Engine.windowWidth + SHADOW_WIDTH)) * (rightwards ? 1 : -1);
+        if (Engine.fpsDetails != Engine.DETAILS_LOW) {
+            int sx = x + (rightwards ? -SHADOW_STEP : Engine.windowWidth);
+            for (int i = 0; i < SHADOW_WIDTH; i += SHADOW_STEP) {
+                g.setColor(new Color(0.0f, 0.0f, 0.0f, SHADOW_DEPTH - ((float) i / SHADOW_WIDTH) * SHADOW_DEPTH));
+                g.fillRect(sx, 0, SHADOW_STEP, Engine.windowHeight);
+                sx += SHADOW_STEP * (rightwards ? -1 : 1);
+            }
+        } else {
+            g.setColor(new Color(0.0f, 0.0f, 0.0f, SHADOW_DEPTH));
+            g.fillRect(x + (rightwards ? -SHADOW_WIDTH : Engine.windowWidth), 0, SHADOW_WIDTH, Engine.windowHeight);
+        }
+        g.drawImage(background, x, 0, null);
+    }
 
     public static void drawShadow(Graphics2D g, int x, int y, int width, int height, int rounding) {
         if (Engine.fpsDetails >= Engine.DETAILS_MEDIUM) {

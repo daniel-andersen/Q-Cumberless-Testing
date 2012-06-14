@@ -26,15 +26,17 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.gui.GuiUtil;
 import com.trollsahead.qcumberless.gui.RenderOptimizer;
 import com.trollsahead.qcumberless.gui.TagFilterButton;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.gui.GuiUtil.AnimationState;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,19 +65,10 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private BufferedImage background = null;
     private Graphics2D backgroundGraphics = null;
 
-    private static final float APPEAR_SPEED = 0.05f;
+    private static final Color BACKGROUND_COLOR = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 
-    private static final float BACKGROUND_FADE = 1.0f;
-    private static final float BACKGROUND_SIZE = 0.5f;
-
-    private static final float TAGS_FADE = 0.3f;
-    private static final Color TAGS_BACKGROUND_COLOR = new Color(0.6f, 0.6f, 0.65f);
-
-    private enum AppearState {VISIBLE, HIDDEN, APPEARING, DISAPPEARING}
-
-    private AppearState appearState = AppearState.HIDDEN;
-    private AppearState appearStateOld = AppearState.HIDDEN;
-    private float appearAnimation;
+    private static AnimationState animationState;
+    private static float moveAnimation;
 
     private List<String> featureTags;
     private List<String> scenarioTags;
@@ -100,8 +93,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
         background = RenderOptimizer.graphicsConfiguration.createCompatibleImage(Engine.windowWidth, Engine.windowHeight);
         backgroundGraphics = background.createGraphics();
         backgroundGraphics.drawImage(Engine.backbuffer, 0, 0, null);
-        appearAnimation = 0.0f;
-        appearState = AppearState.APPEARING;
+        animationState = AnimationState.ACTIVATING;
+        moveAnimation = 0.0f;
         featureTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_FEATURE);
         scenarioTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_SCENARIO, BaseBarElement.TYPE_SCENARIO_OUTLINE);
         updateTagsButtons();
@@ -114,7 +107,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void update() {
-        updateAppearAnimation();
+        updateAnimation();
         for (TagFilterButton button : featureTagsButtons) {
             button.update();
         }
@@ -123,20 +116,12 @@ public class TagsFilterEngine implements CucumberlessEngine {
         }
     }
 
-    private void updateAppearAnimation() {
-        if (appearState == AppearState.APPEARING) {
-            appearAnimation += APPEAR_SPEED;
-            if (appearAnimation >= 1.0f) {
-                appearAnimation = 1.0f;
-                appearState = AppearState.VISIBLE;
-            }
-        } else if (appearState == AppearState.DISAPPEARING) {
-            appearAnimation -= APPEAR_SPEED;
-            if (appearAnimation <= 0.0f) {
-                appearAnimation = 0.0f;
-                appearState = AppearState.HIDDEN;
-                Engine.showEngine(Engine.designerEngine);
-            }
+    private void updateAnimation() {
+        if (moveAnimation < 1.0f) {
+            moveAnimation = Math.min(1.0f, moveAnimation + GuiUtil.DISAPPEAR_SPEED);
+        }
+        if (animationState == AnimationState.DEACTIVATING && moveAnimation >= 1.0f) {
+            Engine.showEngine(Engine.designerEngine);
         }
     }
 
@@ -188,30 +173,34 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     private void startHiding() {
-        appearState = AppearState.DISAPPEARING;
+        if (moveAnimation < 1.0f) {
+            return;
+        }
+        render(backgroundGraphics);
+        moveAnimation = 0.0f;
+        animationState = AnimationState.DEACTIVATING;
     }
 
     public void render(Graphics2D g) {
-        if (appearState == AppearState.DISAPPEARING) {
-            if (appearStateOld != AppearState.DISAPPEARING) {
-                renderDesignModeToBackgroundImage();
-            }
-        }
-        calculatePosition();
-        renderBackground(g);
-        if (appearState == AppearState.VISIBLE) {
+        if (animationState == AnimationState.DEACTIVATING) {
+            Engine.designerEngine.render(g);
+        } else {
+            calculatePosition();
+            renderBackground(g);
             renderFeatureTags(g);
             renderTags(g);
         }
-        appearStateOld = appearState;
+        if (animationState != AnimationState.NONE) {
+            GuiUtil.renderAppearAnimation(g, background, animationState, moveAnimation);
+        }
     }
 
-    private void renderDesignModeToBackgroundImage() {
-        for (int i = 0; i < 2; i++) {
-            Engine.designerEngine.update();
-            Engine.designerEngine.render(backgroundGraphics);
-            Engine.designerEngine.postRender();
-        }
+    private void renderBackground(Graphics2D g) {
+        Engine.designerEngine.clear(g);
+
+        g.setColor(BACKGROUND_COLOR);
+        g.fillRect(featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
+        g.fillRect(scenarioTagsX, scenarioTagsY, scenarioTagsWidth, scenarioTagsHeight);
     }
 
     private void calculatePosition() {
@@ -289,40 +278,6 @@ public class TagsFilterEngine implements CucumberlessEngine {
         g.drawString(title, titleX, titleY);
         g.setColor(TITLE_UNDERLINE_COLOR);
         g.drawLine(titleX - 25, titleY + 5, titleX + titleWidth + 25, titleY + 5);
-    }
-
-    private void renderBackground(Graphics2D g) {
-        if (appearState == AppearState.VISIBLE) {
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
-        } else {
-            if (Engine.fpsDetails != Engine.DETAILS_LOW) {
-                g.setColor(Color.BLACK);
-                g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
-
-                float scale = 1.0f + (appearAnimation * BACKGROUND_SIZE);
-
-                int width = (int) (Engine.windowWidth * scale);
-                int height = (int) (Engine.windowHeight * scale);
-                int x = (Engine.windowWidth - width) / 2;
-                int y = (Engine.windowHeight - height) / 2;
-
-                AffineTransform transform = g.getTransform();
-                g.translate(x, y);
-                g.scale(scale, scale);
-                g.drawImage(background, 0, 0, null);
-                g.setTransform(transform);
-            } else {
-                g.drawImage(background, 0, 0, null);
-            }
-        }
-
-        g.setColor(new Color(0.0f, 0.0f, 0.0f, appearAnimation * BACKGROUND_FADE));
-        g.fillRect(0, 0, Engine.windowWidth, Engine.windowHeight);
-
-        g.setColor(new Color(TAGS_BACKGROUND_COLOR.getRed() / 255.0f, TAGS_BACKGROUND_COLOR.getGreen() / 255.0f, TAGS_BACKGROUND_COLOR.getBlue() / 255.0f, appearAnimation * TAGS_FADE));
-        g.fillRect(featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);
-        g.fillRect(scenarioTagsX, scenarioTagsY, scenarioTagsWidth, scenarioTagsHeight);
     }
 
     public void postRender() {

@@ -33,6 +33,7 @@ import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.gui.GuiUtil.AnimationState;
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
 
 import java.awt.*;
@@ -45,14 +46,8 @@ import java.util.List;
 import java.util.Set;
 
 public class HistoryEngine implements CucumberlessEngine {
-    private static final float DISAPPEAR_SPEED = 0.03f;
-
     private static final Color COLOR_HISTORY_DATE_NORMAL = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     private static final Color COLOR_HISTORY_DATE_HIGHLIGHT = new Color(1.0f, 1.0f, 0.0f, 1.0f);
-
-    private static final int SHADOW_WIDTH = 200;
-    private static final int SHADOW_STEP = SHADOW_WIDTH / 10;
-    private static final float SHADOW_DEPTH = 0.5f;
 
     private static final int DATES_PADDING = 40;
     private static final int BUTTON_PADDING = 50;
@@ -67,8 +62,6 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private static BufferedImage background = null;
     private static Graphics2D backgroundGraphics = null;
-
-    private static enum AnimationState {NONE, ACTIVATING, DEACTIVATING, FORWARD, BACKWARD}
 
     private static AnimationState animationState;
     private static float moveAnimation;
@@ -218,7 +211,7 @@ public class HistoryEngine implements CucumberlessEngine {
         Engine.designerEngine.update();
         FlashingMessageManager.update();
         if (moveAnimation < 1.0f) {
-            moveAnimation = Math.min(1.0f, moveAnimation + DISAPPEAR_SPEED);
+            moveAnimation = Math.min(1.0f, moveAnimation + GuiUtil.DISAPPEAR_SPEED);
         }
         if (animationState == AnimationState.DEACTIVATING && moveAnimation >= 1.0f) {
             Engine.showEngine(Engine.designerEngine);
@@ -243,20 +236,7 @@ public class HistoryEngine implements CucumberlessEngine {
             }
         }
         if (animationState != AnimationState.NONE) {
-            boolean rightwards = animationState == AnimationState.BACKWARD || animationState == AnimationState.DEACTIVATING;
-            int x = (int) ((1.0f - Math.cos((moveAnimation + 0.1f) * Math.PI / 2.0f)) * (Engine.windowWidth + SHADOW_WIDTH)) * (rightwards ? 1 : -1);
-            if (Engine.fpsDetails != Engine.DETAILS_LOW) {
-                int sx = x + (rightwards ? -SHADOW_STEP : Engine.windowWidth);
-                for (int i = 0; i < SHADOW_WIDTH; i += SHADOW_STEP) {
-                    g.setColor(new Color(0.0f, 0.0f, 0.0f, SHADOW_DEPTH - ((float) i / SHADOW_WIDTH) * SHADOW_DEPTH));
-                    g.fillRect(sx, 0, SHADOW_STEP, Engine.windowHeight);
-                    sx += SHADOW_STEP * (rightwards ? -1 : 1);
-                }
-            } else {
-                g.setColor(new Color(0.0f, 0.0f, 0.0f, SHADOW_DEPTH));
-                g.fillRect(x + (rightwards ? -SHADOW_WIDTH : Engine.windowWidth), 0, SHADOW_WIDTH, Engine.windowHeight);
-            }
-            g.drawImage(background, x, 0, null);
+            GuiUtil.renderAppearAnimation(g, background, animationState, moveAnimation);
         }
         if (renderMode == 1) {
             renderDates(g);
