@@ -69,7 +69,12 @@ public class Main {
                 Engine.plugins.add(cls.newInstance());
             }
         } catch (Exception e) {
-            System.out.println("No plugins found - using generic plugin!");
+            e.printStackTrace();
+            if (Util.isEmpty(Engine.plugins)) {
+                System.out.println("No plugins found - using generic plugin!");
+            } else {
+                System.out.println("Not all plugins could be added!");
+            }
         }
         Engine.initializePlugins();
     }
