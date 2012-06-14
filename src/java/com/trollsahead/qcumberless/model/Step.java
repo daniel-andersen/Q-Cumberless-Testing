@@ -126,13 +126,19 @@ public class Step {
         parts = new ArrayList<CucumberStepPart>();
         String[] strings = definition.split(PARAMETER_TAG);
         int parameterIdx = 0;
+        boolean isLastPartArgument = false;
         for (String str : strings) {
             if (!Util.isEmpty(str)) {
                 parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, str));
+                isLastPartArgument = false;
             }
             if (parameterIdx < validParameters.size()) {
+                if (isLastPartArgument) {
+                    parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, " "));
+                }
                 parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.ARGUMENT, actualParameters[parameterIdx], validParameters.get(parameterIdx)));
                 parameterIdx++;
+                isLastPartArgument = true;
             }
         }
         updateRenderKeyword();
