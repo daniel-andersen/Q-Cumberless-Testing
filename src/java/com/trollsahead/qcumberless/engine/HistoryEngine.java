@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.gui.elements.RootElement;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.util.Util;
@@ -173,6 +174,9 @@ public class HistoryEngine implements CucumberlessEngine {
     private void loadFeatures(String dir) {
         List<String> features = FileUtil.getFeatureFiles(dir);
         FeatureLoader.parseFeatureFiles(features.toArray(new String[0]), true);
+        if (!Util.isEmpty(tags)) {
+            ElementHelper.filterFeaturesByTags(tags);
+        }
     }
 
     private void createNewRoot() {
@@ -232,9 +236,14 @@ public class HistoryEngine implements CucumberlessEngine {
 
         int dateWidth = Engine.fontMetrics.stringWidth(historyDate);
         int dateX = (Engine.windowWidth - dateWidth) / 2;
+        int textY = Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT + Engine.fontMetrics.getHeight()) / 2 + Engine.fontMetrics.getHeight() - 3;
 
         g.setColor(Color.WHITE);
-        g.drawString(historyDate, dateX, Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT + Engine.fontMetrics.getHeight()) / 2 + Engine.fontMetrics.getHeight() - 3);
+        g.drawString(historyDate, dateX, textY);
+
+        if (!Util.isEmpty(tags)) {
+            g.drawString(tags, 5, textY);
+        }
 
         int buttonY = Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT / 2);
         leftArrowButton.setPosition(dateX - BUTTON_PADDING, buttonY);
