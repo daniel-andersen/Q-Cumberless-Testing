@@ -155,23 +155,23 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         animationProgress = 1.0f;
     }
 
-    public static void prevEngine() {
+    public static boolean prevEngine() {
         if (Util.isEmpty(enginesHistory)) {
-            showEngine(designerEngine);
+            return showEngine(designerEngine);
         } else {
             CucumberlessEngine engine = enginesHistory.remove(enginesHistory.size() - 1);
-            showEngine(engine, false);
+            return showEngine(engine, false);
         }
     }
 
-    public static void showEngine(CucumberlessEngine engine) {
-        showEngine(engine, true);
+    public static boolean showEngine(CucumberlessEngine engine) {
+        return showEngine(engine, true);
     }
 
-    public static void showEngine(CucumberlessEngine engine, boolean pushToHistory) {
-        synchronized (RENDER_LOCK) {
+    public static boolean showEngine(CucumberlessEngine engine, boolean pushToHistory) {
+        synchronized (DATA_LOCK) {
             if (currentEngine == engine || animationState != AnimationState.NONE) {
-                return;
+                return false;
             }
             if (currentEngine != null) {
                 currentEngine.hide();
@@ -184,6 +184,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             }
             currentEngine = engine;
             engine.show();
+            return true;
         }
     }
 

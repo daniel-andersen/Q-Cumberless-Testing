@@ -111,7 +111,6 @@ public class HistoryEngine implements CucumberlessEngine {
             showHistory(AnimationState.NONE);
             FlashingMessageManager.addMessage(new FlashingMessage(HISTORY_VIEW));
         } else {
-            System.out.println("fjewijfweiofj");
             showNoHistory();
         }
     }
