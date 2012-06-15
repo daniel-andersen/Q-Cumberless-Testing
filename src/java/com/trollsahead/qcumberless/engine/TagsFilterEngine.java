@@ -26,7 +26,6 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.gui.RenderOptimizer;
 import com.trollsahead.qcumberless.gui.TagFilterButton;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.Button;
@@ -34,7 +33,6 @@ import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;

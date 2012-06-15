@@ -111,6 +111,7 @@ public class HistoryEngine implements CucumberlessEngine {
             showHistory(AnimationState.NONE);
             FlashingMessageManager.addMessage(new FlashingMessage(HISTORY_VIEW));
         } else {
+            System.out.println("fjewijfweiofj");
             showNoHistory();
         }
     }
@@ -183,9 +184,11 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void update() {
-        leftArrowButton.update();
-        rightArrowButton.update();
-        Engine.designerEngine.update();
+        if (!Util.isEmpty(historyDirs)) {
+            leftArrowButton.update();
+            rightArrowButton.update();
+            Engine.designerEngine.update();
+        }
         FlashingMessageManager.update();
         updateAnimation();
     }
@@ -193,9 +196,6 @@ public class HistoryEngine implements CucumberlessEngine {
     private void updateAnimation() {
         if (animationProgress < 1.0f) {
             animationProgress = Math.min(1.0f, animationProgress + GuiUtil.DISAPPEAR_SPEED);
-        }
-        if (animationState == AnimationState.DEACTIVATING && animationProgress >= 1.0f) {
-            Engine.showEngine(Engine.designerEngine);
         }
     }
 
@@ -226,9 +226,6 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private void renderButtonbar(Graphics2D g) {
         if (Util.isEmpty(historyDirs)) {
-            return;
-        }
-        if (animationState == AnimationState.DEACTIVATING) {
             return;
         }
         g.setColor(ButtonBar.COLOR_BACKGROUND_NORMAL);

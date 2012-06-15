@@ -169,13 +169,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     public static void showEngine(CucumberlessEngine engine, boolean pushToHistory) {
-        if (currentEngine == engine || animationState != AnimationState.NONE) {
-            return;
-        }
-        if (currentEngine != null) {
-            currentEngine.hide();
-        }
         synchronized (RENDER_LOCK) {
+            if (currentEngine == engine || animationState != AnimationState.NONE) {
+                return;
+            }
+            if (currentEngine != null) {
+                currentEngine.hide();
+            }
             animationState = AnimationState.ACTIVATING;
             animationProgress = 0.0f;
             animationGraphics.drawImage(Engine.backbuffer, 0, 0, null);
