@@ -221,7 +221,7 @@ public class HistoryHelper {
         return false;
     }
     
-    private static Properties getRunProperties(String dir) {
+    public static Properties getRunProperties(String dir) {
         List<String> historyFiles = FileUtil.getHistoryFiles(dir);
         if (Util.isEmpty(historyFiles) || historyFiles.size() != 1) {
             return new Properties();

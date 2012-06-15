@@ -336,7 +336,7 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests() {
-        runTests(new HashSet<String>());
+        runTests(runTags);
     }
 
     public static void runTests(Set<String> tags) {
@@ -351,7 +351,6 @@ public class DesignerEngine implements CucumberlessEngine {
         Player.prepareRun();
         for (final Device device : Engine.devices) {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
-                System.out.println("Running tests on device: " + device.name());
                 new Player().play(features, device, tags);
             }
         }

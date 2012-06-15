@@ -41,10 +41,8 @@ import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class HistoryEngine implements CucumberlessEngine {
     private static final Color COLOR_HISTORY_DATE_NORMAL = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -66,6 +64,7 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private static List<String> historyDirs;
     private static List<String> historyDates;
+    private static Properties historyProperties;
     private static String historyDate;
     private static int historyDirsIndex;
 
@@ -123,7 +122,7 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private void reset() {
         historyDirs = null;
-        historyDate = null;
+        historyProperties = null;
         historyDirsIndex = 0;
     }
 
@@ -149,7 +148,8 @@ public class HistoryEngine implements CucumberlessEngine {
             }
             createNewRoot();
             loadFeatures(historyDirs.get(historyDirsIndex));
-            historyDate = getHistoryDate(historyDirs.get(historyDirsIndex));
+            historyProperties = HistoryHelper.getRunProperties(historyDirs.get(historyDirsIndex));
+            historyDate = formatDate(Long.parseLong((String) historyProperties.get("date")));
             DesignerEngine.setColorScheme(ColorScheme.PLAY);
             animationProgress = animationState != AnimationState.NONE ? 0.0f : 1.0f;
         }
@@ -163,12 +163,19 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     private String getHistoryDate(String dir) {
-        Date date = HistoryHelper.extractDateFromDir(dir);
+        return formatDate(HistoryHelper.extractDateFromDir(dir));
+    }
+
+    private String formatDate(long date) {
+        return formatDate(new Date(date));
+    }
+
+    private String formatDate(Date date) {
         return new SimpleDateFormat("MM-dd-yyyy HH:mm").format(date);
     }
 
     private void renderCurrentRootToBackground() {
-        render(Engine.animationGraphics);
+        render(Engine.animationGraphics, false);
     }
 
     private void loadFeatures(String dir) {
@@ -203,13 +210,19 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void render(Graphics2D g) {
+        render(g, true);
+    }
+    
+    public void render(Graphics2D g, boolean renderOverlayContent) {
         Engine.designerEngine.clear(g);
         Engine.designerEngine.renderOnlyElements(g);
         if (animationState != AnimationState.NONE) {
             GuiUtil.renderAppearAnimation(g, animationBackground, animationState, animationProgress);
         }
-        renderDates(g);
-        renderButtonbar(g);
+        if (renderOverlayContent) {
+            renderDates(g);
+            renderButtonbar(g);
+        }
     }
 
     private void renderDates(Graphics2D g) {
@@ -241,8 +254,9 @@ public class HistoryEngine implements CucumberlessEngine {
         g.setColor(Color.WHITE);
         g.drawString(historyDate, dateX, textY);
 
-        if (!Util.isEmpty(tags)) {
-            g.drawString(tags, 5, textY);
+        String runTags = (String) historyProperties.get("tags");
+        if (!Util.isEmpty(runTags)) {
+            g.drawString(runTags, 5, textY);
         }
 
         int buttonY = Engine.windowHeight - (ButtonBar.BUTTONBAR_HEIGHT / 2);
