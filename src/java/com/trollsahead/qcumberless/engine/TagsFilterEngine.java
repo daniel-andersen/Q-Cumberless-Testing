@@ -273,13 +273,13 @@ public class TagsFilterEngine implements CucumberlessEngine {
             }
         }
         DesignerEngine.removeTagsFilter();
-        Engine.showEngine(Engine.designerEngine);
+        Engine.prevEngine();
     }
 
     public void keyPressed(KeyEvent keyEvent) {
         if (keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE) {
             DesignerEngine.removeTagsFilter();
-            Engine.showEngine(Engine.designerEngine);
+            Engine.prevEngine();
         }
     }
 

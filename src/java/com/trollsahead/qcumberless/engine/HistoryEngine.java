@@ -282,7 +282,7 @@ public class HistoryEngine implements CucumberlessEngine {
             nextDate();
         }
         if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            Engine.showEngine(Engine.designerEngine);
+            Engine.prevEngine();
         }
     }
 
