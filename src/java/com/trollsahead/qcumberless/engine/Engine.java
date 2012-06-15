@@ -57,6 +57,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static DesignerEngine designerEngine;
     public static TagsFilterEngine tagsFilterEngine;
     public static HistoryEngine historyEngine;
+    public static InteractiveDesignerEngine interactiveDesignerEngine;
 
     public static enum AnimationState {NONE, ACTIVATING, DEACTIVATING, FORWARD, BACKWARD}
     public static AnimationState animationState = AnimationState.NONE;
@@ -117,12 +118,14 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         designerEngine = new DesignerEngine();
         tagsFilterEngine = new TagsFilterEngine();
         historyEngine = new HistoryEngine();
+        interactiveDesignerEngine = new InteractiveDesignerEngine();
 
         engines = new LinkedList<CucumberlessEngine>();
         enginesHistory = new LinkedList<CucumberlessEngine>();
         engines.add(designerEngine);
         engines.add(tagsFilterEngine);
         engines.add(historyEngine);
+        engines.add(interactiveDesignerEngine);
 
         resetFps();
     }
@@ -431,6 +434,15 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         return false;
     }
 
+    public static boolean isInteractiveDesignerDeviceEnabled() {
+        for (Device device : devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.INTERACTIVE_DESIGNING)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void pollForDevices() {
         if (isPollingForDevices || System.currentTimeMillis() < lastTimePolledForDevices + POLL_FOR_DEVICES_PERIOD) {
             return;
@@ -453,5 +465,14 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 lastTimePolledForDevices = System.currentTimeMillis();
             }
         }).start();
+    }
+
+    public static void drawBackgroundPicture(Graphics g) {
+        BufferedImage backgroundImage = Images.getImage(Images.IMAGE_BACKGROUND, Images.ThumbnailState.NORMAL.ordinal());
+        for (int y = 0; y <= Engine.windowHeight / backgroundImage.getHeight(); y++) {
+            for (int x = 0; x <= Engine.windowWidth / backgroundImage.getWidth(); x++) {
+                g.drawImage(backgroundImage, x * backgroundImage.getWidth(), y * backgroundImage.getHeight(), null);
+            }
+        }
     }
 }

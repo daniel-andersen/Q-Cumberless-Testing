@@ -61,6 +61,7 @@ public class CalabashAndroidDevice extends GenericDevice {
         super();
         capabilities = new HashSet<Capability>();
         capabilities.add(Capability.PLAY);
+        capabilities.add(Capability.INTERACTIVE_DESIGNING);
     }
 
     public Set<Capability> getCapabilities() {

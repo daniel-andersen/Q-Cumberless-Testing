@@ -40,7 +40,6 @@ import static com.trollsahead.qcumberless.gui.elements.Element.ROOT_STEP_DEFINIT
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -288,19 +287,10 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public void clear(Graphics2D g) {
         if (!EasterEgg.isBackgroundCoveringCanvas()) {
-            drawBackgroundPicture(g);
+            Engine.drawBackgroundPicture(g);
         }
         if (EasterEgg.animation > 0) {
             EasterEgg.render(g);
-        }
-    }
-
-    public void drawBackgroundPicture(Graphics g) {
-        BufferedImage backgroundImage = Images.getImage(Images.IMAGE_BACKGROUND, Images.ThumbnailState.NORMAL.ordinal());
-        for (int y = 0; y <= Engine.windowHeight / backgroundImage.getHeight(); y++) {
-            for (int x = 0; x <= Engine.windowWidth / backgroundImage.getWidth(); x++) {
-                g.drawImage(backgroundImage, x * backgroundImage.getWidth(), y * backgroundImage.getHeight(), null);
-            }
         }
     }
 

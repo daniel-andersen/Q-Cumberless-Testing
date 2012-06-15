@@ -80,6 +80,7 @@ public class ButtonBar {
     private Button terminalButton;
     private Button paletteButton;
     private Button timeglassButton;
+    private Button interactiveDesignerButton;
     private List<Button> buttons;
 
     private List<DeviceButton> deviceButtons;
@@ -284,6 +285,20 @@ public class ButtonBar {
                 null);
         timeglassButton.setHint("Show history");
         buttons.add(timeglassButton);
+        interactiveDesignerButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_TIMEGLASS, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_TIMEGLASS, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_TIMEGLASS, ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        Engine.showEngine(Engine.interactiveDesignerEngine);
+                    }
+                },
+                null);
+        interactiveDesignerButton.setHint("Show Interactive Designing");
+        buttons.add(interactiveDesignerButton);
         animation.moveAnimation.setRealPosition(0, 0);
         animation.moveAnimation.setRenderPosition(0, 0);
     }
@@ -389,6 +404,10 @@ public class ButtonBar {
             timeglassButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
             x += BUTTON_PADDING;
         }
+        if (interactiveDesignerButton.isVisible()) {
+            interactiveDesignerButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
         x += BUTTON_PADDING * 2;
         pluginButtonsX = x;
         pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
@@ -447,6 +466,10 @@ public class ButtonBar {
             terminalButton.setVisible(isTerminalButtonVisible());
             shouldUpdateButtonPositions = true;
         }
+        if (interactiveDesignerButton.isVisible() != isInteractiveDesignerButtonVisible()) {
+            interactiveDesignerButton.setVisible(isInteractiveDesignerButtonVisible());
+            shouldUpdateButtonPositions = true;
+        }
         if (shouldUpdateButtonPositions) {
             positionButtons();
         }
@@ -475,6 +498,10 @@ public class ButtonBar {
 
     private boolean isTerminalButtonVisible() {
         return deviceButtons != null && !deviceButtons.isEmpty();
+    }
+
+    private boolean isInteractiveDesignerButtonVisible() {
+        return Engine.isInteractiveDesignerDeviceEnabled();
     }
 
     private void updateType() {

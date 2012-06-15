@@ -163,7 +163,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     private void renderBackground(Graphics2D g) {
-        Engine.designerEngine.clear(g);
+        Engine.drawBackgroundPicture(g);
 
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(featureTagsX, featureTagsY, featureTagsWidth, featureTagsHeight);

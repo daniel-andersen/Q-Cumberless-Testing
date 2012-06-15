@@ -25,59 +25,10 @@
 
 package com.trollsahead.qcumberless.device;
 
-import com.trollsahead.qcumberless.gui.Images;
-import com.trollsahead.qcumberless.model.ConsoleOutput;
-
-import java.awt.*;
-import java.util.Set;
-import java.util.List;
-
-public abstract class Device {
-    public enum Capability {PLAY, PAUSE, STOP, INTERACTIVE_DESIGNING}
-
-    private boolean enabled = false;
-
-    private ConsoleOutput consoleOutput = new ConsoleOutput();
-
-    public abstract void setDeviceCallback(DeviceCallback deviceCallback);
-
-    public abstract Set<Capability> getCapabilities();
-
-    public abstract Image getThumbnail(Images.ThumbnailState thumbnailState);
-
-    public abstract String name();
-
-    public abstract void play(List<StringBuilder> features, Set<String> tags);
-
-    public void stop() {
-
-    }
-
-    public void pause() {
-
-    }
-
-    public void resume() {
-
-    }
-
-    public void setFeatureBuilder(DeviceFeatureBuilderCallback deviceBuilderCallback) {
-
-    }
-
-    public void enable() {
-        enabled = true;
-    }
-
-    public void disable() {
-        enabled = false;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public ConsoleOutput getConsoleOutput() {
-        return consoleOutput;
-    }
+public interface DeviceFeatureBuilderCallback {
+    void start();
+    void stop();
+    
+    String click(float percentX, float percentY);
+    String assertText(float percentX, float percentY);
 }

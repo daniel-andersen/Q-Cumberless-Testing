@@ -135,12 +135,6 @@ public class GenericDevice extends Device {
         }
     }
 
-    public void pause() {
-    }
-
-    public void resume() {
-    }
-
     public void stop() {
         executionStopper.stop();
     }

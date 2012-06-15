@@ -23,61 +23,64 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package com.trollsahead.qcumberless.device;
+package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.gui.Images;
-import com.trollsahead.qcumberless.model.ConsoleOutput;
+import com.trollsahead.qcumberless.device.Device;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.Set;
-import java.util.List;
 
-public abstract class Device {
-    public enum Capability {PLAY, PAUSE, STOP, INTERACTIVE_DESIGNING}
-
-    private boolean enabled = false;
-
-    private ConsoleOutput consoleOutput = new ConsoleOutput();
-
-    public abstract void setDeviceCallback(DeviceCallback deviceCallback);
-
-    public abstract Set<Capability> getCapabilities();
-
-    public abstract Image getThumbnail(Images.ThumbnailState thumbnailState);
-
-    public abstract String name();
-
-    public abstract void play(List<StringBuilder> features, Set<String> tags);
-
-    public void stop() {
-
+public class InteractiveDesignerEngine implements CucumberlessEngine {
+    public void initialize() {
     }
 
-    public void pause() {
-
+    public void show() {
     }
 
-    public void resume() {
-
+    public void hide() {
     }
 
-    public void setFeatureBuilder(DeviceFeatureBuilderCallback deviceBuilderCallback) {
-
+    public void update() {
     }
 
-    public void enable() {
-        enabled = true;
+    public void render(Graphics2D g) {
+        Engine.drawBackgroundPicture(g);
+
+        g.setColor(Color.BLACK);
+        g.fillRect(100, 100, 300, 200);
     }
 
-    public void disable() {
-        enabled = false;
+    public void postRender() {
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public void resize() {
     }
 
-    public ConsoleOutput getConsoleOutput() {
-        return consoleOutput;
+    public void mouseMoved() {
+    }
+
+    public void mouseWheelMoved(int unitsToScroll) {
+    }
+
+    public void click(int clickCount) {
+    }
+
+    public void keyPressed(KeyEvent keyEvent) {
+        if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            Engine.prevEngine();
+        }
+    }
+
+    public void startDrag(boolean isControlDown) {
+    }
+
+    public void endDrag() {
+    }
+
+    public void updateDrag() {
+    }
+
+    public void updateDevices(Set<Device> devices) {
     }
 }

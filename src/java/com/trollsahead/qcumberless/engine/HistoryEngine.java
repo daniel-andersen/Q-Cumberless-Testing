@@ -214,7 +214,7 @@ public class HistoryEngine implements CucumberlessEngine {
     }
     
     public void render(Graphics2D g, boolean renderOverlayContent) {
-        Engine.designerEngine.clear(g);
+        Engine.drawBackgroundPicture(g);
         Engine.designerEngine.renderOnlyElements(g);
         if (animationState != AnimationState.NONE) {
             GuiUtil.renderAppearAnimation(g, animationBackground, animationState, animationProgress);
