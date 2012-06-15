@@ -175,7 +175,7 @@ public class HistoryEngine implements CucumberlessEngine {
         List<String> features = FileUtil.getFeatureFiles(dir);
         FeatureLoader.parseFeatureFiles(features.toArray(new String[0]), true);
         if (!Util.isEmpty(tags)) {
-            ElementHelper.filterFeaturesByTags(tags);
+            ElementHelper.filterFeaturesAndScenariosByTags(tags);
         }
     }
 

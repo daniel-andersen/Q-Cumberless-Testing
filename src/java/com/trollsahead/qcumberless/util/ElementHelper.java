@@ -76,7 +76,35 @@ public class ElementHelper {
             }
         }
     }
-    
+
+    public static void filterFeaturesAndScenariosByTags(String tags) {
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            if (element.containsAnyOfTags(tags)) {
+                element.show(false);
+                for (Element child : element.children) {
+                    child.show(false);
+                    child.stickChildrenToParentRenderPosition(true);
+                }
+                continue;
+            }
+            boolean childrenHasTags = false;
+            for (Element child : element.children) {
+                if (child.containsAnyOfTags(tags)) {
+                    child.show(false);
+                    childrenHasTags = true;
+                } else {
+                    child.hide(false);
+                }
+                child.stickChildrenToParentRenderPosition(true);
+            }
+            if (childrenHasTags) {
+                element.show(false);
+            } else {
+                element.hide(false);
+            }
+        }
+    }
+
     public static void removeTagsFilter() {
         for (Element element : DesignerEngine.featuresRoot.children) {
             for (Element child : element.children) {
