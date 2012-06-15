@@ -29,13 +29,19 @@ import com.trollsahead.qcumberless.device.Device;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.Set;
 
 public class InteractiveDesignerEngine implements CucumberlessEngine {
+    private static final String WAITING_FOR_DEVICE_TEXT = "WAITING FOR DEVICE...";
+
+    private static BufferedImage screenshot = null;
+    
     public void initialize() {
     }
 
     public void show() {
+        screenshot = null;
     }
 
     public void hide() {
@@ -43,12 +49,29 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
 
     public void update() {
     }
-
+    
     public void render(Graphics2D g) {
         Engine.drawBackgroundPicture(g);
 
-        g.setColor(Color.BLACK);
-        g.fillRect(100, 100, 300, 200);
+        drawScreenshot(g);
+    }
+
+    private void drawScreenshot(Graphics2D g) {
+        if (screenshot == null) {
+            drawWaitingForDeviceText(g);
+            return;
+        }
+        int x = (Engine.windowWidth - screenshot.getWidth()) / 2;
+        int y = (Engine.windowHeight - screenshot.getHeight()) / 2;
+        g.drawImage(screenshot, x, y, null);
+    }
+
+    private void drawWaitingForDeviceText(Graphics2D g) {
+        int x = (Engine.windowWidth - Engine.fontMetrics.stringWidth(WAITING_FOR_DEVICE_TEXT)) / 2;
+        int y = Engine.windowHeight / 2;
+
+        g.setColor(Color.WHITE);
+        g.drawString(WAITING_FOR_DEVICE_TEXT, x, y);
     }
 
     public void postRender() {

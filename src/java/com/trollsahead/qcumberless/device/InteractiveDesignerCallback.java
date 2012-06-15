@@ -25,10 +25,14 @@
 
 package com.trollsahead.qcumberless.device;
 
-public interface DeviceFeatureBuilderCallback {
+import java.awt.image.BufferedImage;
+
+public interface InteractiveDesignerCallback {
     void start();
     void stop();
     
     String click(float percentX, float percentY);
     String assertText(float percentX, float percentY);
+    
+    BufferedImage takeScreenshot();
 }
