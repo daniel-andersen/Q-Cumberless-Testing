@@ -25,10 +25,89 @@
 
 package com.trollsahead.qcumberless.designer;
 
-import android.test.ActivityInstrumentationTestCase2;
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.test.InstrumentationTestCase;
+import android.os.Environment;
 
-public class InteractiveDesigner extends ActivityInstrumentationTestCase2<MainInstrumentation> {
-    public InteractiveDesigner() {
-        super("com.trollsahead.qcumberless.designer", MainInstrumentation.class);
+import com.jayway.android.robotium.solo.Solo;
+
+import java.io.File;
+
+public class InteractiveDesigner extends InstrumentationTestCase {
+    private static final String INSTRUMENTATION_CLASS = "com.example.helloworld.HelloWorld";
+
+    private Instrumentation instrumentation;
+    private Solo solo;
+
+    public void testInteractiveDesigner() {
+        initialize();
+
+        try {
+            String command = null;
+            while ("STOP".equals(command)) {
+                Thread.sleep(100);
+                command = getCommand();
+                if (command == null) {
+                    continue;
+                }
+                break; // TODO!
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Test error", e);
+        } finally {
+            solo.finishOpenedActivities();
+        }
+    }
+
+    private String getCommand() {
+        return null;
+    }
+    
+    private void initialize() {
+        File directory = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer");
+        directory.mkdir();
+        deleteFilesInDirectory(directory);
+
+        Instrumentation instrumentation = getInstrumentation();
+        Instrumentation.ActivityMonitor monitor = instrumentation.addMonitor(INSTRUMENTATION_CLASS, null, false);
+
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setClassName(instrumentation.getTargetContext(), INSTRUMENTATION_CLASS);
+        instrumentation.startActivitySync(intent);
+
+        Activity currentActivity = getInstrumentation().waitForMonitorWithTimeout(monitor, 5);
+        if (currentActivity == null) {
+            throw new RuntimeException("Activity not started");
+        }
+
+        solo = new Solo(getInstrumentation(), currentActivity);
+    }
+
+    private void takeScreenshot() {
+        deleteScreenshots();
+        solo.takeScreenshot();
+    }
+
+    private void deleteScreenshots() {
+        deleteFilesInDirectory(new File(Environment.getExternalStorageDirectory() + "/Robotium-Screenshots"));
+    }
+
+    private void deleteFilesInDirectory(File directory) {
+        for (File file : directory.listFiles()) {
+            file.delete();
+        }
+    }
+
+    private String getScreenshotFilename() {
+        File directory = new File(Environment.getExternalStorageDirectory() + "/Robotium-Screenshots");
+        File[] files = directory.listFiles();
+        if (files == null || files.length != 1) {
+            return null;
+        } else {
+            return files[0].getAbsolutePath();
+        }
     }
 }
