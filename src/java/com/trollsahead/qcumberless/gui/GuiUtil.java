@@ -33,6 +33,7 @@ import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 import static com.trollsahead.qcumberless.gui.ExtendedButtons.*;
+import static com.trollsahead.qcumberless.engine.Engine.AnimationState;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -41,8 +42,6 @@ import java.util.List;
 
 public class GuiUtil {
     public static final Color[] SHADOW_COLOR = {new Color(0.0f, 0.0f, 0.0f, 0.2f), new Color(0.0f, 0.0f, 0.0f, 0.4f), new Color(0.0f, 0.0f, 0.0f, 0.6f)};
-
-    public static enum AnimationState {NONE, ACTIVATING, DEACTIVATING, FORWARD, BACKWARD}
 
     public static final float DISAPPEAR_SPEED = 0.03f;
 

@@ -230,7 +230,7 @@ public class FeatureLoader {
         return matcher.group(1);
     }
 
-    private static String extractTags(String line) {
+    public static String extractTags(String line) {
         Matcher matcher = Pattern.compile(getTagPattern()).matcher(line);
         matcher.find();
         return matcher.group(1);
@@ -258,7 +258,7 @@ public class FeatureLoader {
         return "^\\s*" + Locale.getString("background") + ":";
     }
 
-    private static String getTagPattern() {
+    public static String getTagPattern() {
         return "[^@]*(((@[^@\\s]*)\\s*)+)";
     }
 

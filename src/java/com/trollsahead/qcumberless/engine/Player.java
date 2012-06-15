@@ -32,6 +32,7 @@ import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.model.Screenshot;
 import com.trollsahead.qcumberless.util.ElementHelper;
+import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -162,7 +163,7 @@ public class Player implements DeviceCallback {
                     started = true;
                     long startTime = System.currentTimeMillis();
                     device.play(FeatureBuilder.buildFeatures(features), tags);
-                    HistoryHelper.saveRunOutcome(device, features, startTime);
+                    HistoryHelper.saveRunOutcome(device, features, startTime, Util.tagsToString(tags));
                 } finally {
                     cleanup();
                 }

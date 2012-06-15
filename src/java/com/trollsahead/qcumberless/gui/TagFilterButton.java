@@ -52,7 +52,9 @@ public class TagFilterButton {
 
     private static final int OUTLINE_ROUNDING = 20;
 
-    private static final int BUTTON_PADDING_HORIZONTAL = 3;
+    private static final int BUTTON_PADDING_HORIZONTAL = 8;
+    private static final int PADDING_FOR_BUTTONS = 20;
+    private static final int BUTTONS_WIDTH = 16;
 
     private static final int TAG_BAR_PADDING_HORIZONTAL = 8;
     private static final int TAG_BAR_PADDING_VERTICAL = 8;
@@ -62,8 +64,6 @@ public class TagFilterButton {
 
     public State state = State.NORMAL;
 
-    private Button playButton;
-    private Button filterButton;
     private List<Button> buttons;
 
     private String tag;
@@ -77,12 +77,13 @@ public class TagFilterButton {
     private int leftX;
     private int topY;
 
-    public TagFilterButton(String tag, int x, int y, int width, int height, final ButtonNotification playClickNotification, final ButtonNotification filterClickNotification) {
+    public TagFilterButton(String tag, int x, int y, int width, int height,
+                           final ButtonNotification playClickNotification, final ButtonNotification filterClickNotification, final ButtonNotification historyClickNotification) {
         this.tag = tag;
         this.width = width;
         this.height = height;
         buttons = new LinkedList<Button>();
-        playButton = new Button(
+        Button playButton = new Button(
                 0,
                 0,
                 Images.getImage(Images.IMAGE_PLAY, Images.ThumbnailState.NORMAL.ordinal()),
@@ -97,7 +98,7 @@ public class TagFilterButton {
                 null);
         playButton.setHint("Play this tag");
         buttons.add(playButton);
-        filterButton = new Button(
+        Button filterButton = new Button(
                 0,
                 0,
                 Images.getImage(Images.IMAGE_FILTER, Images.ThumbnailState.NORMAL.ordinal()),
@@ -112,6 +113,21 @@ public class TagFilterButton {
                 null);
         filterButton.setHint("Filter this tag");
         buttons.add(filterButton);
+        Button historyButton = new Button(
+                0,
+                0,
+                Images.getImage(Images.IMAGE_TIMEGLASS, Images.ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_TIMEGLASS, Images.ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_TIMEGLASS, Images.ThumbnailState.NORMAL.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new ButtonNotification() {
+                    public void onClick() {
+                        historyClickNotification.onClick();
+                    }
+                },
+                null);
+        historyButton.setHint("Show tag history");
+        buttons.add(historyButton);
         setCenterPosition(x, y);
     }
 
@@ -130,9 +146,13 @@ public class TagFilterButton {
     }
 
     private void updateButtonPositions() {
-        int centerY = topY + (height / 2);
-        playButton.setPosition(leftX + BUTTON_PADDING_HORIZONTAL + 10, centerY - (height / 4));
-        filterButton.setPosition(leftX + BUTTON_PADDING_HORIZONTAL + 10, centerY + (height / 4));
+        int centerX = leftX + (width / 2);
+        int i = 0;
+        int w = (buttons.size() - 1) * (BUTTON_PADDING_HORIZONTAL + BUTTONS_WIDTH);
+        for (Button button : buttons) {
+            button.setPosition(centerX + (w * i / (buttons.size() - 1)) - (w / 2), topY - (PADDING_FOR_BUTTONS / 2));
+            i++;
+        }
     }
 
     private void updateButtons() {
@@ -153,18 +173,23 @@ public class TagFilterButton {
     }
 
     private void updateHighlight() {
+        int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
+        int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;
         highlighted = CumberlessMouseListener.mouseX >= leftX &&
-                      CumberlessMouseListener.mouseY >= topY &&
+                      CumberlessMouseListener.mouseY >= top &&
                       CumberlessMouseListener.mouseX <= leftX + width &&
-                      CumberlessMouseListener.mouseY <= topY + height;
+                      CumberlessMouseListener.mouseY <= top + heightIncludingButtons;
     }
 
     public void render(Graphics2D g) {
+        int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
+        int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;
+
         g.setColor(BG_COLOR[getHighlightState()]);
-        g.fillRoundRect(leftX, topY, width, height, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
+        g.fillRoundRect(leftX, top, width, heightIncludingButtons, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
 
         g.setColor(OUTLINE_COLOR[getTagState()][getHighlightState()]);
-        g.drawRoundRect(leftX, topY, width, height, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
+        g.drawRoundRect(leftX, top, width, heightIncludingButtons, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
 
         g.setColor(TEXT_COLOR);
         g.drawString(tag, x - (Engine.fontMetrics.stringWidth(tag) / 2), y - 3);
@@ -180,7 +205,7 @@ public class TagFilterButton {
             return;
         }
 
-        int x = TAG_BAR_PADDING_HORIZONTAL + (highlighted ? BUTTON_PADDING_HORIZONTAL + 16 : 0);
+        int x = TAG_BAR_PADDING_HORIZONTAL;
         int y = topY + height - TAG_BAR_PADDING_VERTICAL - TAG_BAR_HEIGHT;
 
         int barWidth = width - x - TAG_BAR_PADDING_HORIZONTAL;

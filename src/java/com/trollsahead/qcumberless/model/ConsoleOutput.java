@@ -139,10 +139,17 @@ public class ConsoleOutput {
     }
 
     public static StringBuilder getPreample(Device device, Date date) {
+        return getPreample(device, date, null);
+    }
+    
+    public static StringBuilder getPreample(Device device, Date date, String tags) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Q-Cumberless Testing\n");
         sb.append("# ").append(device.name()).append("\n");
         sb.append("# ").append(Util.prettyDate(date)).append("\n");
+        if (!Util.isEmpty(tags)) {
+            sb.append("# ").append(tags).append("\n");
+        }
         sb.append("\n");
         return sb;
     }

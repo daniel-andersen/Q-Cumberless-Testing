@@ -40,6 +40,10 @@ public class FileUtil {
         return traverseDirectory(new File[] {new File(directory)}, ".feature");
     }
 
+    public static List<String> getHistoryFiles(String directory) {
+        return traverseDirectory(new File[] {new File(directory)}, ".history");
+    }
+
     public static List<String> traverseDirectory(File[] files, String suffix) {
         List<String> foundFiles = new LinkedList<String>();
         if (files == null) {

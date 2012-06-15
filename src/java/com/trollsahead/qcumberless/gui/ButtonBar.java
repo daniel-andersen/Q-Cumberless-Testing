@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.HistoryEngine;
 import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
@@ -276,6 +277,7 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
+                        HistoryEngine.removeTagFilter();
                         Engine.showEngine(Engine.historyEngine);
                     }
                 },

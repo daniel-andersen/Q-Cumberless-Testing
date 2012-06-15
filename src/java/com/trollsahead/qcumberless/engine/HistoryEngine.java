@@ -33,12 +33,12 @@ import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.util.Util;
 
-import static com.trollsahead.qcumberless.gui.GuiUtil.AnimationState;
+import static com.trollsahead.qcumberless.engine.Engine.AnimationState;
+import static com.trollsahead.qcumberless.engine.Engine.animationBackground;
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -60,11 +60,8 @@ public class HistoryEngine implements CucumberlessEngine {
     private static RootElement originalStepsRoot = null;
     private static ColorScheme originalColorScheme;
 
-    private static BufferedImage background = null;
-    private static Graphics2D backgroundGraphics = null;
-
     private static AnimationState animationState;
-    private static float moveAnimation;
+    private static float animationProgress;
 
     private static List<String> historyDirs;
     private static List<String> historyDates;
@@ -73,6 +70,7 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private static Button leftArrowButton;
     private static Button rightArrowButton;
+    private static String tags = null;
 
     public void initialize() {
         leftArrowButton = new Button(
@@ -103,16 +101,14 @@ public class HistoryEngine implements CucumberlessEngine {
 
     public void show() {
         reset();
-        background = RenderOptimizer.graphicsConfiguration.createCompatibleImage(Engine.windowWidth, Engine.windowHeight);
-        backgroundGraphics = background.createGraphics();
         backupCucumberRoot();
-        historyDirs = Util.restrictListSize(HistoryHelper.sortDirs(HistoryHelper.findHistoryDirs()), 20);
+        historyDirs = Util.restrictListSize(HistoryHelper.filterByTags(HistoryHelper.sortDirs(HistoryHelper.findHistoryDirs()), tags), 20);
         historyDates = new LinkedList<String>();
         for (String dir : historyDirs) {
             historyDates.add(getHistoryDate(dir));
         }
         if (!Util.isEmpty(historyDirs)) {
-            showHistory(AnimationState.ACTIVATING);
+            showHistory(AnimationState.NONE);
             FlashingMessageManager.addMessage(new FlashingMessage(HISTORY_VIEW));
         } else {
             showNoHistory();
@@ -120,17 +116,6 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void hide() {
-        backgroundGraphics.dispose();
-        backgroundGraphics = null;
-        background = null;
-    }
-
-    private void startHiding() {
-        if (moveAnimation < 1.0f) {
-            return;
-        }
-        historyDirsIndex = -1;
-        showHistory(AnimationState.DEACTIVATING);
         restoreCucumberRoot();
         FlashingMessageManager.removeAllMessages();
     }
@@ -157,26 +142,22 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private void showHistory(AnimationState newAnimationState) {
         synchronized (Engine.DATA_LOCK) {
-            if (newAnimationState != AnimationState.DEACTIVATING) {
-                animationState = newAnimationState;
-            }
-            renderCurrentRootToBackground(newAnimationState == AnimationState.DEACTIVATING);
             animationState = newAnimationState;
-            if (historyDirsIndex != -1) {
-                createNewRoot();
-                loadFeatures(historyDirs.get(historyDirsIndex));
-                historyDate = getHistoryDate(historyDirs.get(historyDirsIndex));
-                DesignerEngine.setColorScheme(ColorScheme.PLAY);
+            if (animationState != AnimationState.NONE) {
+                renderCurrentRootToBackground();
             }
-            moveAnimation = 0.0f;
+            createNewRoot();
+            loadFeatures(historyDirs.get(historyDirsIndex));
+            historyDate = getHistoryDate(historyDirs.get(historyDirsIndex));
+            DesignerEngine.setColorScheme(ColorScheme.PLAY);
+            animationProgress = animationState != AnimationState.NONE ? 0.0f : 1.0f;
         }
     }
 
     private void showNoHistory() {
-        animationState = AnimationState.ACTIVATING;
-        renderCurrentRootToBackground(false);
+        animationState = AnimationState.NONE;
+        animationProgress = 1.0f;
         createNewRoot();
-        moveAnimation = 0.0f;
         FlashingMessageManager.addMessage(new FlashingMessage(NO_HISTORY));
     }
 
@@ -185,12 +166,8 @@ public class HistoryEngine implements CucumberlessEngine {
         return new SimpleDateFormat("MM-dd-yyyy HH:mm").format(date);
     }
 
-    private void renderCurrentRootToBackground(boolean willDeactivate) {
-        if (animationState == AnimationState.ACTIVATING) {
-            backgroundGraphics.drawImage(Engine.backbuffer, 0, 0, null);
-        } else {
-            render(backgroundGraphics, willDeactivate ? 1 : 0);
-        }
+    private void renderCurrentRootToBackground() {
+        render(Engine.animationGraphics);
     }
 
     private void loadFeatures(String dir) {
@@ -210,38 +187,26 @@ public class HistoryEngine implements CucumberlessEngine {
         rightArrowButton.update();
         Engine.designerEngine.update();
         FlashingMessageManager.update();
-        if (moveAnimation < 1.0f) {
-            moveAnimation = Math.min(1.0f, moveAnimation + GuiUtil.DISAPPEAR_SPEED);
+        updateAnimation();
+    }
+
+    private void updateAnimation() {
+        if (animationProgress < 1.0f) {
+            animationProgress = Math.min(1.0f, animationProgress + GuiUtil.DISAPPEAR_SPEED);
         }
-        if (animationState == AnimationState.DEACTIVATING && moveAnimation >= 1.0f) {
+        if (animationState == AnimationState.DEACTIVATING && animationProgress >= 1.0f) {
             Engine.showEngine(Engine.designerEngine);
         }
     }
 
     public void render(Graphics2D g) {
-        render(g, animationState == AnimationState.ACTIVATING || animationState == AnimationState.DEACTIVATING ? 2 : 1);
-    }
-
-    private void render(Graphics2D g, int renderMode) {
-        if (animationState == AnimationState.DEACTIVATING) {
-            Engine.designerEngine.render(g);
-        } else {
-            Engine.designerEngine.clear(g);
-            Engine.designerEngine.renderOnlyElements(g);
-            if (renderMode != 0) {
-                renderDates(g);
-            }
-            if (renderMode == 2) {
-                renderButtonbar(g);
-            }
-        }
+        Engine.designerEngine.clear(g);
+        Engine.designerEngine.renderOnlyElements(g);
         if (animationState != AnimationState.NONE) {
-            GuiUtil.renderAppearAnimation(g, background, animationState, moveAnimation);
+            GuiUtil.renderAppearAnimation(g, animationBackground, animationState, animationProgress);
         }
-        if (renderMode == 1) {
-            renderDates(g);
-            renderButtonbar(g);
-        }
+        renderDates(g);
+        renderButtonbar(g);
     }
 
     private void renderDates(Graphics2D g) {
@@ -268,7 +233,7 @@ public class HistoryEngine implements CucumberlessEngine {
         }
         g.setColor(ButtonBar.COLOR_BACKGROUND_NORMAL);
         g.fillRect(0, Engine.windowHeight - ButtonBar.BUTTONBAR_HEIGHT, Engine.windowWidth, ButtonBar.BUTTONBAR_HEIGHT);
-        
+
         int dateWidth = Engine.fontMetrics.stringWidth(historyDate);
         int dateX = (Engine.windowWidth - dateWidth) / 2;
 
@@ -317,12 +282,12 @@ public class HistoryEngine implements CucumberlessEngine {
             nextDate();
         }
         if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            startHiding();
+            Engine.showEngine(Engine.designerEngine);
         }
     }
 
     public void nextDate() {
-        if (moveAnimation < 1.0f) {
+        if (animationProgress < 1.0f) {
             return;
         }
         if (!Util.isEmpty(historyDirs) && historyDirsIndex < historyDirs.size() - 1) {
@@ -332,7 +297,7 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void prevDate() {
-        if (moveAnimation < 1.0f) {
+        if (animationProgress < 1.0f) {
             return;
         }
         if (!Util.isEmpty(historyDirs) && historyDirsIndex > 0) {
@@ -355,5 +320,13 @@ public class HistoryEngine implements CucumberlessEngine {
 
     public void updateDevices(Set<Device> devices) {
         Engine.designerEngine.updateDevices(devices);
+    }
+
+    public static void removeTagFilter() {
+        tags = null;
+    }
+
+    public static void setTagFilter(String tags) {
+        HistoryEngine.tags = tags;
     }
 }

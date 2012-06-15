@@ -33,7 +33,7 @@ import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.model.RunHistory;
 import com.trollsahead.qcumberless.model.Screenshot;
 
-import java.io.File;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -100,7 +100,7 @@ public class HistoryHelper {
         return dirList;
     }
 
-    public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime) {
+    public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime, String tags) {
         File dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
@@ -110,13 +110,24 @@ public class HistoryHelper {
         for (BaseBarElement element : features) {
             String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + ElementHelper.suggestFilenameIfNotPresent(element) + ".feature";
             File file = FileUtil.writeToFile(filename, FeatureBuilder.buildFeature(element, true, startTime));
-            System.out.println("Wrote feature history to: " + file.getAbsolutePath());
             RunHistory.addFeature(file.getAbsolutePath());
         }
-        String logFilename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + FileUtil.toFilename(device.name()) + ".log";
-        device.getConsoleOutput().exportLog(logFilename, ConsoleOutput.getPreample(device, new Date(startTime)));
-        System.out.println("Wrote log history to: " + logFilename);
+        String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + FileUtil.toFilename(device.name());
+        device.getConsoleOutput().exportLog(filename + ".log", ConsoleOutput.getPreample(device, new Date(startTime), tags));
+        writeRunParameters(filename + ".history", device, startTime, tags);
         return dir;
+    }
+
+    private static void writeRunParameters(String filename, Device device, long date, String tags) {
+        Properties properties = new Properties();
+        properties.put("devicename", device.name());
+        properties.put("date", Long.toString(date));
+        properties.put("tags", tags);
+        try {
+            properties.store(new FileOutputStream(filename), "Q-Cumberless Testing history info");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static PlayResult getPlayResultFromComment(String line) {
@@ -171,18 +182,8 @@ public class HistoryHelper {
     }
     
     public static Date extractDateFromDir(String historyDir) {
-        if (historyDir.contains(RUN_HISTORY_DIR)) {
-            historyDir = historyDir.substring(historyDir.indexOf(RUN_HISTORY_DIR) + RUN_HISTORY_DIR.length() + 1);
-        }
-        historyDir = historyDir
-                .replaceAll("\\\\", "/")
-                .replaceAll("/", "_");
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").parse(historyDir);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Date();
-        }
+        Properties properties = getRunProperties(historyDir);
+        return new Date(Long.parseLong((String) properties.get("date")));
     }
 
     public static Comparator historyDirComparator = new Comparator<String>() {
@@ -190,4 +191,48 @@ public class HistoryHelper {
             return extractDateFromDir(s2).compareTo(extractDateFromDir(s1));
         }
     };
+
+    public static List<String> filterByTags(List<String> dirs, String tags) {
+        if (Util.isEmpty(tags)) {
+            return dirs;
+        }
+        List<String> resultDirs = new LinkedList<String>();
+        for (String dir : dirs) {
+            Properties properties = getRunProperties(dir);
+            String runTags = (String) properties.get("tags");
+            if (Util.isEmpty(runTags)) {
+                continue;
+            }
+            if (containsAnyOfTags(tags, runTags)) {
+                resultDirs.add(dir);
+            }
+        }
+        return resultDirs;
+    }
+
+    private static boolean containsAnyOfTags(String tags1, String tags2) {
+        List<String> tagList1 = Util.stringToTagList(tags1);
+        List<String> tagList2 = Util.stringToTagList(tags2);
+        for (String tag : tagList1) {
+            if (tagList2.contains(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private static Properties getRunProperties(String dir) {
+        List<String> historyFiles = FileUtil.getHistoryFiles(dir);
+        if (Util.isEmpty(historyFiles) || historyFiles.size() != 1) {
+            return new Properties();
+        }
+        try {
+            Properties properties = new Properties();
+            properties.load(new FileInputStream(historyFiles.get(0)));
+            return properties;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Properties();
+    }
 }

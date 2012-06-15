@@ -26,14 +26,11 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.gui.GuiUtil;
 import com.trollsahead.qcumberless.gui.RenderOptimizer;
 import com.trollsahead.qcumberless.gui.TagFilterButton;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.util.Util;
-
-import static com.trollsahead.qcumberless.gui.GuiUtil.AnimationState;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -62,13 +59,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
     private static final int TAG_BUTTON_OFFSET_HORIZONTAL = 5;
     private static final int TAG_BUTTON_OFFSET_VERTICAL = 5;
 
-    private BufferedImage background = null;
-    private Graphics2D backgroundGraphics = null;
-
     private static final Color BACKGROUND_COLOR = new Color(0.0f, 0.0f, 0.0f, 0.5f);
-
-    private static AnimationState animationState;
-    private static float moveAnimation;
 
     private List<String> featureTags;
     private List<String> scenarioTags;
@@ -90,38 +81,20 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void show() {
-        background = RenderOptimizer.graphicsConfiguration.createCompatibleImage(Engine.windowWidth, Engine.windowHeight);
-        backgroundGraphics = background.createGraphics();
-        backgroundGraphics.drawImage(Engine.backbuffer, 0, 0, null);
-        animationState = AnimationState.ACTIVATING;
-        moveAnimation = 0.0f;
         featureTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_FEATURE);
         scenarioTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_SCENARIO, BaseBarElement.TYPE_SCENARIO_OUTLINE);
         updateTagsButtons();
     }
 
     public void hide() {
-        backgroundGraphics.dispose();
-        backgroundGraphics = null;
-        background = null;
     }
 
     public void update() {
-        updateAnimation();
         for (TagFilterButton button : featureTagsButtons) {
             button.update();
         }
         for (TagFilterButton button : scenarioTagsButtons) {
             button.update();
-        }
-    }
-
-    private void updateAnimation() {
-        if (moveAnimation < 1.0f) {
-            moveAnimation = Math.min(1.0f, moveAnimation + GuiUtil.DISAPPEAR_SPEED);
-        }
-        if (animationState == AnimationState.DEACTIVATING && moveAnimation >= 1.0f) {
-            Engine.showEngine(Engine.designerEngine);
         }
     }
 
@@ -138,13 +111,19 @@ public class TagsFilterEngine implements CucumberlessEngine {
                             new Button.ButtonNotification() {
                                 public void onClick() {
                                     DesignerEngine.runTests(Util.stringToTagSet("@" + tag));
-                                    startHiding();
+                                    Engine.showEngine(Engine.designerEngine);
                                 }
                             },
                             new Button.ButtonNotification() {
                                 public void onClick() {
                                     DesignerEngine.filterFeaturesByTags("@" + tag);
-                                    startHiding();
+                                    Engine.showEngine(Engine.designerEngine);
+                                }
+                            },
+                            new Button.ButtonNotification() {
+                                public void onClick() {
+                                    HistoryEngine.setTagFilter("@" + tag);
+                                    Engine.showEngine(Engine.historyEngine);
                                 }
                             }));
         }
@@ -160,39 +139,29 @@ public class TagsFilterEngine implements CucumberlessEngine {
                             new Button.ButtonNotification() {
                                 public void onClick() {
                                     DesignerEngine.runTests(Util.stringToTagSet("@" + tag));
-                                    startHiding();
+                                    Engine.showEngine(Engine.designerEngine);
                                 }
                             },
                             new Button.ButtonNotification() {
                                 public void onClick() {
                                     DesignerEngine.filterScenariosByTags("@" + tag);
-                                    startHiding();
+                                    Engine.showEngine(Engine.designerEngine);
+                                }
+                            },
+                            new Button.ButtonNotification() {
+                                public void onClick() {
+                                    HistoryEngine.setTagFilter("@" + tag);
+                                    Engine.showEngine(Engine.historyEngine);
                                 }
                             }));
         }
     }
 
-    private void startHiding() {
-        if (moveAnimation < 1.0f) {
-            return;
-        }
-        render(backgroundGraphics);
-        moveAnimation = 0.0f;
-        animationState = AnimationState.DEACTIVATING;
-    }
-
     public void render(Graphics2D g) {
-        if (animationState == AnimationState.DEACTIVATING) {
-            Engine.designerEngine.render(g);
-        } else {
-            calculatePosition();
-            renderBackground(g);
-            renderFeatureTags(g);
-            renderTags(g);
-        }
-        if (animationState != AnimationState.NONE) {
-            GuiUtil.renderAppearAnimation(g, background, animationState, moveAnimation);
-        }
+        calculatePosition();
+        renderBackground(g);
+        renderFeatureTags(g);
+        renderTags(g);
     }
 
     private void renderBackground(Graphics2D g) {
@@ -304,13 +273,13 @@ public class TagsFilterEngine implements CucumberlessEngine {
             }
         }
         DesignerEngine.removeTagsFilter();
-        startHiding();
+        Engine.showEngine(Engine.designerEngine);
     }
 
     public void keyPressed(KeyEvent keyEvent) {
         if (keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE) {
             DesignerEngine.removeTagsFilter();
-            startHiding();
+            Engine.showEngine(Engine.designerEngine);
         }
     }
 

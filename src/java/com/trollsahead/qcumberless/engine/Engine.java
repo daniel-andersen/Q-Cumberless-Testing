@@ -52,10 +52,17 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     public static FontMetrics fontMetrics;
 
     private static List<CucumberlessEngine> engines;
+    private static List<CucumberlessEngine> enginesHistory;
     public static CucumberlessEngine currentEngine = null;
     public static DesignerEngine designerEngine;
     public static TagsFilterEngine tagsFilterEngine;
     public static HistoryEngine historyEngine;
+
+    public static enum AnimationState {NONE, ACTIVATING, DEACTIVATING, FORWARD, BACKWARD}
+    public static AnimationState animationState = AnimationState.NONE;
+    public static float animationProgress = 1.0f;
+    public static BufferedImage animationBackground = null;
+    public static Graphics2D animationGraphics = null;
 
     public static CumberlessCanvas canvas;
 
@@ -79,7 +86,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private static boolean isRunning;
 
-    public static BufferedImage backbuffer;
+    public static BufferedImage backbuffer = null;
     private static Graphics2D backbufferGraphics = null;
 
     public static List<Plugin> plugins = new LinkedList<Plugin>();
@@ -112,6 +119,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         historyEngine = new HistoryEngine();
 
         engines = new LinkedList<CucumberlessEngine>();
+        enginesHistory = new LinkedList<CucumberlessEngine>();
         engines.add(designerEngine);
         engines.add(tagsFilterEngine);
         engines.add(historyEngine);
@@ -143,17 +151,31 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             engine.initialize();
         }
         showEngine(designerEngine);
+        animationState = AnimationState.NONE;
+        animationProgress = 1.0f;
+    }
+
+    public static void prevEngine() {
+
     }
 
     public static void showEngine(CucumberlessEngine engine) {
-        if (currentEngine == engine) {
+        if (currentEngine == engine || animationState != AnimationState.NONE) {
             return;
         }
         if (currentEngine != null) {
             currentEngine.hide();
         }
-        currentEngine = engine;
-        currentEngine.show();
+        synchronized (RENDER_LOCK) {
+            animationState = AnimationState.ACTIVATING;
+            animationProgress = 0.0f;
+            animationGraphics.drawImage(Engine.backbuffer, 0, 0, null);
+            if (currentEngine != null) {
+                enginesHistory.add(currentEngine);
+            }
+            currentEngine = engine;
+            engine.show();
+        }
     }
 
     public static void stop() {
@@ -186,6 +208,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         int lastFpsCount = fpsLastCount > 0 ? fpsLastCount : FRAME_RATE;
         int count = Math.max(1, FRAME_RATE / lastFpsCount);
         for (int i = 0; i < count; i++) {
+            updateAnimation();
             Button.isOneTouched = false;
             pollForDevices();
             RenderOptimizer.update();
@@ -193,6 +216,15 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
                 DropDown.update();
             }
             currentEngine.update();
+        }
+    }
+
+    private void updateAnimation() {
+        if (animationProgress < 1.0f) {
+            animationProgress = Math.min(1.0f, animationProgress + GuiUtil.DISAPPEAR_SPEED);
+            if (animationProgress >= 1.0f) {
+                animationState = AnimationState.NONE;
+            }
         }
     }
 
@@ -204,6 +236,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
 
     private void postRender() {
         currentEngine.postRender();
+        if (animationState != AnimationState.NONE) {
+            GuiUtil.renderAppearAnimation(backbufferGraphics, animationBackground, animationState, animationProgress);
+        }
     }
 
     private void setLevelOfDetails(Graphics2D g) {
@@ -251,12 +286,21 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     }
 
     private static void createBackbuffer() {
+        if (backbufferGraphics != null) {
+            backbufferGraphics.dispose();
+        }
         backbuffer = RenderOptimizer.graphicsConfiguration.createCompatibleImage(windowWidth, windowHeight);
         backbufferGraphics = backbuffer.createGraphics();
         backbufferGraphics.setFont(FONT_DEFAULT);
         fontMetrics = backbufferGraphics.getFontMetrics();
         backbufferGraphics.setColor(Color.BLACK);
         backbufferGraphics.fillRect(0, 0, windowWidth + 1, windowHeight + 1);
+
+        if (animationGraphics != null) {
+            animationGraphics.dispose();
+        }
+        animationBackground = RenderOptimizer.graphicsConfiguration.createCompatibleImage(windowWidth, windowHeight);
+        animationGraphics = animationBackground.createGraphics();
     }
 
     private static void setWindowSize(int width, int height) {
