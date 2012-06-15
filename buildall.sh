@@ -3,6 +3,6 @@ set -e
 ant
 cd example/calabash-android-plugin
 ant
-cd ../android
+cd ../helloworld
 ant release
 calabash-android build

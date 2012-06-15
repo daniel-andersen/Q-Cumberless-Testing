@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.trollsahead.qcumberless.designer" android:versionCode="1"
+          android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="8" />
+
+    <uses-permission android:name="android.permission.DUMP" />
+    <uses-permission android:name="android.permission.SET_DEBUG_APP" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <instrumentation android:name="com.trollsahead.qcumberless.designer.Instrumentation"
+                     android:targetPackage="com.trollsahead.qcumberless.designer" android:label="Interactive Designer"></instrumentation>
+
+</manifest>
