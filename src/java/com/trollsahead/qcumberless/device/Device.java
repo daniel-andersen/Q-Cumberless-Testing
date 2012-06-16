@@ -61,8 +61,8 @@ public abstract class Device {
 
     }
 
-    public void setFeatureBuilder(InteractiveDesignerCallback deviceBuilderCallback) {
-
+    public InteractiveDesignerClient getInteractiveDesignerClient() {
+        return null;
     }
 
     public void enable() {

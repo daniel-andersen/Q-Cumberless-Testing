@@ -33,12 +33,16 @@ import android.os.Environment;
 
 import com.jayway.android.robotium.solo.Solo;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 public class InteractiveDesigner extends InstrumentationTestCase {
     private static final String INSTRUMENTATION_CLASS = "com.example.helloworld.HelloWorld";
 
-    private Instrumentation instrumentation;
+    private static final String LOG_PREFIX = "InteractiveDesigner: ";
+
     private Solo solo;
 
     public void testInteractiveDesigner() {
@@ -46,13 +50,14 @@ public class InteractiveDesigner extends InstrumentationTestCase {
 
         try {
             String command = null;
-            while ("STOP".equals(command)) {
+            while (!"STOP".equals(command)) {
+                System.out.println("Waiting for command...");
                 Thread.sleep(100);
                 command = getCommand();
                 if (command == null) {
                     continue;
                 }
-                break; // TODO!
+                performCommand(command);
             }
         } catch (Exception e) {
             throw new RuntimeException("Test error", e);
@@ -62,9 +67,38 @@ public class InteractiveDesigner extends InstrumentationTestCase {
     }
 
     private String getCommand() {
+        File command = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer/command.txt");
+        if (!command.exists()) {
+            return null;
+        }
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(command), "UTF8"));
+            return in.readLine();
+        } catch (Exception e) {
+            // Ignore!
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                    // Ignore!
+                }
+            }
+        }
         return null;
     }
-    
+
+    private void performCommand(String command) {
+        System.out.println("Performing command: " + command);
+        if ("SCREENSHOT".equalsIgnoreCase(command)) {
+            String filename = takeScreenshot();
+            System.out.println(LOG_PREFIX + "Screenshot: \"" + filename + "\"");
+        }
+        File directory = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer");
+        deleteFilesInDirectory(directory);
+    }
+
     private void initialize() {
         File directory = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer");
         directory.mkdir();
@@ -82,13 +116,30 @@ public class InteractiveDesigner extends InstrumentationTestCase {
         if (currentActivity == null) {
             throw new RuntimeException("Activity not started");
         }
-
+        
         solo = new Solo(getInstrumentation(), currentActivity);
+
+        System.out.println(LOG_PREFIX + "Started!");
     }
 
-    private void takeScreenshot() {
+    private String takeScreenshot() {
         deleteScreenshots();
         solo.takeScreenshot();
+        int i = 0;
+        while (true) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+                // Ignore!
+            }
+            if (i++ > 100) {
+                throw new RuntimeException("Could not copy screenshot");
+            }
+            String filename = getScreenshotFilename();
+            if (filename != null) {
+                return filename;
+            }
+        }
     }
 
     private void deleteScreenshots() {
@@ -106,8 +157,7 @@ public class InteractiveDesigner extends InstrumentationTestCase {
         File[] files = directory.listFiles();
         if (files == null || files.length != 1) {
             return null;
-        } else {
-            return files[0].getAbsolutePath();
         }
+        return files[0].getAbsolutePath().substring(files[0].getAbsolutePath().indexOf("/mnt") + "/mnt".length());
     }
 }

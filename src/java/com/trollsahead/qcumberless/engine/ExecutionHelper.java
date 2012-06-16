@@ -35,8 +35,12 @@ import java.util.List;
 
 public class ExecutionHelper {
     public static List<String> executeCommand(String command) {
+        return executeCommand(command, null);
+    }
+    
+    public static List<String> executeCommand(String command, String dir) {
         final List<String> output = new LinkedList<String>();
-        executeCommand(command, null, new LogListener() {
+        executeCommand(command, dir, new LogListener() {
             public void start() {
             }
 

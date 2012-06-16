@@ -26,7 +26,6 @@
 package com.trollsahead.qcumberless.device.calabash;
 
 import com.trollsahead.qcumberless.engine.DesignerEngine;
-import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
 import com.trollsahead.qcumberless.plugins.calabash.CalabashAndroidPlugin;
 
@@ -36,7 +35,7 @@ import java.awt.image.BufferedImage;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 
-public class CalabashAndroidDeviceImportStepDefinitions implements ButtonBarMethodCallback {
+public class StepDefinitionsImporter implements ButtonBarMethodCallback {
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
     private static BufferedImage thumbnailPressed;
@@ -45,15 +44,15 @@ public class CalabashAndroidDeviceImportStepDefinitions implements ButtonBarMeth
 
     static {
         try {
-            thumbnailNormal = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_normal.png"));
-            thumbnailHighlight = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_highlight.png"));
-            thumbnailPressed = ImageIO.read(CalabashAndroidDeviceImportStepDefinitions.class.getResource("/resources/pictures/calabash_android_import_step_defs_pressed.png"));
+            thumbnailNormal = ImageIO.read(StepDefinitionsImporter.class.getResource("/resources/pictures/calabash_android_import_step_defs_normal.png"));
+            thumbnailHighlight = ImageIO.read(StepDefinitionsImporter.class.getResource("/resources/pictures/calabash_android_import_step_defs_highlight.png"));
+            thumbnailPressed = ImageIO.read(StepDefinitionsImporter.class.getResource("/resources/pictures/calabash_android_import_step_defs_pressed.png"));
         } catch (Exception e) {
             throw new RuntimeException("Calabash Android-plugin refused to start", e);
         }
     }
 
-    public CalabashAndroidDeviceImportStepDefinitions(CalabashAndroidPlugin plugin) {
+    public StepDefinitionsImporter(CalabashAndroidPlugin plugin) {
         this.plugin = plugin;
     }
 

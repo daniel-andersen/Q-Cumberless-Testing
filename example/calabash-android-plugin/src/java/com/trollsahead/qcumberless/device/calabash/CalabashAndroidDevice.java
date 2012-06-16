@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.device.calabash;
 
+import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
 import com.trollsahead.qcumberless.device.generic.GenericDevice;
 
 import javax.imageio.ImageIO;
@@ -80,6 +81,10 @@ public class CalabashAndroidDevice extends GenericDevice {
 
     public String name() {
         return "Calabash Android";
+    }
+
+    public InteractiveDesignerClient getInteractiveDesignerClient() {
+        return new InteractiveDesigner();
     }
 
     protected Pattern getPatternStarting() {

@@ -26,6 +26,8 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.device.InteractiveDesignerCallback;
+import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -36,17 +38,42 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     private static final String WAITING_FOR_DEVICE_TEXT = "WAITING FOR DEVICE...";
 
     private static BufferedImage screenshot = null;
-    
+    private static Device device = null;
+    private static InteractiveDesignerClient client = null;
+
     public void initialize() {
     }
 
     public void show() {
         screenshot = null;
+        findDevice();
+        new Thread(new Runnable() {
+            public void run() {
+                client = device != null ? device.getInteractiveDesignerClient() : null;
+                if (client != null) {
+                    client.setCallback(clientCallback);
+                    client.start();
+                    screenshot = client.takeScreenshot();
+                }
+            }
+        }).start();
     }
 
     public void hide() {
+        if (client != null) {
+            client.stop();
+        }
     }
 
+    private void findDevice() {
+        InteractiveDesignerEngine.device = null;
+        for (Device device : Engine.devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.INTERACTIVE_DESIGNING)) {
+                InteractiveDesignerEngine.device = device;
+            }
+        }
+    }
+    
     public void update() {
     }
     
@@ -106,4 +133,10 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
 
     public void updateDevices(Set<Device> devices) {
     }
+
+    private InteractiveDesignerCallback clientCallback = new InteractiveDesignerCallback() {
+        public void addStep(String step) {
+            System.out.println("Adding step: " + step);
+        }
+    };
 }

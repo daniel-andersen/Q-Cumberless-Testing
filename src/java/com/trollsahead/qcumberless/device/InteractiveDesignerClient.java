@@ -25,6 +25,16 @@
 
 package com.trollsahead.qcumberless.device;
 
-public interface InteractiveDesignerCallback {
-    public void addStep(String step);
+import java.awt.image.BufferedImage;
+
+public interface InteractiveDesignerClient {
+    void setCallback(InteractiveDesignerCallback interactiveDesignerCallback);
+
+    void start();
+    void stop();
+    
+    void click(float percentX, float percentY);
+    void assertText(float percentX, float percentY);
+    
+    BufferedImage takeScreenshot();
 }

@@ -27,7 +27,7 @@ package com.trollsahead.qcumberless.plugins.calabash;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.calabash.CalabashAndroidDevice;
-import com.trollsahead.qcumberless.device.calabash.CalabashAndroidDeviceImportStepDefinitions;
+import com.trollsahead.qcumberless.device.calabash.StepDefinitionsImporter;
 import com.trollsahead.qcumberless.engine.FlashingMessageManager;
 import com.trollsahead.qcumberless.gui.ProgressBar;
 import com.trollsahead.qcumberless.model.StepDefinition;
@@ -89,7 +89,7 @@ public class CalabashAndroidPlugin implements Plugin {
 
     public List<ButtonBarMethodCallback> getButtonBarMethods() {
         List<ButtonBarMethodCallback> list = new LinkedList<ButtonBarMethodCallback>();
-        list.add(new CalabashAndroidDeviceImportStepDefinitions(this));
+        list.add(new StepDefinitionsImporter(this));
         return list;
     }
 }
