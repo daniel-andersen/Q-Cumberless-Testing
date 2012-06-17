@@ -28,6 +28,10 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.InteractiveDesignerCallback;
 import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
+import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.gui.elements.FeatureElement;
+import com.trollsahead.qcumberless.gui.elements.ScenarioElement;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -54,6 +58,8 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     private static InteractiveDesignerClient client = null;
 
     private static String message;
+
+    private BaseBarElement scenario;
 
     public void initialize() {
     }
@@ -172,4 +178,14 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
             InteractiveDesignerEngine.screenshotHeight = height;
         }
     };
+
+    public void setElement(BaseBarElement element) {
+        if (element.type == BaseBarElement.TYPE_FEATURE) {
+            ScenarioElement scenario = new ScenarioElement(Element.ROOT_FEATURE_EDITOR, "Interactive Designer Scenario");
+            element.addChild(scenario);
+            this.scenario = scenario;
+        } else {
+            this.scenario = element;
+        }
+    }
 }

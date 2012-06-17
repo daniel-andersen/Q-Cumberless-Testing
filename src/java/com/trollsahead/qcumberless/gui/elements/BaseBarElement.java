@@ -131,6 +131,7 @@ public abstract class BaseBarElement extends Element {
     protected Button trashcanButton;
     protected Button playButton;
     protected Button editButton;
+    protected Button interactiveDesignerButton;
     protected Button tagsAddButton;
     protected Button tagsNewButton;
     protected Button tagsRemoveButton;
@@ -283,6 +284,20 @@ public abstract class BaseBarElement extends Element {
                 },
                 this);
         buttons.add(tagsRemoveButton);
+        interactiveDesignerButton = new Button(
+                0,
+                0,
+                null,
+                Images.getImage(Images.IMAGE_INTERACTIVE_DESIGNER, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_INTERACTIVE_DESIGNER, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_INTERACTIVE_DESIGNER, ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        Engine.interactiveDesignerEngine.setElement(BaseBarElement.this);
+                        Engine.showEngine(Engine.interactiveDesignerEngine);
+                    }
+                },
+                this);
+        buttons.add(interactiveDesignerButton);
         addAdditionalButtons();
         pluginButtons = GuiUtil.getPluginButtonsForElement(this);
         updateButtonPositions();
@@ -307,9 +322,6 @@ public abstract class BaseBarElement extends Element {
         if (hasPlayButton()) {
             buttonGroupWidth = addGroupButton(playButton, buttonGroupWidth);
         }
-        if (hasEditButton()) {
-            buttonGroupWidth = addGroupButton(editButton, buttonGroupWidth);
-        }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
                 tagsAddButton.setPosition((renderWidth + tagsWidth) / 2 + BUTTON_SPACE_HORIZONTAL, TAGS_PADDING_VERTICAL + (tagsHeight / 2) + buttonGroupHeight);
@@ -317,6 +329,12 @@ public abstract class BaseBarElement extends Element {
             } else {
                 buttonGroupWidth = addGroupButton(tagsNewButton, buttonGroupWidth);
             }
+        }
+        if (hasEditButton()) {
+            buttonGroupWidth = addGroupButton(editButton, buttonGroupWidth);
+        }
+        if (hasInteractiveDesignerButton()) {
+            buttonGroupWidth = addGroupButton(interactiveDesignerButton, buttonGroupWidth);
         }
         updateAdditionalButtonPositions();
         for (ElementPluginButton button : pluginButtons) {
@@ -392,6 +410,7 @@ public abstract class BaseBarElement extends Element {
         tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
         playButton.setVisible(hasPlayButton() && buttonGroupVisible);
         editButton.setVisible(hasEditButton() && buttonGroupVisible);
+        interactiveDesignerButton.setVisible(hasInteractiveDesignerButton() && buttonGroupVisible);
         updateAdditionalButtonsVisibleState();
         for (Button button : buttons) {
             button.update();
@@ -1185,6 +1204,13 @@ public abstract class BaseBarElement extends Element {
                 type == TYPE_BACKGROUND ||
                 type == TYPE_COMMENT ||
                (type == TYPE_STEP && !step.matchedByStepDefinition()));
+    }
+
+    protected boolean hasInteractiveDesignerButton() {
+        return type == TYPE_FEATURE ||
+               type == TYPE_SCENARIO ||
+               type == TYPE_SCENARIO_OUTLINE ||
+               type == TYPE_BACKGROUND;
     }
 
     protected boolean hasTagsAddButton() {

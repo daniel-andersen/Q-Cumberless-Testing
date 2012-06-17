@@ -39,7 +39,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class InteractiveDesigner implements InteractiveDesignerClient {
-    private static final String commandMake = "ant clean release";
     private static final String commandInstall = " install -r bin/InteractiveDesigner-release.apk";
     private static final String commandCleanLog = " -s $1 logcat -c";
     private static final String commandInstrument = " shell am instrument -w com.trollsahead.qcumberless.designer/android.test.InstrumentationTestRunner";
@@ -63,9 +62,6 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
     public void start() {
         started = false;
         deviceId = AndroidHelper.getUniqueDevice();
-
-        interactiveDesignerCallback.message("Compiling instrumentation...");
-        ExecutionHelper.executeCommand(commandMake, "../../interactive-designer");
 
         interactiveDesignerCallback.message("Installing instrumentation...");
         ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandInstall, "../../interactive-designer");

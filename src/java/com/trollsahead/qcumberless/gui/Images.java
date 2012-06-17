@@ -53,6 +53,7 @@ public class Images {
     public static int IMAGE_TIMEGLASS = 16;
     public static int IMAGE_ARROW_LEFT = 17;
     public static int IMAGE_ARROW_RIGHT = 18;
+    public static int IMAGE_INTERACTIVE_DESIGNER = 19;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -144,6 +145,11 @@ public class Images {
                 ImageIO.read(Images.class.getResource("/resources/pictures/arrow_right_normal.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/arrow_right_highlight.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/arrow_right_pressed.png"))
+        });
+        images.put(IMAGE_INTERACTIVE_DESIGNER, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/interactive_designer_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/interactive_designer_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/interactive_designer_pressed.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
         for (int key : images.keySet()) {
