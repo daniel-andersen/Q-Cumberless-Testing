@@ -28,15 +28,16 @@ package com.trollsahead.qcumberless.designer;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.test.InstrumentationTestCase;
 import android.os.Environment;
 
+import android.view.Display;
+import android.view.View;
 import com.jayway.android.robotium.solo.Solo;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class InteractiveDesigner extends InstrumentationTestCase {
     private static final String INSTRUMENTATION_CLASS = "com.example.helloworld.HelloWorld";
@@ -48,8 +49,10 @@ public class InteractiveDesigner extends InstrumentationTestCase {
     public void testInteractiveDesigner() {
         initialize();
 
+        ScreenshotThread screenshotThread = new ScreenshotThread();
         try {
             String command = null;
+            new Thread(screenshotThread).start();
             while (!"STOP".equals(command)) {
                 System.out.println("Waiting for command...");
                 Thread.sleep(100);
@@ -63,6 +66,7 @@ public class InteractiveDesigner extends InstrumentationTestCase {
             throw new RuntimeException("Test error", e);
         } finally {
             solo.finishOpenedActivities();
+            screenshotThread.stop();
         }
     }
 
@@ -91,10 +95,7 @@ public class InteractiveDesigner extends InstrumentationTestCase {
 
     private void performCommand(String command) {
         System.out.println("Performing command: " + command);
-        if ("SCREENSHOT".equalsIgnoreCase(command)) {
-            String filename = takeScreenshot();
-            System.out.println(LOG_PREFIX + "Screenshot: \"" + filename + "\"");
-        }
+        // TODO! Commands
         File directory = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer");
         deleteFilesInDirectory(directory);
     }
@@ -122,28 +123,29 @@ public class InteractiveDesigner extends InstrumentationTestCase {
         System.out.println(LOG_PREFIX + "Started!");
     }
 
-    private String takeScreenshot() {
-        deleteScreenshots();
-        solo.takeScreenshot();
-        int i = 0;
-        while (true) {
-            try {
-                Thread.sleep(100);
-            } catch (Exception e) {
-                // Ignore!
-            }
-            if (i++ > 100) {
-                throw new RuntimeException("Could not copy screenshot");
-            }
-            String filename = getScreenshotFilename();
-            if (filename != null) {
-                return filename;
-            }
+    public void takeScreenshot() {
+        int[] xy = new int[2];
+        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
+        View rootView = solo.getCurrentViews().get(0).getRootView();
+        rootView.getLocationOnScreen(xy);
+        rootView.setDrawingCacheEnabled(true);
+        rootView.buildDrawingCache();
+        Bitmap bitmap = rootView.getDrawingCache();
+        if (bitmap == null) {
+            throw new RuntimeException("Unable to take screenshot");
         }
-    }
-
-    private void deleteScreenshots() {
-        deleteFilesInDirectory(new File(Environment.getExternalStorageDirectory() + "/Robotium-Screenshots"));
+        try {
+            String filename = Environment.getExternalStorageDirectory() + "/Interactive-Designer/screenshot_" + System.currentTimeMillis() + ".png";
+            File screenshot = new File(filename);
+            screenshot.createNewFile();
+            FileOutputStream out = new FileOutputStream(screenshot);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.close();
+            filename = filename.startsWith("/mnt") ? filename.substring("/mnt".length()) : filename;
+            System.out.println(LOG_PREFIX + "Screenshot: \"" + filename + "\"" + " - (" + xy[0] + "," + xy[1] + "-" + rootView.getWidth() + "," + rootView.getHeight() + "-" + display.getWidth() + "," + display.getHeight() + ")");
+        } catch (Exception e) {
+            throw new RuntimeException("Could not take screenshot", e);
+        }
     }
 
     private void deleteFilesInDirectory(File directory) {
@@ -152,12 +154,22 @@ public class InteractiveDesigner extends InstrumentationTestCase {
         }
     }
 
-    private String getScreenshotFilename() {
-        File directory = new File(Environment.getExternalStorageDirectory() + "/Robotium-Screenshots");
-        File[] files = directory.listFiles();
-        if (files == null || files.length != 1) {
-            return null;
+    private class ScreenshotThread implements Runnable {
+        private boolean stopped = false;
+
+        public void stop() {
+            stopped = true;
         }
-        return files[0].getAbsolutePath().substring(files[0].getAbsolutePath().indexOf("/mnt") + "/mnt".length());
+
+        public void run() {
+            while (!stopped) {
+                takeScreenshot();
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                    // Ignore!
+                }
+            }
+        }
     }
 }

@@ -35,7 +35,6 @@ import javax.imageio.ImageIO;
 
 import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;
 
-import java.awt.image.BufferedImage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,27 +46,38 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
     private static final String commandMonitorLog = " -s $1 logcat -v time";
 
     private static final Pattern patternInteractiveDesigner = Pattern.compile(".*InteractiveDesigner: .*");
+    private InteractiveDesignerCallback interactiveDesignerCallback;
 
-    private static enum Command {SCREENSHOT, STOP}
+    private ExecutionStopper logExecutionStopper;
+
+    private static enum Command {STOP}
 
     private static String deviceId = null;
 
-    private static String screenshot;
     private static boolean started;
 
     public void setCallback(InteractiveDesignerCallback interactiveDesignerCallback) {
+        this.interactiveDesignerCallback = interactiveDesignerCallback;
     }
 
     public void start() {
-        screenshot = null;
         started = false;
         deviceId = AndroidHelper.getUniqueDevice();
+
+        interactiveDesignerCallback.message("Compiling instrumentation...");
         ExecutionHelper.executeCommand(commandMake, "../../interactive-designer");
+
+        interactiveDesignerCallback.message("Installing instrumentation...");
         ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandInstall, "../../interactive-designer");
+
+        interactiveDesignerCallback.message("Cleaning log...");
         ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandCleanLog.replaceAll("\\$1", deviceId), "../../interactive-designer");
+
+        interactiveDesignerCallback.message("Starting instrumentation...");
         new Thread(new Runnable() {
             public void run() {
-                ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandMonitorLog.replaceAll("\\$1", deviceId), logListener, new ExecutionStopper());
+                logExecutionStopper = new ExecutionStopper();
+                ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandMonitorLog.replaceAll("\\$1", deviceId), logListener, logExecutionStopper);
             }
         }).start();
         new Thread(new Runnable() {
@@ -75,11 +85,16 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
                 ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandInstrument);
             }
         }).start();
+
         waitUntilStarted();
+        interactiveDesignerCallback.message("Started!");
     }
 
     public void stop() {
         pushCommand(Command.STOP);
+        if (logExecutionStopper != null) {
+            logExecutionStopper.stop();
+        }
     }
 
     public void click(float percentX, float percentY) {
@@ -91,31 +106,12 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
     private void waitUntilStarted() {
         int i = 0;
         while (!started) {
-            System.out.println("Waiting for starting (" + i + ")");
             if (i++ > 100) {
                 throw new RuntimeException("Instrumentation did not start");
             }
             Util.sleep(100);
         }
         System.out.println("Interactive Designer started!");
-    }
-
-    public BufferedImage takeScreenshot() {
-        screenshot = null;
-        pushCommand(Command.SCREENSHOT);
-        int i = 0;
-        while (screenshot == null) {
-            System.out.println("Waiting for screenshot log (" + i + ")");
-            if (i++ > 100) {
-                throw new RuntimeException("Could not fetch screenshot");
-            }
-            Util.sleep(100);
-        }
-        try {
-            return ImageIO.read(AndroidHelper.downloadFile(deviceId, screenshot));
-        } catch (Exception e) {
-            throw new RuntimeException("Could not download screenshot", e);
-        }
     }
 
     private void pushCommand(Command command) {
@@ -136,7 +132,6 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
         }
 
         public void logLine(String log) {
-            System.out.println("--> " + log);
             if (Util.isEmpty(log)) {
                 return;
             }
@@ -156,13 +151,33 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
         }
 
         private void extractScreenshot(String log) {
-            Matcher matcher = Pattern.compile(".*Screenshot: \"(.*)\".*").matcher(log);
+            Matcher matcher = Pattern.compile(".*Screenshot: \"(.*)\" - \\((\\d*),(\\d*)-(\\d*),(\\d*)-(\\d*),(\\d*)\\)").matcher(log);
             if (matcher.find()) {
-                screenshot = matcher.group(1).trim();
+                downloadScreenshot(
+                        matcher.group(1),
+                        Integer.parseInt(matcher.group(2)),
+                        Integer.parseInt(matcher.group(3)),
+                        Integer.parseInt(matcher.group(4)),
+                        Integer.parseInt(matcher.group(5)),
+                        Integer.parseInt(matcher.group(6)),
+                        Integer.parseInt(matcher.group(7))
+                );
             }
         }
 
         public void error(Throwable t) {
         }
     };
+    
+    private void downloadScreenshot(final String filename, final int x, final int y, final int width, final int height, final int screenWidth, final int screenHeight) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    interactiveDesignerCallback.screenshot(ImageIO.read(AndroidHelper.downloadFile(deviceId, filename)), x, y, width, height, screenWidth, screenHeight);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not download screenshot", e);
+                }
+            }
+        }).start();
+    }
 }

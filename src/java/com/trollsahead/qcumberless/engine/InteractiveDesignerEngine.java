@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.InteractiveDesignerCallback;
 import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
+import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -35,17 +36,31 @@ import java.awt.image.BufferedImage;
 import java.util.Set;
 
 public class InteractiveDesignerEngine implements CucumberlessEngine {
+    private static final Color BG_COLOR_SCREENSHOT = new Color(0.0f, 0.0f, 0.0f, 0.5f);
+
     private static final String WAITING_FOR_DEVICE_TEXT = "WAITING FOR DEVICE...";
 
     private static BufferedImage screenshot = null;
+
+    private static int screenshotX;
+    private static int screenshotY;
+    private static int screenshotWidth;
+    private static int screenshotHeight;
+
+    private static int screenWidth;
+    private static int screenHeight;
+
     private static Device device = null;
     private static InteractiveDesignerClient client = null;
+
+    private static String message;
 
     public void initialize() {
     }
 
     public void show() {
         screenshot = null;
+        message = WAITING_FOR_DEVICE_TEXT;
         findDevice();
         new Thread(new Runnable() {
             public void run() {
@@ -53,7 +68,6 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
                 if (client != null) {
                     client.setCallback(clientCallback);
                     client.start();
-                    screenshot = client.takeScreenshot();
                 }
             }
         }).start();
@@ -84,21 +98,26 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     }
 
     private void drawScreenshot(Graphics2D g) {
+        drawMessage(g);
         if (screenshot == null) {
-            drawWaitingForDeviceText(g);
             return;
         }
-        int x = (Engine.windowWidth - screenshot.getWidth()) / 2;
-        int y = (Engine.windowHeight - screenshot.getHeight()) / 2;
-        g.drawImage(screenshot, x, y, null);
+        int x = (Engine.windowWidth - screenWidth) / 2;
+        int y = (Engine.windowHeight - screenHeight) / 2;
+        g.setColor(BG_COLOR_SCREENSHOT);
+        g.fillRect(x, y, screenWidth, screenHeight);
+        g.drawImage(screenshot, x + screenshotX, y + screenshotY, null);
     }
 
-    private void drawWaitingForDeviceText(Graphics2D g) {
-        int x = (Engine.windowWidth - Engine.fontMetrics.stringWidth(WAITING_FOR_DEVICE_TEXT)) / 2;
-        int y = Engine.windowHeight / 2;
+    private void drawMessage(Graphics2D g) {
+        if (Util.isEmpty(message)) {
+            return;
+        }
+        int x = (Engine.windowWidth - Engine.fontMetrics.stringWidth(message)) / 2;
+        int y = 20;
 
         g.setColor(Color.WHITE);
-        g.drawString(WAITING_FOR_DEVICE_TEXT, x, y);
+        g.drawString(message, x, y);
     }
 
     public void postRender() {
@@ -137,6 +156,20 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     private InteractiveDesignerCallback clientCallback = new InteractiveDesignerCallback() {
         public void addStep(String step) {
             System.out.println("Adding step: " + step);
+        }
+
+        public void message(String message) {
+            InteractiveDesignerEngine.message = message;
+        }
+
+        public void screenshot(BufferedImage screenshot, int x, int y, int width, int height, int screenWidth, int screenHeight) {
+            InteractiveDesignerEngine.screenshot = screenshot;
+            InteractiveDesignerEngine.screenWidth = screenWidth;
+            InteractiveDesignerEngine.screenHeight = screenHeight;
+            InteractiveDesignerEngine.screenshotX = x;
+            InteractiveDesignerEngine.screenshotY = y;
+            InteractiveDesignerEngine.screenshotWidth = width;
+            InteractiveDesignerEngine.screenshotHeight = height;
         }
     };
 }
