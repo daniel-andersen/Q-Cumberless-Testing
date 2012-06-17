@@ -31,6 +31,5 @@ public interface InteractiveDesignerClient {
     void start();
     void stop();
     
-    void click(float percentX, float percentY);
-    void assertText(float percentX, float percentY);
+    void click(int x, int y);
 }

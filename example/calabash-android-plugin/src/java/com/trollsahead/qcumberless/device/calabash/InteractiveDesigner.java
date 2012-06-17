@@ -49,7 +49,7 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
 
     private ExecutionStopper logExecutionStopper;
 
-    private static enum Command {STOP}
+    private static enum Command {CLICK, STOP}
 
     private static String deviceId = null;
 
@@ -66,10 +66,9 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
         interactiveDesignerCallback.message("Installing instrumentation...");
         ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandInstall, "../../interactive-designer");
 
-        interactiveDesignerCallback.message("Cleaning log...");
+        interactiveDesignerCallback.message("Starting instrumentation...");
         ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandCleanLog.replaceAll("\\$1", deviceId), "../../interactive-designer");
 
-        interactiveDesignerCallback.message("Starting instrumentation...");
         new Thread(new Runnable() {
             public void run() {
                 logExecutionStopper = new ExecutionStopper();
@@ -83,7 +82,7 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
         }).start();
 
         waitUntilStarted();
-        interactiveDesignerCallback.message("Started!");
+        interactiveDesignerCallback.message("");
     }
 
     public void stop() {
@@ -93,10 +92,8 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
         }
     }
 
-    public void click(float percentX, float percentY) {
-    }
-
-    public void assertText(float percentX, float percentY) {
+    public void click(int x, int y) {
+        pushCommandWithArguments(Command.CLICK, x + "," + y);
     }
 
     private void waitUntilStarted() {
@@ -116,7 +113,13 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
 
     private void pushCommandWithArguments(Command command, String ... arguments) {
         StringBuilder sb = new StringBuilder();
-        sb.append(command.name()).append("\n");
+        sb.append(command.name());
+        if (arguments != null) {
+            for (String s : arguments) {
+                sb.append("(").append(s).append(")");
+            }
+        }
+        sb.append("\n");
         AndroidHelper.pushFileWithContent(deviceId, "command.txt", sb);
     }
 
@@ -137,6 +140,7 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
             }
             checkStarted(log);
             extractScreenshot(log);
+            extractStep(log);
         }
 
         private void checkStarted(String log) {
@@ -158,6 +162,13 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
                         Integer.parseInt(matcher.group(6)),
                         Integer.parseInt(matcher.group(7))
                 );
+            }
+        }
+
+        private void extractStep(String log) {
+            Matcher matcher = Pattern.compile(".*Step: (.*)").matcher(log);
+            if (matcher.find()) {
+                interactiveDesignerCallback.addStep(matcher.group(1));
             }
         }
 

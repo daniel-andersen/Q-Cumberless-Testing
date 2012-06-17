@@ -1207,10 +1207,8 @@ public abstract class BaseBarElement extends Element {
     }
 
     protected boolean hasInteractiveDesignerButton() {
-        return type == TYPE_FEATURE ||
-               type == TYPE_SCENARIO ||
-               type == TYPE_SCENARIO_OUTLINE ||
-               type == TYPE_BACKGROUND;
+        return (type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND)
+                && Engine.isInteractiveDesignerDeviceEnabled();
     }
 
     protected boolean hasTagsAddButton() {

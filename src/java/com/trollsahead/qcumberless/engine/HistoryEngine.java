@@ -37,6 +37,8 @@ import com.trollsahead.qcumberless.util.Util;
 import static com.trollsahead.qcumberless.engine.Engine.AnimationState;
 import static com.trollsahead.qcumberless.engine.Engine.animationBackground;
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
+import static com.trollsahead.qcumberless.gui.elements.Element.ROOT_FEATURE_EDITOR;
+import static com.trollsahead.qcumberless.gui.elements.Element.ROOT_STEP_DEFINITIONS;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -189,8 +191,14 @@ public class HistoryEngine implements CucumberlessEngine {
     private void createNewRoot() {
         DesignerEngine.cucumberRoot = new RootElement();
         DesignerEngine.cucumberRoot.setBounds(0, 0, 0, 0);
+
         DesignerEngine.featuresRoot = new RootElement();
+        DesignerEngine.featuresRoot.rootType = ROOT_FEATURE_EDITOR;
+        DesignerEngine.cucumberRoot.addChild(DesignerEngine.featuresRoot, 0);
+
         DesignerEngine.stepsRoot = new RootElement();
+        DesignerEngine.stepsRoot.rootType = ROOT_STEP_DEFINITIONS;
+        DesignerEngine.cucumberRoot.addChild(DesignerEngine.stepsRoot, 1);
     }
 
     public void update() {

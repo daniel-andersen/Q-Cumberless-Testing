@@ -62,7 +62,7 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static Element lastAddedElement = null;
 
-    private static int dragSplitterX = 0;
+    public static int dragSplitterX = 0;
 
     private static boolean canvasHasMouseFocus = true;
     public static int canvasHeight;
@@ -565,7 +565,7 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void removeTagsFilter() {
-        ElementHelper.removeTagsFilter();
+        ElementHelper.removeFilter();
         featuresRoot.scrollToTop();
         tagsFilter = null;
     }

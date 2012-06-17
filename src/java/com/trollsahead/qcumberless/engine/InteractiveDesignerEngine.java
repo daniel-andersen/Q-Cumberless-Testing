@@ -28,11 +28,13 @@ package com.trollsahead.qcumberless.engine;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.InteractiveDesignerCallback;
 import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
-import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
-import com.trollsahead.qcumberless.gui.elements.Element;
-import com.trollsahead.qcumberless.gui.elements.FeatureElement;
-import com.trollsahead.qcumberless.gui.elements.ScenarioElement;
+import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
+import com.trollsahead.qcumberless.gui.elements.*;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
+
+import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
+import static com.trollsahead.qcumberless.gui.elements.Element.ROOT_STEP_DEFINITIONS;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -40,9 +42,13 @@ import java.awt.image.BufferedImage;
 import java.util.Set;
 
 public class InteractiveDesignerEngine implements CucumberlessEngine {
+    private static final int SCREENSHOT_PADDING_HORIZONTAL = 20;
+
     private static final Color BG_COLOR_SCREENSHOT = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 
     private static final String WAITING_FOR_DEVICE_TEXT = "WAITING FOR DEVICE...";
+
+    private static ColorScheme originalColorScheme;
 
     private static BufferedImage screenshot = null;
 
@@ -53,6 +59,9 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
 
     private static int screenWidth;
     private static int screenHeight;
+
+    private static int screenshotRenderX;
+    private static int screenshotRenderY;
 
     private static Device device = null;
     private static InteractiveDesignerClient client = null;
@@ -65,9 +74,17 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     }
 
     public void show() {
+        DesignerEngine.stepsRoot.hide(false);
+        scenario.groupParent.unfoldAll();
+
+        originalColorScheme = DesignerEngine.colorScheme;
+        DesignerEngine.setColorScheme(ColorScheme.DESIGN);
+
         screenshot = null;
         message = WAITING_FOR_DEVICE_TEXT;
+
         findDevice();
+
         new Thread(new Runnable() {
             public void run() {
                 client = device != null ? device.getInteractiveDesignerClient() : null;
@@ -83,6 +100,9 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
         if (client != null) {
             client.stop();
         }
+        DesignerEngine.stepsRoot.show(false);
+        DesignerEngine.setColorScheme(originalColorScheme);
+        ElementHelper.removeFilter();
     }
 
     private void findDevice() {
@@ -95,11 +115,12 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     }
     
     public void update() {
+        Engine.designerEngine.update();
     }
     
     public void render(Graphics2D g) {
         Engine.drawBackgroundPicture(g);
-
+        Engine.designerEngine.renderOnlyElements(g);
         drawScreenshot(g);
     }
 
@@ -108,11 +129,11 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
         if (screenshot == null) {
             return;
         }
-        int x = (Engine.windowWidth - screenWidth) / 2;
-        int y = (Engine.windowHeight - screenHeight) / 2;
+        screenshotRenderX = DesignerEngine.dragSplitterX + ((Engine.windowWidth - DesignerEngine.dragSplitterX - screenWidth) / 2);
+        screenshotRenderY = (Engine.windowHeight - screenHeight) / 2;
         g.setColor(BG_COLOR_SCREENSHOT);
-        g.fillRect(x, y, screenWidth, screenHeight);
-        g.drawImage(screenshot, x + screenshotX, y + screenshotY, null);
+        g.fillRect(screenshotRenderX, screenshotRenderY, screenWidth, screenHeight);
+        g.drawImage(screenshot, screenshotRenderX + screenshotX, screenshotRenderY + screenshotY, null);
     }
 
     private void drawMessage(Graphics2D g) {
@@ -127,18 +148,32 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     }
 
     public void postRender() {
+        Engine.designerEngine.postRender();
     }
 
     public void resize() {
+        Engine.designerEngine.resize();
     }
 
     public void mouseMoved() {
+        Engine.designerEngine.mouseMoved();
     }
 
     public void mouseWheelMoved(int unitsToScroll) {
+        Engine.designerEngine.mouseWheelMoved(unitsToScroll);
     }
 
     public void click(int clickCount) {
+        if (isInsideScreenshotArea()) {
+            client.click(CumberlessMouseListener.mouseX - screenshotRenderX, CumberlessMouseListener.mouseY - screenshotRenderY);
+            return;
+        }
+        Engine.designerEngine.click(clickCount);
+    }
+
+    private boolean isInsideScreenshotArea() {
+        return  CumberlessMouseListener.mouseX >= screenshotRenderX && CumberlessMouseListener.mouseY >= screenshotRenderY &&
+                CumberlessMouseListener.mouseX <= screenshotRenderX + screenWidth && CumberlessMouseListener.mouseY <= screenshotRenderY + screenHeight;
     }
 
     public void keyPressed(KeyEvent keyEvent) {
@@ -148,20 +183,26 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     }
 
     public void startDrag(boolean isControlDown) {
+        Engine.designerEngine.startDrag(isControlDown);
     }
 
     public void endDrag() {
+        Engine.designerEngine.endDrag();
     }
 
     public void updateDrag() {
+        Engine.designerEngine.updateDrag();
     }
 
     public void updateDevices(Set<Device> devices) {
+        Engine.designerEngine.updateDevices(devices);
     }
 
     private InteractiveDesignerCallback clientCallback = new InteractiveDesignerCallback() {
         public void addStep(String step) {
-            System.out.println("Adding step: " + step);
+            scenario.addChild(new StepElement(Element.ROOT_FEATURE_EDITOR, step, FeatureLoader.findMatchingStep(step)));
+            scenario.unfold();
+            System.out.println("Added step: " + step);
         }
 
         public void message(String message) {
@@ -180,12 +221,15 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     };
 
     public void setElement(BaseBarElement element) {
-        if (element.type == BaseBarElement.TYPE_FEATURE) {
-            ScenarioElement scenario = new ScenarioElement(Element.ROOT_FEATURE_EDITOR, "Interactive Designer Scenario");
-            element.addChild(scenario);
-            this.scenario = scenario;
-        } else {
-            this.scenario = element;
+        synchronized (Engine.DATA_LOCK) {
+            if (element.type == BaseBarElement.TYPE_FEATURE) {
+                ScenarioElement scenario = new ScenarioElement(Element.ROOT_FEATURE_EDITOR, "Interactive Designer Scenario");
+                element.addChild(scenario);
+                this.scenario = scenario;
+            } else {
+                this.scenario = element;
+            }
+            ElementHelper.filterFeaturesAndScenariosByElement(this.scenario);
         }
     }
 }

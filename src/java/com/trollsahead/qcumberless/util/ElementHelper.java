@@ -105,7 +105,35 @@ public class ElementHelper {
         }
     }
 
-    public static void removeTagsFilter() {
+    public static void filterFeaturesAndScenariosByElement(BaseBarElement filterElement) {
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            if (element == filterElement) {
+                element.show(false);
+                for (Element child : element.children) {
+                    child.show(false);
+                    child.stickChildrenToParentRenderPosition(true);
+                }
+                continue;
+            }
+            boolean childVisible = false;
+            for (Element child : element.children) {
+                if (child == filterElement) {
+                    child.show(false);
+                    childVisible = true;
+                } else {
+                    child.hide(false);
+                }
+                child.stickChildrenToParentRenderPosition(true);
+            }
+            if (childVisible) {
+                element.show(false);
+            } else {
+                element.hide(false);
+            }
+        }
+    }
+
+    public static void removeFilter() {
         for (Element element : DesignerEngine.featuresRoot.children) {
             for (Element child : element.children) {
                 child.show(false);

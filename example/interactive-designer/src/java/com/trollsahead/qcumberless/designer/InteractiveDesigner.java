@@ -29,18 +29,25 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.test.InstrumentationTestCase;
 import android.os.Environment;
 
 import android.view.Display;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import com.jayway.android.robotium.solo.Solo;
 
 import java.io.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InteractiveDesigner extends InstrumentationTestCase {
     private static final String INSTRUMENTATION_CLASS = "com.example.helloworld.HelloWorld";
+    
+    private static final String stepClick = "Given I press the \"$1\" button";
+    private static final String stepText = "Then I see the text \"$1\"";
 
     private static final String LOG_PREFIX = "InteractiveDesigner: ";
 
@@ -54,7 +61,6 @@ public class InteractiveDesigner extends InstrumentationTestCase {
             String command = null;
             new Thread(screenshotThread).start();
             while (!"STOP".equals(command)) {
-                System.out.println("Waiting for command...");
                 Thread.sleep(100);
                 command = getCommand();
                 if (command == null) {
@@ -71,7 +77,7 @@ public class InteractiveDesigner extends InstrumentationTestCase {
     }
 
     private String getCommand() {
-        File command = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer/command.txt");
+        File command = getCommandFile();
         if (!command.exists()) {
             return null;
         }
@@ -95,9 +101,16 @@ public class InteractiveDesigner extends InstrumentationTestCase {
 
     private void performCommand(String command) {
         System.out.println("Performing command: " + command);
-        // TODO! Commands
-        File directory = new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer");
-        deleteFilesInDirectory(directory);
+        Matcher matcher = Pattern.compile("CLICK\\((\\d*),(\\d*)\\)").matcher(command);
+        if (matcher.find()) {
+            click(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+        }
+        File commandFile = getCommandFile();
+        commandFile.delete();
+    }
+
+    private File getCommandFile() {
+        return new File(Environment.getExternalStorageDirectory() + "/Interactive-Designer/command.txt");
     }
 
     private void initialize() {
@@ -121,6 +134,43 @@ public class InteractiveDesigner extends InstrumentationTestCase {
         solo = new Solo(getInstrumentation(), currentActivity);
 
         System.out.println(LOG_PREFIX + "Started!");
+    }
+
+    private void click(int x, int y) {
+        try {
+            View rootView = solo.getCurrentViews().get(0).getRootView();
+            Button button = getClickedView(x, y, solo.getCurrentButtons());
+            if (button != null) {
+                clickButton(button);
+                return;
+            }
+            TextView textView = getClickedView(x, y, solo.getCurrentTextViews(rootView));
+            if (textView != null) {
+                clickTextView(textView);
+                return;
+            }
+        } finally {
+            solo.clickOnScreen(x, y);
+        }
+    }
+
+    private <T extends View> T getClickedView(int x, int y, List<T> views) {
+        for (T view : views) {
+            int[] xy = new int[2];
+            view.getLocationOnScreen(xy);
+            if (x >= xy[0] && y >= xy[1] && x <= xy[0] + view.getWidth() && y <= xy[1] + view.getHeight()) {
+                return view;
+            }
+        }
+        return null;
+    }
+    
+    private void clickButton(Button button) {
+        System.out.println(LOG_PREFIX + "Step: " + stepClick.replaceAll("\\$1", button.getText().toString()));
+    }
+
+    private void clickTextView(TextView textView) {
+        System.out.println(LOG_PREFIX + "Step: " + stepText.replaceAll("\\$1", textView.getText().toString()));
     }
 
     public void takeScreenshot() {

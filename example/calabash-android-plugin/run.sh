@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 cd ../interactive-designer && \
-ant release && \
+ant clean release && \
 cd ../calabash-android-plugin && \
 ant && \
 cp src/resources/qcumberless.conf dist/ && \
