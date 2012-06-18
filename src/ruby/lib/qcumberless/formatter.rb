@@ -1,57 +1,53 @@
 require 'cucumber/formatter/pretty'
 
 module Qcumberless
-  class Formatter < Cucumber::Formatter::Pretty
-    def before_step( step )
-      @io.printf("Step: ".indent(@scenario_indent + 2))
-      @io.printf(step.name)
-      @io.printf "\n"
-      @io.flush
-      super
+  class Formatter
+    def initialize(step_mother, path_or_io, options)
     end
 
-    def before_step_result(keyword, step_match, multiline_arg, status, exception, source_indent, background)
+    def feature_name(keyword, name)
+      print("Feature: " + name + "\n")
+    end
+
+    def scenario_name(keyword, name, file_colon_line, source_indent)
+      print("Scenario: " + name + "\n")
+    end
+
+    def before_step(step)
+      print("Step: " + step.name + "\n")
+    end
+
+    def before_step_result(keyword, step_match, multiline_arg, status, exception, source_indent, background, file_colon_line)
       if exception
-        @io.printf("Step failed: ".indent(@scenario_indent + 2))
-        @io.printf(exception)
-        @io.printf("\n")
-        @io.flush
+        print("Step failed: " + exception + "\n")
       elsif status == :undefined
-        @io.printf("Step failed: Step undefined\n".indent(@scenario_indent + 2))
-        @io.flush
+        print("Step failed: Step undefined\n")
       end
-      super
     end
 
     def before_outline_table(outline_table)
-      @io.printf("Outline table\n".indent(@scenario_indent + 2))
-      @io.flush
+      print("Outline table\n")
       @header_row = true
-      super
     end
 
     def before_table_row(table_row)
-      @io.printf("Table row: ".indent(@scenario_indent + 2))
-      @io.printf(table_row.name)
-      @io.printf "\n"
-      @io.flush
-      super
+      printf("Table row: |")
+    end
+
+    def table_cell_value(value, status)
+      print(value.to_s + "|")
     end
 
     def after_table_row(table_row)
+      print("\n")
       unless @header_row
         if table_row.exception
-          @io.printf("\nStep failed: ".indent(@scenario_indent + 2))
-          @io.printf(table_row.exception)
-          @io.printf("\n")
-          @io.flush
-        elsif table_row.status == :undefined
-          @io.printf("\nStep failed: Step undefined\n".indent(@scenario_indent + 2))
-          @io.flush
+          print("Step failed: " + table_row.exception + "\n")
+        #elsif table_row.status == :undefined
+        #  print("Step failed: Step undefined\n")
         end
       end
       @header_row = false if @header_row
-      super
     end
   end
 end
