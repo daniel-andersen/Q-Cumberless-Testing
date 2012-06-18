@@ -185,8 +185,8 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             if (pushToHistory && currentEngine != null) {
                 enginesHistory.add(currentEngine);
             }
-            currentEngine = engine;
             engine.show();
+            currentEngine = engine;
             return true;
         }
     }

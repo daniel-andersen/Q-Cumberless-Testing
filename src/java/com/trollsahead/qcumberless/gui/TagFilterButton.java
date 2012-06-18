@@ -185,7 +185,7 @@ public class TagFilterButton {
     }
 
     private void updateHighlight() {
-        if (CumberlessMouseListener.mouseX < clipX || CumberlessMouseListener.mouseY < clipY || CumberlessMouseListener.mouseX >= clipX + clipWidth || CumberlessMouseListener.mouseY >= clipY + clipHeight) {
+        if (!highlighted && (CumberlessMouseListener.mouseX < clipX || CumberlessMouseListener.mouseY < clipY || CumberlessMouseListener.mouseX >= clipX + clipWidth || CumberlessMouseListener.mouseY >= clipY + clipHeight)) {
             highlighted = false;
             return;
         }
@@ -198,7 +198,9 @@ public class TagFilterButton {
     }
 
     public void render(Graphics2D g) {
-        g.setClip(clipX, clipY, clipWidth, clipHeight);
+        if (!highlighted) {
+            g.setClip(clipX, clipY, clipWidth, clipHeight);
+        }
 
         int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
         int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;

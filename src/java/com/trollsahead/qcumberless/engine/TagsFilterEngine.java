@@ -239,7 +239,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         }
         drawTitle(g, FEATURE_TAGS_TITLE, featureTagsY);
         for (TagFilterButton button : featureTagsButtons) {
-            renderButton(g, button);
+            button.render(g);
         }
         featureScrollbar.render(g);
     }
@@ -252,13 +252,9 @@ public class TagsFilterEngine implements CucumberlessEngine {
         }
         drawTitle(g, SCENARIO_TAGS_TITLE, scenarioTagsY);
         for (TagFilterButton button : scenarioTagsButtons) {
-            renderButton(g, button);
+            button.render(g);
         }
         scenarioScrollbar.render(g);
-    }
-    
-    private void renderButton(Graphics2D g, TagFilterButton button) {
-        button.render(g);
     }
     
     private void drawTitle(Graphics g, String title, int y) {
