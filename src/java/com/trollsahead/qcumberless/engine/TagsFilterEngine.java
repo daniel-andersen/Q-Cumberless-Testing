@@ -26,9 +26,11 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
 import com.trollsahead.qcumberless.gui.TagFilterButton;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.Button;
+import com.trollsahead.qcumberless.gui.Scrollbar;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
@@ -50,38 +52,53 @@ public class TagsFilterEngine implements CucumberlessEngine {
     public static final int TAG_WIDTH = 120;
     public static final int TAG_HEIGHT = 50;
 
-    public static final int TAG_PADDING_HORIZONTAL = 30;
+    public static final int TAG_PADDING_HORIZONTAL = 50;
     public static final int TAG_PADDING_VERTICAL = 50;
     public static final int TAGS_TITLE_PADDING = 10;
 
     private static final int TAG_BUTTON_OFFSET_HORIZONTAL = 5;
     private static final int TAG_BUTTON_OFFSET_VERTICAL = 5;
 
+    private static final int SCROLLBAR_PADDING_HORIZONTAL = 4;
+    private static final int SCROLLBAR_PADDING_VERTICAL = 4;
+
     private static final Color BACKGROUND_COLOR = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 
     private List<String> featureTags;
     private List<String> scenarioTags;
 
+    private Scrollbar featureScrollbar;
+    private Scrollbar scenarioScrollbar;
+
     private int featureTagsX;
     private int featureTagsY;
     private int featureTagsWidth;
     private int featureTagsHeight;
+    private int featureTagsAreaHeight;
+    private int featureTagsOffset;
 
     private int scenarioTagsX;
     private int scenarioTagsY;
     private int scenarioTagsWidth;
     private int scenarioTagsHeight;
+    private int scenarioTagsAreaHeight;
+    private int scenarioTagsOffset;
 
     private List<TagFilterButton> featureTagsButtons;
     private List<TagFilterButton> scenarioTagsButtons;
 
     public void initialize() {
+        featureScrollbar = new Scrollbar();
+        scenarioScrollbar = new Scrollbar();
     }
 
     public void show() {
         featureTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_FEATURE);
         scenarioTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_SCENARIO, BaseBarElement.TYPE_SCENARIO_OUTLINE);
-        updateTagsButtons();
+        featureTagsOffset = 0;
+        scenarioTagsOffset = 0;
+        setupTagsButtons();
+        resize();
     }
 
     public void hide() {
@@ -96,7 +113,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         }
     }
 
-    private void updateTagsButtons() {
+    private void setupTagsButtons() {
         featureTagsButtons = new LinkedList<TagFilterButton>();
         for (final String tag : featureTags) {
             featureTagsButtons.add(
@@ -182,17 +199,24 @@ public class TagsFilterEngine implements CucumberlessEngine {
         scenarioTagsY = (((Engine.windowHeight / 2) - scenarioTagsHeight) / 2) + (Engine.windowHeight / 2);
 
         updateButtonPositions();
+        updateScrollbarBounds();
     }
 
     private void updateButtonPositions() {
+        featureTagsOffset = featureScrollbar.getScroll();
         int i = 0;
         for (TagFilterButton button : featureTagsButtons) {
-            setButtonPosition(button, i, featureTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL, featureTagsWidth, featureTagsHeight);
+            setButtonPosition(button, i, featureTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL - featureTagsOffset, featureTagsWidth, featureTagsHeight);
+            button.setClipRect(featureTagsX, featureTagsY + TAG_PADDING_VERTICAL - TAG_BUTTON_OFFSET_VERTICAL, featureTagsWidth, featureTagsHeight - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL);
+            featureTagsAreaHeight = button.topY + button.height - featureTagsY - TAG_PADDING_VERTICAL;
             i++;
         }
+        scenarioTagsOffset = scenarioScrollbar.getScroll();
         i = 0;
         for (TagFilterButton button : scenarioTagsButtons) {
-            setButtonPosition(button, i, scenarioTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL, scenarioTagsWidth, scenarioTagsHeight);
+            setButtonPosition(button, i, scenarioTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL - scenarioTagsOffset, scenarioTagsWidth, scenarioTagsHeight);
+            button.setClipRect(scenarioTagsX, scenarioTagsY + TAG_PADDING_VERTICAL - TAG_BUTTON_OFFSET_VERTICAL, scenarioTagsWidth, scenarioTagsHeight - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL);
+            scenarioTagsAreaHeight = button.topY + button.height - scenarioTagsY - TAG_PADDING_VERTICAL;
             i++;
         }
     }
@@ -217,6 +241,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         for (TagFilterButton button : featureTagsButtons) {
             renderButton(g, button);
         }
+        featureScrollbar.render(g);
     }
 
     private void renderTags(Graphics2D g) {
@@ -229,6 +254,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         for (TagFilterButton button : scenarioTagsButtons) {
             renderButton(g, button);
         }
+        scenarioScrollbar.render(g);
     }
     
     private void renderButton(Graphics2D g, TagFilterButton button) {
@@ -251,15 +277,27 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void resize() {
+        updateScrollbarBounds();
     }
 
     public void mouseMoved() {
     }
 
     public void mouseWheelMoved(int unitsToScroll) {
+        if (CumberlessMouseListener.mouseX >= featureTagsX && CumberlessMouseListener.mouseY >= featureTagsY &&
+            CumberlessMouseListener.mouseX <= featureTagsX + featureTagsWidth && CumberlessMouseListener.mouseY <= featureTagsY + featureTagsHeight) {
+            featureScrollbar.scroll(unitsToScroll);
+        }
+        if (CumberlessMouseListener.mouseX >= scenarioTagsX && CumberlessMouseListener.mouseY >= scenarioTagsY &&
+            CumberlessMouseListener.mouseX <= scenarioTagsX + scenarioTagsWidth && CumberlessMouseListener.mouseY <= scenarioTagsY + scenarioTagsHeight) {
+            scenarioScrollbar.scroll(unitsToScroll);
+        }
     }
 
     public void click(int clickCount) {
+        if (featureScrollbar.isScrollbarTouched() || scenarioScrollbar.isScrollbarTouched()) {
+            return;
+        }
         for (TagFilterButton button : featureTagsButtons) {
             if (button.click()) {
                 return;
@@ -270,8 +308,6 @@ public class TagsFilterEngine implements CucumberlessEngine {
                 return;
             }
         }
-        DesignerEngine.removeTagsFilter();
-        Engine.prevEngine();
     }
 
     public void keyPressed(KeyEvent keyEvent) {
@@ -282,14 +318,29 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void startDrag(boolean isControlDown) {
+        featureScrollbar.startDrag();
+        scenarioScrollbar.startDrag();
     }
 
     public void endDrag() {
+        featureScrollbar.endDrag();
+        scenarioScrollbar.endDrag();
     }
 
     public void updateDrag() {
+        featureScrollbar.updateDrag();
+        scenarioScrollbar.updateDrag();
     }
 
     public void updateDevices(Set<Device> devices) {
+    }
+
+    private void updateScrollbarBounds() {
+        if (!Util.isEmpty(featureTagsButtons)) {
+            featureScrollbar.setBounds(featureTagsX + SCROLLBAR_PADDING_HORIZONTAL, featureTagsY + TAG_PADDING_VERTICAL, featureTagsHeight - TAG_PADDING_VERTICAL - SCROLLBAR_PADDING_VERTICAL, featureTagsAreaHeight);
+        }
+        if (!Util.isEmpty(scenarioTagsButtons)) {
+            scenarioScrollbar.setBounds(scenarioTagsX + SCROLLBAR_PADDING_HORIZONTAL, scenarioTagsY + TAG_PADDING_VERTICAL, scenarioTagsHeight - TAG_PADDING_VERTICAL - SCROLLBAR_PADDING_VERTICAL, scenarioTagsAreaHeight);
+        }
     }
 }

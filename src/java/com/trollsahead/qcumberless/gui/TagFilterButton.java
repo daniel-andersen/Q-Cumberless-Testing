@@ -67,15 +67,20 @@ public class TagFilterButton {
     private List<Button> buttons;
 
     private String tag;
-    private int x;
-    private int y;
-    private int width;
-    private int height;
+    public int x;
+    public int y;
+    public int width;
+    public int height;
+
+    private int clipX;
+    private int clipY;
+    private int clipWidth;
+    private int clipHeight;
 
     private boolean highlighted = false;
 
-    private int leftX;
-    private int topY;
+    public int leftX;
+    public int topY;
 
     public TagFilterButton(String tag, int x, int y, int width, int height,
                            final ButtonNotification playClickNotification, final ButtonNotification filterClickNotification, final ButtonNotification historyClickNotification) {
@@ -131,6 +136,13 @@ public class TagFilterButton {
         setCenterPosition(x, y);
     }
 
+    public void setClipRect(int x, int y, int width, int height) {
+        clipX = x;
+        clipY = y;
+        clipWidth = width;
+        clipHeight = height;
+    }
+
     public void setCenterPosition(int x, int y) {
         this.x = x;
         this.y = y;
@@ -173,6 +185,10 @@ public class TagFilterButton {
     }
 
     private void updateHighlight() {
+        if (CumberlessMouseListener.mouseX < clipX || CumberlessMouseListener.mouseY < clipY || CumberlessMouseListener.mouseX >= clipX + clipWidth || CumberlessMouseListener.mouseY >= clipY + clipHeight) {
+            highlighted = false;
+            return;
+        }
         int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
         int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;
         highlighted = CumberlessMouseListener.mouseX >= leftX &&
@@ -182,6 +198,8 @@ public class TagFilterButton {
     }
 
     public void render(Graphics2D g) {
+        g.setClip(clipX, clipY, clipWidth, clipHeight);
+
         int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
         int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;
 
@@ -197,6 +215,8 @@ public class TagFilterButton {
         drawTagHistory(g);
         
         renderButtons(g);
+
+        g.setClip(null);
     }
 
     private void drawTagHistory(Graphics2D g) {
