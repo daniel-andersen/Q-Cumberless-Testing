@@ -1,5 +1,7 @@
 #!/usr/bin/bash
-cd ../interactive-designer && \
+cd ../.. && \
+ant && \
+cd example/interactive-designer && \
 ant clean release && \
 cd ../calabash-android-plugin && \
 ant && \
