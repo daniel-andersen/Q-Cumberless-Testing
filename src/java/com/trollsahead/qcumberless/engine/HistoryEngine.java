@@ -302,10 +302,10 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     public void keyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getKeyCode() == KeyEvent.VK_LEFT) {
+        if (keyEvent.getKeyCode() == KeyEvent.VK_LEFT || keyEvent.getKeyCode() == KeyEvent.VK_UP) {
             prevDate();
         }
-        if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT) {
+        if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT || keyEvent.getKeyCode() == KeyEvent.VK_DOWN) {
             nextDate();
         }
         if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {

@@ -208,7 +208,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         for (TagFilterButton button : featureTagsButtons) {
             setButtonPosition(button, i, featureTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL - featureTagsOffset, featureTagsWidth, featureTagsHeight);
             button.setClipRect(featureTagsX, featureTagsY + TAG_PADDING_VERTICAL - TAG_BUTTON_OFFSET_VERTICAL, featureTagsWidth, featureTagsHeight - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL);
-            featureTagsAreaHeight = button.topY + button.height - featureTagsY - TAG_PADDING_VERTICAL;
+            featureTagsAreaHeight = button.topY + button.height - featureTagsY - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL;
             i++;
         }
         scenarioTagsOffset = scenarioScrollbar.getScroll();
@@ -216,7 +216,7 @@ public class TagsFilterEngine implements CucumberlessEngine {
         for (TagFilterButton button : scenarioTagsButtons) {
             setButtonPosition(button, i, scenarioTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL - scenarioTagsOffset, scenarioTagsWidth, scenarioTagsHeight);
             button.setClipRect(scenarioTagsX, scenarioTagsY + TAG_PADDING_VERTICAL - TAG_BUTTON_OFFSET_VERTICAL, scenarioTagsWidth, scenarioTagsHeight - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL);
-            scenarioTagsAreaHeight = button.topY + button.height - scenarioTagsY - TAG_PADDING_VERTICAL;
+            scenarioTagsAreaHeight = button.topY + button.height - scenarioTagsY - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL;
             i++;
         }
     }
