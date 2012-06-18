@@ -140,7 +140,7 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
         if (Util.isEmpty(message)) {
             return;
         }
-        int x = (Engine.windowWidth - Engine.fontMetrics.stringWidth(message)) / 2;
+        int x = DesignerEngine.dragSplitterX + ((Engine.windowWidth - DesignerEngine.dragSplitterX - Engine.fontMetrics.stringWidth(message)) / 2);
         int y = 20;
 
         g.setColor(Color.WHITE);

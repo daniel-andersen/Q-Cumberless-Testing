@@ -34,8 +34,7 @@ import android.os.Environment;
 
 import android.view.Display;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.*;
 import com.jayway.android.robotium.solo.Solo;
 
 import java.io.*;
@@ -48,6 +47,10 @@ public class InteractiveDesigner extends InstrumentationTestCase {
     
     private static final String stepClick = "Given I press the \"$1\" button";
     private static final String stepText = "Then I see the text \"$1\"";
+    private static final String stepSpinnerItem = "Given I select \"$1\" from \"$2\"";
+
+    private static String lastPrefix;
+    private static Spinner clickedSpinner;
 
     private static final String LOG_PREFIX = "InteractiveDesigner: ";
 
@@ -55,6 +58,8 @@ public class InteractiveDesigner extends InstrumentationTestCase {
 
     public void testInteractiveDesigner() {
         initialize();
+
+        addStep("Given My app is running");
 
         ScreenshotThread screenshotThread = new ScreenshotThread();
         try {
@@ -130,10 +135,10 @@ public class InteractiveDesigner extends InstrumentationTestCase {
         if (currentActivity == null) {
             throw new RuntimeException("Activity not started");
         }
-        
-        solo = new Solo(getInstrumentation(), currentActivity);
 
-        System.out.println(LOG_PREFIX + "Started!");
+        lastPrefix = null;
+
+        solo = new Solo(getInstrumentation(), currentActivity);
     }
 
     private void click(int x, int y) {
@@ -144,11 +149,29 @@ public class InteractiveDesigner extends InstrumentationTestCase {
                 clickButton(button);
                 return;
             }
+            Spinner spinner = getClickedView(x, y, solo.getCurrentSpinners());
+            if (spinner != null) {
+                clickSpinner(spinner);
+                return;
+            }
+            RadioButton radioButton = getClickedView(x, y, solo.getCurrentRadioButtons());
+            if (radioButton != null) {
+                System.out.println("CLICKED RADIO BUTTON!!!");
+                //clickRadioButton(radioButton);
+                return;
+            }
+            ToggleButton toggleButton = getClickedView(x, y, solo.getCurrentToggleButtons());
+            if (toggleButton != null) {
+                System.out.println("CLICKED TOGGLE BUTTON!!!");
+                //clickRadioButton(radioButton);
+                return;
+            }
             TextView textView = getClickedView(x, y, solo.getCurrentTextViews(rootView));
             if (textView != null) {
                 clickTextView(textView);
                 return;
             }
+            System.out.println("Nothing found");
         } finally {
             solo.clickOnScreen(x, y);
         }
@@ -166,11 +189,31 @@ public class InteractiveDesigner extends InstrumentationTestCase {
     }
     
     private void clickButton(Button button) {
-        System.out.println(LOG_PREFIX + "Step: " + stepClick.replaceAll("\\$1", button.getText().toString()));
+        addStep(stepClick.replaceAll("\\$1", button.getText().toString()));
     }
 
     private void clickTextView(TextView textView) {
-        System.out.println(LOG_PREFIX + "Step: " + stepText.replaceAll("\\$1", textView.getText().toString()));
+        if (textView instanceof CheckedTextView) {
+            addStep(stepSpinnerItem
+                    .replaceAll("\\$1", textView.getText().toString())
+                    .replaceAll("\\$2", clickedSpinner.getContentDescription().toString()));
+        } else {
+            addStep(stepText.replaceAll("\\$1", textView.getText().toString()));
+        }
+    }
+
+    private void clickSpinner(Spinner spinner) {
+        clickedSpinner = spinner;
+    }
+
+    private void addStep(String step) {
+        int prefixIndex = step.indexOf(" ");
+        String prefix = step.substring(0, prefixIndex);
+        if (prefix.equalsIgnoreCase(lastPrefix)) {
+            step = "And" + step.substring(prefixIndex);
+        }
+        lastPrefix = prefix;
+        System.out.println(LOG_PREFIX + "Step: " + step);
     }
 
     public void takeScreenshot() {
