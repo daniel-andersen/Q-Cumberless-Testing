@@ -908,7 +908,7 @@ public abstract class BaseBarElement extends Element {
     protected abstract void drawAdditionals(Graphics2D g);
 
     protected void renderHintsInternal(Graphics2D g) {
-        if (!isHighlighted()) {
+        if (!isHighlighted() || DesignerEngine.colorScheme == ColorScheme.DESIGN) {
             return;
         }
         if (playResult.hasScreenshots()) {
