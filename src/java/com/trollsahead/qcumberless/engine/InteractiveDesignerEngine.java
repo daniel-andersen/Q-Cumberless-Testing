@@ -34,7 +34,6 @@ import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
-import static com.trollsahead.qcumberless.gui.elements.Element.ROOT_STEP_DEFINITIONS;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -42,8 +41,6 @@ import java.awt.image.BufferedImage;
 import java.util.Set;
 
 public class InteractiveDesignerEngine implements CucumberlessEngine {
-    private static final int SCREENSHOT_PADDING_HORIZONTAL = 20;
-
     private static final Color BG_COLOR_SCREENSHOT = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 
     private static final String WAITING_FOR_DEVICE_TEXT = "WAITING FOR DEVICE...";
@@ -54,8 +51,6 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
 
     private static int screenshotX;
     private static int screenshotY;
-    private static int screenshotWidth;
-    private static int screenshotHeight;
 
     private static int screenWidth;
     private static int screenHeight;
@@ -215,8 +210,6 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
             InteractiveDesignerEngine.screenHeight = screenHeight;
             InteractiveDesignerEngine.screenshotX = x;
             InteractiveDesignerEngine.screenshotY = y;
-            InteractiveDesignerEngine.screenshotWidth = width;
-            InteractiveDesignerEngine.screenshotHeight = height;
         }
     };
 
