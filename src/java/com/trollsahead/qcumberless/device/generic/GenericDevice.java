@@ -48,14 +48,14 @@ import java.util.regex.Pattern;
 
 public class GenericDevice extends Device {
     private static final Pattern patternStarting = Pattern.compile("Executing tasks");
-    private static final Pattern patternStartingFeature = Pattern.compile("(\\s*)Feature: (.*)");
-    private static final Pattern patternStartingBackground = Pattern.compile("(\\s*)Background: (.*)");
-    private static final Pattern patternStartingScenario = Pattern.compile("(\\s*)Scenario: (.*)(\\s*)#(.*)");
-    private static final Pattern patternStartingScenarioOutline = Pattern.compile("(\\s*)Scenario Outline: (.*)(\\s*)#(.*)");
-    private static final Pattern patternStartingOutlineTable = Pattern.compile("(\\s*)Outline table(\\s*)");
-    private static final Pattern patternStartingTableRow = Pattern.compile("(\\s*)Table row: (.*)");
-    private static final Pattern patternRunningStep = Pattern.compile("(\\s*)Step: (.*)");
-    private static final Pattern patternStepFailed = Pattern.compile("(\\s*)Step failed: (.*)");
+    private static final Pattern patternStartingFeature = Pattern.compile("Feature: (.*)");
+    private static final Pattern patternStartingBackground = Pattern.compile("Background: (.*)");
+    private static final Pattern patternStartingScenario = Pattern.compile("Scenario: (.*)");
+    private static final Pattern patternStartingScenarioOutline = Pattern.compile("Scenario Outline: (.*)");
+    private static final Pattern patternStartingOutlineTable = Pattern.compile("Outline table");
+    private static final Pattern patternStartingTableRow = Pattern.compile("Table row: (.*)");
+    private static final Pattern patternRunningStep = Pattern.compile("Step: (.*)");
+    private static final Pattern patternStepFailed = Pattern.compile("Step failed: (.*)");
     private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
     private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(.*)Screenshot taken(.*)");
 
@@ -176,28 +176,28 @@ public class GenericDevice extends Device {
     protected void checkStartingFeature(String log) {
         Matcher matcher = getPatternStartingFeature().matcher(log);
         if (matcher.find()) {
-            deviceCallback.beforeFeature(matcher.group(2).trim());
+            deviceCallback.beforeFeature(matcher.group(1).trim());
         }
     }
 
     protected void checkStartingBackground(String log) {
         Matcher matcher = getPatternStartingBackground().matcher(log);
         if (matcher.find()) {
-            deviceCallback.beforeBackground(matcher.group(2).trim());
+            deviceCallback.beforeBackground(matcher.group(1).trim());
         }
     }
 
     protected void checkStartingScenario(String log) {
         Matcher matcher = getPatternStartingScenario().matcher(log);
         if (matcher.find()) {
-            deviceCallback.beforeScenario(matcher.group(2).trim());
+            deviceCallback.beforeScenario(matcher.group(1).trim());
         }
     }
 
     protected void checkStartingScenarioOutline(String log) {
         Matcher matcher = getPatternStartingScenarioOutline().matcher(log);
         if (matcher.find()) {
-            deviceCallback.beforeScenario(matcher.group(2).trim());
+            deviceCallback.beforeScenario(matcher.group(1).trim());
         }
     }
 
@@ -211,21 +211,21 @@ public class GenericDevice extends Device {
     protected void checkStartingTableRow(String log) {
         Matcher matcher = getPatternStartingTableRow().matcher(log);
         if (matcher.find()) {
-            deviceCallback.beforeTableRow(matcher.group(2).trim());
+            deviceCallback.beforeTableRow(matcher.group(1).trim());
         }
     }
 
     protected void checkRunningStep(String log) {
         Matcher matcher = getPatternRunningStep().matcher(log);
         if (matcher.find()) {
-            deviceCallback.beforeStep(matcher.group(2).trim());
+            deviceCallback.beforeStep(matcher.group(1).trim());
         }
     }
 
     protected void checkStepFailed(String log) {
         Matcher matcher = getPatternStepFailed().matcher(log);
         if (matcher.find()) {
-            deviceCallback.afterStepFailed(matcher.group(2));
+            deviceCallback.afterStepFailed(matcher.group(1));
         }
     }
 
