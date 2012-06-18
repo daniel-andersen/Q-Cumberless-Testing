@@ -195,8 +195,10 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
 
     private InteractiveDesignerCallback clientCallback = new InteractiveDesignerCallback() {
         public void addStep(String step) {
-            scenario.addChild(new StepElement(Element.ROOT_FEATURE_EDITOR, step, FeatureLoader.findMatchingStep(step)));
-            scenario.unfold();
+            synchronized (Engine.DATA_LOCK) {
+                scenario.addChild(new StepElement(Element.ROOT_FEATURE_EDITOR, step, FeatureLoader.findMatchingStep(step)));
+                scenario.unfold();
+            }
             System.out.println("Added step: " + step);
         }
 
