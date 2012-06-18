@@ -82,7 +82,7 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
         }).start();
 
         waitUntilStarted();
-        interactiveDesignerCallback.message("");
+        interactiveDesignerCallback.message(null);
     }
 
     public void stop() {
@@ -99,7 +99,7 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
     private void waitUntilStarted() {
         int i = 0;
         while (!started) {
-            if (i++ > 100) {
+            if (i++ > 1000) {
                 throw new RuntimeException("Instrumentation did not start");
             }
             Util.sleep(100);

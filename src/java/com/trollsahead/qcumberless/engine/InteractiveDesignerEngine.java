@@ -116,11 +116,11 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     public void render(Graphics2D g) {
         Engine.drawBackgroundPicture(g);
         Engine.designerEngine.renderOnlyElements(g);
+        drawMessage(g);
         drawScreenshot(g);
     }
 
     private void drawScreenshot(Graphics2D g) {
-        drawMessage(g);
         if (screenshot == null) {
             return;
         }

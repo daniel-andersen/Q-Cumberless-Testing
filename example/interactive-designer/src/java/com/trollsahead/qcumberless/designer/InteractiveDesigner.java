@@ -61,6 +61,8 @@ public class InteractiveDesigner extends InstrumentationTestCase {
 
         addStep("Given My app is running");
 
+        logLine("Started!");
+
         ScreenshotThread screenshotThread = new ScreenshotThread();
         try {
             String command = null;
@@ -79,6 +81,10 @@ public class InteractiveDesigner extends InstrumentationTestCase {
             solo.finishOpenedActivities();
             screenshotThread.stop();
         }
+    }
+
+    private void logLine(String s) {
+        System.out.println(LOG_PREFIX + s);
     }
 
     private String getCommand() {
@@ -105,7 +111,7 @@ public class InteractiveDesigner extends InstrumentationTestCase {
     }
 
     private void performCommand(String command) {
-        System.out.println("Performing command: " + command);
+        logLine("Command: " + command);
         Matcher matcher = Pattern.compile("CLICK\\((\\d*),(\\d*)\\)").matcher(command);
         if (matcher.find()) {
             click(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
@@ -235,7 +241,7 @@ public class InteractiveDesigner extends InstrumentationTestCase {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.close();
             filename = filename.startsWith("/mnt") ? filename.substring("/mnt".length()) : filename;
-            System.out.println(LOG_PREFIX + "Screenshot: \"" + filename + "\"" + " - (" + xy[0] + "," + xy[1] + "-" + rootView.getWidth() + "," + rootView.getHeight() + "-" + display.getWidth() + "," + display.getHeight() + ")");
+            logLine("Screenshot: \"" + filename + "\"" + " - (" + xy[0] + "," + xy[1] + "-" + rootView.getWidth() + "," + rootView.getHeight() + "-" + display.getWidth() + "," + display.getHeight() + ")");
         } catch (Exception e) {
             throw new RuntimeException("Could not take screenshot", e);
         }
