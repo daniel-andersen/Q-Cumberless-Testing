@@ -2,9 +2,13 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
-0.1.5 (WIP)
+0.2.1 (WIP)
     - Ability to re-run of failed examples for visualization of failed steps
+
+0.2.0
+    - Run history
     - Log console
+    - Experimental interactive designer
 
 0.1.4
     - Support for scenario outlines
