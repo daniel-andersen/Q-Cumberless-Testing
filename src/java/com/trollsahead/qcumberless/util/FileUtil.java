@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.util;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -148,5 +149,31 @@ public class FileUtil {
         return str
                 .replaceAll("\\s", "_")
                 .replaceAll(":", "_");
+    }
+    
+    public static String randomFilename(String dir) {
+        String name = Integer.toString((int) (Math.random() * (float) Integer.MAX_VALUE));
+        return addSlashToPath(dir) + name;
+    }
+
+    public static void copyFile(File sourceFile, File destFile) {
+        try {
+            if (!destFile.exists()) {
+                destFile.createNewFile();
+            }
+            FileChannel source = null;
+            FileChannel destination = null;
+
+            try {
+                source = new FileInputStream(sourceFile).getChannel();
+                destination = new FileOutputStream(destFile).getChannel();
+                destination.transferFrom(source, 0, source.size());
+            } finally {
+                close(source);
+                close(destination);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

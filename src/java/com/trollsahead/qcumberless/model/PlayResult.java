@@ -25,8 +25,12 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -77,13 +81,22 @@ public class PlayResult {
         this.screenshots = screenshots;
     }
 
-    public void setScreenshots(Screenshot ... screenshots) {
+    public void setScreenshots(File historyDir, Screenshot ... screenshots) {
+        copyScreenshotsToDir(historyDir, screenshots);
         this.screenshots = new LinkedList<Screenshot>();
         for (Screenshot screenshot : screenshots) {
             this.screenshots.add(screenshot);
         }
     }
 
+    private void copyScreenshotsToDir(File historyDir, Screenshot ... screenshots) {
+        for (Screenshot screenshot : screenshots) {
+            File file = new File(FileUtil.randomFilename(historyDir.getAbsolutePath()) + ".png");
+            FileUtil.copyFile(new File(screenshot.getFilename()), file);
+            screenshot.setFilename(file.getAbsolutePath());
+        }
+    }
+    
     public void addScreenshots(Screenshot ... screenshots) {
         if (this.screenshots == null) {
             this.screenshots = new LinkedList<Screenshot>();

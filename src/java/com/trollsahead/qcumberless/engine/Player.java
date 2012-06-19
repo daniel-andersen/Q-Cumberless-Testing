@@ -35,6 +35,7 @@ import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
+import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -72,9 +73,11 @@ public class Player implements DeviceCallback {
     public boolean paused;
     public boolean stopped;
 
-    private static boolean notifiedStopped;
-
     private boolean success;
+
+    private File historyDir;
+
+    private static boolean notifiedStopped;
 
     private Device device;
 
@@ -162,8 +165,9 @@ public class Player implements DeviceCallback {
                     success = true;
                     started = true;
                     long startTime = System.currentTimeMillis();
+                    historyDir = HistoryHelper.createHistoryDir(startTime);
                     device.play(FeatureBuilder.buildFeatures(features), tags);
-                    HistoryHelper.saveRunOutcome(device, features, startTime, Util.tagsToString(tags));
+                    HistoryHelper.saveRunOutcome(historyDir, device, features, startTime, Util.tagsToString(tags));
                 } finally {
                     cleanup();
                 }
@@ -356,7 +360,7 @@ public class Player implements DeviceCallback {
     }
 
     public void attachScreenshots(Element element, Screenshot... screenshots) {
-        ((BaseBarElement) element).getPlayResult().setScreenshots(screenshots);
+        ((BaseBarElement) element).getPlayResult().setScreenshots(historyDir, screenshots);
     }
 
     public Element getCurrentElement() {

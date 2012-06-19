@@ -52,7 +52,8 @@ public class Screenshot {
             return null;
         }
         try {
-            return ImageIO.read(new File(filename));
+            image = ImageIO.read(new File(filename));
+            return image;
         } catch (Exception e) {
             return null;
         }

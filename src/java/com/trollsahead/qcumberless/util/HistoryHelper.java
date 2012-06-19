@@ -100,13 +100,7 @@ public class HistoryHelper {
         return dirList;
     }
 
-    public static File saveRunOutcome(Device device, List<BaseBarElement> features, long startTime, String tags) {
-        File dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
-            }
-        }
+    public static File saveRunOutcome(File dir, Device device, List<BaseBarElement> features, long startTime, String tags) {
         for (BaseBarElement element : features) {
             String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + ElementHelper.suggestFilenameIfNotPresent(element) + ".feature";
             File file = FileUtil.writeToFile(filename, FeatureBuilder.buildFeature(element, true, startTime));
@@ -152,8 +146,9 @@ public class HistoryHelper {
         }
         int startIdx;
         while ((startIdx = line.indexOf(PREFIX_SCREENSHOT)) != -1) {
+            line = line.substring(startIdx);
             int endIdx = line.indexOf(COMMENT_DELIMITER_END);
-            String filename = line.substring(startIdx + PREFIX_SCREENSHOT.length(), endIdx);
+            String filename = line.substring(PREFIX_SCREENSHOT.length(), endIdx);
             playResult.addScreenshots(new Screenshot(filename));
             line = line.substring(endIdx + COMMENT_DELIMITER_END.length());
         }
@@ -234,5 +229,15 @@ public class HistoryHelper {
             e.printStackTrace();
         }
         return new Properties();
+    }
+
+    public static File createHistoryDir(long startTime) {
+        File dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
+            }
+        }
+        return dir;
     }
 }
