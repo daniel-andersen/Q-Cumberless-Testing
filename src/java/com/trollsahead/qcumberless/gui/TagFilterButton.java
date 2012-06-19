@@ -79,9 +79,6 @@ public class TagFilterButton {
 
     private boolean highlighted = false;
 
-    public int leftX;
-    public int topY;
-
     public TagFilterButton(String tag, int x, int y, int width, int height,
                            final ButtonNotification playClickNotification, final ButtonNotification filterClickNotification, final ButtonNotification historyClickNotification) {
         this.tag = tag;
@@ -133,7 +130,7 @@ public class TagFilterButton {
                 null);
         historyButton.setHint("Show tag history");
         buttons.add(historyButton);
-        setCenterPosition(x, y);
+        setPosition(x, y);
     }
 
     public void setClipRect(int x, int y, int width, int height) {
@@ -143,11 +140,9 @@ public class TagFilterButton {
         clipHeight = height;
     }
 
-    public void setCenterPosition(int x, int y) {
+    public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
-        leftX = x - (width / 2);
-        topY = y - (height / 2);
     }
 
     public void update() {
@@ -158,11 +153,11 @@ public class TagFilterButton {
     }
 
     private void updateButtonPositions() {
-        int centerX = leftX + (width / 2);
+        int centerX = x + (width / 2);
         int i = 0;
         int w = (buttons.size() - 1) * (BUTTON_PADDING_HORIZONTAL + BUTTONS_WIDTH);
         for (Button button : buttons) {
-            button.setPosition(centerX + (w * i / (buttons.size() - 1)) - (w / 2), topY - (PADDING_FOR_BUTTONS / 2));
+            button.setPosition(centerX + (w * i / (buttons.size() - 1)) - (w / 2), y - (PADDING_FOR_BUTTONS / 2));
             i++;
         }
     }
@@ -189,11 +184,11 @@ public class TagFilterButton {
             highlighted = false;
             return;
         }
-        int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
+        int top = highlighted ? y - PADDING_FOR_BUTTONS : y;
         int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;
-        highlighted = CumberlessMouseListener.mouseX >= leftX &&
+        highlighted = CumberlessMouseListener.mouseX >= x &&
                       CumberlessMouseListener.mouseY >= top &&
-                      CumberlessMouseListener.mouseX <= leftX + width &&
+                      CumberlessMouseListener.mouseX <= x + width &&
                       CumberlessMouseListener.mouseY <= top + heightIncludingButtons;
     }
 
@@ -202,17 +197,17 @@ public class TagFilterButton {
             g.setClip(clipX, clipY, clipWidth, clipHeight);
         }
 
-        int top = highlighted ? topY - PADDING_FOR_BUTTONS : topY;
+        int top = highlighted ? y - PADDING_FOR_BUTTONS : y;
         int heightIncludingButtons = highlighted ? height + PADDING_FOR_BUTTONS : height;
 
         g.setColor(BG_COLOR[getHighlightState()]);
-        g.fillRoundRect(leftX, top, width, heightIncludingButtons, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
+        g.fillRoundRect(x, top, width, heightIncludingButtons, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
 
         g.setColor(OUTLINE_COLOR[getTagState()][getHighlightState()]);
-        g.drawRoundRect(leftX, top, width, heightIncludingButtons, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
+        g.drawRoundRect(x, top, width, heightIncludingButtons, OUTLINE_ROUNDING, OUTLINE_ROUNDING);
 
         g.setColor(TEXT_COLOR);
-        g.drawString(tag, x - (Engine.fontMetrics.stringWidth(tag) / 2), y - 3);
+        g.drawString(tag, x + ((width - Engine.fontMetrics.stringWidth(tag)) / 2), y + (height / 2) - 3);
 
         drawTagHistory(g);
         
@@ -227,23 +222,23 @@ public class TagFilterButton {
             return;
         }
 
-        int x = TAG_BAR_PADDING_HORIZONTAL;
-        int y = topY + height - TAG_BAR_PADDING_VERTICAL - TAG_BAR_HEIGHT;
+        int cx = TAG_BAR_PADDING_HORIZONTAL;
+        int cy = y + height - TAG_BAR_PADDING_VERTICAL - TAG_BAR_HEIGHT;
 
-        int barWidth = width - x - TAG_BAR_PADDING_HORIZONTAL;
+        int barWidth = width - cx - TAG_BAR_PADDING_HORIZONTAL;
 
         float failurePct = (float) tagHistory.getFailureCount() / (float) tagHistory.getRunCount();
         int failureWidth = (int) (failurePct * (float) barWidth);
         int successWidth = barWidth - failureWidth;
 
         g.setColor(BG_COLOR_FAILURE);
-        g.fillRect(leftX + x, y, failureWidth, TAG_BAR_HEIGHT);
+        g.fillRect(x + cx, cy, failureWidth, TAG_BAR_HEIGHT);
 
         g.setColor(BG_COLOR_SUCCESS);
-        g.fillRect(leftX + x + barWidth - successWidth, y, successWidth, TAG_BAR_HEIGHT);
+        g.fillRect(x + cx + barWidth - successWidth, cy, successWidth, TAG_BAR_HEIGHT);
 
         g.setColor(OUTLINE_COLOR_HISTORY);
-        g.drawRect(leftX + x, y, barWidth, TAG_BAR_HEIGHT);
+        g.drawRect(x + cx, cy, barWidth, TAG_BAR_HEIGHT);
     }
 
     private void renderButtons(Graphics2D g) {

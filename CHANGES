@@ -7,8 +7,9 @@ Q-Cumberless Testing
 
 0.2.0
     - Run history
+    - Tag filter
     - Log console
-    - Experimental interactive designer
+    - Interactive designer (experimental)
 
 0.1.4
     - Support for scenario outlines

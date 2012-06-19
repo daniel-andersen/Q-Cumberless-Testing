@@ -56,8 +56,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
     public static final int TAG_PADDING_VERTICAL = 50;
     public static final int TAGS_TITLE_PADDING = 10;
 
-    private static final int TAG_BUTTON_OFFSET_HORIZONTAL = 5;
-    private static final int TAG_BUTTON_OFFSET_VERTICAL = 5;
+    private static final int TAG_BUTTON_OFFSET_HORIZONTAL = 24;
+    private static final int TAG_BUTTON_OFFSET_VERTICAL = TAG_PADDING_VERTICAL;
 
     private static final int SCROLLBAR_PADDING_HORIZONTAL = 4;
     private static final int SCROLLBAR_PADDING_VERTICAL = 4;
@@ -93,8 +93,8 @@ public class TagsFilterEngine implements CucumberlessEngine {
     }
 
     public void show() {
-        featureTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_FEATURE);
-        scenarioTags = DesignerEngine.getDefinedTags(BaseBarElement.TYPE_SCENARIO, BaseBarElement.TYPE_SCENARIO_OUTLINE);
+        featureTags = Util.sortedTagList(DesignerEngine.getDefinedTags(BaseBarElement.TYPE_FEATURE));
+        scenarioTags = Util.sortedTagList(DesignerEngine.getDefinedTags(BaseBarElement.TYPE_SCENARIO, BaseBarElement.TYPE_SCENARIO_OUTLINE));
         featureTagsOffset = 0;
         scenarioTagsOffset = 0;
         setupTagsButtons();
@@ -206,29 +206,26 @@ public class TagsFilterEngine implements CucumberlessEngine {
         featureTagsOffset = featureScrollbar.getScroll();
         int i = 0;
         for (TagFilterButton button : featureTagsButtons) {
-            setButtonPosition(button, i, featureTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL - featureTagsOffset, featureTagsWidth, featureTagsHeight);
-            button.setClipRect(featureTagsX, featureTagsY + TAG_PADDING_VERTICAL - TAG_BUTTON_OFFSET_VERTICAL, featureTagsWidth, featureTagsHeight - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL);
-            featureTagsAreaHeight = button.topY + button.height - featureTagsY - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL;
+            setButtonPosition(button, i, featureTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL - featureTagsOffset, featureTagsWidth);
+            button.setClipRect(featureTagsX, featureTagsY + TAG_BUTTON_OFFSET_VERTICAL, featureTagsWidth, featureTagsHeight - TAG_BUTTON_OFFSET_VERTICAL);
+            featureTagsAreaHeight = button.y + button.height - featureTagsY - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL;
             i++;
         }
         scenarioTagsOffset = scenarioScrollbar.getScroll();
         i = 0;
         for (TagFilterButton button : scenarioTagsButtons) {
-            setButtonPosition(button, i, scenarioTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL - scenarioTagsOffset, scenarioTagsWidth, scenarioTagsHeight);
-            button.setClipRect(scenarioTagsX, scenarioTagsY + TAG_PADDING_VERTICAL - TAG_BUTTON_OFFSET_VERTICAL, scenarioTagsWidth, scenarioTagsHeight - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL);
-            scenarioTagsAreaHeight = button.topY + button.height - scenarioTagsY - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL;
+            setButtonPosition(button, i, scenarioTagsX + TAG_BUTTON_OFFSET_HORIZONTAL, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL - scenarioTagsOffset, scenarioTagsWidth);
+            button.setClipRect(scenarioTagsX, scenarioTagsY + TAG_BUTTON_OFFSET_VERTICAL, scenarioTagsWidth, scenarioTagsHeight - TAG_BUTTON_OFFSET_VERTICAL);
+            scenarioTagsAreaHeight = button.y + button.height - scenarioTagsY - TAG_PADDING_VERTICAL + TAG_BUTTON_OFFSET_VERTICAL;
             i++;
         }
     }
 
-    private void setButtonPosition(TagFilterButton button, int index, int x, int y, int width, int height) {
+    private void setButtonPosition(TagFilterButton button, int index, int x, int y, int width) {
         int tagWidthPlusPadding = TAG_WIDTH + TAG_PADDING_HORIZONTAL;
         int tagHeightPlusPadding = TAG_HEIGHT + TAG_PADDING_VERTICAL;
         int countX = width / tagWidthPlusPadding;
-        int countY = height / tagHeightPlusPadding;
-        int offsetX = x + (width - ((countX * tagWidthPlusPadding) - TAG_PADDING_HORIZONTAL)) / 2;
-        int offsetY = y + (height - ((countY * tagHeightPlusPadding) - TAG_PADDING_VERTICAL)) / 2;
-        button.setCenterPosition(offsetX + (index % countX) * tagWidthPlusPadding, offsetY + (index / countX) * tagHeightPlusPadding);
+        button.setPosition(x + (index % countX) * tagWidthPlusPadding, y + (index / countX) * tagHeightPlusPadding);
     }
 
     private void renderFeatureTags(Graphics2D g) {

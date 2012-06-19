@@ -176,6 +176,7 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
             if (currentEngine == engine || animationState != AnimationState.NONE) {
                 return false;
             }
+            createAnimationBackground();
             if (currentEngine != null) {
                 currentEngine.hide();
             }
@@ -308,7 +309,9 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         fontMetrics = backbufferGraphics.getFontMetrics();
         backbufferGraphics.setColor(Color.BLACK);
         backbufferGraphics.fillRect(0, 0, windowWidth + 1, windowHeight + 1);
+    }
 
+    private static void createAnimationBackground() {
         if (animationGraphics != null) {
             animationGraphics.dispose();
         }
