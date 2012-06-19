@@ -18,6 +18,11 @@ Q-Cumberless Testing is licensed under a BSD-style license. See the file LICENSE
 Copyright (c) 2012
 Daniel Andersen (dani_ande@yahoo.dk)
 
+Screencast
+==========
+
+<iframe width="420" height="315" src="http://www.youtube.com/embed/gI96pOscws8" frameborder="0" allowfullscreen></iframe>
+
 Screenshot
 ==========
 
