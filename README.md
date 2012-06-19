@@ -21,7 +21,7 @@ Daniel Andersen (dani_ande@yahoo.dk)
 Screencast
 ==========
 
-<iframe width="420" height="315" src="http://www.youtube.com/embed/gI96pOscws8" frameborder="0" allowfullscreen></iframe>
+Watch a screencast on [youtube](http://youtu.be/gI96pOscws8).
 
 Screenshot
 ==========
