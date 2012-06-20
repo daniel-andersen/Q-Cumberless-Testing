@@ -2,6 +2,10 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.2
+    - Improved run history
+    - calabash-android plugin screenshots
+
 0.2.1
     - Undo functionality
     - Bug fixes

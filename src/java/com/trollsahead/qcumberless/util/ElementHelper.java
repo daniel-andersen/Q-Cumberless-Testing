@@ -143,6 +143,18 @@ public class ElementHelper {
         }
     }
     
+    public static void unfoldOnlyErrors() {
+        DesignerEngine.featuresRoot.foldAll();
+        for (Element feature : DesignerEngine.featuresRoot.children) {
+            for (Element scenario : feature.children) {
+                if (((BaseBarElement) scenario).getPlayResult().isFailed()) {
+                    feature.unfold();
+                    scenario.unfold();
+                }
+            }
+        }
+    }
+
     public static String getRelativePath(String filename) {
         if (!Util.isEmpty(DesignerEngine.featuresBaseDir) && filename.startsWith(DesignerEngine.featuresBaseDir)) {
             return Util.stripLeadingSlash(filename.substring(DesignerEngine.featuresBaseDir.length()));

@@ -41,27 +41,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HistoryHelper {
-    private static final String RUN_HISTORY_DIR = "runhistory";
+    public static final String RUN_HISTORY_DIR = "runhistory";
 
-    private static final String COMMENT_DELIMITER_START = "<#";
-    private static final String COMMENT_DELIMITER_END = "#>";
-    private static final String PATTERN_DELIMITER_START = "<#";
-    private static final String PATTERN_DELIMITER_END = "#>";
+    public static final String COMMENT_DELIMITER_START = "<#";
+    public static final String COMMENT_DELIMITER_END = "#>";
+    public static final Pattern PATTERN_DELIMITER_START = Pattern.compile("<#");
+    public static final Pattern PATTERN_DELIMITER_END = Pattern.compile("#>");
 
     public static final String COMMENT_QCUMBERLESS = "# qcumberless run: ";
-    public static final String PATTERN_QCUMBERLESS = "# qcumberless run: ";
+    public static final Pattern PATTERN_QCUMBERLESS = Pattern.compile("# qcumberless run: ");
 
-    private static final String COMMENT_STATUS = COMMENT_DELIMITER_START + "status: $status" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_STATUS = ".*" + PATTERN_DELIMITER_START + "status: (.*?)" + PATTERN_DELIMITER_END + ".*";
+    public static final String COMMENT_STATUS = COMMENT_DELIMITER_START + "status: $status" + COMMENT_DELIMITER_END;
+    public static final Pattern PATTERN_STATUS = Pattern.compile(".*" + PATTERN_DELIMITER_START + "status: (.*?)" + PATTERN_DELIMITER_END + ".*");
 
-    private static final String COMMENT_DATE = COMMENT_DELIMITER_START + "date: $date" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_DATE = ".*" + PATTERN_DELIMITER_START + "date: (.*?)" + PATTERN_DELIMITER_END + ".*";
+    public static final String COMMENT_DATE = COMMENT_DELIMITER_START + "date: $date" + COMMENT_DELIMITER_END;
+    public static final Pattern PATTERN_DATE = Pattern.compile(".*" + PATTERN_DELIMITER_START + "date: (.*?)" + PATTERN_DELIMITER_END + ".*");
 
-    private static final String COMMENT_ERROR_MESSAGE = COMMENT_DELIMITER_START + "errmsg: $errmsg" + COMMENT_DELIMITER_END;
-    private static final String PATTERN_ERROR_MESSAGE = ".*" + PATTERN_DELIMITER_START + "errmsg: (.*?)" + PATTERN_DELIMITER_END + ".*";
+    public static final String COMMENT_ERROR_MESSAGE = COMMENT_DELIMITER_START + "errmsg: $errmsg" + COMMENT_DELIMITER_END;
+    public static final Pattern PATTERN_ERROR_MESSAGE = Pattern.compile(".*" + PATTERN_DELIMITER_START + "errmsg: (.*?)" + PATTERN_DELIMITER_END + ".*");
 
-    private static final String COMMENT_SCREENSHOT = COMMENT_DELIMITER_START + "screenshot: $screenshot" + COMMENT_DELIMITER_END;
-    private static final String PREFIX_SCREENSHOT = PATTERN_DELIMITER_START + "screenshot: ";
+    public static final String COMMENT_SCREENSHOT = COMMENT_DELIMITER_START + "screenshot: $screenshot" + COMMENT_DELIMITER_END;
+    public static final String PREFIX_SCREENSHOT = PATTERN_DELIMITER_START + "screenshot: ";
 
     private static final String PATTERN_FILE_DATE = ".*(\\d{4}-\\d{2}-\\d{2})[\\\\/](\\d{2}_\\d{2}_\\d{2}).*";
 
@@ -125,8 +125,29 @@ public class HistoryHelper {
         }
     }
 
+    public static boolean hasErrorInFeatureFile(String filename) {
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                if (line.startsWith(COMMENT_QCUMBERLESS)) {
+                    Matcher matcher = HistoryHelper.PATTERN_ERROR_MESSAGE.matcher(line);
+                    if (matcher.matches()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading supported feature file " + filename, e);
+        } finally {
+            FileUtil.close(in);
+        }
+    }
+
     public static PlayResult getPlayResultFromComment(String line) {
-        Matcher matcher = Pattern.compile(PATTERN_STATUS).matcher(line);
+        Matcher matcher = PATTERN_STATUS.matcher(line);
         if (!matcher.find()) {
             return new PlayResult(PlayResult.State.NOT_PLAYED);
         }
@@ -141,7 +162,7 @@ public class HistoryHelper {
 
     private static PlayResult extractFailedPlayStateFromComment(String line) {
         PlayResult playResult = new PlayResult(PlayResult.State.FAILED);
-        Matcher matcher = Pattern.compile(PATTERN_ERROR_MESSAGE).matcher(line);
+        Matcher matcher = PATTERN_ERROR_MESSAGE.matcher(line);
         if (matcher.find()) {
             playResult.setErrorMessage(matcher.group(1));
         }
