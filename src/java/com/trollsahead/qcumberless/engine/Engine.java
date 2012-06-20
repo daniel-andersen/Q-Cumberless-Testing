@@ -322,14 +322,13 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
     private static void setWindowSize(int width, int height) {
         windowWidth = width;
         windowHeight = height;
-        RenderOptimizer.initialize();
         if (width > backbuffer.getWidth() || height > backbuffer.getHeight()) {
             createBackbuffer();
         }
     }
 
     public void componentResized(ComponentEvent componentEvent) {
-        synchronized (RENDER_LOCK) {
+        synchronized (DATA_LOCK) {
             setWindowSize(canvas.getWidth(), canvas.getHeight());
             if (currentEngine != null) {
                 currentEngine.resize();
