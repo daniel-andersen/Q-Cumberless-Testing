@@ -74,8 +74,8 @@ public class CommentElement extends BaseBarElement {
         return false;
     }
 
-    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
-        StringBuilder sb = super.buildFeatureInternal(addRunOutcome, time);
+    public StringBuilder buildFeatureInternal(int addState, long time) {
+        StringBuilder sb = super.buildFeatureInternal(addState, time);
         sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# ").append(title).append("\n");
         return sb;
     }

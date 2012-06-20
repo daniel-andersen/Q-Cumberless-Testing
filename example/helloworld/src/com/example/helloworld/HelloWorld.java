@@ -31,8 +31,6 @@ import android.widget.TextView;
 import android.widget.Spinner;
 import android.view.View;
 
-import java.lang.Readable;
-
 public class HelloWorld extends Activity {
    public void onCreate(Bundle savedInstanceState) {
        super.onCreate(savedInstanceState);

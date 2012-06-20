@@ -48,6 +48,10 @@ public class ExamplesElement extends StepElement {
         return false;
     }
 
+    public boolean isVisible() {
+        return groupParent.rootType == ROOT_FEATURE_EDITOR;
+    }
+
     public BaseBarElement duplicate() {
         ExamplesElement element = new ExamplesElement();
         if (table != null) {
@@ -61,10 +65,10 @@ public class ExamplesElement extends StepElement {
         return Arrays.asList(new String[] {"Add row", "Add column", "Delete row", "Delete column"});
     }
 
-    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+    public StringBuilder buildFeatureInternal(int addState, long time) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        sb.append(super.buildFeatureInternal(addRunOutcome, time));
+        sb.append(super.buildFeatureInternal(addState, time));
         return sb;
     }
 

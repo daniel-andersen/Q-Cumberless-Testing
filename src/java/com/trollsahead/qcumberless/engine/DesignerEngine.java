@@ -427,12 +427,13 @@ public class DesignerEngine implements CucumberlessEngine {
         }
         synchronized (Engine.DATA_LOCK) {
             try {
-                FeatureLoader.parseFeatureFiles(FileUtil.getFeatureFiles(files));
+                FeatureLoader.parseFeatureFilesAndPushToDesignerRoot(FileUtil.getFeatureFiles(files));
             } catch (Exception e) {
                 e.printStackTrace();
             }
             featuresBaseDir = (files.length == 1 && files[0].isDirectory()) ? files[0].getAbsolutePath() : null;
             featuresRoot.isLoaded = true;
+            UndoManager.reset();
             Engine.resetFps();
         }
     }
@@ -488,9 +489,10 @@ public class DesignerEngine implements CucumberlessEngine {
         featuresBaseDir = null;
         cucumberRoot.removeChild(featuresRoot);
         featuresRoot = new RootElement();
-        featuresRoot.isLoaded = false;
         cucumberRoot.addChild(featuresRoot, 0);
+        featuresRoot.isLoaded = false;
         updateRootPositions();
+        UndoManager.reset();
         Engine.resetFps();
     }
 
@@ -508,6 +510,7 @@ public class DesignerEngine implements CucumberlessEngine {
     public static void updateLastAddedElement(Element element) {
         if (element.rootType != ROOT_STEP_DEFINITIONS) {
             lastAddedElement = element;
+            UndoManager.takeSnapshot(featuresRoot);
         }
     }
 
@@ -568,5 +571,22 @@ public class DesignerEngine implements CucumberlessEngine {
         ElementHelper.removeFilter();
         featuresRoot.scrollToTop();
         tagsFilter = null;
+    }
+
+    public static void undo() {
+        List<FeatureElement> features = UndoManager.pop(featuresRoot);
+        if (features == null) {
+            return;
+        }
+        synchronized (Engine.DATA_LOCK) {
+            DesignerEngine.featuresRoot.children = new LinkedList<Element>();
+            for (FeatureElement feature : features) {
+                featuresRoot.addChild(feature);
+                feature.setAlphaOnAll(BaseBarElement.BAR_TRANSPARENCY);
+                feature.unfold();
+            }
+            lastAddedElement = null;
+            Engine.resetFps();
+        }
     }
 }

@@ -89,8 +89,8 @@ public class FeatureElement extends BaseBarElement {
         return false;
     }
 
-    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
-        StringBuilder sb = super.buildFeatureInternal(addRunOutcome, time);
+    public StringBuilder buildFeatureInternal(int addState, long time) {
+        StringBuilder sb = super.buildFeatureInternal(addState, time);
         sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
         return sb;
     }

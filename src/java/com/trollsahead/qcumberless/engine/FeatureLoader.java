@@ -35,108 +35,136 @@ import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FeatureLoader {
-    public static void parseFeatureFiles(String[] files) {
-        parseFeatureFiles(files, false);
+    public static void parseFeatureFilesAndPushToDesignerRoot(String[] files) {
+        parseFeatureFilesAndPushToDesignerRoot(files, Element.ADD_STATE_NONE);
     }
 
-    public static void parseFeatureFiles(String[] files, boolean includePlayStateInfo) {
+    public static void parseFeatureFilesAndPushToDesignerRoot(String[] files, int addState) {
         DesignerEngine.resetFeatures();
         for (String filename : files) {
-            parseFeatureFile(filename, includePlayStateInfo);
+            DesignerEngine.featuresRoot.addChild(parseFeatureFile(filename, addState));
         }
     }
 
-    private static void parseFeatureFile(String filename, boolean includePlayStateInfo) {
+    public static FeatureElement parseFeatureFile(String filename, int addState) {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
-            FeatureElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
-            feature.setFilename(filename);
-            DesignerEngine.featuresRoot.addChild(feature);
-            ScenarioElement scenario = null;
-            BackgroundElement background = null;
-            StepElement step = null;
+            StringBuilder feature = new StringBuilder();
             String line;
-            String tags = null;
-            String comment = null;
-            PlayResult playResult = null;
             while ((line = in.readLine()) != null) {
-                line = Util.removeTrailingSpaces(line);
-                if (Util.isEmptyOrContainsOnlyTabs(line)) {
-                    continue;
-                }
-                if (line.startsWith(getPlayResultPattern())) {
-                    if (includePlayStateInfo) {
-                        playResult = HistoryHelper.getPlayResultFromComment(line);
-                    }
-                } else if (line.matches(getFeaturePattern())) {
-                    feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
-                    feature.setTags(tags);
-                    feature.setComment(comment);
-                    feature.setPlayState(playResult);
-                    tags = null;
-                    comment = null;
-                    playResult = null;
-                } else if (line.matches(getBackgroundPattern())) {
-                    background = new BackgroundElement(BaseBarElement.ROOT_FEATURE_EDITOR);
-                    background.setTitle("Background");
-                    background.setTags(tags);
-                    background.setComment(comment);
-                    background.setPlayState(playResult);
-                    tags = null;
-                    comment = null;
-                    playResult = null;
-                    feature.addChild(background);
-                } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
-                    if (line.matches(getScenarioPattern())) {
-                        scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
-                        scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
-                    } else {
-                        scenario = new ScenarioOutlineElement(BaseBarElement.ROOT_FEATURE_EDITOR);
-                        scenario.setTitle(extractTitle(Pattern.compile(getScenarioOutlinePattern()), line));
-                    }
-                    scenario.setTags(tags);
-                    scenario.setComment(comment);
-                    scenario.setPlayState(playResult);
-                    tags = null;
-                    comment = null;
-                    playResult = null;
-                    feature.addChild(scenario);
-                } else if (line.matches(getTagPattern())) {
-                    tags = extractTags(line);
-                } else if (line.matches(getCommentPattern())) {
-                    comment = extractComment(line);
-                } else if (line.matches(getExamplesPattern())) {
-                    step = ((ScenarioOutlineElement) scenario).getExamplesElement();
-                    ((ExamplesElement) step).clearTable();
-                } else if (line.matches(getTableRowPattern())) {
-                    step.addRowToTable(extractTableRow(line));
-                } else {
-                    if (comment != null) {
-                        addStep(feature, background, scenario, comment);
-                    }
-                    BaseBarElement element = addStep(feature, background, scenario, line);
-                    if (element instanceof StepElement || element instanceof ExamplesElement) {
-                        step = (StepElement) element;
-                    }
-                    if (element != null) {
-                        element.setPlayState(playResult);
-                    }
-                    tags = null;
-                    comment = null;
-                    playResult = null;
-                }
+                feature.append(line).append("\n");
             }
+            return parseFeatureFile(feature, filename, addState);
         } catch (Exception e) {
             throw new RuntimeException("Error reading supported feature file " + filename, e);
         } finally {
             FileUtil.close(in);
+        }
+    }
+
+    public static FeatureElement parseFeatureFile(StringBuilder source, String filename, int addState) {
+        FeatureElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+        feature.setFilename(filename);
+        ScenarioElement scenario = null;
+        BackgroundElement background = null;
+        StepElement step = null;
+
+        String tags = null;
+        String comment = null;
+        boolean folded = true;
+        PlayResult playResult = null;
+
+        for (String line : source.toString().split("\n")) {
+            line = Util.removeTrailingSpaces(line);
+            if (Util.isEmptyOrContainsOnlyTabs(line)) {
+                continue;
+            }
+            if (line.startsWith(getPlayResultPattern())) {
+                if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
+                    playResult = HistoryHelper.getPlayResultFromComment(line);
+                }
+            } else if (line.matches(getFoldStatePattern())) {
+                if ((addState & Element.ADD_STATE_FOLD) != 0) {
+                    folded = Boolean.parseBoolean(extractFoldState(line));
+                }
+            } else if (line.matches(getFeaturePattern())) {
+                feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
+                feature.setTags(tags);
+                feature.setComment(comment);
+                feature.setPlayState(playResult);
+                setFoldState(feature, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                tags = null;
+                comment = null;
+                playResult = null;
+            } else if (line.matches(getBackgroundPattern())) {
+                background = new BackgroundElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+                background.setTitle("Background");
+                background.setTags(tags);
+                background.setComment(comment);
+                background.setPlayState(playResult);
+                setFoldState(background, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                tags = null;
+                comment = null;
+                playResult = null;
+                feature.addChild(background);
+            } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
+                if (line.matches(getScenarioPattern())) {
+                    scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+                    scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
+                } else {
+                    scenario = new ScenarioOutlineElement(BaseBarElement.ROOT_FEATURE_EDITOR);
+                    scenario.setTitle(extractTitle(Pattern.compile(getScenarioOutlinePattern()), line));
+                }
+                scenario.setTags(tags);
+                scenario.setComment(comment);
+                scenario.setPlayState(playResult);
+                setFoldState(scenario, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                tags = null;
+                comment = null;
+                playResult = null;
+                feature.addChild(scenario);
+            } else if (line.matches(getTagPattern())) {
+                tags = extractTags(line);
+            } else if (line.matches(getCommentPattern())) {
+                comment = extractComment(line);
+            } else if (line.matches(getExamplesPattern())) {
+                step = ((ScenarioOutlineElement) scenario).getExamplesElement();
+                ((ExamplesElement) step).clearTable();
+            } else if (line.matches(getTableRowPattern())) {
+                step.addRowToTable(extractTableRow(line));
+            } else {
+                if (comment != null) {
+                    addStep(feature, background, scenario, comment);
+                }
+                BaseBarElement element = addStep(feature, background, scenario, line);
+                if (element instanceof StepElement || element instanceof ExamplesElement) {
+                    step = (StepElement) element;
+                }
+                if (element != null) {
+                    element.setPlayState(playResult);
+                }
+                tags = null;
+                comment = null;
+                playResult = null;
+            }
+        }
+        return feature;
+    }
+
+    private static void setFoldState(Element element, boolean shouldUpdate, boolean folded) {
+        if (!shouldUpdate) {
+            return;
+        }
+        if (folded) {
+            element.fold();
+        } else {
+            element.unfold();
         }
     }
 
@@ -242,6 +270,12 @@ public class FeatureLoader {
         return matcher.group(1);
     }
 
+    private static String extractFoldState(String line) {
+        Matcher matcher = Pattern.compile(getFoldStatePattern()).matcher(line);
+        matcher.find();
+        return matcher.group(1);
+    }
+
     private static String getFeaturePattern() {
         return Locale.getString("feature") + ": (.*)";
     }
@@ -276,5 +310,9 @@ public class FeatureLoader {
 
     private static String getTableRowPattern() {
         return "^\\s*\\|(.*)\\|\\s*$";
+    }
+
+    private static String getFoldStatePattern() {
+        return "^\\s*# foldstate: (.*)";
     }
 }

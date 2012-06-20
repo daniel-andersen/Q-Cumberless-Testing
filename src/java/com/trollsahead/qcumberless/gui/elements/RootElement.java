@@ -239,7 +239,7 @@ public class RootElement extends Element {
         return new RootElement();
     }
 
-    protected StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+    protected StringBuilder buildFeatureInternal(int addState, long time) {
         return new StringBuilder();
     }
 

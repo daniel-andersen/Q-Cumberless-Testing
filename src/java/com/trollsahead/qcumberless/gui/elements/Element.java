@@ -41,9 +41,13 @@ import java.util.Set;
 public abstract class Element {
     public enum ColorScheme {DESIGN, PLAY}
 
+    public static final int ADD_STATE_NONE = 0;
+    public static final int ADD_STATE_RUN_OUTCOME = 1;
+    public static final int ADD_STATE_FOLD = 2;
+
     public static final int ROOT_NONE = 0;
-    public static final int ROOT_FEATURE_EDITOR = 1;
-    public static final int ROOT_STEP_DEFINITIONS = 2;
+    public static final int ROOT_FEATURE_EDITOR = 1 << 1;
+    public static final int ROOT_STEP_DEFINITIONS = 1 << 2;
 
     public int type;
     public int rootType = ROOT_NONE;
@@ -380,14 +384,14 @@ public abstract class Element {
 
     public abstract Element duplicate();
 
-    public StringBuilder buildFeature(boolean addRunOutcome) {
-        return buildFeature(addRunOutcome, System.currentTimeMillis());
+    public StringBuilder buildFeature(int addState) {
+        return buildFeature(addState, System.currentTimeMillis());
     }
     
-    public StringBuilder buildFeature(boolean addRunOutcome, long time) {
-        StringBuilder sb = buildFeatureInternal(addRunOutcome, time);
+    public StringBuilder buildFeature(int addState, long time) {
+        StringBuilder sb = buildFeatureInternal(addState, time);
         for (Element child : children) {
-            sb.append(child.buildFeature(addRunOutcome, time));
+            sb.append(child.buildFeature(addState, time));
         }
         if (type == BaseBarElement.TYPE_FEATURE || type == BaseBarElement.TYPE_BACKGROUND || type == BaseBarElement.TYPE_SCENARIO || type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
             sb.append("\n");
@@ -395,7 +399,7 @@ public abstract class Element {
         return sb;
     }
 
-    protected abstract StringBuilder buildFeatureInternal(boolean addRunOutcome, long time);
+    protected abstract StringBuilder buildFeatureInternal(int addState, long time);
 
     public void updateSteps() {
         updateStepsInternal();

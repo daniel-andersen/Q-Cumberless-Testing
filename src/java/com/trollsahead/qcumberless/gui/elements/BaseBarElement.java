@@ -25,10 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
-import com.trollsahead.qcumberless.engine.DesignerEngine;
-import com.trollsahead.qcumberless.engine.Engine;
-import com.trollsahead.qcumberless.engine.FeatureLoader;
-import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.engine.*;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.model.*;
@@ -606,6 +603,7 @@ public abstract class BaseBarElement extends Element {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
                 DesignerEngine.cucumberRoot.removeChild(this);
+                UndoManager.takeSnapshot(DesignerEngine.featuresRoot);
             }
         }
     }
@@ -1220,7 +1218,7 @@ public abstract class BaseBarElement extends Element {
         return !isParentFolded() && tags.hasTags();
     }
 
-    public StringBuilder buildFeatureInternal(boolean addRunOutcome, long time) {
+    public StringBuilder buildFeatureInternal(int addState, long time) {
         StringBuilder sb = new StringBuilder();
         if (!Util.isEmpty(comment)) {
             sb.append(comment).append("\n");
@@ -1231,8 +1229,11 @@ public abstract class BaseBarElement extends Element {
             }
             sb.append(tags.toString()).append("\n");
         }
-        if (addRunOutcome) {
+        if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
             sb.append(HistoryHelper.getRunOutcomeComment(this, time));
+        }
+        if ((addState & Element.ADD_STATE_FOLD) != 0) {
+            sb.append("# foldstate: ").append(isFolded()).append("\n");
         }
         return sb;
     }
@@ -1267,7 +1268,7 @@ public abstract class BaseBarElement extends Element {
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF8"));
-            out.append(buildFeature(false).toString());
+            out.append(buildFeature(Element.ADD_STATE_NONE).toString());
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -1339,5 +1340,12 @@ public abstract class BaseBarElement extends Element {
     
     protected boolean canEdit() {
         return Engine.currentEngine == Engine.designerEngine;
+    }
+
+    public void setAlphaOnAll(float alpha) {
+        animation.alphaAnimation.setAlpha(alpha);
+        for (Element child : children) {
+            ((BaseBarElement) child).setAlphaOnAll(alpha);
+        }
     }
 }

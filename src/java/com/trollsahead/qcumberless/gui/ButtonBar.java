@@ -26,10 +26,7 @@
 package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
-import com.trollsahead.qcumberless.engine.DesignerEngine;
-import com.trollsahead.qcumberless.engine.Engine;
-import com.trollsahead.qcumberless.engine.HistoryEngine;
-import com.trollsahead.qcumberless.engine.Player;
+import com.trollsahead.qcumberless.engine.*;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
 import com.trollsahead.qcumberless.plugins.Plugin;
@@ -72,6 +69,7 @@ public class ButtonBar {
     private Button loadFeaturesButton;
     private Button saveFeaturesButton;
     private Button exportFeaturesButton;
+    private Button undoButton;
     private Button closeButton;
     private Button pauseButton;
     private Button stopButton;
@@ -201,6 +199,17 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(exportFeaturesButton);
+        undoButton = new Button(
+                0, 0,
+                "Undo",
+                Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        DesignerEngine.undo();
+                    }
+                },
+                null);
+        buttons.add(undoButton);
         closeButton = new Button(
                 0, 0,
                 "Quit",
@@ -364,6 +373,9 @@ public class ButtonBar {
         exportFeaturesButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(exportFeaturesButton.toString());
         x += BUTTON_PADDING;
+        undoButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(undoButton.toString());
+        x += BUTTON_PADDING;
         closeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
         x += BUTTON_PADDING + Engine.fontMetrics.stringWidth(closeButton.toString());
         x += BUTTON_PADDING * 2;
@@ -434,6 +446,7 @@ public class ButtonBar {
         boolean shouldUpdateButtonPositions = false;
         exportFeaturesButton.setEnabled(isExportFeaturesButtonEnabled());
         saveFeaturesButton.setEnabled(isSaveFeaturesButtonEnabled());
+        undoButton.setEnabled(!UndoManager.isEmpty());
         if (playButton.isVisible() != isPlayButtonVisible()) {
             playButton.setVisible(isPlayButtonVisible());
             shouldUpdateButtonPositions = true;

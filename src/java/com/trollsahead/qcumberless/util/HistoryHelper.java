@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.util;
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.FeatureBuilder;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
+import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.model.ConsoleOutput;
 import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.model.RunHistory;
@@ -103,7 +104,7 @@ public class HistoryHelper {
     public static File saveRunOutcome(File dir, Device device, List<BaseBarElement> features, long startTime, String tags) {
         for (BaseBarElement element : features) {
             String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + ElementHelper.suggestFilenameIfNotPresent(element) + ".feature";
-            File file = FileUtil.writeToFile(filename, FeatureBuilder.buildFeature(element, true, startTime));
+            File file = FileUtil.writeToFile(filename, FeatureBuilder.buildFeature(element, Element.ADD_STATE_RUN_OUTCOME, startTime));
             RunHistory.addFeature(file.getAbsolutePath());
         }
         String filename = FileUtil.addSlashToPath(dir.getAbsolutePath()) + FileUtil.toFilename(device.name());
