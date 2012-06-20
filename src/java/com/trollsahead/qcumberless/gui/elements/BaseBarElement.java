@@ -629,6 +629,7 @@ public abstract class BaseBarElement extends Element {
         }
         folded = !folded;
         foldFadeAnimation(folded ? 0.0f : BAR_TRANSPARENCY, true);
+        UndoManager.takeSnapshot(DesignerEngine.featuresRoot, DesignerEngine.lastAddedElement);
     }
 
     public void fold() {

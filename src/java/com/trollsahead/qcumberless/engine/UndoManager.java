@@ -71,9 +71,11 @@ public class UndoManager {
     public static void takeSnapshot(RootElement root, Element lastAddedElement) {
         UndoSnapshot snapshot = new UndoSnapshot(root, lastAddedElement);
         if (!isEmpty() && snapshot.equals(snapshots.get(0))) {
+            updateMostRecentSnapshotState(root, lastAddedElement);
             return;
         }
         if (lastPoppedElement != null && snapshot.equals(lastPoppedElement)) {
+            updateMostRecentSnapshotState(root, lastAddedElement);
             return;
         }
         if (snapshots.size() >= UNDO_BUFFER) {
@@ -81,6 +83,11 @@ public class UndoManager {
         }
         snapshots.add(0, snapshot);
         lastPoppedElement = null;
+    }
+
+    private static void updateMostRecentSnapshotState(RootElement root, Element lastAddedElement) {
+        snapshots.remove(0);
+        snapshots.add(0, new UndoSnapshot(root, lastAddedElement));
     }
 
     public static boolean isEmpty() {
