@@ -2,8 +2,9 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
-0.2.1 (WIP)
-    - Ability to re-run of failed examples for visualization of failed steps
+0.2.1
+    - Undo functionality
+    - Bug fixes
 
 0.2.0
     - Run history
