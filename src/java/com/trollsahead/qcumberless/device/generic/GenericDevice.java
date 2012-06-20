@@ -125,6 +125,9 @@ public class GenericDevice extends Device {
             isRunning = true;
             deviceCallback.onPlay();
             GenericDeviceHelper.runTests(features, tags, deviceLogListener, executionStopper);
+            while (isFinalizing()) {
+                Util.sleep(100);
+            }
             deviceCallback.afterPlayed();
         } catch (Exception e) {
             e.printStackTrace();
@@ -137,6 +140,10 @@ public class GenericDevice extends Device {
 
     public void stop() {
         executionStopper.stop();
+    }
+
+    protected boolean isFinalizing() {
+        return false;
     }
 
     private final LogListener deviceLogListener = new LogListener() {
@@ -255,9 +262,8 @@ public class GenericDevice extends Device {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    String fullFilename = FileUtil.addSlashToPath(GenericDeviceHelper.getPath()) + filename;
-                    Image screenshot = ImageIO.read(new File(fullFilename));
-                    deviceCallback.attachScreenshots(element, new Screenshot(screenshot, fullFilename));
+                    Image screenshot = ImageIO.read(new File(filename));
+                    deviceCallback.attachScreenshots(element, new Screenshot(screenshot, filename));
                 } catch (Exception e) {
                     System.out.println("Error while loading screenshots!");
                     e.printStackTrace();

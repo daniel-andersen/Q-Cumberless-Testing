@@ -83,7 +83,8 @@ public class GenericDeviceHelper {
         if (Util.isEmpty(path)) {
             return showEnterPathDialog();
         }
-        return path;
+        File file = new File(path);
+        return file.getAbsolutePath();
     }
 
     public static String showEnterCommandDialog() {

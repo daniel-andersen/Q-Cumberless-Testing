@@ -176,4 +176,11 @@ public class FileUtil {
             e.printStackTrace();
         }
     }
+
+    public static void deleteFilesInDir(String dir) {
+        File file = new File(dir);
+        for (File f : file.listFiles()) {
+            f.delete();
+        }
+    }
 }

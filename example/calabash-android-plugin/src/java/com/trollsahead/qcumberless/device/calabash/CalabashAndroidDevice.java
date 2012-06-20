@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.device.calabash;
 import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
 import com.trollsahead.qcumberless.device.generic.GenericDevice;
 import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.model.Screenshot;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
@@ -47,6 +48,8 @@ public class CalabashAndroidDevice extends GenericDevice {
     private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
     private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(.*)Screenshot taken(.*)");
 
+    private static final Object LOADING_SCREENSHOT_LOCK = new Object();
+
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
     private static BufferedImage thumbnailPressed;
@@ -55,7 +58,6 @@ public class CalabashAndroidDevice extends GenericDevice {
 
     private List<String> screenshotFiles;
     private String screenshotDir;
-    private Element screenshotElement;
 
     static {
         try {
@@ -73,36 +75,8 @@ public class CalabashAndroidDevice extends GenericDevice {
         capabilities.add(Capability.PLAY);
         capabilities.add(Capability.INTERACTIVE_DESIGNING);
         screenshotDir = ConfigurationManager.get("screenshotsDirectory");
+        FileUtil.deleteFilesInDir(screenshotDir);
         screenshotFiles = findScreenshots();
-        screenshotElement = null;
-    }
-
-    private List<String> findScreenshots() {
-        System.out.println("-------------");
-        List<String> screenshotsList = FileUtil.traverseDirectory(new File[] {new File(screenshotDir)}, "png");
-        String[] screenshotsArray = screenshotsList.toArray(new String[0]);
-        Arrays.sort(screenshotsArray);
-        List<String> sortedScreenshotsList = new LinkedList<String>();
-        sortedScreenshotsList.addAll(Arrays.asList(screenshotsArray));
-        for (String s : sortedScreenshotsList) {
-            System.out.println("--> " + s);
-        }
-        return sortedScreenshotsList;
-    }
-
-    private String updateScreenshotsAndReturnNewest() {
-        List<String> oldScreenshotFiles = screenshotFiles;
-        screenshotFiles = findScreenshots();
-        if (screenshotFiles.size() == oldScreenshotFiles.size()) {
-            return null;
-        }
-        List<String> newScreenshotFiles = new LinkedList<String>();
-        newScreenshotFiles.addAll(screenshotFiles);
-        newScreenshotFiles.removeAll(oldScreenshotFiles);
-        if (newScreenshotFiles.size() == 1) {
-            return newScreenshotFiles.get(0);
-        }
-        return null;
     }
 
     public Set<Capability> getCapabilities() {
@@ -123,27 +97,24 @@ public class CalabashAndroidDevice extends GenericDevice {
         return "Calabash Android";
     }
 
+    protected boolean isFinalizing() {
+        synchronized (LOADING_SCREENSHOT_LOCK) {
+            Util.sleep(10); // Just for the sake! ;)
+        }
+        return false;
+    }
+
     public InteractiveDesignerClient getInteractiveDesignerClient() {
         return new InteractiveDesigner();
     }
 
     protected void checkStepFailed(String log) {
         super.checkStepFailed(log);
-        screenshotElement = deviceCallback.getCurrentElement();
-    }
-
-    protected void checkScreenshotTaken(String log) {
+        final Element screenshotElement = deviceCallback.getCurrentElement();
         if (screenshotElement == null) {
             return;
         }
-        String filename = updateScreenshotsAndReturnNewest();
-        System.out.println("Looking for screenshot: " + filename);
-        if (Util.isEmpty(filename)) {
-            return;
-        }
-        System.out.println("Downloading screenshot!");
-        downloadScreenshots(screenshotElement, filename);
-        screenshotElement = null;
+        downloadScreenshot(screenshotElement);
     }
 
     protected Pattern getPatternStarting() {
@@ -156,5 +127,64 @@ public class CalabashAndroidDevice extends GenericDevice {
     
     protected Pattern getPatternScreenshotTakenMessage() {
         return patternScreenshotTakenMessage;
+    }
+
+    private List<String> findScreenshots() {
+        List<String> screenshotsList = FileUtil.traverseDirectory(new File[] {new File(screenshotDir)}, "png");
+        String[] screenshotsArray = screenshotsList.toArray(new String[0]);
+        Arrays.sort(screenshotsArray);
+        List<String> sortedScreenshotsList = new LinkedList<String>();
+        sortedScreenshotsList.addAll(Arrays.asList(screenshotsArray));
+        return sortedScreenshotsList;
+    }
+
+    private String getNewestScreenshot() {
+        List<String> newScreenshotFiles = findScreenshots();
+        if (screenshotFiles.size() == newScreenshotFiles.size()) {
+            return null;
+        }
+        newScreenshotFiles.removeAll(screenshotFiles);
+        if (newScreenshotFiles.size() == 1) {
+            return newScreenshotFiles.get(0);
+        }
+        return null;
+    }
+
+    private void downloadScreenshot(final Element screenshotElement) {
+        new Thread(new Runnable() {
+            public void run() {
+                synchronized (LOADING_SCREENSHOT_LOCK) {
+                    String filename = waitForScreenshot();
+                    if (Util.isEmpty(filename)) {
+                        return;
+                    }
+                    loadScreenshot(screenshotElement, filename);
+                }
+            }
+
+            private String waitForScreenshot() {
+                for (int i = 0; i < 5; i++) {
+                    String filename = getNewestScreenshot();
+                    if (!Util.isEmpty(filename)) {
+                        return filename;
+                    }
+                    Util.sleep(1000);
+                }
+                return null;
+            }
+
+            private void loadScreenshot(Element screenshotElement, String filename) {
+                for (int i = 0; i < 5; i++) {
+                    try {
+                        Image screenshot = ImageIO.read(new File(filename));
+                        deviceCallback.attachScreenshots(screenshotElement, new Screenshot(screenshot, filename));
+                        return;
+                    } catch (Exception e) {
+                        System.out.println("Could not read screenshot - will try again!");
+                    }
+                    Util.sleep(1000);
+                }
+            }
+        }).start();
     }
 }
