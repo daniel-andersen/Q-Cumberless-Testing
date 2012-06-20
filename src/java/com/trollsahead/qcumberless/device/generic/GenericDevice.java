@@ -64,7 +64,7 @@ public class GenericDevice extends Device {
     private static BufferedImage thumbnailPressed;
 
     private final Set<Capability> capabilities;
-    private DeviceCallback deviceCallback;
+    protected DeviceCallback deviceCallback;
 
     private String screenshotFilename = "";
     private Element screenshotElement = null;
@@ -244,21 +244,20 @@ public class GenericDevice extends Device {
     protected void checkScreenshotTaken(String log) {
         Matcher matcher = getPatternScreenshotTakenMessage().matcher(log);
         if (matcher.find()) {
-            downloadScreenshots();
+            downloadScreenshots(screenshotElement, screenshotFilename);
         }
     }
 
-    protected void downloadScreenshots() {
-        final Element element = screenshotElement;
+    protected void downloadScreenshots(final Element element, final String filename) {
         if (element == null) {
             return;
         }
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    String filename = FileUtil.addSlashToPath(GenericDeviceHelper.getPath()) + screenshotFilename;
-                    Image screenshot = ImageIO.read(new File(filename));
-                    deviceCallback.attachScreenshots(element, new Screenshot(screenshot, filename));
+                    String fullFilename = FileUtil.addSlashToPath(GenericDeviceHelper.getPath()) + filename;
+                    Image screenshot = ImageIO.read(new File(fullFilename));
+                    deviceCallback.attachScreenshots(element, new Screenshot(screenshot, fullFilename));
                 } catch (Exception e) {
                     System.out.println("Error while loading screenshots!");
                     e.printStackTrace();

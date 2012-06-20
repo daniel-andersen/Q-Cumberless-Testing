@@ -27,12 +27,17 @@ package com.trollsahead.qcumberless.device.calabash;
 
 import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
 import com.trollsahead.qcumberless.device.generic.GenericDevice;
+import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.util.ConfigurationManager;
+import com.trollsahead.qcumberless.util.FileUtil;
+import com.trollsahead.qcumberless.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
@@ -47,6 +52,10 @@ public class CalabashAndroidDevice extends GenericDevice {
     private static BufferedImage thumbnailPressed;
 
     private final Set<Capability> capabilities;
+
+    private List<String> screenshotFiles;
+    private String screenshotDir;
+    private Element screenshotElement;
 
     static {
         try {
@@ -63,6 +72,37 @@ public class CalabashAndroidDevice extends GenericDevice {
         capabilities = new HashSet<Capability>();
         capabilities.add(Capability.PLAY);
         capabilities.add(Capability.INTERACTIVE_DESIGNING);
+        screenshotDir = ConfigurationManager.get("screenshotsDirectory");
+        screenshotFiles = findScreenshots();
+        screenshotElement = null;
+    }
+
+    private List<String> findScreenshots() {
+        System.out.println("-------------");
+        List<String> screenshotsList = FileUtil.traverseDirectory(new File[] {new File(screenshotDir)}, "png");
+        String[] screenshotsArray = screenshotsList.toArray(new String[0]);
+        Arrays.sort(screenshotsArray);
+        List<String> sortedScreenshotsList = new LinkedList<String>();
+        sortedScreenshotsList.addAll(Arrays.asList(screenshotsArray));
+        for (String s : sortedScreenshotsList) {
+            System.out.println("--> " + s);
+        }
+        return sortedScreenshotsList;
+    }
+
+    private String updateScreenshotsAndReturnNewest() {
+        List<String> oldScreenshotFiles = screenshotFiles;
+        screenshotFiles = findScreenshots();
+        if (screenshotFiles.size() == oldScreenshotFiles.size()) {
+            return null;
+        }
+        List<String> newScreenshotFiles = new LinkedList<String>();
+        newScreenshotFiles.addAll(screenshotFiles);
+        newScreenshotFiles.removeAll(oldScreenshotFiles);
+        if (newScreenshotFiles.size() == 1) {
+            return newScreenshotFiles.get(0);
+        }
+        return null;
     }
 
     public Set<Capability> getCapabilities() {
@@ -85,6 +125,25 @@ public class CalabashAndroidDevice extends GenericDevice {
 
     public InteractiveDesignerClient getInteractiveDesignerClient() {
         return new InteractiveDesigner();
+    }
+
+    protected void checkStepFailed(String log) {
+        super.checkStepFailed(log);
+        screenshotElement = deviceCallback.getCurrentElement();
+    }
+
+    protected void checkScreenshotTaken(String log) {
+        if (screenshotElement == null) {
+            return;
+        }
+        String filename = updateScreenshotsAndReturnNewest();
+        System.out.println("Looking for screenshot: " + filename);
+        if (Util.isEmpty(filename)) {
+            return;
+        }
+        System.out.println("Downloading screenshot!");
+        downloadScreenshots(screenshotElement, filename);
+        screenshotElement = null;
     }
 
     protected Pattern getPatternStarting() {
