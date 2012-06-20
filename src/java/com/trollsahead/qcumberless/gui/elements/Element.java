@@ -327,7 +327,7 @@ public abstract class Element {
 
     protected abstract void calculateRenderPosition(Graphics2D g);
 
-    protected abstract void foldFadeAnimation(float alpha);
+    protected abstract void foldFadeAnimation(float alpha, boolean animate);
 
     public abstract void click(int clickCount);
 

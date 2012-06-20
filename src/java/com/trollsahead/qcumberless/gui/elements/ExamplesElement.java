@@ -44,7 +44,7 @@ public class ExamplesElement extends StepElement {
         return BG_COLOR_NORMAL[highlightToColorIndex()];
     }
 
-    protected boolean isFoldable() {
+    public boolean isFoldable() {
         return false;
     }
 

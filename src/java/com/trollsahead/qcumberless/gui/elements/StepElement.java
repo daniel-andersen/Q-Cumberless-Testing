@@ -88,7 +88,7 @@ public class StepElement extends BaseBarElement {
         super.click(clickCount);
     }
 
-    protected boolean isFoldable() {
+    public boolean isFoldable() {
         return false;
     }
 

@@ -510,7 +510,7 @@ public class DesignerEngine implements CucumberlessEngine {
     public static void updateLastAddedElement(Element element) {
         if (element.rootType != ROOT_STEP_DEFINITIONS) {
             lastAddedElement = element;
-            UndoManager.takeSnapshot(featuresRoot);
+            UndoManager.takeSnapshot(featuresRoot, lastAddedElement);
         }
     }
 
@@ -574,18 +574,17 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void undo() {
-        List<FeatureElement> features = UndoManager.pop(featuresRoot);
-        if (features == null) {
+        UndoManager.UndoElement undoElement = UndoManager.pop(featuresRoot);
+        if (undoElement == null) {
             return;
         }
         synchronized (Engine.DATA_LOCK) {
             DesignerEngine.featuresRoot.children = new LinkedList<Element>();
-            for (FeatureElement feature : features) {
-                featuresRoot.addChild(feature);
-                feature.setAlphaOnAll(BaseBarElement.BAR_TRANSPARENCY);
-                feature.unfold();
+            for (FeatureElement feature : undoElement.features) {
+                featuresRoot.children.add(feature);
+                feature.groupParent = featuresRoot;
             }
-            lastAddedElement = null;
+            lastAddedElement = undoElement.lastAddedElement;
             Engine.resetFps();
         }
     }

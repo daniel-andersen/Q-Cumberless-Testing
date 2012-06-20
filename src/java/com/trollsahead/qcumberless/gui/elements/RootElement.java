@@ -218,7 +218,7 @@ public class RootElement extends Element {
                (this == DesignerEngine.stepsRoot && CumberlessMouseListener.mouseX >= scrollbarX);
     }
 
-    protected void foldFadeAnimation(float alpha) {
+    protected void foldFadeAnimation(float alpha, boolean animate) {
     }
 
     public void click(int clickCount) {

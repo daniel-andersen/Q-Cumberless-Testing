@@ -156,7 +156,7 @@ public class ElementHelper {
         element.groupParent.addChild(newElement, index);
         deepCopyElement(element, newElement);
         if (newElement.isFolded()) {
-            newElement.foldFadeAnimation(0.0f);
+            newElement.foldFadeAnimation(0.0f, true);
         }
     }
 
@@ -221,5 +221,16 @@ public class ElementHelper {
             return filename + "_" + element.groupParent.findChildIndex(element);
         }
         return "Feature";
+    }
+
+    public static void deleteFeatureFromFilesystem(BaseBarElement feature) {
+        if (feature.type != BaseBarElement.TYPE_FEATURE) {
+            return;
+        }
+        if (Util.isEmpty(feature.getFilename())) {
+            return;
+        }
+        File file = new File(feature.getFilename());
+        file.delete();
     }
 }

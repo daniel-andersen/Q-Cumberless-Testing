@@ -603,7 +603,10 @@ public abstract class BaseBarElement extends Element {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
                 DesignerEngine.cucumberRoot.removeChild(this);
-                UndoManager.takeSnapshot(DesignerEngine.featuresRoot);
+                UndoManager.takeSnapshot(DesignerEngine.featuresRoot, DesignerEngine.lastAddedElement);
+            }
+            if (type == TYPE_FEATURE) {
+                ElementHelper.deleteFeatureFromFilesystem(this);
             }
         }
     }
@@ -625,40 +628,52 @@ public abstract class BaseBarElement extends Element {
             return;
         }
         folded = !folded;
-        foldFadeAnimation(folded ? 0.0f : BAR_TRANSPARENCY);
+        foldFadeAnimation(folded ? 0.0f : BAR_TRANSPARENCY, true);
     }
 
     public void fold() {
+        fold(true);
+    }
+
+    public void unfold() {
+        unfold(true);
+    }
+
+    public void fold(boolean animate) {
         if (!isFoldable() || !visible) {
             return;
         }
         folded = true;
-        foldFadeAnimation(0.0f);
+        foldFadeAnimation(0.0f, animate);
     }
 
-    public void unfold() {
+    public void unfold(boolean animate) {
         if (!isFoldable() || !visible) {
             return;
         }
         folded = false;
-        foldFadeAnimation(BAR_TRANSPARENCY);
+        foldFadeAnimation(BAR_TRANSPARENCY, animate);
     }
 
     protected boolean isFoldableByClicking() {
         return isFoldable();
     }
 
-    protected abstract boolean isFoldable();
+    public abstract boolean isFoldable();
 
-    public void foldFadeAnimation(float alpha) {
+    public void foldFadeAnimation(float alpha, boolean animate) {
         for (Element child : children) {
             if (!child.visible) {
                 child.animation.alphaAnimation.setAlpha(0.0f);
                 continue;
             }
-            child.animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
+            if (animate) {
+                child.animation.alphaAnimation.setAlpha(alpha, Animation.FADE_SPEED_FOLD);
+            } else {
+                child.animation.alphaAnimation.setAlpha(alpha);
+            }
             if (!child.folded) {
-                child.foldFadeAnimation(alpha);
+                child.foldFadeAnimation(alpha, animate);
             }
         }
     }
@@ -1232,7 +1247,7 @@ public abstract class BaseBarElement extends Element {
         if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
             sb.append(HistoryHelper.getRunOutcomeComment(this, time));
         }
-        if ((addState & Element.ADD_STATE_FOLD) != 0) {
+        if ((addState & Element.ADD_STATE_FOLD) != 0 && isFoldable()) {
             sb.append("# foldstate: ").append(isFolded()).append("\n");
         }
         return sb;

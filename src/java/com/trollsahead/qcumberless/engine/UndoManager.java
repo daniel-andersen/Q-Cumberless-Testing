@@ -47,7 +47,7 @@ public class UndoManager {
         lastPoppedElement = null;
     }
 
-    public static List<FeatureElement> pop(RootElement currentRoot) {
+    public static UndoElement pop(RootElement currentRoot) {
         if (isEmpty()) {
             return null;
         }
@@ -59,18 +59,17 @@ public class UndoManager {
             }
             undoSnapshot = snapshots.remove(0);
         }
-        System.out.println("POPPED: \n" + undoSnapshot.getFeatureSnapshots().get(0).feature.toString());
         List<FeatureElement> features = new LinkedList<FeatureElement>();
         for (FeatureSnapshot snapshot : undoSnapshot.getFeatureSnapshots()) {
             features.add(FeatureLoader.parseFeatureFile(snapshot.featureWithState, snapshot.filename, Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_FOLD));
         }
         lastPoppedElement = undoSnapshot;
         snapshots.add(0, undoSnapshot);
-        return features;
+        return new UndoElement(features, undoSnapshot.getLastAddedElement());
     }
 
-    public static void takeSnapshot(RootElement root) {
-        UndoSnapshot snapshot = new UndoSnapshot(root);
+    public static void takeSnapshot(RootElement root, Element lastAddedElement) {
+        UndoSnapshot snapshot = new UndoSnapshot(root, lastAddedElement);
         if (!isEmpty() && snapshot.equals(snapshots.get(0))) {
             return;
         }
@@ -86,5 +85,15 @@ public class UndoManager {
 
     public static boolean isEmpty() {
         return Util.isEmpty(snapshots) || snapshots.size() == 1;
+    }
+
+    public static class UndoElement {
+        public List<FeatureElement> features;
+        public Element lastAddedElement;
+
+        public UndoElement(List<FeatureElement> features, Element lastAddedElement) {
+            this.features = features;
+            this.lastAddedElement = lastAddedElement;
+        }
     }
 }

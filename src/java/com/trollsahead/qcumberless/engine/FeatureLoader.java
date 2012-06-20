@@ -78,6 +78,7 @@ public class FeatureLoader {
         String tags = null;
         String comment = null;
         boolean folded = true;
+        boolean featureFolded = true;
         PlayResult playResult = null;
 
         for (String line : source.toString().split("\n")) {
@@ -99,6 +100,7 @@ public class FeatureLoader {
                 feature.setComment(comment);
                 feature.setPlayState(playResult);
                 setFoldState(feature, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                featureFolded = folded;
                 tags = null;
                 comment = null;
                 playResult = null;
@@ -108,11 +110,11 @@ public class FeatureLoader {
                 background.setTags(tags);
                 background.setComment(comment);
                 background.setPlayState(playResult);
-                setFoldState(background, (addState & Element.ADD_STATE_FOLD) != 0, folded);
                 tags = null;
                 comment = null;
                 playResult = null;
                 feature.addChild(background);
+                setFoldState(background, (addState & Element.ADD_STATE_FOLD) != 0, folded);
             } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
                 if (line.matches(getScenarioPattern())) {
                     scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
@@ -124,11 +126,11 @@ public class FeatureLoader {
                 scenario.setTags(tags);
                 scenario.setComment(comment);
                 scenario.setPlayState(playResult);
-                setFoldState(scenario, (addState & Element.ADD_STATE_FOLD) != 0, folded);
                 tags = null;
                 comment = null;
                 playResult = null;
                 feature.addChild(scenario);
+                setFoldState(scenario, (addState & Element.ADD_STATE_FOLD) != 0, folded);
             } else if (line.matches(getTagPattern())) {
                 tags = extractTags(line);
             } else if (line.matches(getCommentPattern())) {
@@ -140,7 +142,8 @@ public class FeatureLoader {
                 step.addRowToTable(extractTableRow(line));
             } else {
                 if (comment != null) {
-                    addStep(feature, background, scenario, comment);
+                    BaseBarElement commentElement = addStep(feature, background, scenario, comment);
+                    setFoldState(commentElement, (addState & Element.ADD_STATE_FOLD) != 0, folded);
                 }
                 BaseBarElement element = addStep(feature, background, scenario, line);
                 if (element instanceof StepElement || element instanceof ExamplesElement) {
@@ -148,17 +151,28 @@ public class FeatureLoader {
                 }
                 if (element != null) {
                     element.setPlayState(playResult);
+                    setFoldState(element, (addState & Element.ADD_STATE_FOLD) != 0, folded);
                 }
                 tags = null;
                 comment = null;
                 playResult = null;
             }
         }
+        if (featureFolded) {
+            feature.fold(false);
+        } else {
+            feature.unfold(false);
+        }
+        feature.animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY);
         return feature;
     }
 
-    private static void setFoldState(Element element, boolean shouldUpdate, boolean folded) {
+    private static void setFoldState(BaseBarElement element, boolean shouldUpdate, boolean folded) {
         if (!shouldUpdate) {
+            return;
+        }
+        if (!element.isFoldable()) {
+            element.animation.alphaAnimation.setAlpha(folded ? 0.0f : BaseBarElement.BAR_TRANSPARENCY);
             return;
         }
         if (folded) {

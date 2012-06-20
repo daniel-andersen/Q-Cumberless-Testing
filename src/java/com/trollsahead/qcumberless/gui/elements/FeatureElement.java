@@ -77,7 +77,7 @@ public class FeatureElement extends BaseBarElement {
         return 0;
     }
 
-    protected boolean isFoldable() {
+    public boolean isFoldable() {
         return rootType == ROOT_FEATURE_EDITOR;
     }
 
