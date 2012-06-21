@@ -241,15 +241,17 @@ public class Util {
         }
         text = removePostfixedNewline(text);
         StringBuilder currentLine = new StringBuilder();
-        for (String word : text.split(" ")) {
-            if (fontMetrics.stringWidth(currentLine.toString() + word) > width) {
-                lines.add(currentLine.toString());
-                currentLine = new StringBuilder();
+        for (String line : text.split("\n")) {
+            for (String word : line.split(" ")) {
+                if (fontMetrics.stringWidth(currentLine.toString() + word) > width) {
+                    lines.add(currentLine.toString());
+                    currentLine = new StringBuilder();
+                }
+                currentLine = currentLine.append(word).append(" ");
             }
-            currentLine = currentLine.append(word).append(" ");
-        }
-        if (!isEmpty(currentLine.toString())) {
-            lines.add(currentLine.toString());
+            if (!isEmpty(currentLine.toString())) {
+                lines.add(currentLine.toString());
+            }
         }
         return lines;
     }
@@ -300,4 +302,9 @@ public class Util {
         }
         return newList;
     }
+
+    public static String convertMagicNewlines(String s) {
+        return s.replaceAll("\\s\\*\\s", "\n");
+    }
+
 }

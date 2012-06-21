@@ -27,6 +27,7 @@ package com.trollsahead.qcumberless.gui.elements;
 
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.model.Locale;
+import com.trollsahead.qcumberless.util.Util;
 
 import java.awt.*;
 
@@ -91,11 +92,7 @@ public class FeatureElement extends BaseBarElement {
 
     public StringBuilder buildFeatureInternal(int addState, long time) {
         StringBuilder sb = super.buildFeatureInternal(addState, time);
-        sb.append(Locale.getString("feature")).append(": ").append(convertNewlines(title)).append("\n\n");
+        sb.append(Locale.getString("feature")).append(": ").append(Util.convertMagicNewlines(title)).append("\n\n");
         return sb;
-    }
-
-    private String convertNewlines(String title) {
-        return title.replaceAll("\\s\\*\\s", "\n");
     }
 }

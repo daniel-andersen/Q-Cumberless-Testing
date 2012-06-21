@@ -8,6 +8,7 @@
     <property name="src" value="src" />
     <property name="src.test" value="src.test" />
     <property name="dist.dir" value="dist" />
+    <property name="release.nightly.dir" value="release/nightly" />
     <property name="resources" value="resources" />
 
     <path id="libraries">
@@ -40,6 +41,10 @@
         <delete dir="${dist.dir}" />
     </target>
 
-    <target name="all" depends="compile"/>
+    <target name="all" depends="compile">
+        <copy file="${dist.dir}/${distributionname}.jar" todir="${release.nightly.dir}" />
+        <copy file="../../plugins/pdfreport/release/nightly/pdf_report_plugin.jar" todir="${dist.dir}" />
+        <copy file="../../plugins/pdfreport/lib/gnujpdf.jar" todir="${dist.dir}" />
+    </target>
 
 </project>

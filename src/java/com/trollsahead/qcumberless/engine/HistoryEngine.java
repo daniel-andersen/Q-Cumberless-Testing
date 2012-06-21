@@ -30,11 +30,13 @@ import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.gui.elements.RootElement;
+import com.trollsahead.qcumberless.plugins.HistoryPlugin;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.util.Util;
 
+import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
 import static com.trollsahead.qcumberless.engine.Engine.AnimationState;
 import static com.trollsahead.qcumberless.engine.Engine.animationBackground;
 import static com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
@@ -57,6 +59,7 @@ public class HistoryEngine implements CucumberlessEngine {
     private static final int DATES_PADDING_HORIZONTAL = 40;
     private static final int DATES_PADDING_VERTICAL = 10;
     private static final int BUTTON_PADDING = 40;
+    private static final int PLUGIN_BUTTON_PADDING = 16;
 
     private static final String NO_HISTORY = "NO HISTORY";
     private static final String HISTORY_VIEW = "HISTORY VIEW";
@@ -79,6 +82,10 @@ public class HistoryEngine implements CucumberlessEngine {
     private static Button leftArrowButton;
     private static Button rightArrowButton;
     private static String tags = null;
+
+    private static List<Button> buttons;
+
+    public static List<HistoryPlugin> plugins = new LinkedList<HistoryPlugin>();
 
     public void initialize() {
         leftArrowButton = new Button(
@@ -132,6 +139,25 @@ public class HistoryEngine implements CucumberlessEngine {
         historyEntries = null;
         historyProperties = null;
         currentHistoryEntryIndex = 0;
+        buttons = new LinkedList<Button>();
+        for (final HistoryPlugin plugin : plugins) {
+            Button button = new Button(
+                    0,
+                    0,
+                    plugin.getThumbnail(ThumbnailState.NORMAL),
+                    plugin.getThumbnail(ThumbnailState.HIGHLIGHTED),
+                    plugin.getThumbnail(ThumbnailState.PRESSED),
+                    Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
+                    new Button.ButtonNotification() {
+                        public void onClick() {
+                            plugin.trigger(HistoryHelper.featuresRootToFeatureList(), historyEntries.get(currentHistoryEntryIndex).date);
+                        }
+                    }
+                    ,null
+            );
+            button.setHint(plugin.getTooltip());
+            buttons.add(button);
+        }
     }
 
     private void backupCucumberRoot() {
@@ -170,8 +196,8 @@ public class HistoryEngine implements CucumberlessEngine {
         FlashingMessageManager.addMessage(new FlashingMessage(NO_HISTORY));
     }
 
-    private String getHistoryDate(String dir) {
-        return formatDate(HistoryHelper.extractDateFromDir(dir));
+    private Date getHistoryDate(String dir) {
+        return HistoryHelper.extractDateFromDir(dir);
     }
 
     private String formatDate(long date) {
@@ -217,6 +243,9 @@ public class HistoryEngine implements CucumberlessEngine {
             leftArrowButton.update();
             rightArrowButton.update();
             Engine.designerEngine.update();
+            for (Button button : buttons) {
+                button.update();
+            }
         }
         FlashingMessageManager.update();
         updateAnimation();
@@ -241,6 +270,27 @@ public class HistoryEngine implements CucumberlessEngine {
         if (renderOverlayContent) {
             renderDates(g);
             renderButtonbar(g);
+            renderPlugins(g);
+        }
+    }
+
+    private void renderPlugins(Graphics2D g) {
+        int width = 0;
+        int maxHeight = 0;
+        for (Button button : buttons) {
+            width += button.getImageWidth() + PLUGIN_BUTTON_PADDING;
+            if (button.getImageHeight() > maxHeight) {
+                maxHeight = button.getImageHeight();
+            }
+        }
+        width -= PLUGIN_BUTTON_PADDING;
+
+        int x = (Engine.windowWidth - width) / 2;
+        int y = Engine.windowHeight - ButtonBar.BUTTONBAR_HEIGHT - PLUGIN_BUTTON_PADDING - (maxHeight / 2);
+        for (Button button : buttons) {
+            button.setPosition(x, y);
+            button.render(g);
+            x += button.getImageWidth() + PLUGIN_BUTTON_PADDING;
         }
     }
 
@@ -249,7 +299,7 @@ public class HistoryEngine implements CucumberlessEngine {
             return;
         }
         highlightedEntry = null;
-        int x = Engine.windowWidth - Engine.fontMetrics.stringWidth(historyEntries.get(0).date) - DATES_PADDING_HORIZONTAL;
+        int x = Engine.windowWidth - Engine.fontMetrics.stringWidth(historyEntries.get(0).formattedDate) - DATES_PADDING_HORIZONTAL;
         int y = DATES_PADDING_VERTICAL + Engine.fontMetrics.getHeight() - 3;
         int i = 0;
 
@@ -259,7 +309,7 @@ public class HistoryEngine implements CucumberlessEngine {
             }
 
             g.setColor(entry == highlightedEntry ? COLOR_HISTORY_DATE_HIGHLIGHT : (i != currentHistoryEntryIndex ? COLOR_HISTORY_DATE_NORMAL : COLOR_HISTORY_DATE_CURRENT));
-            g.drawString(entry.date, x, y);
+            g.drawString(entry.formattedDate, x, y);
 
             if (entry.hasErrors) {
                 g.setColor(COLOR_HISTORY_DATE_ERROR);
@@ -327,6 +377,11 @@ public class HistoryEngine implements CucumberlessEngine {
         if (highlightedEntry != null) {
             gotoDate(highlightedEntry);
             return;
+        }
+        for (Button button : buttons) {
+            if (button.click()) {
+                return;
+            }
         }
         Engine.designerEngine.click(clickCount);
     }
@@ -405,14 +460,22 @@ public class HistoryEngine implements CucumberlessEngine {
         HistoryEngine.tags = tags;
     }
 
+    public static void initializePlugins() {
+        for (HistoryPlugin plugin : plugins) {
+            plugin.initialize();
+        }
+    }
+
     private class HistoryEntry {
         public String directory;
-        public String date;
+        public Date date;
+        public String formattedDate;
         public boolean hasErrors;
 
-        public HistoryEntry(String directory, String date) {
+        public HistoryEntry(String directory, Date date) {
             this.directory = directory;
             this.date = date;
+            this.formattedDate = formatDate(date);
             updateErrorState();
         }
 

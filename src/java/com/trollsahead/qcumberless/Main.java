@@ -26,10 +26,12 @@
 package com.trollsahead.qcumberless;
 
 import com.trollsahead.qcumberless.engine.Engine;
+import com.trollsahead.qcumberless.engine.HistoryEngine;
 import com.trollsahead.qcumberless.gui.CucumberlessDialog;
 import com.trollsahead.qcumberless.gui.Images;
 import com.trollsahead.qcumberless.gui.Splash;
 import com.trollsahead.qcumberless.model.Locale;
+import com.trollsahead.qcumberless.plugins.HistoryPlugin;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.Util;
@@ -49,14 +51,15 @@ public class Main {
         Splash.show();
 
         Images.initialize();
-        wirePlugins();
+        wireDevicePlugins();
+        wireHistoryPlugins();
         setLanguage();
 
         CucumberlessDialog frame = new CucumberlessDialog();
         frame.letThereBeLight();
     }
 
-    private static void wirePlugins() {
+    private static void wireDevicePlugins() {
         String pluginStr = ConfigurationManager.get("plugins");
         if (Util.isEmpty(pluginStr)) {
             return;
@@ -77,6 +80,24 @@ public class Main {
             }
         }
         Engine.initializePlugins();
+    }
+
+    private static void wireHistoryPlugins() {
+        String pluginStr = ConfigurationManager.get("historyPlugins");
+        if (Util.isEmpty(pluginStr)) {
+            return;
+        }
+        String[] plugins = pluginStr.split("\\:");
+        try {
+            for (String plugin : plugins) {
+                System.out.println("Adding history plugin: " + plugin);
+                Class<HistoryPlugin> cls = (Class<HistoryPlugin>) Class.forName(plugin);
+                Engine.historyEngine.plugins.add(cls.newInstance());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HistoryEngine.initializePlugins();
     }
 
     private static void setLanguage() {

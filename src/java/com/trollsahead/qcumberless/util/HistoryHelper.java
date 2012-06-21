@@ -26,9 +26,11 @@
 package com.trollsahead.qcumberless.util;
 
 import com.trollsahead.qcumberless.device.Device;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.FeatureBuilder;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.gui.elements.FeatureElement;
 import com.trollsahead.qcumberless.model.ConsoleOutput;
 import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.model.RunHistory;
@@ -261,5 +263,13 @@ public class HistoryHelper {
             }
         }
         return dir;
+    }
+
+    public static List<FeatureElement> featuresRootToFeatureList() {
+        List<FeatureElement> features = new LinkedList<FeatureElement>();
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            features.add((FeatureElement) element);
+        }
+        return features;
     }
 }
