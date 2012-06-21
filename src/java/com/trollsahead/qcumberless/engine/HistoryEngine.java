@@ -276,6 +276,9 @@ public class HistoryEngine implements CucumberlessEngine {
     }
 
     private void renderPlugins(Graphics2D g) {
+        if (Util.isEmpty(historyEntries)) {
+            return;
+        }
         int width = 0;
         int maxHeight = 0;
         for (Button button : buttons) {

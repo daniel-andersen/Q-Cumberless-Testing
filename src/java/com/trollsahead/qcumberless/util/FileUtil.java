@@ -178,7 +178,13 @@ public class FileUtil {
     }
 
     public static void deleteFilesInDir(String dir) {
+        if (Util.isEmpty(dir)) {
+            return;
+        }
         File file = new File(dir);
+        if (!file.exists()) {
+            return;
+        }
         for (File f : file.listFiles()) {
             f.delete();
         }
