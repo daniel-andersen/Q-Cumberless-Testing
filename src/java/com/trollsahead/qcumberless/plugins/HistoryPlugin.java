@@ -36,7 +36,7 @@ import java.util.List;
 public interface HistoryPlugin {
     void initialize();
 
-    void trigger(List<FeatureElement> features, Date date);
+    void trigger(List<FeatureElement> features, Date date, String runTags);
 
     Image getThumbnail(ThumbnailState thumbnailState);
     String getTooltip();

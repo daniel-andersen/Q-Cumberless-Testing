@@ -150,7 +150,8 @@ public class HistoryEngine implements CucumberlessEngine {
                     Button.ALIGN_HORIZONTAL_LEFT | Button.ALIGN_VERTICAL_CENTER,
                     new Button.ButtonNotification() {
                         public void onClick() {
-                            plugin.trigger(HistoryHelper.featuresRootToFeatureList(), historyEntries.get(currentHistoryEntryIndex).date);
+                            HistoryEntry entry = historyEntries.get(currentHistoryEntryIndex);
+                            plugin.trigger(HistoryHelper.featuresRootToFeatureList(), entry.date, (String) historyProperties.get("tags"));
                         }
                     }
                     ,null

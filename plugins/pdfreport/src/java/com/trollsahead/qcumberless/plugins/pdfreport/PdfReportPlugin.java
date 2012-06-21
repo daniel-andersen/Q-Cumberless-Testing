@@ -71,7 +71,9 @@ public class PdfReportPlugin implements HistoryPlugin {
 
     private int currentY;
     private boolean isPageEmpty;
+
     private Date date;
+    private String runTags;
 
     static {
         try {
@@ -88,8 +90,9 @@ public class PdfReportPlugin implements HistoryPlugin {
         file.mkdir();
     }
 
-    public void trigger(List<FeatureElement> features, Date date) {
+    public void trigger(List<FeatureElement> features, Date date, String runTags) {
         this.date = date;
+        this.runTags = runTags;
         String filename = "reports/report_" + FileUtil.prettyFilenameDateAndTime(date) + ".pdf";
         if (generatePdf(filename, features)) {
             FlashingMessageManager.addMessage(new FlashingMessage("Report saved to: " + filename, 5000));
@@ -166,6 +169,9 @@ public class PdfReportPlugin implements HistoryPlugin {
         currentY += g.getFontMetrics().getHeight();
 
         g = drawString(g, "Run date: " + Util.prettyDate(date), BORDER_SIZE, pdfJob);
+        currentY += g.getFontMetrics().getHeight();
+
+        g = drawString(g, "Run-tags: " + (Util.isEmpty(runTags) ? "" : runTags), BORDER_SIZE, pdfJob);
         currentY += g.getFontMetrics().getHeight();
 
         int scenarioCountSuccess = countScenariosInState(features, PlayResult.State.SUCCESS);
