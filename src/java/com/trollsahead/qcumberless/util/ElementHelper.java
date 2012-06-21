@@ -245,4 +245,13 @@ public class ElementHelper {
         File file = new File(feature.getFilename());
         file.delete();
     }
+
+    public static void unfoldAllScenariosIfNotTooMany() {
+        if (DesignerEngine.featuresRoot.children.size() > 6) {
+            return;
+        }
+        for (Element element : DesignerEngine.featuresRoot.children) {
+            element.unfold();
+        }
+    }
 }

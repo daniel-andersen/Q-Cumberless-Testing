@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.model.TagHistory;
+import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.HistoryHelper;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.FileUtil;
@@ -49,6 +50,7 @@ public class FeatureLoader {
         for (String filename : files) {
             DesignerEngine.featuresRoot.addChild(parseFeatureFile(filename, addState));
         }
+        ElementHelper.unfoldAllScenariosIfNotTooMany();
     }
 
     public static FeatureElement parseFeatureFile(String filename, int addState) {
