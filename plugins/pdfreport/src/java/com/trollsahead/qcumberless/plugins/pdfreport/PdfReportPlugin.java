@@ -148,18 +148,22 @@ public class PdfReportPlugin implements HistoryPlugin {
 
         for (FeatureElement feature : features) {
             setPlayResultColor(g, feature.getPlayResult());
-            g = drawString(g, "Feature: " + Util.convertMagicNewlines(feature.getTitle()), BORDER_SIZE, FONT_FEATURE, pdfJob);
+            g = drawString(g, "Feature: " + Util.convertMagicNewlines(feature.getTitle()), BORDER_SIZE, FONT_FEATURE, pdfJob, 20);
             currentY += g.getFontMetrics().getHeight();
             for (Element element : feature.children) {
+                if (element.type == BaseBarElement.TYPE_BACKGROUND) {
+                    continue;
+                }
                 BaseBarElement scenario = (BaseBarElement) element;
                 setPlayResultColor(g, scenario.getPlayResult());
-                g = drawString(g, "Scenario: " + scenario.getTitle(), BORDER_SIZE + 30, pdfJob);
+                g = drawString(g, "Scenario: " + scenario.getTitle(), BORDER_SIZE + 30, pdfJob, 20);
                 if (scenario.getPlayResult().isFailed()) {
                     for (Element stepElement : scenario.children) {
-                        g = drawString(g, stepElement.getTitle(), BORDER_SIZE + 60, pdfJob);
+                        g = drawString(g, stepElement.getTitle(), BORDER_SIZE + 60, pdfJob, 20);
                     }
                 }
             }
+            currentY += g.getFontMetrics().getHeight() * 2;
         }
         return g;
     }
@@ -174,20 +178,20 @@ public class PdfReportPlugin implements HistoryPlugin {
         g = drawString(g, "Run-tags: " + (Util.isEmpty(runTags) ? "" : runTags), BORDER_SIZE, pdfJob);
         currentY += g.getFontMetrics().getHeight();
 
-        int scenarioCountSuccess = countScenariosInState(features, PlayResult.State.SUCCESS);
-        int scenarioCountFailed = countScenariosInState(features, PlayResult.State.FAILED);
-        int scenarioCountNotPlayed = countScenariosInState(features, PlayResult.State.NOT_PLAYED);
-        g = drawString(g, scenarioCountSuccess + " scenarios succeeded", BORDER_SIZE, pdfJob);
-        g = drawString(g, scenarioCountFailed + " scenarios failed", BORDER_SIZE, pdfJob);
-        g = drawString(g, scenarioCountNotPlayed + " scenarios did not run", BORDER_SIZE, pdfJob);
-        currentY += g.getFontMetrics().getHeight();
-
         int featureCountSuccess = countFeaturesInState(features, PlayResult.State.SUCCESS);
         int featureCountFailed = countFeaturesInState(features, PlayResult.State.FAILED);
         int featureCountNotPlayed = countFeaturesInState(features, PlayResult.State.NOT_PLAYED);
         g = drawString(g, featureCountSuccess + " features succeeded", BORDER_SIZE, pdfJob);
         g = drawString(g, featureCountFailed + " features failed", BORDER_SIZE, pdfJob);
         g = drawString(g, featureCountNotPlayed + " features did not run", BORDER_SIZE, pdfJob);
+        currentY += g.getFontMetrics().getHeight();
+
+        int scenarioCountSuccess = countScenariosInState(features, PlayResult.State.SUCCESS);
+        int scenarioCountFailed = countScenariosInState(features, PlayResult.State.FAILED);
+        int scenarioCountNotPlayed = countScenariosInState(features, PlayResult.State.NOT_PLAYED);
+        g = drawString(g, scenarioCountSuccess + " scenarios succeeded", BORDER_SIZE, pdfJob);
+        g = drawString(g, scenarioCountFailed + " scenarios failed", BORDER_SIZE, pdfJob);
+        g = drawString(g, scenarioCountNotPlayed + " scenarios did not run", BORDER_SIZE, pdfJob);
         currentY += g.getFontMetrics().getHeight();
 
         if (scenarioCountFailed > 0) {
@@ -197,9 +201,11 @@ public class PdfReportPlugin implements HistoryPlugin {
             g.setColor(COLOR_FAILED);
             for (FeatureElement feature : features) {
                 for (Element scenario : feature.children) {
-                    if (((BaseBarElement) scenario).getPlayResult().isFailed()) {
-                        String s = "Scenario: " + scenario.getTitle();
-                        g = drawString(g, s, BORDER_SIZE, pdfJob);
+                    if (scenario.type != BaseBarElement.TYPE_BACKGROUND) {
+                        if (((BaseBarElement) scenario).getPlayResult().isFailed()) {
+                            String s = "Scenario: " + scenario.getTitle();
+                            g = drawString(g, s, BORDER_SIZE, pdfJob, 20);
+                        }
                     }
                 }
             }
@@ -239,22 +245,32 @@ public class PdfReportPlugin implements HistoryPlugin {
     }
 
     private Graphics drawString(Graphics g, String s, int x, PDFJob pdfJob) {
-        return drawString(g, s, x, FONT_TEXT, pdfJob);
+        return drawString(g, s, x, FONT_TEXT, pdfJob, 0);
     }
 
     private Graphics drawString(Graphics g, String s, int x, Font font, PDFJob pdfJob) {
+        return drawString(g, s, x, font, pdfJob, 0);
+    }
+
+    private Graphics drawString(Graphics g, String s, int x, PDFJob pdfJob, int wrapIndent) {
+        return drawString(g, s, x, FONT_TEXT, pdfJob, wrapIndent);
+    }
+
+    private Graphics drawString(Graphics g, String s, int x, Font font, PDFJob pdfJob, int wrapIndent) {
         Dimension dimension = pdfJob.getPageDimension();
+        int origX = x;
 
         g.setFont(font);
-        List<String> wrappedText = Util.wrapText(s, dimension.width - BORDER_SIZE - x, g.getFontMetrics());
+        List<String> wrappedText = Util.wrapText(s, dimension.width - BORDER_SIZE - x - wrapIndent, g.getFontMetrics());
         for (String line : wrappedText) {
             g.drawString(line, x, currentY);
             currentY += g.getFontMetrics().getHeight();
             isPageEmpty = false;
-            if (currentY >= dimension.height) {
+            if (currentY >= dimension.height - FOOTER_HEIGHT - BORDER_SIZE) {
                 g = newPage(pdfJob);
                 isPageEmpty = true;
             }
+            x = origX + wrapIndent;
         }
         return g;
     }

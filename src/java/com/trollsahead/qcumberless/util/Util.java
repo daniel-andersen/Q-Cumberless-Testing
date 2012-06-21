@@ -240,8 +240,8 @@ public class Util {
             return lines;
         }
         text = removePostfixedNewline(text);
-        StringBuilder currentLine = new StringBuilder();
         for (String line : text.split("\n")) {
+            StringBuilder currentLine = new StringBuilder();
             for (String word : line.split(" ")) {
                 if (fontMetrics.stringWidth(currentLine.toString() + word) > width) {
                     lines.add(currentLine.toString());
