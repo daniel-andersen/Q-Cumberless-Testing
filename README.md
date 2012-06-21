@@ -1,7 +1,7 @@
 Q-Cumberless Testing
 ====================
 
-Q-Cumberless Tesrting is a graphical user interface for writing and executing [Cucumber](http://cukes.info) tests. It is easily extendable as it allows third-parties to write their own plugins and can thus be used in any test setup based on Cucumber.
+Q-Cumberless Testing is a graphical user interface for writing and executing [Cucumber](http://cukes.info) tests. It is easily extendable as it allows third-parties to write their own plugins and can thus be used in any test setup based on Cucumber.
 
 Up and Running
 ==============
