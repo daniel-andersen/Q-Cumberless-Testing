@@ -2,6 +2,10 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.3
+    - Run history plugin support
+    - PDF report plugin
+
 0.2.2
     - Improved run history
     - calabash-android plugin screenshots
