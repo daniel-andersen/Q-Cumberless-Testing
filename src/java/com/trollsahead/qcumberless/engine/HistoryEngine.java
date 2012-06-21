@@ -155,7 +155,7 @@ public class HistoryEngine implements CucumberlessEngine {
                 renderCurrentRootToBackground();
             }
             createNewRoot();
-            loadFeatures(historyEntries.get(currentHistoryEntryIndex).directory);
+            loadFeatures(historyEntries.get(currentHistoryEntryIndex));
             historyProperties = HistoryHelper.getRunProperties(historyEntries.get(currentHistoryEntryIndex).directory);
             currentHistoryDate = formatDate(Long.parseLong((String) historyProperties.get("date")));
             DesignerEngine.setColorScheme(ColorScheme.PLAY);
@@ -186,13 +186,17 @@ public class HistoryEngine implements CucumberlessEngine {
         render(Engine.animationGraphics, false);
     }
 
-    private void loadFeatures(String dir) {
-        List<String> features = FileUtil.getFeatureFiles(dir);
+    private void loadFeatures(HistoryEntry entry) {
+        List<String> features = FileUtil.getFeatureFiles(entry.directory);
         FeatureLoader.parseFeatureFilesAndPushToDesignerRoot(features.toArray(new String[0]), Element.ADD_STATE_RUN_OUTCOME);
+        if (entry.hasErrors) {
+            ElementHelper.unfoldOnlyErrors();
+        } else {
+            ElementHelper.unfoldAllScenariosIfNotTooMany();
+        }
         if (!Util.isEmpty(tags)) {
             ElementHelper.filterFeaturesAndScenariosByTags(tags);
         }
-        ElementHelper.unfoldOnlyErrors();
     }
 
     private void createNewRoot() {
