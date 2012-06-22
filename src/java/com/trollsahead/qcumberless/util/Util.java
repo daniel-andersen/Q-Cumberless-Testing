@@ -295,7 +295,6 @@ public class Util {
         if (Util.isEmpty(s) || !s.contains("\n")) {
             return s;
         }
-        System.out.println("Hey: " + s.split("\n")[0]);
         return s.split("\n")[0];
     }
 }
