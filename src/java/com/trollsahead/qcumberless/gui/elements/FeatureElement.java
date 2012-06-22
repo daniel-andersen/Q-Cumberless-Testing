@@ -92,7 +92,7 @@ public class FeatureElement extends BaseBarElement {
 
     public StringBuilder buildFeatureInternal(int addState, long time) {
         StringBuilder sb = super.buildFeatureInternal(addState, time);
-        sb.append(Locale.getString("feature")).append(": ").append(Util.convertMagicNewlines(title)).append("\n\n");
+        sb.append(Locale.getString("feature")).append(": ").append(title).append("\n\n");
         return sb;
     }
 }

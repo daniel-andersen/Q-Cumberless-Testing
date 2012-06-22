@@ -37,8 +37,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Util {
-    public static final String PSEUDO_NEWLINE = " * ";
-
     public static void sleep(long ms) {
         try {
             Thread.sleep(ms);
@@ -92,16 +90,6 @@ public class Util {
         } else {
             return str;
         }
-    }
-
-    public static String stripPseudoNewLines(String str) {
-        if (isEmpty(str)) {
-            return str;
-        }
-        if (!str.contains(PSEUDO_NEWLINE)) {
-            return str;
-        }
-        return str.substring(0, str.indexOf(PSEUDO_NEWLINE));
     }
 
     public static String removeLeadingSpaces(String s) {
@@ -303,8 +291,11 @@ public class Util {
         return newList;
     }
 
-    public static String convertMagicNewlines(String s) {
-        return s.replaceAll("\\s\\*\\s", "\n");
+    public static String getFirstLine(String s) {
+        if (Util.isEmpty(s) || !s.contains("\n")) {
+            return s;
+        }
+        System.out.println("Hey: " + s.split("\n")[0]);
+        return s.split("\n")[0];
     }
-
 }

@@ -2,6 +2,10 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.4
+    - Scrolling bound to canvas area
+    - Multiline feature title
+
 0.2.3
     - Run history plugin support
     - PDF report plugin

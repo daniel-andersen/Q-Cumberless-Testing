@@ -29,21 +29,27 @@ import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.elements.Table;
 
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
 import static com.trollsahead.qcumberless.model.Step.CucumberStepPart;
 
 public class EditBox {
     public static boolean isVisible = false;
 
-    private static final int TYPE_ELEMENT    = 0;
-    private static final int TYPE_PART       = 1;
-    private static final int TYPE_TAGS       = 2;
-    private static final int TYPE_TABLE_CELL = 3;
+    private static final int TYPE_SINGLELINE_ELEMENT = 0;
+    private static final int TYPE_MULTILINE_ELEMENT  = 1;
+    private static final int TYPE_PART               = 2;
+    private static final int TYPE_TAGS               = 3;
+    private static final int TYPE_TABLE_CELL         = 4;
 
     private static int editType;
 
     private static BaseBarElement element;
     private static CucumberStepPart part;
     private static Table table;
+    private static JTextComponent textComponent;
 
     public static void showEditPart(CucumberStepPart part) {
         EditBox.part = part;
@@ -52,10 +58,17 @@ public class EditBox {
         show();
     }
     
-    public static void showEditElement(BaseBarElement element) {
+    public static void showSinglelineEditElement(BaseBarElement element) {
         EditBox.element = element;
-        EditBox.editType = TYPE_ELEMENT;
+        EditBox.editType = TYPE_SINGLELINE_ELEMENT;
         CucumberlessDialog.elementTextField.setText(element.step.getFirstPart().getText());
+        show();
+    }
+
+    public static void showMultilineEditElement(BaseBarElement element) {
+        EditBox.element = element;
+        EditBox.editType = TYPE_MULTILINE_ELEMENT;
+        CucumberlessDialog.elementTextArea.setText(element.step.getFirstPart().getText());
         show();
     }
 
@@ -75,10 +88,12 @@ public class EditBox {
 
     private static void show() {
         hide();
+        textComponent = editType == TYPE_MULTILINE_ELEMENT ? CucumberlessDialog.elementTextArea : CucumberlessDialog.elementTextField;
         EditBox.isVisible = true;
-        CucumberlessDialog.elementTextField.setVisible(true);
+        CucumberlessDialog.mainPanel.add(textComponent, BorderLayout.SOUTH);
+        textComponent.setVisible(true);
         CucumberlessDialog.mainPanel.doLayout();
-        CucumberlessDialog.elementTextField.requestFocus();
+        textComponent.requestFocus();
     }
 
     public static void hide() {
@@ -90,6 +105,8 @@ public class EditBox {
         part = null;
         table = null;
         CucumberlessDialog.elementTextField.setVisible(false);
+        CucumberlessDialog.elementTextArea.setVisible(false);
+        CucumberlessDialog.mainPanel.remove(textComponent);
         CucumberlessDialog.mainPanel.doLayout();
     }
 
@@ -134,7 +151,7 @@ public class EditBox {
             if (!isVisible) {
                 return;
             }
-            if (editType == TYPE_ELEMENT) {
+            if (editType == TYPE_SINGLELINE_ELEMENT || editType == TYPE_MULTILINE_ELEMENT) {
                 element.setTitle(text);
             } else if (editType == TYPE_PART) {
                 part.setText(text);
@@ -148,5 +165,11 @@ public class EditBox {
 
     public static boolean isEditing(BaseBarElement cucumberTextElement) {
         return cucumberTextElement == element;
+    }
+
+    public static void keyPressed(KeyEvent keyEvent) {
+        if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE || (keyEvent.getKeyCode() == KeyEvent.VK_ENTER && editType != TYPE_MULTILINE_ELEMENT)) {
+            hide();
+        }
     }
 }

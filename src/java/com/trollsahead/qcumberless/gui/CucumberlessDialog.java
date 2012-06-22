@@ -32,6 +32,7 @@ import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -42,6 +43,7 @@ import java.io.File;
 public class CucumberlessDialog extends JFrame {
     public static Engine engine;
     public static JTextField elementTextField;
+    public static JTextArea elementTextArea;
     public static JPanel mainPanel;
 
     public static CucumberlessDialog instance = null;
@@ -76,22 +78,12 @@ public class CucumberlessDialog extends JFrame {
 
         elementTextField = new JTextField();
         elementTextField.setVisible(false);
-        elementTextField.addKeyListener(new KeyListener() {
-            public void keyTyped(KeyEvent keyEvent) {
-                EditBox.setText(elementTextField.getText());
-            }
+        elementTextField.addKeyListener(new TextFieldKeyListener(elementTextField));
 
-            public void keyPressed(KeyEvent keyEvent) {
-                EditBox.setText(elementTextField.getText());
-            }
-
-            public void keyReleased(KeyEvent keyEvent) {
-                EditBox.setText(elementTextField.getText());
-                if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER || keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    EditBox.hide();
-                }
-            }
-        });
+        elementTextArea = new JTextArea();
+        elementTextArea.setVisible(false);
+        elementTextArea.addKeyListener(new TextFieldKeyListener(elementTextArea));
+        elementTextArea.setLineWrap(true);
 
 		setTitle("Q-Cumberless Testing");
 
@@ -100,7 +92,6 @@ public class CucumberlessDialog extends JFrame {
 
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(engine.getCanvas(), BorderLayout.CENTER);
-        mainPanel.add(elementTextField, BorderLayout.SOUTH);
 
 		contentPane.add(mainPanel, BorderLayout.CENTER);
 
@@ -170,6 +161,27 @@ public class CucumberlessDialog extends JFrame {
             return fileChooser.getSelectedFile();
         } else {
             return null;
+        }
+    }
+
+    private class TextFieldKeyListener implements KeyListener {
+        private JTextComponent textComponent;
+
+        public TextFieldKeyListener(JTextComponent textComponent) {
+            this.textComponent = textComponent;
+        }
+
+        public void keyTyped(KeyEvent keyEvent) {
+            EditBox.setText(textComponent.getText());
+        }
+
+        public void keyPressed(KeyEvent keyEvent) {
+            EditBox.setText(textComponent.getText());
+        }
+
+        public void keyReleased(KeyEvent keyEvent) {
+            EditBox.setText(textComponent.getText());
+            EditBox.keyPressed(keyEvent);
         }
     }
 }

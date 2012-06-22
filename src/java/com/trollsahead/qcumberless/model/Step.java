@@ -260,15 +260,27 @@ public class Step {
                 this.endX += Engine.fontMetrics.stringWidth(" ");
                 return;
             }
-            String[] words = type == PartType.TEXT ? getText().split(" ") : new String[] {getText()};
+            String[] lines = getText().split("\n");
+            boolean addNewLine = false;
             int offsetX = startX;
-            for (String word : words) {
-                offsetX = addWordToWrappedText(word, parentStep.renderWidth, offsetX);
-            }
-            if (Util.isEmpty(wrappedText.get(0))) {
-                this.startX = 0;
-                this.startY += Engine.fontMetrics.getHeight();
-                wrappedText.remove(0);
+            for (String line : lines) {
+                line = line.trim();
+                if (addNewLine) {
+                    this.endX = 0;
+                    this.endY += Engine.fontMetrics.getHeight();
+                    offsetX = 0;
+                    wrappedText.add("");
+                }
+                String[] words = type == PartType.TEXT ? line.split(" ") : new String[] {line};
+                for (String word : words) {
+                    offsetX = addWordToWrappedText(word, parentStep.renderWidth, offsetX);
+                }
+                if (Util.isEmpty(wrappedText.get(0))) {
+                    this.startX = 0;
+                    this.startY += Engine.fontMetrics.getHeight();
+                    wrappedText.remove(0);
+                }
+                addNewLine = true;
             }
         }
         

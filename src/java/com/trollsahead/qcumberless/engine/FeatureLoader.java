@@ -255,7 +255,7 @@ public class FeatureLoader {
         } else if (background != null) {
             return addStepToScenario(background, line);
         } else if (feature != null && !Util.isEmpty(line)) {
-            feature.setTitle(feature.getTitle() + Util.PSEUDO_NEWLINE + line);
+            feature.setTitle(feature.getTitle() + "\n" + line);
         }
         return null;
     }

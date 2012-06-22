@@ -237,7 +237,11 @@ public abstract class BaseBarElement extends Element {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        EditBox.showEditElement(BaseBarElement.this);
+                        if (BaseBarElement.this.type == TYPE_FEATURE) {
+                            EditBox.showMultilineEditElement(BaseBarElement.this);
+                        } else {
+                            EditBox.showSinglelineEditElement(BaseBarElement.this);
+                        }
                     }
                 },
                 this);

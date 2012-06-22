@@ -219,7 +219,7 @@ public abstract class Element {
 
     public Element findChild(String title) {
         for (Element child : children) {
-            if (Util.stripPseudoNewLines(child.getTitle().trim()).equals(Util.stripPseudoNewLines(title.trim()))) {
+            if (Util.getFirstLine(child.getTitle()).trim().equals(Util.getFirstLine(title.trim()))) {
                 return child;
             }
         }
