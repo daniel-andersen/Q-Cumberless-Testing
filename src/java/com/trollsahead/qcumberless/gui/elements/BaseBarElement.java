@@ -473,7 +473,7 @@ public abstract class BaseBarElement extends Element {
         if (buttonGroupVisible != buttonGroupVisibleOld) {
             animation.moveAnimation.renderY = animation.moveAnimation.realY;
             if (buttonGroupVisible && animation.moveAnimation.realY < 0) {
-                DesignerEngine.featuresRoot.scroll(-animation.moveAnimation.realY);
+                DesignerEngine.featuresRoot.push(-animation.moveAnimation.realY);
             }
         }
     }

@@ -80,6 +80,12 @@ public class RootElement extends Element {
         verticalGap = y;
     }
     
+    public void push(int y) {
+        dragCanvas(y);
+        updatePosition();
+        stickChildrenToParentRenderPosition(true);
+    }
+
     public void setBounds(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
@@ -89,11 +95,15 @@ public class RootElement extends Element {
     }
 
     public void scroll(int deltaY) {
+        if (offsetY > 0 && deltaY >= 0) {
+            return;
+        }
         if (isScrollbarTouched() || isDraggingScrollbar) {
             dragScrollbar(deltaY);
         } else {
             dragCanvas(deltaY);
         }
+        offsetY = Math.max(Math.min(0, -(cachedGroupHeight - scrollbarMaxHeight)), Math.min(0, offsetY));
         updatePosition();
         stickChildrenToParentRenderPosition(true);
     }
