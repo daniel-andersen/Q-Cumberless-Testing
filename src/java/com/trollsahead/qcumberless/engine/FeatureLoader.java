@@ -79,6 +79,7 @@ public class FeatureLoader {
 
         String tags = null;
         String comment = null;
+        int scenarioIndent = 0;
         boolean folded = true;
         boolean featureFolded = true;
         PlayResult playResult = null;
@@ -118,6 +119,7 @@ public class FeatureLoader {
                 feature.addChild(background);
                 setFoldState(background, (addState & Element.ADD_STATE_FOLD) != 0, folded);
             } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
+                scenarioIndent = getLineIndent(line);
                 if (line.matches(getScenarioPattern())) {
                     scenario = new ScenarioElement(BaseBarElement.ROOT_FEATURE_EDITOR);
                     scenario.setTitle(extractTitle(Pattern.compile(getScenarioPattern()), line));
@@ -137,6 +139,11 @@ public class FeatureLoader {
                 tags = extractTags(line);
             } else if (line.matches(getCommentPattern())) {
                 comment = extractComment(line);
+                if (getLineIndent(line) > scenarioIndent) {
+                    BaseBarElement commentElement = addStep(feature, background, scenario, comment);
+                    setFoldState(commentElement, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                    comment = null;
+                }
             } else if (line.matches(getExamplesPattern())) {
                 step = ((ScenarioOutlineElement) scenario).getExamplesElement();
                 ((ExamplesElement) step).clearTable();
@@ -167,6 +174,14 @@ public class FeatureLoader {
         }
         feature.animation.alphaAnimation.setAlpha(BaseBarElement.BAR_TRANSPARENCY);
         return feature;
+    }
+
+    private static int getLineIndent(String line) {
+        Matcher matcher = Pattern.compile("^(\\s*)\\S+").matcher(line);
+        if (!matcher.find()) {
+            return 0;
+        }
+        return matcher.group(1).length();
     }
 
     private static void setFoldState(BaseBarElement element, boolean shouldUpdate, boolean folded) {
