@@ -297,4 +297,14 @@ public class Util {
         }
         return s.split("\n")[0];
     }
+
+    public static StringBuilder indentAllLines(String s, String indent) {
+        StringBuilder sb = new StringBuilder();
+        String delimiter = "";
+        for (String line : s.split("\n")) {
+            sb.append(delimiter).append(indent).append(line);
+            delimiter = "\n";
+        }
+        return sb;
+    }
 }

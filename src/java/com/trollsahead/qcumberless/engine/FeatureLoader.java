@@ -138,8 +138,8 @@ public class FeatureLoader {
             } else if (line.matches(getTagPattern())) {
                 tags = extractTags(line);
             } else if (line.matches(getCommentPattern())) {
-                comment = extractComment(line);
-                if (getLineIndent(line) > scenarioIndent) {
+                comment = extractCommentAndAddToCurrent(line, comment);
+                if (getLineIndent(line) > scenarioIndent && scenarioIndent > 0) {
                     BaseBarElement commentElement = addStep(feature, background, scenario, comment);
                     setFoldState(commentElement, (addState & Element.ADD_STATE_FOLD) != 0, folded);
                     comment = null;
@@ -283,10 +283,14 @@ public class FeatureLoader {
         return new Step(line, false);
     }
 
-    private static String extractComment(String line) {
+    private static String extractCommentAndAddToCurrent(String line, String currentComment) {
         Matcher matcher = Pattern.compile(getCommentPattern()).matcher(line);
         matcher.find();
-        return matcher.group(1);
+        if (Util.isEmpty(currentComment)) {
+            return matcher.group(1);
+        } else {
+            return currentComment + "\n" + matcher.group(1);
+        }
     }
 
     public static String extractTags(String line) {
