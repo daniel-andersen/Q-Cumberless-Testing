@@ -2,6 +2,9 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.5
+    - Comments in features/scenarios fully supported
+
 0.2.4
     - Scrolling bound to canvas area
     - Multiline feature title
