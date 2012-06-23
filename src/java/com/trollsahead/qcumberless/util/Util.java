@@ -223,11 +223,16 @@ public class Util {
 
     public static List<String> wrapText(String text, int width, FontMetrics fontMetrics) {
         LinkedList<String> lines = new LinkedList<String>();
-        if (isEmpty(text) || fontMetrics.stringWidth(text) <= width) {
+        if (isEmpty(text)) {
             lines.add(text);
             return lines;
         }
         text = removePostfixedNewline(text);
+        if (!text.contains("\n") && fontMetrics.stringWidth(text) <= width) {
+            lines.add(text);
+            return lines;
+        }
+
         for (String line : text.split("\n")) {
             StringBuilder currentLine = new StringBuilder();
             for (String word : line.split(" ")) {

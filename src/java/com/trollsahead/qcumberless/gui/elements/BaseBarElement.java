@@ -64,6 +64,7 @@ public abstract class BaseBarElement extends Element {
     public static final Color COLOR_TEXT_PARAMETER     = new Color(0xDDDD88);
     public static final Color COLOR_TEXT_ERROR_MESSAGE = new Color(0x000000);
     public static final Color COLOR_TEXT_TAGS          = new Color(0x000000);
+    public static final Color COLOR_TEXT_COMMENT       = new Color(0.0f, 0.0f, 0.0f, 0.7f);
 
     public static final Color BAR_COLOR_NOT_YET_PLAYED  = new Color(0.5f, 0.5f, 0.5f, 0.5f);
     public static final Color BAR_COLOR_SUCCESS         = new Color(0.2f, 0.9f, 0.2f, 0.5f);
@@ -109,18 +110,26 @@ public abstract class BaseBarElement extends Element {
 
     protected static final int BUTTON_GROUP_HEIGHT = BUTTON_HEIGHT + BUTTON_SPACE_VERTICAL;
 
+    protected static final int COMMENT_PADDING_LEFT = BUTTON_WIDTH + BUTTON_PADDING_HORIZONTAL + 15;
+
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
 
     protected int tagsWidth = 0;
     protected int tagsHeight = 0;
 
+    protected int commentHeight = 0;
+
+    protected int oldRenderWidth = -1;
+
     public Step step;
 
     public String title;
     protected String filename = null;
-    protected String comment = null;
     public Tag tags;
+
+    protected String comment = null;
+    protected List<String> commentWrapped = null;
 
     protected List<Button> buttons;
     protected List<ElementPluginButton> pluginButtons;
@@ -237,7 +246,7 @@ public abstract class BaseBarElement extends Element {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        if (BaseBarElement.this.type == TYPE_FEATURE) {
+                        if (BaseBarElement.this.type == TYPE_FEATURE || BaseBarElement.this.type == TYPE_SCENARIO || BaseBarElement.this.type == TYPE_SCENARIO_OUTLINE) {
                             EditBox.showMultilineEditElement(BaseBarElement.this);
                         } else {
                             EditBox.showSinglelineEditElement(BaseBarElement.this);
@@ -355,9 +364,23 @@ public abstract class BaseBarElement extends Element {
         return x + BUTTON_WIDTH + BUTTON_SPACE_HORIZONTAL;
     }
 
+    public void setTitleAndComment(String title) {
+        if (type == TYPE_STEP || type == TYPE_COMMENT) {
+            this.title = title;
+        } else {
+            if (type != TYPE_FEATURE) {
+                title = ElementHelper.ensureOnlyOneTitleLine(title);
+            }
+            this.comment = ElementHelper.extractCommentFromTitle(title);
+            commentWrapped = null;
+            this.title = ElementHelper.removeCommentFromTitle(title);
+        }
+        step = FeatureLoader.findMatchingStep(this.title);
+    }
+
     public void setTitle(String title) {
         this.title = title;
-        step = FeatureLoader.findMatchingStep(title);
+        step = FeatureLoader.findMatchingStep(this.title);
     }
 
     public void setFilename(String filename) {
@@ -459,14 +482,27 @@ public abstract class BaseBarElement extends Element {
         if (shouldStickToParentRenderPosition || animation.alphaAnimation.justBecameVisible()) {
             animation.moveAnimation.setRenderPosition(animation.moveAnimation, false);
         }
-        calculateButtonGroupHeight();
-        calculateTagsPosition();
-        int elementHeight = calculatePartPositions();
+        oldRenderWidth = renderWidth;
         renderWidth = calculateRenderWidth();
+        wrapComment();
+        calculateButtonGroupHeight();
+        calculateCommentHeight();
+        calculateTagsSize();
+        int elementHeight = calculatePartPositions();
         renderHeight = Math.max(RENDER_HEIGHT_MINIMUM, elementHeight + (TEXT_PADDING_VERTICAL * 2)) + getAdditionalRenderHeight();
         paddingHeight = PADDING_VERTICAL[type];
         groupHeight = renderHeight + paddingHeight;
         updateButtonPositions();
+    }
+
+    private void wrapComment() {
+        if (renderWidth != oldRenderWidth) {
+            commentWrapped = null;
+        }
+        if (Util.isEmpty(comment) || !Util.isEmpty(commentWrapped)) {
+            return;
+        }
+        commentWrapped = Util.wrapText(comment, renderWidth - (COMMENT_PADDING_LEFT + getTextPaddingRight()), Engine.fontMetrics);
     }
 
     protected abstract int getAdditionalRenderHeight();
@@ -482,7 +518,15 @@ public abstract class BaseBarElement extends Element {
         }
     }
 
-    private void calculateTagsPosition() {
+    private void calculateCommentHeight() {
+        if (Util.isEmpty(comment)) {
+            commentHeight = 0;
+        } else {
+            commentHeight = Engine.fontMetrics.getHeight() * commentWrapped.size() + TEXT_PADDING_VERTICAL;
+        }
+    }
+
+    private void calculateTagsSize() {
         if (!shouldRenderTags()) {
             tagsHeight = 0;
             return;
@@ -521,7 +565,7 @@ public abstract class BaseBarElement extends Element {
             return step.getLastPartBottom() + Engine.fontMetrics.getHeight();
         }
         int x = 0;
-        int y = tagsHeight + buttonGroupHeight;
+        int y = commentHeight + tagsHeight + buttonGroupHeight;
         for (CucumberStepPart part : step.getParts()) {
             part.wrapText(x, y);
             x = part.endX;
@@ -860,11 +904,7 @@ public abstract class BaseBarElement extends Element {
             return;
         }
         DesignerEngine.cucumberRoot.removeChild(element);
-        if (currentIndex == -1) {
-            addChild(element, index);
-        } else {
-            addChild(element, index);
-        }
+        addChild(element, index);
     }
 
     public abstract BaseBarElement duplicate();
@@ -916,6 +956,7 @@ public abstract class BaseBarElement extends Element {
         setBackgroundColorAccordingToState();
         clear(g);
         drawBar(g);
+        drawComment(g);
         drawText(g);
         drawTags(g);
         drawAdditionals(g);
@@ -1085,6 +1126,18 @@ public abstract class BaseBarElement extends Element {
     
     private boolean isRunnable() {
         return type == TYPE_FEATURE || type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE || type == TYPE_BACKGROUND || type == TYPE_STEP;
+    }
+
+    private void drawComment(Graphics2D g) {
+        if (Util.isEmpty(comment)) {
+            return;
+        }
+        g.setColor(COLOR_TEXT_COMMENT);
+        int y = tagsHeight + buttonGroupHeight + TEXT_PADDING_VERTICAL;
+        for (String line : commentWrapped) {
+            y += Engine.fontMetrics.getHeight();
+            g.drawString(line, getTextPaddingLeft(), y - 3);
+        }
     }
 
     private void drawText(Graphics2D g) {
@@ -1343,6 +1396,7 @@ public abstract class BaseBarElement extends Element {
 
     private void editTags() {
         if (!tags.hasTags()) {
+            step.setTextDirty(true);
             tags = new Tag("@");
         }
         EditBox.showEditTags(this);

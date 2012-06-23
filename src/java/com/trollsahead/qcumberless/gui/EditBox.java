@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.elements.Table;
+import com.trollsahead.qcumberless.util.Util;
 
 import javax.swing.text.JTextComponent;
 import java.awt.*;
@@ -68,7 +69,11 @@ public class EditBox {
     public static void showMultilineEditElement(BaseBarElement element) {
         EditBox.element = element;
         EditBox.editType = TYPE_MULTILINE_ELEMENT;
-        CucumberlessDialog.elementTextArea.setText(element.step.getFirstPart().getText());
+        if (Util.isEmpty(element.getComment())) {
+            CucumberlessDialog.elementTextArea.setText(element.step.getFirstPart().getText());
+        } else {
+            CucumberlessDialog.elementTextArea.setText(element.getComment() + "\n" + element.step.getFirstPart().getText());
+        }
         show();
     }
 
@@ -152,7 +157,7 @@ public class EditBox {
                 return;
             }
             if (editType == TYPE_SINGLELINE_ELEMENT || editType == TYPE_MULTILINE_ELEMENT) {
-                element.setTitle(text);
+                element.setTitleAndComment(text);
             } else if (editType == TYPE_PART) {
                 part.setText(text);
             } else if (editType == TYPE_TAGS) {

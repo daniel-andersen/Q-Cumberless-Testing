@@ -1,3 +1,4 @@
+# Testing Q-Cumberless Testing
 Feature: Hello World
 
     Scenario: I see "What to say?" when I launch the app
@@ -18,6 +19,7 @@ Feature: Hello World
         Then I see "Test Q-Cumberless!"
         And I don't see "Hello World!"
 
+    # A scratch? Your arm's off!
     @bug
     Scenario: I see "Tis' nothing but a scratch!"
         Given My app is running

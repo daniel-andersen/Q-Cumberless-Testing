@@ -264,7 +264,6 @@ public class Step {
             boolean addNewLine = false;
             int offsetX = startX;
             for (String line : lines) {
-                line = line.trim();
                 if (addNewLine) {
                     this.endX = 0;
                     this.endY += Engine.fontMetrics.getHeight();

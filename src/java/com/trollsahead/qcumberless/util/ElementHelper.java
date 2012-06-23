@@ -199,12 +199,13 @@ public class ElementHelper {
     }
 
     public static BaseBarElement findExamplesElement(Element element) {
+        BaseBarElement examplesElement = null;
         for (Element child : element.children) {
             if (child.type == BaseBarElement.TYPE_EXAMPLES) {
-                return (BaseBarElement) child;
+                examplesElement = (BaseBarElement) child;
             }
         }
-        return null;
+        return examplesElement;
     }
 
     public static void bubbleStaticElementsIntoPlace(BaseBarElement element) {
@@ -214,7 +215,8 @@ public class ElementHelper {
         }
         BaseBarElement examplesElement = findExamplesElement(element);
         if (examplesElement != null && element.findChildIndex(examplesElement) < element.children.size() - 1) {
-            element.updateElementIndex(examplesElement, element.children.size() - 1);
+            element.removeChild(examplesElement);
+            element.children.add(examplesElement);
         }
     }
     
@@ -253,5 +255,66 @@ public class ElementHelper {
         for (Element element : DesignerEngine.featuresRoot.children) {
             element.unfold();
         }
+    }
+
+    public static boolean hasCommentInTitle(String title) {
+        if (Util.isEmpty(title)) {
+            return false;
+        }
+        return title.split("\n")[0].matches("^\\s*#.*");
+    }
+
+    public static String extractCommentFromTitle(String title) {
+        if (Util.isEmpty(title)) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        String delimiter = "";
+        for (String line : title.split("\n")) {
+            if (!line.matches("^\\s*#.*")) {
+                continue;
+            }
+            sb.append(delimiter).append(line);
+            delimiter = "\n";
+        }
+        return sb.toString();
+    }
+
+    public static String removeCommentFromTitle(String title) {
+        if (Util.isEmpty(title) || !hasCommentInTitle(title)) {
+            return title;
+        }
+        StringBuilder sb = new StringBuilder();
+        String delimiter = "";
+        for (String line : title.split("\n")) {
+            if (line.matches("^\\s*#.*")) {
+                continue;
+            }
+            sb.append(delimiter).append(line);
+            delimiter = "\n";
+        }
+        return sb.toString();
+    }
+
+    public static String ensureOnlyOneTitleLine(String title) {
+        if (Util.isEmpty(title)) {
+            return title;
+        }
+        String[] lines = title.split("\n");
+        if (lines.length <= 1) {
+            return title;
+        }
+        StringBuilder sb = new StringBuilder();
+        String delimiter = "";
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            sb.append(delimiter);
+            if (!line.matches("^\\s*#.*") && i < lines.length - 1) {
+                sb.append("# ");
+            }
+            sb.append(line);
+            delimiter = "\n";
+        }
+        return sb.toString();
     }
 }

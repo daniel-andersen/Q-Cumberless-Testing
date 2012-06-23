@@ -148,7 +148,7 @@ public class PdfReportPlugin implements HistoryPlugin {
 
         for (FeatureElement feature : features) {
             setPlayResultColor(g, feature.getPlayResult());
-            g = drawString(g, "Feature: " + Util.convertMagicNewlines(feature.getTitle()), BORDER_SIZE, FONT_FEATURE, pdfJob, 20);
+            g = drawString(g, "Feature: " + feature.getTitle(), BORDER_SIZE, FONT_FEATURE, pdfJob, 20);
             currentY += g.getFontMetrics().getHeight();
             for (Element element : feature.children) {
                 if (element.type == BaseBarElement.TYPE_BACKGROUND) {
