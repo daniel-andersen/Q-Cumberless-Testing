@@ -428,7 +428,7 @@ public abstract class BaseBarElement extends Element {
         if (Engine.renderCounter <= lastRenderCount) {
             return;
         }
-        if (expandButton.isTouched()) {
+        if (expandButton.isVisible() && CumberlessMouseListener.mouseX < expandButton.renderX + expandButton.renderWidth) {
             toggleButtonGroup(true);
         } else if (!buttonGroupHasButtons || !expandAreaIsTouched()) {
             toggleButtonGroup(false);
@@ -1239,15 +1239,13 @@ public abstract class BaseBarElement extends Element {
     }
 
     public StringBuilder buildFeatureInternal(int addState, long time) {
+        String indent = type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE ? ElementHelper.EXPORT_INDENT : "";
         StringBuilder sb = new StringBuilder();
         if (!Util.isEmpty(comment)) {
-            sb.append(comment).append("\n");
+            sb.append(Util.indentAllLines(comment, indent)).append("\n");
         }
         if (!Util.isEmpty(tags.toString())) {
-            if (type == TYPE_SCENARIO) {
-                sb.append(ElementHelper.EXPORT_INDENT);
-            }
-            sb.append(tags.toString()).append("\n");
+            sb.append(indent).append(tags.toString()).append("\n");
         }
         if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
             sb.append(HistoryHelper.getRunOutcomeComment(this, time));
