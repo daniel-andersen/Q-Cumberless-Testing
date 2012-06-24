@@ -397,6 +397,7 @@ public abstract class BaseBarElement extends Element {
 
     public void setComment(String comment) {
         this.comment = comment;
+        this.commentWrapped = null;
     }
 
     public String getComment() {
