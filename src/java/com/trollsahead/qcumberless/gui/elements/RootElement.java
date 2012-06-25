@@ -186,7 +186,7 @@ public class RootElement extends Element {
             scrollbarX += renderWidth - SCROLLBAR_PADDING_HORIZONTAL - SCROLLBAR_WIDTH;
         }
 
-        scrollbarMaxHeight = renderHeight - SCROLLBAR_PADDING_VERTICAL * 2 - 2;
+        scrollbarMaxHeight = renderHeight - (SCROLLBAR_PADDING_VERTICAL * 2) - 2;
         scrollbarHeight = scrollbarMaxHeight * renderHeight / Math.max(Math.max(renderHeight, cachedGroupHeight), 1);
 
         if (!isDraggingScrollbar) {
@@ -210,7 +210,7 @@ public class RootElement extends Element {
         }
         updatePosition();
         renderWidth = width;
-        renderHeight = height;
+        renderHeight = height - verticalGap;
         paddingHeight = 0;
         groupHeight = 0;
     }
