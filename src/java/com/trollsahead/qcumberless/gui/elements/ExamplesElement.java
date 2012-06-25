@@ -52,6 +52,13 @@ public class ExamplesElement extends StepElement {
         return groupParent.rootType == ROOT_FEATURE_EDITOR;
     }
 
+    protected void renderBefore(Graphics2D g) {
+        if (groupParent.rootType != ROOT_FEATURE_EDITOR) {
+            return;
+        }
+        super.renderBefore(g);
+    }
+
     public BaseBarElement duplicate() {
         ExamplesElement element = new ExamplesElement();
         if (table != null) {
