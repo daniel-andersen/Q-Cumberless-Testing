@@ -115,6 +115,9 @@ public abstract class BaseBarElement extends Element {
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
 
+    private static final int DRAG_SCROLL_AREA_HEIGHT = 100;
+    private static final int DRAG_SCROLL_AMOUNT = 10;
+
     protected int tagsWidth = 0;
     protected int tagsHeight = 0;
 
@@ -794,6 +797,18 @@ public abstract class BaseBarElement extends Element {
         touchedGroup.updateElementIndex(this, index);
     }
 
+    private void scrollCanvasWhenDragging() {
+        if (!isDragged) {
+            return;
+        }
+        if (CumberlessMouseListener.mouseY < DRAG_SCROLL_AREA_HEIGHT) {
+            DesignerEngine.featuresRoot.scroll(DRAG_SCROLL_AMOUNT);
+        }
+        if (CumberlessMouseListener.mouseY > DesignerEngine.canvasHeight - DRAG_SCROLL_AREA_HEIGHT) {
+            DesignerEngine.featuresRoot.scroll(-DRAG_SCROLL_AMOUNT);
+        }
+    }
+
     private void resetDragPositionHistory() {
         dragHistoryIndex = 0;
         for (int i = 0; i < DRAG_HISTORY_LENGTH; i++) {
@@ -932,6 +947,11 @@ public abstract class BaseBarElement extends Element {
             return -1;
         }
         return touchedGroup.findChildIndex(touchedElement);
+    }
+
+    public void update(long time) {
+        scrollCanvasWhenDragging();
+        super.update(time);
     }
 
     protected void renderBefore(Graphics2D g) {
