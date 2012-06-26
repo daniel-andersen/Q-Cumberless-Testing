@@ -26,6 +26,6 @@ Watch a screencast on [youtube](http://youtu.be/gI96pOscws8).
 Screenshots
 ===========
 
-<img src='https://raw.github.com/black-knight/Q-Cumberless-Testing/master/doc/designer.jpg' width='900px' />
+<img src='https://github.com/black-knight/Q-Cumberless-Testing/raw/master/resources/screenshots/designer.jpg' width='900px' />
 
-[More screenshots](https://github.com/black-knight/Q-Cumberless-Testing/wiki/Screenshots).
+[More screenshots](https://github.com/black-knight/Q-Cumberless-Testing/wiki/Screenshots)
