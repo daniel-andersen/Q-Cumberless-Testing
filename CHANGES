@@ -2,6 +2,9 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.6 (WIP)
+    - Autoscroll of canvas when dragging elements
+
 0.2.5
     - Comments in features/scenarios fully supported
 
