@@ -44,16 +44,17 @@ public class Images {
     public static int IMAGE_EXPAND = 7;
     public static int IMAGE_PAUSE = 8;
     public static int IMAGE_RESUME = 9;
-    public static int IMAGE_STOP = 10;
-    public static int IMAGE_SPOTLIGHT = 11;
-    public static int IMAGE_TABLE = 12;
-    public static int IMAGE_TERMINAL = 13;
-    public static int IMAGE_FILTER = 14;
-    public static int IMAGE_PALETTE = 15;
-    public static int IMAGE_TIMEGLASS = 16;
-    public static int IMAGE_ARROW_LEFT = 17;
-    public static int IMAGE_ARROW_RIGHT = 18;
-    public static int IMAGE_INTERACTIVE_DESIGNER = 19;
+    public static int IMAGE_STEP = 10;
+    public static int IMAGE_STOP = 11;
+    public static int IMAGE_SPOTLIGHT = 12;
+    public static int IMAGE_TABLE = 13;
+    public static int IMAGE_TERMINAL = 14;
+    public static int IMAGE_FILTER = 15;
+    public static int IMAGE_PALETTE = 16;
+    public static int IMAGE_TIMEGLASS = 17;
+    public static int IMAGE_ARROW_LEFT = 18;
+    public static int IMAGE_ARROW_RIGHT = 19;
+    public static int IMAGE_INTERACTIVE_DESIGNER = 20;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -111,6 +112,11 @@ public class Images {
                 ImageIO.read(Images.class.getResource("/resources/pictures/resume_normal.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/resume_highlight.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/resume_normal.png"))
+        });
+        images.put(IMAGE_STEP, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_normal.png"))
         });
         images.put(IMAGE_STOP, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/stop_normal.png")),
