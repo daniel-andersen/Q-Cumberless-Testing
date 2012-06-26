@@ -195,6 +195,26 @@ public class Player implements DeviceCallback {
         }
     }
 
+    public static void step() {
+        for (final Player player : players) {
+            new Thread(new Runnable() {
+                public void run() {
+                    player.device.step();
+                }
+            }).start();
+        }
+    }
+
+    public static void initializeStepMode() {
+        for (final Player player : players) {
+            new Thread(new Runnable() {
+                public void run() {
+                    player.device.initializeStepMode();
+                }
+            }).start();
+        }
+    }
+
     public static void stop() {
         notifiedStopped = true;
         for (final Player player : players) {
@@ -519,6 +539,15 @@ public class Player implements DeviceCallback {
         return false;
     }
     
+    public static boolean isStepable() {
+        for (Player player : players) {
+            if (player.device.getCapabilities().contains(Device.Capability.STEP)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void setSuccess(BaseBarElement element) {
         if ((element instanceof StepElement) && ((currentScenario != null && currentScenario.getPlayResult().isFailed()) || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
             return;

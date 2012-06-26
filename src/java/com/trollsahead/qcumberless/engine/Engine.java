@@ -436,6 +436,15 @@ public class Engine implements Runnable, ComponentListener, KeyListener {
         return false;
     }
 
+    public static boolean isStepableDeviceEnabled() {
+        for (Device device : devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.STEP)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isInteractiveDesignerDeviceEnabled() {
         for (Device device : devices) {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.INTERACTIVE_DESIGNING)) {

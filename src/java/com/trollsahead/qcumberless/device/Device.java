@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.List;
 
 public abstract class Device {
-    public enum Capability {PLAY, PAUSE, STOP, INTERACTIVE_DESIGNING}
+    public enum Capability {PLAY, PAUSE, STOP, STEP, INTERACTIVE_DESIGNING}
 
     private boolean enabled = false;
 
@@ -50,15 +50,19 @@ public abstract class Device {
     public abstract void play(List<StringBuilder> features, Set<String> tags);
 
     public void stop() {
-
     }
 
     public void pause() {
-
     }
 
     public void resume() {
 
+    }
+
+    public void initializeStepMode() {
+    }
+
+    public void step() {
     }
 
     public InteractiveDesignerClient getInteractiveDesignerClient() {

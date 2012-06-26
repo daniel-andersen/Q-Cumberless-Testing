@@ -72,6 +72,8 @@ public class ButtonBar {
     private Button undoButton;
     private Button closeButton;
     private Button pauseButton;
+    private Button stepButton;
+    private Button stepSmallButton;
     private Button stopButton;
     private Button playButton;
     private Button tagsButton;
@@ -132,6 +134,21 @@ public class ButtonBar {
                 },
                 null);
         buttons.add(pauseButton);
+        stepButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_STEP, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_STEP, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_STEP, ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        if (Player.isPaused()) {
+                            Player.step();
+                        }
+                    }
+                },
+                null);
+        buttons.add(stepButton);
         stopButton = new Button(
                 0, 0,
                 Images.getImage(Images.IMAGE_STOP, ThumbnailState.NORMAL.ordinal()),
@@ -235,6 +252,23 @@ public class ButtonBar {
                 null);
         playButton.setHint("Play");
         buttons.add(playButton);
+        stepSmallButton = new Button(
+                0, 0,
+                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.PRESSED.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        if (!Player.isStarted()) {
+                            Player.initializeStepMode();
+                        }
+                    }
+                },
+                null);
+        stepSmallButton.setHint("Initialize Step Mode");
+        buttons.add(stepSmallButton);
+        stepSmallButton.setVisible(true);
         tagsButton = new Button(
                 0, 0,
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
@@ -272,11 +306,10 @@ public class ButtonBar {
                 new Button.ButtonNotification() {
                     public void onClick() {
                         DesignerEngine.switchColorScheme();
-                        paletteButton.setHint("Switch color scheme to " + (DesignerEngine.colorScheme == Element.ColorScheme.DESIGN ? "play" : "design") + " theme");
                     }
                 },
                 null);
-        paletteButton.setHint("Switch color scheme to play theme");
+        paletteButton.setHint("Switch color scheme");
         buttons.add(paletteButton);
         timeglassButton = new Button(
                 0, 0,
@@ -401,8 +434,13 @@ public class ButtonBar {
             timeglassButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
             x += BUTTON_PADDING;
         }
+        if (stepSmallButton.isVisible()) {
+            stepSmallButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+            x += BUTTON_PADDING;
+        }
         x += BUTTON_PADDING * 2;
         pluginButtonsX = x;
+        stepButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 90, BUTTONBAR_HEIGHT);
         pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
         stopButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth + 30, BUTTONBAR_HEIGHT);
     }
@@ -451,11 +489,14 @@ public class ButtonBar {
             playButton.setVisible(isPlayButtonVisible());
             shouldUpdateButtonPositions = true;
         }
-        String runTags = Util.tagsToString(DesignerEngine.runTags);
-        playButton.setHint(!Util.isEmpty(runTags) ? "Play tags: " + runTags.replaceAll(",", " ") : "Play all features");
+        if (stepSmallButton.isVisible() != isStepSmallButtonVisible()) {
+            stepSmallButton.setVisible(isStepSmallButtonVisible());
+            shouldUpdateButtonPositions = true;
+        }
         tagsButton.setVisible(true);
         paletteButton.setVisible(true);
         timeglassButton.setVisible(true);
+        stepButton.setVisible(Player.isStepable() && Player.isPaused());
         if (terminalButton.isVisible() != isTerminalButtonVisible()) {
             terminalButton.setVisible(isTerminalButtonVisible());
             shouldUpdateButtonPositions = true;
@@ -484,6 +525,10 @@ public class ButtonBar {
 
     private boolean isPlayButtonVisible() {
         return Engine.isPlayableDeviceEnabled();
+    }
+
+    private boolean isStepSmallButtonVisible() {
+        return Engine.isStepableDeviceEnabled();
     }
 
     private boolean isTerminalButtonVisible() {
