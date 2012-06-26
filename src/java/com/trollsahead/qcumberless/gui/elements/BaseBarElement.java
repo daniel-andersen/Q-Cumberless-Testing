@@ -139,7 +139,6 @@ public abstract class BaseBarElement extends Element {
     protected Button expandButton;
     protected Button trashcanButton;
     protected Button playButton;
-    protected Button stepButton;
     protected Button editButton;
     protected Button interactiveDesignerButton;
     protected Button tagsAddButton;
@@ -242,19 +241,6 @@ public abstract class BaseBarElement extends Element {
                 },
                 this);
         buttons.add(playButton);
-        stepButton = new Button(
-                0,
-                0,
-                null,
-                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.NORMAL.ordinal()),
-                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
-                new Button.ButtonNotification() {
-                    public void onClick() {
-                        play();
-                    }
-                },
-                this);
-        buttons.add(stepButton);
         editButton = new Button(
                 0,
                 0,
@@ -348,9 +334,6 @@ public abstract class BaseBarElement extends Element {
         buttonGroupWidth = BUTTON_PADDING_HORIZONTAL;
         if (hasPlayButton()) {
             buttonGroupWidth = addGroupButton(playButton, buttonGroupWidth);
-        }
-        if (hasStepButton()) {
-            buttonGroupWidth = addGroupButton(stepButton, buttonGroupWidth);
         }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
@@ -454,7 +437,6 @@ public abstract class BaseBarElement extends Element {
         tagsAddButton.setVisible(hasTagsAddButton() && tags.hasTags());
         tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
         playButton.setVisible(hasPlayButton() && buttonGroupVisible);
-        stepButton.setVisible(hasStepButton() && buttonGroupVisible);
         editButton.setVisible(hasEditButton() && buttonGroupVisible);
         interactiveDesignerButton.setVisible(hasInteractiveDesignerButton() && buttonGroupVisible);
         updateAdditionalButtonsVisibleState();
@@ -1304,12 +1286,6 @@ public abstract class BaseBarElement extends Element {
                 && Engine.isPlayableDeviceEnabled()
                 && !Player.isStarted()
                 && canEdit();
-    }
-
-    protected boolean hasStepButton() {
-        return (type == TYPE_STEP)
-                && Engine.isStepableDeviceEnabled()
-                && Player.isPaused();
     }
 
     protected boolean hasEditButton() {
