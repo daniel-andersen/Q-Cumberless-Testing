@@ -27,5 +27,5 @@ Screenshots
 ===========
 
 <img src='https://raw.github.com/black-knight/Q-Cumberless-Testing/master/doc/designer.jpg' width='900px' />
-<img src='https://raw.github.com/black-knight/Q-Cumberless-Testing/master/doc/runhistory.jpg' width='900px' />
 
+[More screenshots](https://github.com/black-knight/Q-Cumberless-Testing/wiki/Screenshots).
