@@ -43,7 +43,7 @@ public abstract class Element {
 
     public static final int ADD_STATE_NONE = 0;
     public static final int ADD_STATE_RUN_OUTCOME = 1;
-    public static final int ADD_STATE_FOLD = 2;
+    public static final int ADD_STATE_VIEW = 2;
 
     public static final int ROOT_NONE = 0;
     public static final int ROOT_FEATURE_EDITOR = 1 << 1;

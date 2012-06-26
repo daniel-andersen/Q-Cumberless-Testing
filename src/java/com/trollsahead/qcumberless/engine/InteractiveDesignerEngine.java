@@ -46,6 +46,7 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
     private static final String WAITING_FOR_DEVICE_TEXT = "WAITING FOR DEVICE...";
 
     private static ColorScheme originalColorScheme;
+    private static Element originalLastAddedElement;
 
     private static BufferedImage screenshot = null;
 
@@ -73,6 +74,8 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
         scenario.groupParent.unfoldAll();
 
         originalColorScheme = DesignerEngine.colorScheme;
+        originalLastAddedElement = DesignerEngine.lastAddedElement;
+
         DesignerEngine.setColorScheme(ColorScheme.DESIGN);
 
         screenshot = null;
@@ -97,6 +100,7 @@ public class InteractiveDesignerEngine implements CucumberlessEngine {
         }
         DesignerEngine.stepsRoot.show(false);
         DesignerEngine.setColorScheme(originalColorScheme);
+        DesignerEngine.lastAddedElement = originalLastAddedElement;
         ElementHelper.removeFilter();
     }
 

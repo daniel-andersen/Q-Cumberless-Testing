@@ -61,21 +61,21 @@ public class UndoManager {
         }
         List<FeatureElement> features = new LinkedList<FeatureElement>();
         for (FeatureSnapshot snapshot : undoSnapshot.getFeatureSnapshots()) {
-            features.add(FeatureLoader.parseFeatureFile(snapshot.featureWithState, snapshot.filename, Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_FOLD));
+            features.add(FeatureLoader.parseFeatureFile(snapshot.featureWithState, snapshot.filename, Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_VIEW));
         }
         lastPoppedElement = undoSnapshot;
         snapshots.add(0, undoSnapshot);
-        return new UndoElement(features, undoSnapshot.getLastAddedElement());
+        return new UndoElement(features);
     }
 
-    public static void takeSnapshot(RootElement root, Element lastAddedElement) {
-        UndoSnapshot snapshot = new UndoSnapshot(root, lastAddedElement);
+    public static void takeSnapshot(RootElement root) {
+        UndoSnapshot snapshot = new UndoSnapshot(root);
         if (!isEmpty() && snapshot.equals(snapshots.get(0))) {
-            updateMostRecentSnapshotState(root, lastAddedElement);
+            updateMostRecentSnapshotState(root);
             return;
         }
         if (lastPoppedElement != null && snapshot.equals(lastPoppedElement)) {
-            updateMostRecentSnapshotState(root, lastAddedElement);
+            updateMostRecentSnapshotState(root);
             return;
         }
         if (snapshots.size() >= UNDO_BUFFER) {
@@ -85,9 +85,9 @@ public class UndoManager {
         lastPoppedElement = null;
     }
 
-    private static void updateMostRecentSnapshotState(RootElement root, Element lastAddedElement) {
+    private static void updateMostRecentSnapshotState(RootElement root) {
         snapshots.remove(0);
-        snapshots.add(0, new UndoSnapshot(root, lastAddedElement));
+        snapshots.add(0, new UndoSnapshot(root));
     }
 
     public static boolean isEmpty() {
@@ -96,11 +96,9 @@ public class UndoManager {
 
     public static class UndoElement {
         public List<FeatureElement> features;
-        public Element lastAddedElement;
 
-        public UndoElement(List<FeatureElement> features, Element lastAddedElement) {
+        public UndoElement(List<FeatureElement> features) {
             this.features = features;
-            this.lastAddedElement = lastAddedElement;
         }
     }
 }

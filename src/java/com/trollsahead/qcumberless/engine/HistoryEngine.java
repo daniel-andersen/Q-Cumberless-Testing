@@ -68,6 +68,7 @@ public class HistoryEngine implements CucumberlessEngine {
     private static RootElement originalFeaturesRoot = null;
     private static RootElement originalStepsRoot = null;
     private static ColorScheme originalColorScheme;
+    private static Element originalLastAddedElement;
 
     private static AnimationState animationState;
     private static float animationProgress;
@@ -166,6 +167,7 @@ public class HistoryEngine implements CucumberlessEngine {
         originalFeaturesRoot = DesignerEngine.featuresRoot;
         originalStepsRoot = DesignerEngine.stepsRoot;
         originalColorScheme = DesignerEngine.colorScheme;
+        originalLastAddedElement = DesignerEngine.lastAddedElement;
     }
 
     private void restoreCucumberRoot() {
@@ -173,6 +175,7 @@ public class HistoryEngine implements CucumberlessEngine {
         DesignerEngine.featuresRoot = originalFeaturesRoot;
         DesignerEngine.stepsRoot = originalStepsRoot;
         DesignerEngine.setColorScheme(originalColorScheme);
+        DesignerEngine.lastAddedElement = originalLastAddedElement;
     }
 
     private void showHistory(AnimationState newAnimationState) {

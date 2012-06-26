@@ -34,13 +34,8 @@ import java.util.List;
 
 public class UndoSnapshot {
     private List<FeatureSnapshot> features;
-    private Element lastAddedElement;
 
     public UndoSnapshot(RootElement root) {
-        this(root, null);
-    }
-
-    public UndoSnapshot(RootElement root, Element lastAddedElement) {
         features = new LinkedList<FeatureSnapshot>();
         for (Element element : root.children) {
             if (!(element instanceof FeatureElement)) {
@@ -49,18 +44,13 @@ public class UndoSnapshot {
             features.add(
                     new FeatureSnapshot(
                             element.buildFeature(Element.ADD_STATE_NONE),
-                            element.buildFeature(Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_FOLD),
+                            element.buildFeature(Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_VIEW),
                             ((FeatureElement) element).getFilename()));
         }
-        this.lastAddedElement = lastAddedElement;
     }
 
     public List<FeatureSnapshot> getFeatureSnapshots() {
         return features;
-    }
-
-    public Element getLastAddedElement() {
-        return lastAddedElement;
     }
 
     public StringBuilder concatenateFeatures() {

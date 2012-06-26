@@ -655,7 +655,7 @@ public abstract class BaseBarElement extends Element {
             if (groupParent != null) {
                 groupParent.updateElementIndex(this, -1);
                 DesignerEngine.cucumberRoot.removeChild(this);
-                UndoManager.takeSnapshot(DesignerEngine.featuresRoot, DesignerEngine.lastAddedElement);
+                UndoManager.takeSnapshot(DesignerEngine.featuresRoot);
             }
             if (type == TYPE_FEATURE) {
                 ElementHelper.deleteFeatureFromFilesystem(this);
@@ -681,7 +681,7 @@ public abstract class BaseBarElement extends Element {
         }
         folded = !folded;
         foldFadeAnimation(folded ? 0.0f : BAR_TRANSPARENCY, true);
-        UndoManager.takeSnapshot(DesignerEngine.featuresRoot, DesignerEngine.lastAddedElement);
+        UndoManager.takeSnapshot(DesignerEngine.featuresRoot);
     }
 
     public void fold() {
@@ -1325,8 +1325,13 @@ public abstract class BaseBarElement extends Element {
         if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
             sb.append(HistoryHelper.getRunOutcomeComment(this, time));
         }
-        if ((addState & Element.ADD_STATE_FOLD) != 0 && isFoldable()) {
-            sb.append("# foldstate: ").append(isFolded()).append("\n");
+        if ((addState & Element.ADD_STATE_VIEW) != 0) {
+            if (isFoldable()) {
+                sb.append("# foldstate: ").append(isFolded()).append("\n");
+            }
+            if (DesignerEngine.lastAddedElement == this) {
+                sb.append("# lastAddedElement").append("\n");
+            }
         }
         return sb;
     }

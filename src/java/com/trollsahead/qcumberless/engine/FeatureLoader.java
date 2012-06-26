@@ -82,6 +82,7 @@ public class FeatureLoader {
         int scenarioIndent = 0;
         boolean folded = true;
         boolean featureFolded = true;
+        boolean isLastAddedElement = false;
         PlayResult playResult = null;
 
         for (String line : source.toString().split("\n")) {
@@ -94,16 +95,21 @@ public class FeatureLoader {
                     playResult = HistoryHelper.getPlayResultFromComment(line);
                 }
             } else if (line.matches(getFoldStatePattern())) {
-                if ((addState & Element.ADD_STATE_FOLD) != 0) {
+                if ((addState & Element.ADD_STATE_VIEW) != 0) {
                     folded = Boolean.parseBoolean(extractFoldState(line));
+                }
+            } else if (line.matches(getViewStatePattern())) {
+                if ((addState & Element.ADD_STATE_VIEW) != 0) {
+                    isLastAddedElement = true;
                 }
             } else if (line.matches(getFeaturePattern())) {
                 feature.setTitle(extractTitle(Pattern.compile(getFeaturePattern()), line));
                 feature.setTags(tags);
                 feature.setComment(comment);
                 feature.setPlayState(playResult);
-                setFoldState(feature, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                setViewState(feature, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
                 featureFolded = folded;
+                isLastAddedElement = false;
                 tags = null;
                 comment = null;
                 playResult = null;
@@ -117,7 +123,8 @@ public class FeatureLoader {
                 comment = null;
                 playResult = null;
                 feature.addChild(background);
-                setFoldState(background, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                setViewState(background, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                isLastAddedElement = false;
             } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
                 scenarioIndent = getLineIndent(line);
                 if (line.matches(getScenarioPattern())) {
@@ -134,15 +141,17 @@ public class FeatureLoader {
                 comment = null;
                 playResult = null;
                 feature.addChild(scenario);
-                setFoldState(scenario, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                setViewState(scenario, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                isLastAddedElement = false;
             } else if (line.matches(getTagPattern())) {
                 tags = extractTags(line);
             } else if (line.matches(getCommentPattern())) {
                 comment = extractCommentAndAddToCurrent(line, comment);
                 if (getLineIndent(line) > scenarioIndent && scenarioIndent > 0) {
                     BaseBarElement commentElement = addStep(feature, background, scenario, comment);
-                    setFoldState(commentElement, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                    setViewState(commentElement, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
                     comment = null;
+                    isLastAddedElement = false;
                 }
             } else if (line.matches(getExamplesPattern())) {
                 step = ((ScenarioOutlineElement) scenario).getExamplesElement();
@@ -152,7 +161,8 @@ public class FeatureLoader {
             } else {
                 if (comment != null) {
                     BaseBarElement commentElement = addStep(feature, background, scenario, comment);
-                    setFoldState(commentElement, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                    setViewState(commentElement, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                    isLastAddedElement = false;
                 }
                 BaseBarElement element = addStep(feature, background, scenario, line);
                 if (element instanceof StepElement || element instanceof ExamplesElement) {
@@ -160,7 +170,8 @@ public class FeatureLoader {
                 }
                 if (element != null) {
                     element.setPlayState(playResult);
-                    setFoldState(element, (addState & Element.ADD_STATE_FOLD) != 0, folded);
+                    setViewState(element, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                    isLastAddedElement = false;
                 }
                 tags = null;
                 comment = null;
@@ -184,9 +195,12 @@ public class FeatureLoader {
         return matcher.group(1).length();
     }
 
-    private static void setFoldState(BaseBarElement element, boolean shouldUpdate, boolean folded) {
+    private static void setViewState(BaseBarElement element, boolean shouldUpdate, boolean folded, boolean isLastAddedElement) {
         if (!shouldUpdate) {
             return;
+        }
+        if (isLastAddedElement) {
+            DesignerEngine.lastAddedElement = element; // TODO! HACK!
         }
         if (!element.isFoldable()) {
             element.animation.alphaAnimation.setAlpha(folded ? 0.0f : BaseBarElement.BAR_TRANSPARENCY);
@@ -349,5 +363,9 @@ public class FeatureLoader {
 
     private static String getFoldStatePattern() {
         return "^\\s*# foldstate: (.*)";
+    }
+
+    private static String getViewStatePattern() {
+        return "^\\s*# lastAddedElement$";
     }
 }

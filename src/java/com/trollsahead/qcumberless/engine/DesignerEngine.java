@@ -510,7 +510,7 @@ public class DesignerEngine implements CucumberlessEngine {
     public static void updateLastAddedElement(Element element) {
         if (element.rootType != ROOT_STEP_DEFINITIONS) {
             lastAddedElement = element;
-            UndoManager.takeSnapshot(featuresRoot, lastAddedElement);
+            UndoManager.takeSnapshot(featuresRoot);
         }
     }
 
@@ -584,7 +584,6 @@ public class DesignerEngine implements CucumberlessEngine {
                 featuresRoot.children.add(feature);
                 feature.groupParent = featuresRoot;
             }
-            lastAddedElement = undoElement.lastAddedElement;
             Engine.resetFps();
         }
     }
