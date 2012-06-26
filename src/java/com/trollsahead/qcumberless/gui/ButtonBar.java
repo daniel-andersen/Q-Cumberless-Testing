@@ -261,7 +261,7 @@ public class ButtonBar {
                 new Button.ButtonNotification() {
                     public void onClick() {
                         if (!Player.isStarted()) {
-                            Player.initializeStepMode();
+                            DesignerEngine.initializeStepMode();
                         }
                     }
                 },

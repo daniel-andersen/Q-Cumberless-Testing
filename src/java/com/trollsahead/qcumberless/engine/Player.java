@@ -205,16 +205,6 @@ public class Player implements DeviceCallback {
         }
     }
 
-    public static void initializeStepMode() {
-        for (final Player player : players) {
-            new Thread(new Runnable() {
-                public void run() {
-                    player.device.initializeStepMode();
-                }
-            }).start();
-        }
-    }
-
     public static void stop() {
         notifiedStopped = true;
         for (final Player player : players) {

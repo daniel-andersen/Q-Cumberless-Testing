@@ -587,4 +587,12 @@ public class DesignerEngine implements CucumberlessEngine {
             Engine.resetFps();
         }
     }
+
+    public static void initializeStepMode() {
+        for (final Device device : Engine.devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.STEP)) {
+                device.initializeStepMode();
+            }
+        }
+    }
 }
