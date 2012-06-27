@@ -26,6 +26,7 @@
 package com.trollsahead.qcumberless.device;
 
 import com.trollsahead.qcumberless.gui.Images;
+import com.trollsahead.qcumberless.gui.elements.StepElement;
 import com.trollsahead.qcumberless.model.ConsoleOutput;
 
 import java.awt.*;
@@ -56,13 +57,22 @@ public abstract class Device {
     }
 
     public void resume() {
-
     }
 
     public void initializeStepMode() {
     }
 
+    public void resumeFromStepMode() {
+    }
+
     public void step() {
+    }
+
+    public void step(StepElement stepElement) {
+    }
+
+    public String getStepPauseDefinition() {
+        return "Undefined";
     }
 
     public InteractiveDesignerClient getInteractiveDesignerClient() {

@@ -56,7 +56,7 @@ public class ProgressBar extends FlashingMessage {
         int x = (Engine.windowWidth - getWidth()) / 2;
         int y = (int) moveAnimation.renderY;
 
-        int progressWidth = (int) ((float) getWidth() * percent / 100.0f);
+        int progressWidth = (int) ((float) getWidth() * Math.max(0, Math.min(percent, 100.0f)) / 100.0f);
 
         g.setColor(PROGRESS_BAR_BACKGROUND_COLOR);
         g.fillRect(x + PROGRESS_BAR_GAP, y + getHeight() - PROGRESS_BAR_GAP - PROGRESS_BAR_HEIGHT, getWidth() - (PROGRESS_BAR_GAP * 2), PROGRESS_BAR_HEIGHT);

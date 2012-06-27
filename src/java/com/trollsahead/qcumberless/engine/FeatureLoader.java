@@ -26,12 +26,9 @@
 package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.gui.elements.*;
-import com.trollsahead.qcumberless.model.Locale;
-import com.trollsahead.qcumberless.model.PlayResult;
-import com.trollsahead.qcumberless.model.TagHistory;
+import com.trollsahead.qcumberless.model.*;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.HistoryHelper;
-import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -42,18 +39,18 @@ import java.util.regex.Pattern;
 
 public class FeatureLoader {
     public static void parseFeatureFilesAndPushToDesignerRoot(String[] files) {
-        parseFeatureFilesAndPushToDesignerRoot(files, Element.ADD_STATE_NONE);
+        parseFeatureFilesAndPushToDesignerRoot(files, new FeatureBuildState());
     }
 
-    public static void parseFeatureFilesAndPushToDesignerRoot(String[] files, int addState) {
+    public static void parseFeatureFilesAndPushToDesignerRoot(String[] files, FeatureBuildState buildState) {
         DesignerEngine.resetFeatures();
         for (String filename : files) {
-            DesignerEngine.featuresRoot.addChild(parseFeatureFile(filename, addState));
+            DesignerEngine.featuresRoot.addChild(parseFeatureFile(filename, buildState));
         }
         ElementHelper.unfoldAllScenariosIfNotTooMany();
     }
 
-    public static FeatureElement parseFeatureFile(String filename, int addState) {
+    public static FeatureElement parseFeatureFile(String filename, FeatureBuildState buildState) {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
@@ -62,7 +59,7 @@ public class FeatureLoader {
             while ((line = in.readLine()) != null) {
                 feature.append(line).append("\n");
             }
-            return parseFeatureFile(feature, filename, addState);
+            return parseFeatureFile(feature, filename, buildState);
         } catch (Exception e) {
             throw new RuntimeException("Error reading supported feature file " + filename, e);
         } finally {
@@ -70,7 +67,7 @@ public class FeatureLoader {
         }
     }
 
-    public static FeatureElement parseFeatureFile(StringBuilder source, String filename, int addState) {
+    public static FeatureElement parseFeatureFile(StringBuilder source, String filename, FeatureBuildState buildState) {
         FeatureElement feature = new FeatureElement(BaseBarElement.ROOT_FEATURE_EDITOR);
         feature.setFilename(filename);
         ScenarioElement scenario = null;
@@ -91,15 +88,15 @@ public class FeatureLoader {
                 continue;
             }
             if (line.startsWith(getPlayResultPattern())) {
-                if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
+                if (buildState.hasState(FeatureBuildState.ADD_STATE_RUN_OUTCOME)) {
                     playResult = HistoryHelper.getPlayResultFromComment(line);
                 }
             } else if (line.matches(getFoldStatePattern())) {
-                if ((addState & Element.ADD_STATE_VIEW) != 0) {
+                if (buildState.hasState(FeatureBuildState.ADD_STATE_VIEW)) {
                     folded = Boolean.parseBoolean(extractFoldState(line));
                 }
             } else if (line.matches(getViewStatePattern())) {
-                if ((addState & Element.ADD_STATE_VIEW) != 0) {
+                if (buildState.hasState(FeatureBuildState.ADD_STATE_VIEW)) {
                     isLastAddedElement = true;
                 }
             } else if (line.matches(getFeaturePattern())) {
@@ -107,7 +104,7 @@ public class FeatureLoader {
                 feature.setTags(tags);
                 feature.setComment(comment);
                 feature.setPlayState(playResult);
-                setViewState(feature, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                setViewState(feature, buildState.hasState(FeatureBuildState.ADD_STATE_VIEW), folded, isLastAddedElement);
                 featureFolded = folded;
                 isLastAddedElement = false;
                 tags = null;
@@ -123,7 +120,7 @@ public class FeatureLoader {
                 comment = null;
                 playResult = null;
                 feature.addChild(background);
-                setViewState(background, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                setViewState(background, buildState.hasState(FeatureBuildState.ADD_STATE_VIEW), folded, isLastAddedElement);
                 isLastAddedElement = false;
             } else if (line.matches(getScenarioPattern()) || line.matches(getScenarioOutlinePattern())) {
                 scenarioIndent = getLineIndent(line);
@@ -141,7 +138,7 @@ public class FeatureLoader {
                 comment = null;
                 playResult = null;
                 feature.addChild(scenario);
-                setViewState(scenario, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                setViewState(scenario, buildState.hasState(FeatureBuildState.ADD_STATE_VIEW), folded, isLastAddedElement);
                 isLastAddedElement = false;
             } else if (line.matches(getTagPattern())) {
                 tags = extractTags(line);
@@ -149,7 +146,7 @@ public class FeatureLoader {
                 comment = extractCommentAndAddToCurrent(line, comment);
                 if (getLineIndent(line) > scenarioIndent && scenarioIndent > 0) {
                     BaseBarElement commentElement = addStep(feature, background, scenario, comment);
-                    setViewState(commentElement, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                    setViewState(commentElement, buildState.hasState(FeatureBuildState.ADD_STATE_VIEW), folded, isLastAddedElement);
                     comment = null;
                     isLastAddedElement = false;
                 }
@@ -161,7 +158,7 @@ public class FeatureLoader {
             } else {
                 if (comment != null) {
                     BaseBarElement commentElement = addStep(feature, background, scenario, comment);
-                    setViewState(commentElement, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                    setViewState(commentElement, buildState.hasState(FeatureBuildState.ADD_STATE_VIEW), folded, isLastAddedElement);
                     isLastAddedElement = false;
                 }
                 BaseBarElement element = addStep(feature, background, scenario, line);
@@ -170,7 +167,7 @@ public class FeatureLoader {
                 }
                 if (element != null) {
                     element.setPlayState(playResult);
-                    setViewState(element, (addState & Element.ADD_STATE_VIEW) != 0, folded, isLastAddedElement);
+                    setViewState(element, buildState.hasState(FeatureBuildState.ADD_STATE_VIEW), folded, isLastAddedElement);
                     isLastAddedElement = false;
                 }
                 tags = null;

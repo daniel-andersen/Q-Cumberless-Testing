@@ -346,6 +346,30 @@ public class DesignerEngine implements CucumberlessEngine {
         }
     }
 
+    public static void runInSingleStepMode(List<StringBuilder> features) {
+        Player.prepareSingleStepMode();
+        for (final Device device : Engine.devices) {
+            if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
+                new Player().playInStepMode(features, device, new HashSet<String>());
+            }
+        }
+    }
+
+    public static void runInStepMode(StepElement stepElement) {
+        if (Player.isAtStepBreakpoint()) {
+            for (Player player : Player.players) {
+                player.runStep(stepElement);
+            }
+        } else {
+            Player.prepareStepMode();
+            for (final Device device : Engine.devices) {
+                if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.STEP)) {
+                    new Player().playInStepMode(stepElement, device, new HashSet<String>());
+                }
+            }
+        }
+    }
+
     private static void updateHighlight() {
         if (!canvasHasMouseFocus) {
             return;

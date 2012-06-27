@@ -39,7 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AndroidHelper {
-    public static String getUniqueDevice() {
+    public static String getUniqueDeviceId() {
         List<String> devices = listDevices();
         if (Util.isEmpty(devices)) {
             throw new RuntimeException("No devices found");

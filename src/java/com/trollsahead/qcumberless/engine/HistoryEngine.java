@@ -30,6 +30,7 @@ import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.gui.elements.RootElement;
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.plugins.HistoryPlugin;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.FileUtil;
@@ -218,7 +219,7 @@ public class HistoryEngine implements CucumberlessEngine {
 
     private void loadFeatures(HistoryEntry entry) {
         List<String> features = FileUtil.getFeatureFiles(entry.directory);
-        FeatureLoader.parseFeatureFilesAndPushToDesignerRoot(features.toArray(new String[0]), Element.ADD_STATE_RUN_OUTCOME);
+        FeatureLoader.parseFeatureFilesAndPushToDesignerRoot(features.toArray(new String[0]), new FeatureBuildState(FeatureBuildState.ADD_STATE_RUN_OUTCOME));
         if (entry.hasErrors) {
             ElementHelper.unfoldOnlyErrors();
         } else {

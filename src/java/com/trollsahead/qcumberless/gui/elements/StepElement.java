@@ -28,6 +28,8 @@ package com.trollsahead.qcumberless.gui.elements;
 import com.trollsahead.qcumberless.engine.Engine;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.Button;
+import com.trollsahead.qcumberless.model.Constants;
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.Step;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
@@ -167,12 +169,22 @@ public class StepElement extends BaseBarElement {
         return table != null ? (table.getHeight() + TEXT_PADDING_VERTICAL) : 0;
     }
 
-    public StringBuilder buildFeatureInternal(int addState, long time) {
-        StringBuilder sb = super.buildFeatureInternal(addState, time);
+    public StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
+        StringBuilder sb = super.buildFeatureInternal(buildState);
         sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append(step.toString()).append("\n");
         if (table != null) {
             sb.append(table.buildFeature());
         }
         return sb;
+    }
+
+    public String getTitleWithoutPrefix() {
+        String title = getTitle();
+        for (String prefix : Constants.getStepPrefixs()) {
+            if (title.startsWith(prefix)) {
+                return title.substring(prefix.length() + 1);
+            }
+        }
+        return title;
     }
 }

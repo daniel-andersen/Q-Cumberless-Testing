@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.ButtonBar;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.PlayResult;
 
 import java.awt.*;
@@ -249,7 +250,7 @@ public class RootElement extends Element {
         return new RootElement();
     }
 
-    protected StringBuilder buildFeatureInternal(int addState, long time) {
+    protected StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
         return new StringBuilder();
     }
 

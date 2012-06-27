@@ -61,7 +61,7 @@ public class InteractiveDesigner implements InteractiveDesignerClient {
 
     public void start() {
         started = false;
-        deviceId = AndroidHelper.getUniqueDevice();
+        deviceId = AndroidHelper.getUniqueDeviceId();
 
         interactiveDesignerCallback.message("Installing instrumentation...");
         ExecutionHelper.executeCommand(AndroidHelper.getPathToAdb() + commandInstall, "../../interactive-designer");

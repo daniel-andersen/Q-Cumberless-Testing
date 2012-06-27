@@ -28,6 +28,7 @@ package com.trollsahead.qcumberless.gui.elements;
 import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.gui.Animation;
 import com.trollsahead.qcumberless.gui.CumberlessMouseListener;
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -41,12 +42,8 @@ import java.util.Set;
 public abstract class Element {
     public enum ColorScheme {DESIGN, PLAY}
 
-    public static final int ADD_STATE_NONE = 0;
-    public static final int ADD_STATE_RUN_OUTCOME = 1;
-    public static final int ADD_STATE_VIEW = 2;
-
-    public static final int ROOT_NONE = 0;
-    public static final int ROOT_FEATURE_EDITOR = 1 << 1;
+    public static final int ROOT_NONE             = 0;
+    public static final int ROOT_FEATURE_EDITOR   = 1 << 1;
     public static final int ROOT_STEP_DEFINITIONS = 1 << 2;
 
     public int type;
@@ -384,14 +381,16 @@ public abstract class Element {
 
     public abstract Element duplicate();
 
-    public StringBuilder buildFeature(int addState) {
-        return buildFeature(addState, System.currentTimeMillis());
-    }
-    
-    public StringBuilder buildFeature(int addState, long time) {
-        StringBuilder sb = buildFeatureInternal(addState, time);
+    public StringBuilder buildFeature(FeatureBuildState buildState) {
+        if (buildState.hasState(FeatureBuildState.ADD_STATE_RUN_TO)) {
+            if (buildState.getStepPauseElement() == this) {
+                buildState.removeState(FeatureBuildState.ADD_STATE_RUN_TO);
+                buildState.addState(FeatureBuildState.ADD_STATE_STEP_MODE);
+            }
+        }
+        StringBuilder sb = buildFeatureInternal(buildState);
         for (Element child : children) {
-            sb.append(child.buildFeature(addState, time));
+            sb.append(child.buildFeature(buildState));
         }
         if (type == BaseBarElement.TYPE_FEATURE || type == BaseBarElement.TYPE_BACKGROUND || type == BaseBarElement.TYPE_SCENARIO || type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
             sb.append("\n");
@@ -399,7 +398,7 @@ public abstract class Element {
         return sb;
     }
 
-    protected abstract StringBuilder buildFeatureInternal(int addState, long time);
+    protected abstract StringBuilder buildFeatureInternal(FeatureBuildState buildState);
 
     public void updateSteps() {
         updateStepsInternal();

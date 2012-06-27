@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
@@ -82,13 +83,13 @@ public class ScenarioElement extends BaseBarElement {
         return type == TYPE_STEP || type == TYPE_COMMENT;
     }
 
-    public StringBuilder buildFeatureInternal(int addState, long time) {
-        StringBuilder sb = super.buildFeatureInternal(addState, time);
+    public StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
+        StringBuilder sb = super.buildFeatureInternal(buildState);
         sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": ").append(title).append("\n");
         return sb;
     }
 
-    protected StringBuilder buildFeatureInternalSkipThis(int addState, long time) {
-        return super.buildFeatureInternal(addState, time);
+    protected StringBuilder buildFeatureInternalSkipThis(FeatureBuildState buildState) {
+        return super.buildFeatureInternal(buildState);
     }
 }

@@ -55,6 +55,10 @@ public class Player implements DeviceCallback {
     private static final Color COLOR_SUCCESS = new Color(0x88FF88);
     private static final Color COLOR_FAILURE = new Color(0x990000);
 
+    public static final int STEP_MODE_NONE = 0;
+    public static final int STEP_MODE_RUNNING_SCENARIO = 1;
+    public static final int STEP_MODE_RUNNING_SINGLESTEP = 2;
+
     public static long messageTimeout = 0;
 
     public BaseBarElement currentFeature = null;
@@ -77,13 +81,14 @@ public class Player implements DeviceCallback {
 
     private File historyDir;
 
+    private static boolean hasDeviceFailures = false;
     private static boolean notifiedStopped;
+    private static boolean atStepBreakpoint;
+    private static int stepMode;
 
     private Device device;
 
     private Color runningColor = Color.GRAY;
-
-    private static boolean hasDeviceFailures = false;
 
     public static Set<Player> players = new HashSet<Player>();
 
@@ -96,8 +101,20 @@ public class Player implements DeviceCallback {
     public static void prepareRun() {
         hasDeviceFailures = false;
         notifiedStopped = false;
+        stepMode = STEP_MODE_NONE;
+        atStepBreakpoint = false;
         DesignerEngine.featuresRoot.setPlayStateIncludingChildren(PlayResult.State.NOT_PLAYED);
         DesignerEngine.setColorScheme(Element.ColorScheme.PLAY);
+    }
+
+    public static void prepareStepMode() {
+        prepareRun();
+        stepMode = STEP_MODE_RUNNING_SCENARIO;
+    }
+
+    public static void prepareSingleStepMode() {
+        prepareRun();
+        stepMode = STEP_MODE_RUNNING_SINGLESTEP;
     }
 
     public Player() {
@@ -175,6 +192,38 @@ public class Player implements DeviceCallback {
         }).start();
     }
 
+    public void playInStepMode(final StepElement stepElement, final Device device, final Set<String> tags) {
+        final List<StringBuilder> features = new LinkedList<StringBuilder>();
+        features.add(FeatureBuilder.buildFeatureInStepMode(stepElement, device.getStepPauseDefinition()));
+        playInStepMode(features, device, tags);
+    }
+
+    public void playInStepMode(final List<StringBuilder> features, final Device device, final Set<String> tags) {
+        this.device = device;
+        device.setDeviceCallback(this);
+        device.getConsoleOutput().clearLog();
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    success = true;
+                    started = true;
+                    device.play(features, tags);
+                } finally {
+                    cleanup();
+                }
+            }
+        }).start();
+    }
+
+    public void runStep(StepElement stepElement) {
+        currentFeature = (BaseBarElement) stepElement.groupParent.groupParent;
+        currentScenario = stepElement.groupParent.type != BaseBarElement.TYPE_BACKGROUND ? (BaseBarElement) stepElement.groupParent : null;
+        currentStep = stepElement;
+        currentStepIndex = stepElement.groupParent.findChildIndex(stepElement) - 1;
+        setSuccess(stepElement);
+        device.step(stepElement);
+    }
+
     public static void pause() {
         for (final Player player : players) {
             new Thread(new Runnable() {
@@ -216,11 +265,23 @@ public class Player implements DeviceCallback {
         }
     }
 
+    public static void shutdownStepMode() {
+        for (final Player player : players) {
+            new Thread(new Runnable() {
+                public void run() {
+                    player.device.resumeFromStepMode();
+                }
+            }).start();
+        }
+    }
+
     private void reset() {
         running = false;
         stopped = false;
         resetCurrentScenario();
         currentFeature = null;
+        stepMode = STEP_MODE_NONE;
+        atStepBreakpoint = false;
     }
 
     private static boolean hasFailures() {
@@ -279,6 +340,10 @@ public class Player implements DeviceCallback {
         stopped = true;
     }
 
+    public void onStepModeInitialized() {
+        atStepBreakpoint = true;
+    }
+
     public void afterPlayed() {
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
@@ -328,6 +393,11 @@ public class Player implements DeviceCallback {
 
     public void beforeStep(String name) {
         setSuccess(currentStep);
+        if (isStepMode() && device.getStepPauseDefinition().equals(name)) {
+            atStepBreakpoint = true;
+            return;
+        }
+        atStepBreakpoint = false;
         BaseBarElement scenarioOrBackground = currentScenario;
         if (!didFinishBackground) {
             BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(currentFeature);
@@ -579,5 +649,17 @@ public class Player implements DeviceCallback {
 
     private BaseBarElement getCurrentLoglineElement() {
         return currentExamples != null ? currentExamples : currentStep;
+    }
+
+    public static boolean isStepMode() {
+        return stepMode != STEP_MODE_NONE;
+    }
+
+    public static int getStepMode() {
+        return stepMode;
+    }
+
+    public static boolean isAtStepBreakpoint() {
+        return atStepBreakpoint;
     }
 }

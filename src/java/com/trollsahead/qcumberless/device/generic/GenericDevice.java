@@ -69,7 +69,7 @@ public class GenericDevice extends Device {
     private String screenshotFilename = "";
     private Element screenshotElement = null;
     
-    private ExecutionStopper executionStopper = new ExecutionStopper();
+    protected ExecutionStopper executionStopper = new ExecutionStopper();
     
     private boolean isRunning = false;
 

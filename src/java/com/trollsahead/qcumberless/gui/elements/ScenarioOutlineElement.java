@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
@@ -64,8 +65,8 @@ public class ScenarioOutlineElement extends ScenarioElement {
         return element;
     }
 
-    public StringBuilder buildFeatureInternal(int addState, long time) {
-        StringBuilder sb = buildFeatureInternalSkipThis(addState, time);
+    public StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
+        StringBuilder sb = buildFeatureInternalSkipThis(buildState);
         sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario outline")).append(": ").append(title).append("\n");
         return sb;
     }

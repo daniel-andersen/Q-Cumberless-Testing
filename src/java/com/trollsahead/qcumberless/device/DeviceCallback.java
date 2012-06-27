@@ -35,6 +35,7 @@ public interface DeviceCallback {
     void onPause();
     void onResume();
     void onStop();
+    void onStepModeInitialized();
 
     void afterPlayed();
     void afterPlayFailed(String errorMessage);

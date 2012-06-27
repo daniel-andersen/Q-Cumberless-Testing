@@ -27,6 +27,8 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.gui.elements.StepElement;
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
@@ -35,13 +37,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FeatureBuilder {
-    public static StringBuilder buildFeature(BaseBarElement element) {
-        return buildFeature(element, Element.ADD_STATE_NONE, 0);
+    public static StringBuilder buildFeatureInStepMode(StepElement stepPauseElement, String stepPauseDefinition) {
+        return buildFeature((BaseBarElement) stepPauseElement.groupParent, new FeatureBuildState(stepPauseElement, stepPauseDefinition, FeatureBuildState.ADD_STATE_RUN_TO));
     }
 
-    public static StringBuilder buildFeature(BaseBarElement element, int addState, long time) {
+    public static StringBuilder buildFeature(BaseBarElement element) {
+        return buildFeature(element, new FeatureBuildState());
+    }
+
+    public static StringBuilder buildFeature(BaseBarElement element, FeatureBuildState buildState) {
         if (element.type == BaseBarElement.TYPE_FEATURE) {
-            return element.buildFeature(addState, time);
+            return element.buildFeature(buildState);
         }
         StringBuilder sb = new StringBuilder();
         if (element.type == BaseBarElement.TYPE_SCENARIO || element.type == BaseBarElement.TYPE_BACKGROUND || element.type == BaseBarElement.TYPE_SCENARIO_OUTLINE) {
@@ -56,11 +62,11 @@ public class FeatureBuilder {
             if (element.type != BaseBarElement.TYPE_BACKGROUND) {
                 Element background = ElementHelper.findBackgroundElement(parentTextElement);
                 if (background != null) {
-                    sb.append(background.buildFeature(addState, time));
+                    sb.append(background.buildFeature(buildState));
                 }
             }
         }
-        sb.append(element.buildFeature(addState, time));
+        sb.append(element.buildFeature(buildState));
         if (element.type == BaseBarElement.TYPE_BACKGROUND) {
             sb.append("\n");
             sb.append(ElementHelper.EXPORT_INDENT).append(Locale.getString("scenario")).append(": Testing background\n");
@@ -70,13 +76,13 @@ public class FeatureBuilder {
     }
 
     public static List<StringBuilder> buildFeatures(List<BaseBarElement> features) {
-        return buildFeatures(features, Element.ADD_STATE_NONE, 0);
+        return buildFeatures(features, new FeatureBuildState());
     }
 
-    public static List<StringBuilder> buildFeatures(List<BaseBarElement> features, int addState, long time) {
+    public static List<StringBuilder> buildFeatures(List<BaseBarElement> features, FeatureBuildState buildState) {
         List<StringBuilder> featureList = new LinkedList<StringBuilder>();
         for (BaseBarElement element : features) {
-            featureList.add(buildFeature(element, addState, time));
+            featureList.add(buildFeature(element, buildState));
         }
         return featureList;
     }

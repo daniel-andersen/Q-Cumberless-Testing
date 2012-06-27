@@ -95,4 +95,8 @@ public class Tag {
                 .replaceAll("  ", " ")
                 .trim();
     }
+
+    public Tag duplicate() {
+        return new Tag(tags);
+    }
 }

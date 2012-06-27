@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.Locale;
 
 import java.awt.*;
@@ -72,10 +73,10 @@ public class ExamplesElement extends StepElement {
         return Arrays.asList(new String[] {"Add row", "Add column", "Delete row", "Delete column"});
     }
 
-    public StringBuilder buildFeatureInternal(int addState, long time) {
+    public StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        sb.append(super.buildFeatureInternal(addState, time));
+        sb.append(super.buildFeatureInternal(buildState));
         return sb;
     }
 

@@ -55,7 +55,8 @@ public class Images {
     public static int IMAGE_ARROW_LEFT = 18;
     public static int IMAGE_ARROW_RIGHT = 19;
     public static int IMAGE_INTERACTIVE_DESIGNER = 20;
-    public static int IMAGE_STEP_SMALL = 21;
+    public static int IMAGE_STEP_BUTTONBAR = 21;
+    public static int IMAGE_STEP_ELEMENT = 22;
 
     private static Map<Integer, BufferedImage[]> images;
     private static Map<Integer, Graphics2D[]> imageGraphics;
@@ -117,12 +118,18 @@ public class Images {
         images.put(IMAGE_STEP, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/step_normal.png")),
                 ImageIO.read(Images.class.getResource("/resources/pictures/step_highlight.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/step_normal.png"))
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_disabled.png"))
         });
-        images.put(IMAGE_STEP_SMALL, new BufferedImage[] {
-                ImageIO.read(Images.class.getResource("/resources/pictures/step_small_normal.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/step_small_highlight.png")),
-                ImageIO.read(Images.class.getResource("/resources/pictures/step_small_normal.png"))
+        images.put(IMAGE_STEP_BUTTONBAR, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_buttonbar_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_buttonbar_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_buttonbar_normal.png"))
+        });
+        images.put(IMAGE_STEP_ELEMENT, new BufferedImage[] {
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_element_normal.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_element_highlight.png")),
+                ImageIO.read(Images.class.getResource("/resources/pictures/step_element_normal.png"))
         });
         images.put(IMAGE_STOP, new BufferedImage[] {
                 ImageIO.read(Images.class.getResource("/resources/pictures/stop_normal.png")),

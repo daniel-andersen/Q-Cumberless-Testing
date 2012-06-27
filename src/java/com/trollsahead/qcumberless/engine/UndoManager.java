@@ -25,9 +25,9 @@
 
 package com.trollsahead.qcumberless.engine;
 
-import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.gui.elements.FeatureElement;
 import com.trollsahead.qcumberless.gui.elements.RootElement;
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.model.UndoSnapshot;
 import com.trollsahead.qcumberless.util.Util;
 
@@ -61,7 +61,7 @@ public class UndoManager {
         }
         List<FeatureElement> features = new LinkedList<FeatureElement>();
         for (FeatureSnapshot snapshot : undoSnapshot.getFeatureSnapshots()) {
-            features.add(FeatureLoader.parseFeatureFile(snapshot.featureWithState, snapshot.filename, Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_VIEW));
+            features.add(FeatureLoader.parseFeatureFile(snapshot.featureWithState, snapshot.filename, new FeatureBuildState(FeatureBuildState.ADD_STATE_RUN_OUTCOME, FeatureBuildState.ADD_STATE_VIEW)));
         }
         lastPoppedElement = undoSnapshot;
         snapshots.add(0, undoSnapshot);

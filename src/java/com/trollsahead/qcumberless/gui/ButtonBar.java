@@ -27,7 +27,6 @@ package com.trollsahead.qcumberless.gui;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.engine.*;
-import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.Util;
@@ -73,7 +72,7 @@ public class ButtonBar {
     private Button closeButton;
     private Button pauseButton;
     private Button stepButton;
-    private Button stepSmallButton;
+    private Button initializeStepModeButton;
     private Button stopButton;
     private Button playButton;
     private Button tagsButton;
@@ -125,7 +124,9 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        if (!Player.isPaused()) {
+                        if (Player.isAtStepBreakpoint()) {
+                            Player.shutdownStepMode();
+                        } else if (!Player.isPaused()) {
                             Player.pause();
                         } else {
                             Player.resume();
@@ -142,9 +143,7 @@ public class ButtonBar {
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_BOTTOM,
                 new Button.ButtonNotification() {
                     public void onClick() {
-                        if (Player.isPaused()) {
-                            Player.step();
-                        }
+                        Player.step();
                     }
                 },
                 null);
@@ -252,11 +251,11 @@ public class ButtonBar {
                 null);
         playButton.setHint("Play");
         buttons.add(playButton);
-        stepSmallButton = new Button(
+        initializeStepModeButton = new Button(
                 0, 0,
-                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.NORMAL.ordinal()),
-                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.HIGHLIGHTED.ordinal()),
-                Images.getImage(Images.IMAGE_STEP_SMALL, ThumbnailState.PRESSED.ordinal()),
+                Images.getImage(Images.IMAGE_STEP_BUTTONBAR, ThumbnailState.NORMAL.ordinal()),
+                Images.getImage(Images.IMAGE_STEP_BUTTONBAR, ThumbnailState.HIGHLIGHTED.ordinal()),
+                Images.getImage(Images.IMAGE_STEP_BUTTONBAR, ThumbnailState.PRESSED.ordinal()),
                 Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
                 new Button.ButtonNotification() {
                     public void onClick() {
@@ -266,9 +265,9 @@ public class ButtonBar {
                     }
                 },
                 null);
-        stepSmallButton.setHint("Initialize Step Mode");
-        buttons.add(stepSmallButton);
-        stepSmallButton.setVisible(true);
+        initializeStepModeButton.setHint("Initialize Step Mode");
+        buttons.add(initializeStepModeButton);
+        initializeStepModeButton.setVisible(true);
         tagsButton = new Button(
                 0, 0,
                 Images.getImage(Images.IMAGE_AT, ThumbnailState.NORMAL.ordinal()),
@@ -361,6 +360,7 @@ public class ButtonBar {
     }
 
     private void positionButtons() {
+        positionPlayButtons();
         positionStaticButtons();
         positionPluginButtons();
         positionDeviceButtons();
@@ -434,15 +434,20 @@ public class ButtonBar {
             timeglassButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
             x += BUTTON_PADDING;
         }
-        if (stepSmallButton.isVisible()) {
-            stepSmallButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
+        if (initializeStepModeButton.isVisible()) {
+            initializeStepModeButton.setPosition(x, BUTTONBAR_HEIGHT / 2);
             x += BUTTON_PADDING;
         }
         x += BUTTON_PADDING * 2;
         pluginButtonsX = x;
-        stepButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 90, BUTTONBAR_HEIGHT);
-        pauseButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth - 30, BUTTONBAR_HEIGHT);
-        stopButton.setPosition((Engine.windowWidth / 2) - Engine.windowWidth + 30, BUTTONBAR_HEIGHT);
+    }
+
+    private void positionPlayButtons() {
+        int width = (stepButton.isVisible() ? 60 : 0) + (pauseButton.isVisible() ? 60 : 0) + (stopButton.isVisible() ? 60 : 0);
+        int x = (Engine.windowWidth / 2) - ((width - 60) / 2);
+        stepButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT); x += 60;
+        pauseButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT); x += 60;
+        stopButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT);
     }
 
     private void positionPluginButtons() {
@@ -477,6 +482,7 @@ public class ButtonBar {
     public void update() {
         updateType();
         animation.update();
+        positionPlayButtons();
         updateButtons();
     }
 
@@ -489,14 +495,13 @@ public class ButtonBar {
             playButton.setVisible(isPlayButtonVisible());
             shouldUpdateButtonPositions = true;
         }
-        if (stepSmallButton.isVisible() != isStepSmallButtonVisible()) {
-            stepSmallButton.setVisible(isStepSmallButtonVisible());
+        if (initializeStepModeButton.isVisible() != isStepSmallButtonVisible()) {
+            initializeStepModeButton.setVisible(isStepSmallButtonVisible());
             shouldUpdateButtonPositions = true;
         }
         tagsButton.setVisible(true);
         paletteButton.setVisible(true);
         timeglassButton.setVisible(true);
-        stepButton.setVisible(Player.isStepable() && Player.isPaused());
         if (terminalButton.isVisible() != isTerminalButtonVisible()) {
             terminalButton.setVisible(isTerminalButtonVisible());
             shouldUpdateButtonPositions = true;
@@ -550,13 +555,27 @@ public class ButtonBar {
         } else {
             stopButton.setImages(Images.getImage(Images.IMAGE_STOP, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STOP, ThumbnailState.PRESSED.ordinal()));
         }
-        if (Player.isPaused()) {
+        stepButton.setVisible(Player.getStepMode() == Player.STEP_MODE_RUNNING_SCENARIO);
+        pauseButton.setVisible(Player.getStepMode() == Player.STEP_MODE_NONE || Player.getStepMode() == Player.STEP_MODE_RUNNING_SCENARIO);
+        if (stepButton.isVisible()) {
+            if (Player.isAtStepBreakpoint()) {
+                stepButton.setImages(Images.getImage(Images.IMAGE_STEP, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STEP, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STEP, ThumbnailState.PRESSED.ordinal()));
+                stepButton.setEnabled(true);
+            } else {
+                stepButton.setImages(Images.getImage(Images.IMAGE_STEP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STEP, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_STEP, ThumbnailState.DISABLED.ordinal()));
+                stepButton.setEnabled(false);
+            }
+        }
+        if (Player.isPaused() || Player.isAtStepBreakpoint()) {
             pauseButton.setImages(Images.getImage(Images.IMAGE_RESUME, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_RESUME, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_RESUME, ThumbnailState.PRESSED.ordinal()));
+            pauseButton.setEnabled(true);
         } else {
             if (Player.isPausable()) {
                 pauseButton.setImages(Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.PRESSED.ordinal()));
+                pauseButton.setEnabled(true);
             } else {
                 pauseButton.setImages(Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.DISABLED.ordinal()), Images.getImage(Images.IMAGE_PAUSE, ThumbnailState.DISABLED.ordinal()));
+                pauseButton.setEnabled(false);
             }
         }
     }

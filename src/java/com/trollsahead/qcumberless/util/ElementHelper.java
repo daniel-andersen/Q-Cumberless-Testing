@@ -190,6 +190,9 @@ public class ElementHelper {
     }
 
     public static BaseBarElement findBackgroundElement(Element element) {
+        if (element == null) {
+            return null;
+        }
         for (Element child : element.children) {
             if (child.type == BaseBarElement.TYPE_BACKGROUND) {
                 return (BaseBarElement) child;
@@ -281,7 +284,10 @@ public class ElementHelper {
     }
 
     public static String removeCommentFromTitle(String title) {
-        if (Util.isEmpty(title) || !hasCommentInTitle(title)) {
+        if (Util.isEmpty(title)) {
+            return "Noname";
+        }
+        if (!hasCommentInTitle(title)) {
             return title;
         }
         StringBuilder sb = new StringBuilder();
@@ -293,7 +299,7 @@ public class ElementHelper {
             sb.append(delimiter).append(line);
             delimiter = "\n";
         }
-        return sb.toString();
+        return Util.isEmpty(sb) ? "Noname" : sb.toString();
     }
 
     public static String ensureOnlyOneTitleLine(String title) {

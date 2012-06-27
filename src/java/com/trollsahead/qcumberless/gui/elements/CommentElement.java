@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui.elements;
 
+import com.trollsahead.qcumberless.model.FeatureBuildState;
 import com.trollsahead.qcumberless.util.ElementHelper;
 
 import java.awt.*;
@@ -74,8 +75,8 @@ public class CommentElement extends BaseBarElement {
         return false;
     }
 
-    public StringBuilder buildFeatureInternal(int addState, long time) {
-        StringBuilder sb = super.buildFeatureInternal(addState, time);
+    public StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
+        StringBuilder sb = super.buildFeatureInternal(buildState);
         sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT).append("# ").append(title).append("\n");
         return sb;
     }

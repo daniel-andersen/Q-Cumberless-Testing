@@ -43,8 +43,8 @@ public class UndoSnapshot {
             }
             features.add(
                     new FeatureSnapshot(
-                            element.buildFeature(Element.ADD_STATE_NONE),
-                            element.buildFeature(Element.ADD_STATE_RUN_OUTCOME | Element.ADD_STATE_VIEW),
+                            element.buildFeature(new FeatureBuildState()),
+                            element.buildFeature(new FeatureBuildState(FeatureBuildState.ADD_STATE_RUN_OUTCOME, FeatureBuildState.ADD_STATE_VIEW)),
                             ((FeatureElement) element).getFilename()));
         }
     }

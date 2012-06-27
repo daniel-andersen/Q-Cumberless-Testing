@@ -87,6 +87,8 @@ public abstract class BaseBarElement extends Element {
     public static final int RENDER_HEIGHT_MINIMUM = 20;
     public static final int SHADOW_SIZE = 5;
 
+    private static final long BREAKPOINT_ANIMATION_BLINK_SPEED = 500;
+
     public static final int[] PADDING_HORIZONTAL = new int[] {50, 50, 50, 50, 50, 50, 50,  0};
     public static final int[] PADDING_VERTICAL   = new int[] {10, 10, 10,  5,  5, 10,  5, 10};
 
@@ -139,6 +141,7 @@ public abstract class BaseBarElement extends Element {
     protected Button expandButton;
     protected Button trashcanButton;
     protected Button playButton;
+    protected Button stepButton;
     protected Button editButton;
     protected Button interactiveDesignerButton;
     protected Button tagsAddButton;
@@ -241,6 +244,19 @@ public abstract class BaseBarElement extends Element {
                 },
                 this);
         buttons.add(playButton);
+        stepButton = new Button(
+                0,
+                0,
+                null,
+                Images.getImage(Images.IMAGE_STEP_ELEMENT, ThumbnailState.NORMAL.ordinal()), Images.getImage(Images.IMAGE_STEP_ELEMENT, ThumbnailState.HIGHLIGHTED.ordinal()), Images.getImage(Images.IMAGE_STEP_ELEMENT, ThumbnailState.NORMAL.ordinal()),
+                Button.ALIGN_HORIZONTAL_CENTER | Button.ALIGN_VERTICAL_CENTER,
+                new Button.ButtonNotification() {
+                    public void onClick() {
+                        step();
+                    }
+                },
+                this);
+        buttons.add(stepButton);
         editButton = new Button(
                 0,
                 0,
@@ -335,6 +351,9 @@ public abstract class BaseBarElement extends Element {
         if (hasPlayButton()) {
             buttonGroupWidth = addGroupButton(playButton, buttonGroupWidth);
         }
+        if (hasStepButton()) {
+            buttonGroupWidth = addGroupButton(stepButton, buttonGroupWidth);
+        }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
                 tagsAddButton.setPosition((renderWidth + tagsWidth) / 2 + BUTTON_SPACE_HORIZONTAL, TAGS_PADDING_VERTICAL + (tagsHeight / 2) + buttonGroupHeight);
@@ -382,7 +401,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = Util.isEmpty(title) ? "Noname" : title;
         step = FeatureLoader.findMatchingStep(this.title);
     }
 
@@ -427,6 +446,7 @@ public abstract class BaseBarElement extends Element {
             button.setVisible(false);
         }
         if (!isHighlighted()) {
+            expandButton.setVisible(false);
             toggleButtonGroup(false);
             return;
         }
@@ -437,6 +457,7 @@ public abstract class BaseBarElement extends Element {
         tagsAddButton.setVisible(hasTagsAddButton() && tags.hasTags());
         tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
         playButton.setVisible(hasPlayButton() && buttonGroupVisible);
+        stepButton.setVisible(hasStepButton() && buttonGroupVisible);
         editButton.setVisible(hasEditButton() && buttonGroupVisible);
         interactiveDesignerButton.setVisible(hasInteractiveDesignerButton() && buttonGroupVisible);
         updateAdditionalButtonsVisibleState();
@@ -581,6 +602,9 @@ public abstract class BaseBarElement extends Element {
 
     public void click(int clickCount) {
         if (!canEdit()) {
+            if (stepButton.click()) {
+                return;
+            }
             foldToggle();
             return;
         }
@@ -645,6 +669,13 @@ public abstract class BaseBarElement extends Element {
 
     private void play() {
         DesignerEngine.runTests(this);
+    }
+
+    private void step() {
+        if (type != TYPE_STEP) {
+            return;
+        }
+        DesignerEngine.runInStepMode((StepElement) this);
     }
 
     public void trashElement() {
@@ -936,6 +967,8 @@ public abstract class BaseBarElement extends Element {
         element.setPlayResult(playResult.getState());
         element.animation.colorAnimation.setColor(animation.colorAnimation.getColor());
         element.folded = folded;
+        element.comment = comment;
+        element.tags = tags != null ? tags.duplicate() : null;
     }
 
     private int calculateIndexInList(Element touchedGroup) {
@@ -1112,7 +1145,11 @@ public abstract class BaseBarElement extends Element {
             return false;
         }
         renderBorder(g, COLOR_BORDER_PLAYING, BORDER_STROKE_WIDTH);
-        renderAnimatedBorder(g);
+        if (Player.isAtStepBreakpoint()) {
+            renderBreakpointBorder(g);
+        } else {
+            renderAnimatedBorder(g);
+        }
         return true;
     }
 
@@ -1133,6 +1170,19 @@ public abstract class BaseBarElement extends Element {
 
     private void renderAnimatedBorder(Graphics2D g) {
         Stroke oldStroke = Animation.setStrokeAnimation(g, PLAY_ANIMATION_DASH_LENGTH, BORDER_STROKE_WIDTH, PLAY_ANIMATION_SPEED);
+        g.setColor(Player.getPlayingColor(this));
+        g.drawRoundRect(1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, BAR_ROUNDING);
+        if (buttonGroupVisible) {
+            g.drawRoundRect(1, 1, buttonGroupWidth - 2, renderHeight - 10, BAR_ROUNDING, BAR_ROUNDING);
+        }
+        g.setStroke(oldStroke);
+    }
+
+    private void renderBreakpointBorder(Graphics2D g) {
+        if (type == TYPE_STEP && (System.currentTimeMillis() % BREAKPOINT_ANIMATION_BLINK_SPEED) < (BREAKPOINT_ANIMATION_BLINK_SPEED / 2)) {
+            return;
+        }
+        Stroke oldStroke = Animation.setStroke(g, PLAY_ANIMATION_DASH_LENGTH, BORDER_STROKE_WIDTH, PLAY_ANIMATION_SPEED);
         g.setColor(Player.getPlayingColor(this));
         g.drawRoundRect(1, 1 + buttonGroupHeight, renderWidth - 3, renderHeight - 3 - buttonGroupHeight, BAR_ROUNDING, BAR_ROUNDING);
         if (buttonGroupVisible) {
@@ -1288,14 +1338,20 @@ public abstract class BaseBarElement extends Element {
                 && canEdit();
     }
 
+    protected boolean hasStepButton() {
+        return type == TYPE_STEP
+               && Engine.isStepableDeviceEnabled()
+               && (!Player.isStarted() || (Player.isAtStepBreakpoint() && Player.getStepMode() == Player.STEP_MODE_RUNNING_SINGLESTEP));
+    }
+
     protected boolean hasEditButton() {
-        return canEdit() &&
-               (type == TYPE_FEATURE ||
+        return (type == TYPE_FEATURE ||
                 type == TYPE_SCENARIO ||
                 type == TYPE_SCENARIO_OUTLINE ||
                 type == TYPE_BACKGROUND ||
                 type == TYPE_COMMENT ||
-               (type == TYPE_STEP && !step.matchedByStepDefinition()));
+               (type == TYPE_STEP && !step.matchedByStepDefinition()))
+                && canEdit();
     }
 
     protected boolean hasInteractiveDesignerButton() {
@@ -1313,7 +1369,7 @@ public abstract class BaseBarElement extends Element {
         return !isParentFolded() && tags.hasTags();
     }
 
-    public StringBuilder buildFeatureInternal(int addState, long time) {
+    public StringBuilder buildFeatureInternal(FeatureBuildState buildState) {
         String indent = type == TYPE_SCENARIO || type == TYPE_SCENARIO_OUTLINE ? ElementHelper.EXPORT_INDENT : "";
         StringBuilder sb = new StringBuilder();
         if (!Util.isEmpty(comment)) {
@@ -1322,16 +1378,22 @@ public abstract class BaseBarElement extends Element {
         if (!Util.isEmpty(tags.toString())) {
             sb.append(indent).append(tags.toString()).append("\n");
         }
-        if ((addState & Element.ADD_STATE_RUN_OUTCOME) != 0) {
-            sb.append(HistoryHelper.getRunOutcomeComment(this, time));
+        if (buildState.hasState(FeatureBuildState.ADD_STATE_RUN_OUTCOME)) {
+            sb.append(HistoryHelper.getRunOutcomeComment(this, buildState.getTime()));
         }
-        if ((addState & Element.ADD_STATE_VIEW) != 0) {
+        if (buildState.hasState(FeatureBuildState.ADD_STATE_VIEW)) {
             if (isFoldable()) {
                 sb.append("# foldstate: ").append(isFolded()).append("\n");
             }
             if (DesignerEngine.lastAddedElement == this) {
                 sb.append("# lastAddedElement").append("\n");
             }
+        }
+        if (buildState.hasState(FeatureBuildState.ADD_STATE_STEP_MODE) && !Util.isEmpty(buildState.getStepPauseDefinition())) {
+            sb.append(ElementHelper.EXPORT_INDENT).append(ElementHelper.EXPORT_INDENT)
+                    .append(Locale.getString("And")).append(" ")
+                    .append(buildState.getStepPauseDefinition())
+                    .append("\n");
         }
         return sb;
     }
@@ -1366,7 +1428,7 @@ public abstract class BaseBarElement extends Element {
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF8"));
-            out.append(buildFeature(Element.ADD_STATE_NONE).toString());
+            out.append(buildFeature(new FeatureBuildState()).toString());
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -1407,6 +1469,7 @@ public abstract class BaseBarElement extends Element {
         if (!tags.hasTags()) {
             return;
         } else if (tags.toList().size() <= 1) {
+            step.setTextDirty(true);
             tags = new Tag("");
         } else {
             DropDown.show(
@@ -1438,7 +1501,7 @@ public abstract class BaseBarElement extends Element {
     }
     
     protected boolean canEdit() {
-        return Engine.currentEngine == Engine.designerEngine;
+        return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme == ColorScheme.DESIGN;
     }
 
     public void setAlphaOnAll(float alpha) {

@@ -27,7 +27,10 @@ package com.trollsahead.qcumberless.device.calabash;
 
 import com.trollsahead.qcumberless.device.InteractiveDesignerClient;
 import com.trollsahead.qcumberless.device.generic.GenericDevice;
+import com.trollsahead.qcumberless.engine.DesignerEngine;
+import com.trollsahead.qcumberless.engine.Player;
 import com.trollsahead.qcumberless.gui.elements.Element;
+import com.trollsahead.qcumberless.gui.elements.StepElement;
 import com.trollsahead.qcumberless.model.Screenshot;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.FileUtil;
@@ -96,6 +99,45 @@ public class CalabashAndroidDevice extends GenericDevice {
 
     public String name() {
         return "Calabash Android";
+    }
+
+    public void initializeStepMode() {
+        FileUtil.deleteFile(getStepCommandFilename());
+        List<StringBuilder> features = new LinkedList<StringBuilder>();
+        StringBuilder feature = new StringBuilder();
+        feature.append("Feature: Step Mode\n");
+        feature.append("\tScenario: Step Mode\n");
+        feature.append("\t\tGiven ").append(getStepPauseDefinition()).append("\n");
+        features.add(feature);
+        DesignerEngine.runInSingleStepMode(features);
+    }
+
+    public void resumeFromStepMode() {
+        pushCommandToFile("PLAY");
+    }
+
+    public void step() {
+        pushCommandToFile("STEP");
+    }
+
+    public void step(StepElement stepElement) {
+        pushCommandToFile(stepElement.getTitleWithoutPrefix());
+    }
+
+    public String getStepPauseDefinition() {
+        return "I'm in step mode";
+    }
+
+    public void stop() {
+        if (Player.isStepMode()) {
+            pushCommandToFile("STEP");
+        }
+        super.stop();
+    }
+
+    public void play(List<StringBuilder> features, Set<String> tags) {
+        FileUtil.deleteFile(getStepCommandFilename());
+        super.play(features, tags);
     }
 
     protected boolean isFinalizing() {
@@ -187,5 +229,15 @@ public class CalabashAndroidDevice extends GenericDevice {
                 }
             }
         }).start();
+    }
+
+    private String getStepCommandFilename() {
+        return FileUtil.addSlashToPath(ConfigurationManager.get("genericDevicePath")) + "step.txt";
+    }
+
+    private void pushCommandToFile(String command) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(command);
+        FileUtil.writeToFile(getStepCommandFilename(), sb);
     }
 }
