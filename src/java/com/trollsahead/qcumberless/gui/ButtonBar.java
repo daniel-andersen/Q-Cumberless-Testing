@@ -445,9 +445,15 @@ public class ButtonBar {
     private void positionPlayButtons() {
         int width = (stepButton.isVisible() ? 60 : 0) + (pauseButton.isVisible() ? 60 : 0) + (stopButton.isVisible() ? 60 : 0);
         int x = (Engine.windowWidth / 2) - ((width - 60) / 2);
-        stepButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT); x += 60;
-        pauseButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT); x += 60;
-        stopButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT);
+        if (stepButton.isVisible()) {
+            stepButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT); x += 60;
+        }
+        if (pauseButton.isVisible()) {
+            pauseButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT); x += 60;
+        }
+        if (stopButton.isVisible()) {
+            stopButton.setPosition(x - Engine.windowWidth, BUTTONBAR_HEIGHT);
+        }
     }
 
     private void positionPluginButtons() {

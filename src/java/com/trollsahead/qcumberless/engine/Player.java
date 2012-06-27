@@ -280,7 +280,6 @@ public class Player implements DeviceCallback {
         stopped = false;
         resetCurrentScenario();
         currentFeature = null;
-        stepMode = STEP_MODE_NONE;
         atStepBreakpoint = false;
     }
 
@@ -348,12 +347,14 @@ public class Player implements DeviceCallback {
         setSuccess(currentStep);
         setSuccess(currentExamplesRow);
         reset();
+        stepMode = STEP_MODE_NONE;
         messageTimeout = System.currentTimeMillis() + MESSAGE_TIMEOUT_PLAYER;
     }
 
     public void afterPlayFailed(String errorMessage) {
         failure();
         reset();
+        stepMode = STEP_MODE_NONE;
         messageTimeout = System.currentTimeMillis() + MESSAGE_TIMEOUT_PLAYER;
     }
 
