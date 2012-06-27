@@ -28,8 +28,6 @@ package com.trollsahead.qcumberless.device;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.model.Screenshot;
 
-import java.awt.*;
-
 public interface DeviceCallback {
     void onPlay();
     void onPause();
@@ -47,6 +45,7 @@ public interface DeviceCallback {
     void beforeScenario(String name);
     void beforeBackground(String name);
     void beforeStep(String name);
+    void afterStepSuccess();
     void beforeOutlineTable();
     void beforeTableRow(String tableRow);
     void afterStepFailed(String errorMessage);

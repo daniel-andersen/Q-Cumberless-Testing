@@ -285,7 +285,7 @@ public class ElementHelper {
 
     public static String removeCommentFromTitle(String title) {
         if (Util.isEmpty(title)) {
-            return "Noname";
+            return "-";
         }
         if (!hasCommentInTitle(title)) {
             return title;
@@ -299,7 +299,7 @@ public class ElementHelper {
             sb.append(delimiter).append(line);
             delimiter = "\n";
         }
-        return Util.isEmpty(sb) ? "Noname" : sb.toString();
+        return Util.isEmpty(sb) ? "-" : sb.toString();
     }
 
     public static String ensureOnlyOneTitleLine(String title) {

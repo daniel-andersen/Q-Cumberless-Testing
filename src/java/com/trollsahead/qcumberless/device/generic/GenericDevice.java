@@ -30,7 +30,6 @@ import com.trollsahead.qcumberless.device.DeviceCallback;
 import com.trollsahead.qcumberless.engine.LogListener;
 import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.model.Screenshot;
-import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
 import static com.trollsahead.qcumberless.engine.ExecutionHelper.ExecutionStopper;
@@ -55,9 +54,11 @@ public class GenericDevice extends Device {
     private static final Pattern patternStartingOutlineTable = Pattern.compile("Outline table");
     private static final Pattern patternStartingTableRow = Pattern.compile("Table row: (.*)");
     private static final Pattern patternRunningStep = Pattern.compile("Step: (.*)");
+    private static final Pattern patternStepSuccess = Pattern.compile("Step success");
     private static final Pattern patternStepFailed = Pattern.compile("Step failed: (.*)");
-    private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("(.*)Taking screenshoot to (.*) from device(.*)");
-    private static final Pattern patternScreenshotTakenMessage = Pattern.compile("(.*)Screenshot taken(.*)");
+    private static final Pattern patternScreenshotBeingTakenMessage = Pattern.compile("Taking screenshoot to (.*) from device(.*)");
+    private static final Pattern patternScreenshotTakenMessage = Pattern.compile("Screenshot taken");
+    private static final Pattern patternStepModeInitialized = Pattern.compile("Step mode initialized");
 
     private static BufferedImage thumbnailNormal;
     private static BufferedImage thumbnailHighlight;
@@ -160,11 +161,13 @@ public class GenericDevice extends Device {
             checkStartingScenario(log);
             checkStartingScenarioOutline(log);
             checkRunningStep(log);
+            checkStepSuccess(log);
             checkStartingOutlineTable(log);
             checkStartingTableRow(log);
             checkStepFailed(log);
             checkScreenshotBeingTaken(log);
             checkScreenshotTaken(log);
+            checkStepModeInitialized(log);
             deviceCallback.logLine(log);
         }
 
@@ -229,6 +232,13 @@ public class GenericDevice extends Device {
         }
     }
 
+    protected void checkStepSuccess(String log) {
+        Matcher matcher = getPatternStepSuccess().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.afterStepSuccess();
+        }
+    }
+
     protected void checkStepFailed(String log) {
         Matcher matcher = getPatternStepFailed().matcher(log);
         if (matcher.find()) {
@@ -243,7 +253,7 @@ public class GenericDevice extends Device {
         }
         Matcher matcher = getPatternScreenshotBeingTakenMessage().matcher(log);
         if (matcher.find()) {
-            screenshotFilename = matcher.group(2);
+            screenshotFilename = matcher.group(1);
             screenshotElement = currentElement;
         }
     }
@@ -252,6 +262,13 @@ public class GenericDevice extends Device {
         Matcher matcher = getPatternScreenshotTakenMessage().matcher(log);
         if (matcher.find()) {
             downloadScreenshots(screenshotElement, screenshotFilename);
+        }
+    }
+
+    protected void checkStepModeInitialized(String log) {
+        Matcher matcher = getPatternStepModeInitialized().matcher(log);
+        if (matcher.find()) {
+            deviceCallback.onStepModeInitialized();
         }
     }
 
@@ -296,6 +313,10 @@ public class GenericDevice extends Device {
         return patternRunningStep;
     }
 
+    protected Pattern getPatternStepSuccess() {
+        return patternStepSuccess;
+    }
+
     protected Pattern getPatternStartingOutlineTable() {
         return patternStartingOutlineTable;
     }
@@ -314,5 +335,9 @@ public class GenericDevice extends Device {
 
     protected Pattern getPatternScreenshotTakenMessage() {
         return patternScreenshotTakenMessage;
+    }
+
+    protected Pattern getPatternStepModeInitialized() {
+        return patternStepModeInitialized;
     }
 }

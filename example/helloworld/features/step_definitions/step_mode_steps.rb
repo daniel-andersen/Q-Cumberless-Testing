@@ -23,9 +23,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-@resumed = false
-
 Given /^I'm in step mode$/ do
+  if !@initialized
+    print("Step mode initialized\n")
+    @initialized = true
+  end
   done = false
   until done || @resumed
     if File.exists?("step.txt")
@@ -40,8 +42,9 @@ Given /^I'm in step mode$/ do
           @resumed = true
           done = true
         else
-          # puts "Step: #{step}"
+          print("Step: " + step + "\n")
           step "#{step}"
+          print("Step success\n")
         end
       end
       File.delete("step.txt")

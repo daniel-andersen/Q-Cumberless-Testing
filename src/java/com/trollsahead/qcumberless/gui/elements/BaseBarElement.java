@@ -161,7 +161,8 @@ public abstract class BaseBarElement extends Element {
     protected boolean buttonGroupVisible = false;
     protected boolean buttonGroupVisibleOld = false;
     protected int buttonGroupWidth = 0;
-    protected boolean buttonGroupHasButtons = false;
+    protected int buttonGroupCount = 0;
+    protected Button buttonGroupSingleButton = null;
 
     protected Element lastBubbledElement = null;
     protected long lastRenderCount = 0;
@@ -341,7 +342,8 @@ public abstract class BaseBarElement extends Element {
     protected abstract void addAdditionalButtons();
 
     protected void updateButtonPositions() {
-        buttonGroupHasButtons = false;
+        buttonGroupCount = 0;
+        buttonGroupSingleButton = null;
         trashcanButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight / 2);
         expandButton.setPosition(BUTTON_PADDING_HORIZONTAL, buttonGroupHeight + TEXT_PADDING_VERTICAL);
         if (!isHighlighted()) {
@@ -376,19 +378,23 @@ public abstract class BaseBarElement extends Element {
             buttonGroupWidth = addGroupButton(button, buttonGroupWidth);
         }
         buttonGroupWidth -= BUTTON_SPACE_HORIZONTAL;
+        if (buttonGroupCount == 1) {
+            buttonGroupSingleButton.setPosition(BUTTON_PADDING_HORIZONTAL, renderHeight / 2);
+        }
     }
 
     protected abstract void updateAdditionalButtonPositions();
 
     protected int addGroupButton(Button button, int x) {
         button.setPosition(x, BUTTON_SPACE_VERTICAL + (BUTTON_HEIGHT / 2));
-        buttonGroupHasButtons = true;
+        buttonGroupCount++;
+        buttonGroupSingleButton = button;
         return x + BUTTON_WIDTH + BUTTON_SPACE_HORIZONTAL;
     }
 
     public void setTitleAndComment(String title) {
         if (type == TYPE_STEP || type == TYPE_COMMENT) {
-            this.title = title;
+            this.title = Util.isEmpty(title) ? "-" : title;
         } else {
             if (type != TYPE_FEATURE) {
                 title = ElementHelper.ensureOnlyOneTitleLine(title);
@@ -401,7 +407,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void setTitle(String title) {
-        this.title = Util.isEmpty(title) ? "Noname" : title;
+        this.title = Util.isEmpty(title) ? "-" : title;
         step = FeatureLoader.findMatchingStep(this.title);
     }
 
@@ -450,22 +456,23 @@ public abstract class BaseBarElement extends Element {
             toggleButtonGroup(false);
             return;
         }
-        expandButton.setVisible(buttonGroupHasButtons);
+        boolean hasButtonGroupButtons = buttonGroupVisible || buttonGroupCount == 1;
+        expandButton.setVisible(buttonGroupCount > 1);
         updateButtonGroupState();
         trashcanButton.setVisible(hasTrashcanButton());
         tagsRemoveButton.setVisible(hasTagsAddButton() && tags.hasTags());
         tagsAddButton.setVisible(hasTagsAddButton() && tags.hasTags());
-        tagsNewButton.setVisible(hasTagsAddButton() && buttonGroupVisible && !tags.hasTags());
-        playButton.setVisible(hasPlayButton() && buttonGroupVisible);
-        stepButton.setVisible(hasStepButton() && buttonGroupVisible);
-        editButton.setVisible(hasEditButton() && buttonGroupVisible);
-        interactiveDesignerButton.setVisible(hasInteractiveDesignerButton() && buttonGroupVisible);
+        tagsNewButton.setVisible(hasTagsAddButton() && hasButtonGroupButtons && !tags.hasTags());
+        playButton.setVisible(hasPlayButton() && hasButtonGroupButtons);
+        stepButton.setVisible(hasStepButton() && hasButtonGroupButtons);
+        editButton.setVisible(hasEditButton() && hasButtonGroupButtons);
+        interactiveDesignerButton.setVisible(hasInteractiveDesignerButton() && hasButtonGroupButtons);
         updateAdditionalButtonsVisibleState();
         for (Button button : buttons) {
             button.update();
         }
         for (ElementPluginButton button : pluginButtons) {
-            button.setVisible(button.getCallback().isVisibleForElement(this) && buttonGroupVisible);
+            button.setVisible(button.getCallback().isVisibleForElement(this) && hasButtonGroupButtons);
             button.update();
         }
     }
@@ -478,7 +485,7 @@ public abstract class BaseBarElement extends Element {
         }
         if (expandButton.isVisible() && CumberlessMouseListener.mouseX < expandButton.renderX + expandButton.renderWidth) {
             toggleButtonGroup(true);
-        } else if (!buttonGroupHasButtons || !expandAreaIsTouched()) {
+        } else if (buttonGroupCount <= 1 || !expandAreaIsTouched()) {
             toggleButtonGroup(false);
         }
     }
@@ -1341,7 +1348,8 @@ public abstract class BaseBarElement extends Element {
     protected boolean hasStepButton() {
         return type == TYPE_STEP
                && Engine.isStepableDeviceEnabled()
-               && (!Player.isStarted() || (Player.isAtStepBreakpoint() && Player.getStepMode() == Player.STEP_MODE_RUNNING_SINGLESTEP));
+               && ((!Player.isStarted() && canEdit())
+                   || (Player.isAtStepBreakpoint() && Player.getStepMode() == Player.STEP_MODE_RUNNING_SINGLESTEP));
     }
 
     protected boolean hasEditButton() {

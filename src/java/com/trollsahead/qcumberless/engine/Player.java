@@ -27,6 +27,7 @@ package com.trollsahead.qcumberless.engine;
 
 import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.DeviceCallback;
+import com.trollsahead.qcumberless.gui.FlashingMessage;
 import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.PlayResult;
 import com.trollsahead.qcumberless.util.HistoryHelper;
@@ -220,7 +221,7 @@ public class Player implements DeviceCallback {
         currentScenario = stepElement.groupParent.type != BaseBarElement.TYPE_BACKGROUND ? (BaseBarElement) stepElement.groupParent : null;
         currentStep = stepElement;
         currentStepIndex = stepElement.groupParent.findChildIndex(stepElement) - 1;
-        setSuccess(stepElement);
+        atStepBreakpoint = false;
         device.step(stepElement);
     }
 
@@ -341,6 +342,7 @@ public class Player implements DeviceCallback {
 
     public void onStepModeInitialized() {
         atStepBreakpoint = true;
+        FlashingMessageManager.addMessage(new FlashingMessage(getStepMode() == STEP_MODE_RUNNING_SINGLESTEP ? "Step mode initialized" : "Breakpoint reached", 5000));
     }
 
     public void afterPlayed() {
@@ -393,7 +395,6 @@ public class Player implements DeviceCallback {
     }
 
     public void beforeStep(String name) {
-        setSuccess(currentStep);
         if (isStepMode() && device.getStepPauseDefinition().equals(name)) {
             atStepBreakpoint = true;
             return;
@@ -417,6 +418,16 @@ public class Player implements DeviceCallback {
             currentStep = scenarioOrBackground != null ? (BaseBarElement) scenarioOrBackground.findChildFromIndex(name, currentStepIndex + 1) : null;
         }
         currentStepIndex = scenarioOrBackground != null ? scenarioOrBackground.findChildIndex(currentStep) : -1;
+    }
+
+    public void afterStepSuccess() {
+        setSuccess(currentStep);
+        if (getStepMode() == STEP_MODE_RUNNING_SINGLESTEP) {
+            currentFeature = null;
+            resetCurrentScenario();
+            resetCurrentStep();
+            atStepBreakpoint = true;
+        }
     }
 
     public void beforeOutlineTable() {
