@@ -22,6 +22,8 @@ module Qcumberless
         print("Step failed: " + exception + "\n")
       elsif status == :undefined
         print("Step failed: Step undefined\n")
+      else
+        print("Step success\n")
       end
     end
 
