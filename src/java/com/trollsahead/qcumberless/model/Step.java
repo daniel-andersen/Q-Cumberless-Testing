@@ -38,7 +38,7 @@ public class Step {
     private static final String PARAMETER_TAG = "\\(\\.\\*\\)";
 
     private String definition;
-    public boolean isMatched;
+    private boolean isMatched;
 
     private List<String[]> validParameters = new ArrayList<String[]>();
     private String[] actualParameters = new String[0];
@@ -79,11 +79,21 @@ public class Step {
 
     public Step duplicate() {
         Step step = new Step(definition);
-        step.validParameters = this.validParameters;
+        step.validParameters = new LinkedList<String[]>();
+        step.validParameters.addAll(this.validParameters);
         step.actualParameters = this.actualParameters.clone();
         step.renderKeyword = this.renderKeyword;
         step.isMatched = this.isMatched;
+        step.textDirty = true;
+        step.parts = new LinkedList<CucumberStepPart>();
+        for (CucumberStepPart part : this.parts) {
+            step.parts.add(part.duplicate(step));
+        }
         return step;
+    }
+
+    public String getDefinition() {
+        return definition;
     }
 
     public boolean isTextDirty() {
@@ -106,6 +116,10 @@ public class Step {
         return isMatched;
     }
 
+    public void setMatchedByStepDefinition(boolean b) {
+        isMatched = true;
+    }
+
     public List<CucumberStepPart> getParts() {
         if (parts == null) {
             findParts();
@@ -126,19 +140,19 @@ public class Step {
         parts = new ArrayList<CucumberStepPart>();
         String[] strings = definition.split(PARAMETER_TAG);
         int parameterIdx = 0;
-        boolean isLastPartArgument = false;
+        boolean isLastPartAnArgument = false;
         for (String str : strings) {
             if (!Util.isEmpty(str)) {
                 parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, str));
-                isLastPartArgument = false;
+                isLastPartAnArgument = false;
             }
             if (parameterIdx < validParameters.size()) {
-                if (isLastPartArgument) {
+                if (isLastPartAnArgument) {
                     parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, " "));
                 }
                 parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.ARGUMENT, actualParameters[parameterIdx], validParameters.get(parameterIdx)));
                 parameterIdx++;
-                isLastPartArgument = true;
+                isLastPartAnArgument = true;
             }
         }
         updateRenderKeyword();
@@ -271,8 +285,9 @@ public class Step {
                     wrappedText.add("");
                 }
                 String[] words = type == PartType.TEXT ? line.split(" ") : new String[] {line};
-                for (String word : words) {
-                    offsetX = addWordToWrappedText(word, parentStep.renderWidth, offsetX);
+                for (int i = 0; i < words.length; i++) {
+                    String space = i < words.length - 1 || line.endsWith(" ") ? " " : "";
+                    offsetX = addWordToWrappedText(words[i] + space, parentStep.renderWidth, offsetX);
                 }
                 if (Util.isEmpty(wrappedText.get(0))) {
                     this.startX = 0;
@@ -288,14 +303,27 @@ public class Step {
             String currentLine = wrappedText.get(index);
             endX = offsetX + Engine.fontMetrics.stringWidth(currentLine + word);
             if (endX < width) {
-                wrappedText.set(index, currentLine + word + " ");
+                wrappedText.set(index, currentLine + word);
                 return offsetX;
             } else {
                 endX = Engine.fontMetrics.stringWidth(word);
                 endY += Engine.fontMetrics.getHeight();
-                wrappedText.add(word + " ");
+                wrappedText.add(word);
                 return 0;
             }
+        }
+
+        public CucumberStepPart duplicate(Step parent) {
+            CucumberStepPart part = new CucumberStepPart(parent, this.type, this.text, this.validParameters != null ? this.validParameters.clone() : null);
+            part.wrappedText = new LinkedList<String>();
+            part.wrappedText.addAll(this.wrappedText);
+            part.isFirstPart = this.isFirstPart;
+            part.startX = this.startX;
+            part.startY = this.startY;
+            part.endX = this.endX;
+            part.endY = this.endY;
+            part.render = this.render;
+            return part;
         }
 
         public String getText() {

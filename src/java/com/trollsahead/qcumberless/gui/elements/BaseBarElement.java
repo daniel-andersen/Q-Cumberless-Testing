@@ -976,6 +976,7 @@ public abstract class BaseBarElement extends Element {
         element.folded = folded;
         element.comment = comment;
         element.tags = tags != null ? tags.duplicate() : null;
+        element.step = step.duplicate();
     }
 
     private int calculateIndexInList(Element touchedGroup) {

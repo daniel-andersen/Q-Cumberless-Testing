@@ -3,11 +3,13 @@ Q-Cumberless Testing
 ----= CHANGES =----
 
 0.2.6
-    - Two step modes
-      1) Debug through scenario
-      2) Run any steps in any of the scenarios
+    - Two step modes:
+        1) Debug through scenario
+        2) Run any steps in any of the scenarios
     - Autoscroll of canvas when dragging elements
     - Fixed bug that made qcumberless crash when inputting empty title in element
+    - Copying of elements duplicates tags, comments and entered parameters
+    - Rendering of parameters is correct wrt. missing/additional spaces
 
 0.2.5
     - Comments in features/scenarios fully supported

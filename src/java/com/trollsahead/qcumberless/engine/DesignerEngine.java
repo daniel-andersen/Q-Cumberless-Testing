@@ -500,7 +500,7 @@ public class DesignerEngine implements CucumberlessEngine {
                 stepsRoot.addChild(new BackgroundElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("background")));
                 stepsRoot.addChild(new CommentElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("comment")));
                 BaseBarElement stepElement = new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("new step"));
-                stepElement.step.isMatched = false;
+                stepElement.step.setMatchedByStepDefinition(false);
                 stepsRoot.addChild(stepElement);
             }
 
