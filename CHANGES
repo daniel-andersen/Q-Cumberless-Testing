@@ -2,9 +2,6 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
-0.2.7
-    - Elements editable in step mode
-
 0.2.6
     - Two step modes:
         1) Debug through scenario
