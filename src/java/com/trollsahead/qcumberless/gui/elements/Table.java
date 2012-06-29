@@ -163,7 +163,7 @@ public class Table {
     }
 
     private void renderPlayState(Graphics2D g) {
-        if (DesignerEngine.colorScheme != Element.ColorScheme.PLAY) {
+        if (DesignerEngine.colorScheme == Element.ColorScheme.DESIGN) {
             return;
         }
         for (int i = 0; i < rows; i++) {

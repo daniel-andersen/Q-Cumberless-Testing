@@ -442,7 +442,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void updateButtons() {
-        if (groupParent == null || groupParent == DesignerEngine.stepsRoot || groupParent.rootType == ROOT_STEP_DEFINITIONS) {
+        if (groupParent == null) {
             return;
         }
         for (Button button : buttons) {
@@ -1349,8 +1349,8 @@ public abstract class BaseBarElement extends Element {
     protected boolean hasStepButton() {
         return type == TYPE_STEP
                && Engine.isStepableDeviceEnabled()
-               && ((!Player.isStarted() && canEdit())
-                   || (Player.isAtStepBreakpoint() && Player.getStepMode() == Player.STEP_MODE_RUNNING_SINGLESTEP));
+               && (!Player.isStarted() || (Player.isAtStepBreakpoint() && Player.getStepMode() == Player.STEP_MODE_RUNNING_SINGLESTEP))
+               && canEdit();
     }
 
     protected boolean hasEditButton() {
@@ -1510,7 +1510,8 @@ public abstract class BaseBarElement extends Element {
     }
     
     protected boolean canEdit() {
-        return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme == ColorScheme.DESIGN;
+        return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme != ColorScheme.PLAY &&
+               groupParent != DesignerEngine.stepsRoot && groupParent.rootType != ROOT_STEP_DEFINITIONS;
     }
 
     public void setAlphaOnAll(float alpha) {

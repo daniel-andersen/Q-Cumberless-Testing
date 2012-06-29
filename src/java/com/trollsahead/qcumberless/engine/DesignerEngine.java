@@ -338,7 +338,7 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests(List<BaseBarElement> features, Set<String> tags) {
-        Player.prepareRun();
+        Player.prepareRun(ColorScheme.PLAY);
         for (final Device device : Engine.devices) {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.PLAY)) {
                 new Player().play(features, device, tags);
@@ -569,7 +569,11 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static void switchColorScheme() {
         if (colorScheme == ColorScheme.DESIGN) {
-            setColorScheme(ColorScheme.PLAY);
+            if (Player.getStepMode() == Player.STEP_MODE_RUNNING_SINGLESTEP) {
+                setColorScheme(ColorScheme.STEP_MODE);
+            } else {
+                setColorScheme(ColorScheme.PLAY);
+            }
         } else {
             setColorScheme(ColorScheme.DESIGN);
         }

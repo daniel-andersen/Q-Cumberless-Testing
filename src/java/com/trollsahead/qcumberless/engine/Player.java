@@ -35,6 +35,8 @@ import com.trollsahead.qcumberless.model.Screenshot;
 import com.trollsahead.qcumberless.util.ElementHelper;
 import com.trollsahead.qcumberless.util.Util;
 
+import com.trollsahead.qcumberless.gui.elements.Element.ColorScheme;
+
 import java.awt.*;
 import java.io.File;
 import java.util.HashSet;
@@ -99,22 +101,22 @@ public class Player implements DeviceCallback {
         PLAYING_COLORS.add(Color.PINK);
     }
     
-    public static void prepareRun() {
+    public static void prepareRun(ColorScheme colorScheme) {
         hasDeviceFailures = false;
         notifiedStopped = false;
         stepMode = STEP_MODE_NONE;
         atStepBreakpoint = false;
         DesignerEngine.featuresRoot.setPlayStateIncludingChildren(PlayResult.State.NOT_PLAYED);
-        DesignerEngine.setColorScheme(Element.ColorScheme.PLAY);
+        DesignerEngine.setColorScheme(colorScheme);
     }
 
     public static void prepareStepMode() {
-        prepareRun();
+        prepareRun(ColorScheme.PLAY);
         stepMode = STEP_MODE_RUNNING_SCENARIO;
     }
 
     public static void prepareSingleStepMode() {
-        prepareRun();
+        prepareRun(ColorScheme.STEP_MODE);
         stepMode = STEP_MODE_RUNNING_SINGLESTEP;
     }
 

@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class Element {
-    public enum ColorScheme {DESIGN, PLAY}
+    public enum ColorScheme {DESIGN, PLAY, STEP_MODE}
 
     public static final int ROOT_NONE             = 0;
     public static final int ROOT_FEATURE_EDITOR   = 1 << 1;
