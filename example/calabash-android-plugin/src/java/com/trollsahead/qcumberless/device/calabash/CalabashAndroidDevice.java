@@ -130,7 +130,7 @@ public class CalabashAndroidDevice extends GenericDevice {
 
     public void stop() {
         if (Player.isStepMode()) {
-            pushCommandToFile("STEP");
+            pushCommandToFile("STOP");
         }
         super.stop();
     }

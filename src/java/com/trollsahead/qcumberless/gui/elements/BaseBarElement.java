@@ -807,7 +807,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     public boolean isDragable() {
-        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible && canEdit();
+        return !animation.moveAnimation.isMoving() && !isParentFolded() && visible && canDrag();
     }
 
     protected void applyDrag() {
@@ -1512,6 +1512,10 @@ public abstract class BaseBarElement extends Element {
     protected boolean canEdit() {
         return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme != ColorScheme.PLAY &&
                groupParent != DesignerEngine.stepsRoot && groupParent.rootType != ROOT_STEP_DEFINITIONS;
+    }
+
+    private boolean canDrag() {
+        return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme != ColorScheme.PLAY;
     }
 
     public void setAlphaOnAll(float alpha) {
