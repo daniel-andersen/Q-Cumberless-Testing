@@ -42,9 +42,13 @@ Given /^I'm in step mode$/ do
           @resumed = true
           done = true
         else
-          print("Step: " + step + "\n")
-          step "#{step}"
-          print("Step success\n")
+          begin
+            print("Step: " + step + "\n")
+            step "#{step}"
+            print("Step success\n")
+          rescue => error
+            printf("Step failed: " + error + "\n")
+          end
         end
       end
       File.delete("step.txt")

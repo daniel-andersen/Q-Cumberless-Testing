@@ -284,6 +284,7 @@ public class Player implements DeviceCallback {
         resetCurrentScenario();
         currentFeature = null;
         atStepBreakpoint = false;
+        messageTimeout = 0;
     }
 
     private static boolean hasFailures() {
@@ -425,10 +426,7 @@ public class Player implements DeviceCallback {
     public void afterStepSuccess() {
         setSuccess(currentStep);
         if (getStepMode() == STEP_MODE_RUNNING_SINGLESTEP) {
-            currentFeature = null;
-            resetCurrentScenario();
-            resetCurrentStep();
-            atStepBreakpoint = true;
+            afterStepInSingleStepMode();
         }
     }
 
@@ -451,6 +449,9 @@ public class Player implements DeviceCallback {
 
     public void afterStepFailed(String errorMessage) {
         failure(errorMessage);
+        if (getStepMode() == STEP_MODE_RUNNING_SINGLESTEP) {
+            afterStepInSingleStepMode();
+        }
     }
 
     public void attachScreenshots(Element element, Screenshot... screenshots) {
@@ -486,6 +487,13 @@ public class Player implements DeviceCallback {
         success = false;
         hasDeviceFailures = true;
         DesignerEngine.buttonBar.setFailed();
+    }
+
+    private void afterStepInSingleStepMode() {
+        currentFeature = null;
+        resetCurrentScenario();
+        resetCurrentStep();
+        atStepBreakpoint = true;
     }
 
     private void resetCurrentScenario() {
@@ -623,11 +631,17 @@ public class Player implements DeviceCallback {
     }
 
     private void setSuccess(BaseBarElement element) {
-        if ((element instanceof StepElement) && ((currentScenario != null && currentScenario.getPlayResult().isFailed()) || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
-            return;
-        }
-        if (element != null && !element.getPlayResult().isFailed()) {
-            element.setSuccess();
+        if (Player.getStepMode() == STEP_MODE_RUNNING_SINGLESTEP) {
+            if (element != null && (!element.getPlayResult().isFailed() || (element instanceof StepElement))) {
+                element.setSuccess();
+            }
+        } else {
+            if ((element instanceof StepElement) && ((currentScenario != null && currentScenario.getPlayResult().isFailed()) || ((currentScenario instanceof ScenarioOutlineElement) && currentExamples == null))) {
+                return;
+            }
+            if (element != null && !element.getPlayResult().isFailed()) {
+                element.setSuccess();
+            }
         }
     }
 
