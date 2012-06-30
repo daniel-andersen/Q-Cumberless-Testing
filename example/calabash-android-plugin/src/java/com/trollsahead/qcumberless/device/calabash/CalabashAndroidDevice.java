@@ -42,6 +42,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.trollsahead.qcumberless.gui.Images.ThumbnailState;
@@ -59,8 +60,8 @@ public class CalabashAndroidDevice extends GenericDevice {
 
     private final Set<Capability> capabilities;
 
-    private List<String> screenshotFiles;
     private String screenshotDir;
+    private long screenshotTime = 0;
 
     static {
         try {
@@ -79,8 +80,7 @@ public class CalabashAndroidDevice extends GenericDevice {
         capabilities.add(Capability.STEP);
         capabilities.add(Capability.INTERACTIVE_DESIGNING);
         screenshotDir = ConfigurationManager.get("screenshotsDirectory");
-        FileUtil.deleteFilesInDir(screenshotDir);
-        screenshotFiles = findScreenshots();
+        getAndUpdateNewestScreenshot();
     }
 
     public Set<Capability> getCapabilities() {
@@ -152,12 +152,11 @@ public class CalabashAndroidDevice extends GenericDevice {
     }
 
     protected void checkStepFailed(String log) {
-        super.checkStepFailed(log);
-        final Element screenshotElement = deviceCallback.getCurrentElement();
-        if (screenshotElement == null) {
-            return;
+        Matcher matcher = getPatternStepFailed().matcher(log);
+        if (matcher.find()) {
+            downloadScreenshot();
+            deviceCallback.afterStepFailed(matcher.group(1));
         }
-        downloadScreenshot(screenshotElement);
     }
 
     protected Pattern getPatternStarting() {
@@ -172,28 +171,38 @@ public class CalabashAndroidDevice extends GenericDevice {
         return patternScreenshotTakenMessage;
     }
 
-    private List<String> findScreenshots() {
-        List<String> screenshotsList = FileUtil.traverseDirectory(new File[] {new File(screenshotDir)}, "png");
-        String[] screenshotsArray = screenshotsList.toArray(new String[0]);
-        Arrays.sort(screenshotsArray);
-        List<String> sortedScreenshotsList = new LinkedList<String>();
-        sortedScreenshotsList.addAll(Arrays.asList(screenshotsArray));
-        return sortedScreenshotsList;
+    private String findNewestScreenshot() {
+        List<String> screenshots = FileUtil.traverseDirectory(new File[] {new File(screenshotDir)}, "png");
+        long time = 0;
+        String newestScreenshot = null;
+        for (String filename : screenshots) {
+            long newTime = new File(filename).lastModified();
+            if (newTime > time) {
+                time = newTime;
+                newestScreenshot = filename;
+            }
+        }
+        return newestScreenshot;
     }
 
-    private String getNewestScreenshot() {
-        List<String> newScreenshotFiles = findScreenshots();
-        if (screenshotFiles.size() == newScreenshotFiles.size()) {
+    private String getAndUpdateNewestScreenshot() {
+        String newestScreenshot = findNewestScreenshot();
+        if (Util.isEmpty(newestScreenshot)) {
             return null;
         }
-        newScreenshotFiles.removeAll(screenshotFiles);
-        if (newScreenshotFiles.size() == 1) {
-            return newScreenshotFiles.get(0);
+        long newestTime = new File(newestScreenshot).lastModified();
+        if (newestTime <= screenshotTime) {
+            return null;
         }
-        return null;
+        screenshotTime = newestTime;
+        return newestScreenshot;
     }
 
-    private void downloadScreenshot(final Element screenshotElement) {
+    private void downloadScreenshot() {
+        final Element screenshotElement = deviceCallback.getCurrentElement();
+        if (screenshotElement == null) {
+            return;
+        }
         new Thread(new Runnable() {
             public void run() {
                 synchronized (LOADING_SCREENSHOT_LOCK) {
@@ -207,7 +216,7 @@ public class CalabashAndroidDevice extends GenericDevice {
 
             private String waitForScreenshot() {
                 for (int i = 0; i < 5; i++) {
-                    String filename = getNewestScreenshot();
+                    String filename = getAndUpdateNewestScreenshot();
                     if (!Util.isEmpty(filename)) {
                         return filename;
                     }
@@ -227,6 +236,7 @@ public class CalabashAndroidDevice extends GenericDevice {
                     }
                     Util.sleep(1000);
                 }
+                System.out.println("Gave up loading screenshot! :(");
             }
         }).start();
     }
