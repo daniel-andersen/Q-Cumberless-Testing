@@ -32,6 +32,7 @@ import com.trollsahead.qcumberless.gui.elements.Element;
 import com.trollsahead.qcumberless.gui.elements.BaseBarElement;
 
 import java.io.File;
+import java.util.LinkedList;
 
 public class ElementHelper {
     public static final String EXPORT_INDENT = "    ";
@@ -238,17 +239,6 @@ public class ElementHelper {
             return filename + "_" + element.groupParent.findChildIndex(element);
         }
         return "Feature";
-    }
-
-    public static void deleteFeatureFromFilesystem(BaseBarElement feature) {
-        if (feature.type != BaseBarElement.TYPE_FEATURE) {
-            return;
-        }
-        if (Util.isEmpty(feature.getFilename())) {
-            return;
-        }
-        File file = new File(feature.getFilename());
-        file.delete();
     }
 
     public static void unfoldAllScenariosIfNotTooMany() {

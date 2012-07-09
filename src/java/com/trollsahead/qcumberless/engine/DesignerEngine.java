@@ -71,6 +71,7 @@ public class DesignerEngine implements CucumberlessEngine {
     public static Spotlight spotlight;
 
     public static String featuresBaseDir = null;
+    public static List<File> featuresToDeleteWhenSaving = null;
 
     public static Set<String> runTags = new HashSet<String>();
     public static String tagsFilter = null;
@@ -470,6 +471,11 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static void saveFeatures() {
         featuresRoot.save();
+        if (featuresToDeleteWhenSaving != null) {
+            for (File file : featuresToDeleteWhenSaving) {
+                file.delete();
+            }
+        }
         FlashingMessageManager.addMessage(new FlashingMessage("Features saved!", FlashingMessage.STANDARD_TIMEOUT));
         Engine.resetFps();
     }
@@ -511,6 +517,7 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static void resetFeatures() {
         featuresBaseDir = null;
+        featuresToDeleteWhenSaving = null;
         cucumberRoot.removeChild(featuresRoot);
         featuresRoot = new RootElement();
         cucumberRoot.addChild(featuresRoot, 0);
@@ -536,6 +543,19 @@ public class DesignerEngine implements CucumberlessEngine {
             lastAddedElement = element;
             UndoManager.takeSnapshot(featuresRoot);
         }
+    }
+
+    public static void deleteFeatureFromFilesystemWhenSaving(BaseBarElement feature) {
+        if (feature.type != BaseBarElement.TYPE_FEATURE) {
+            return;
+        }
+        if (Util.isEmpty(feature.getFilename())) {
+            return;
+        }
+        if (featuresToDeleteWhenSaving == null) {
+            featuresToDeleteWhenSaving = new LinkedList<File>();
+        }
+        featuresToDeleteWhenSaving.add(new File(feature.getFilename()));
     }
 
     public static List<String> getDefinedTags() {
@@ -621,6 +641,12 @@ public class DesignerEngine implements CucumberlessEngine {
             if (device.isEnabled() && device.getCapabilities().contains(Device.Capability.STEP)) {
                 device.initializeStepMode();
             }
+        }
+    }
+
+    public static void addFeature(BaseBarElement element) {
+        if (Util.isEmpty(featuresBaseDir)) {
+            featuresBaseDir = FileUtil.getPath(element.getFilename());
         }
     }
 }

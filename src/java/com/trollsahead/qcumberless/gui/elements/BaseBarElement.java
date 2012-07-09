@@ -608,15 +608,15 @@ public abstract class BaseBarElement extends Element {
     }
 
     public void click(int clickCount) {
+        if (clickCount > 1 && canDoubleClick()) {
+            doubleClick();
+            return;
+        }
         if (!canEdit()) {
             if (stepButton.click()) {
                 return;
             }
             foldToggle();
-            return;
-        }
-        if (clickCount > 1) {
-            doubleClick();
             return;
         }
         for (Button button : buttons) {
@@ -669,6 +669,7 @@ public abstract class BaseBarElement extends Element {
                 }
                 synchronized (Engine.DATA_LOCK) {
                     throwElementToFeaturesGroup();
+                    DesignerEngine.addFeature(BaseBarElement.this);
                 }
             }
         }).start();
@@ -696,7 +697,7 @@ public abstract class BaseBarElement extends Element {
                 UndoManager.takeSnapshot(DesignerEngine.featuresRoot);
             }
             if (type == TYPE_FEATURE) {
-                ElementHelper.deleteFeatureFromFilesystem(this);
+                DesignerEngine.deleteFeatureFromFilesystemWhenSaving(this);
             }
         }
     }
@@ -1512,6 +1513,10 @@ public abstract class BaseBarElement extends Element {
     protected boolean canEdit() {
         return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme != ColorScheme.PLAY &&
                groupParent != DesignerEngine.stepsRoot && groupParent.rootType != ROOT_STEP_DEFINITIONS;
+    }
+
+    protected boolean canDoubleClick() {
+        return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme != ColorScheme.PLAY;
     }
 
     private boolean canDrag() {

@@ -531,7 +531,7 @@ public class ButtonBar {
     }
 
     private boolean isSaveFeaturesButtonEnabled() {
-        return DesignerEngine.featuresRoot.isLoaded;
+        return true;
     }
 
     private boolean isPlayButtonVisible() {
