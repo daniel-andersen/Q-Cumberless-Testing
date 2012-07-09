@@ -317,7 +317,7 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests(BaseBarElement cucumberTextElement) {
-        runTests(cucumberTextElement, runTags);
+        runTests(cucumberTextElement, !Util.isEmpty(tagsFilter) ? Util.stringToTagSet(tagsFilter) : runTags);
     }
 
     public static void runTests(BaseBarElement cucumberTextElement, Set<String> tags) {
@@ -327,7 +327,7 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void runTests() {
-        runTests(runTags);
+        runTests(!Util.isEmpty(tagsFilter) ? Util.stringToTagSet(tagsFilter) : runTags);
     }
 
     public static void runTests(Set<String> tags) {

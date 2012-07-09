@@ -2,6 +2,11 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.7
+    - Deleting features only deletes on disc when saved
+    - Running only filtered tags when filtering
+    - Fixed bug that prevented features to be added
+
 0.2.6
     - Two step modes:
         1) Debug through scenario
