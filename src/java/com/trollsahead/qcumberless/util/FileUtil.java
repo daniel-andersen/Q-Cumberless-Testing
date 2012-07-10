@@ -73,7 +73,7 @@ public class FileUtil {
             return filename;
         }
         if (!filename.contains("/")) {
-            return filename;
+            return new File(".").getAbsolutePath();
         }
         return filename.substring(0, filename.lastIndexOf("/"));
     }

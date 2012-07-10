@@ -470,12 +470,12 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public static void saveFeatures() {
-        featuresRoot.save();
         if (featuresToDeleteWhenSaving != null) {
             for (File file : featuresToDeleteWhenSaving) {
                 file.delete();
             }
         }
+        featuresRoot.save();
         FlashingMessageManager.addMessage(new FlashingMessage("Features saved!", FlashingMessage.STANDARD_TIMEOUT));
         Engine.resetFps();
     }
