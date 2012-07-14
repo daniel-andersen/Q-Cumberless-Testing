@@ -37,10 +37,16 @@ public class Constants {
 
     public static final Set<Character> reservedKeys = new HashSet<Character>();
 
+    public static final String PARAMETER_STRING = "<abc>";
+    public static final String PARAMETER_DIGITS = "<123>";
+    public static final String PARAMETER_RESOURCE = "<key>";
+
+    public static final String TAG_NEW = "<new>";
+
     static {
         stepPrefixs = new HashMap<Language, String[]>();
-        stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", "*"});
-        stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", "*"});
+        stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", PARAMETER_STRING});
+        stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", PARAMETER_STRING});
 
         reservedKeys.add(' ');
         reservedKeys.add('+');

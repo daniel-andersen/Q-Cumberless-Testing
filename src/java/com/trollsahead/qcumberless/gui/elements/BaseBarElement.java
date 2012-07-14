@@ -1475,20 +1475,22 @@ public abstract class BaseBarElement extends Element {
     }
 
     private static boolean isEditableParameter(String text) {
-        return "ResourceKey".equals(text) || "*".equals(text);
+        return Constants.PARAMETER_RESOURCE.equals(text) ||
+               Constants.PARAMETER_STRING.equals(text) ||
+               Constants.PARAMETER_DIGITS.equals(text);
     }
 
     private void addTags(boolean isNewButton) {
         List<String> nonUsedTags = new ArrayList<String>(DesignerEngine.getDefinedTags());
         nonUsedTags.removeAll(tags.toSet());
         if (!nonUsedTags.isEmpty()) {
-            nonUsedTags.add("*");
+            nonUsedTags.add(Constants.TAG_NEW);
             DropDown.show(
                     (isNewButton ? tagsNewButton.renderX : tagsAddButton.renderX),
                     (isNewButton ? tagsNewButton.renderY : tagsAddButton.renderY) + TEXT_PADDING_VERTICAL,
                     new DropDown.DropDownCallback() {
                         public void chooseItem(String item) {
-                            if ("*".equals(item)) {
+                            if (Constants.TAG_NEW.equals(item)) {
                                 editTags();
                             } else {
                                 tags.add(item);

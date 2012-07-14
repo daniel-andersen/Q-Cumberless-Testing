@@ -42,6 +42,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SimpleRubyStepDefinitionParser {
+    private static final String parameterPattern = "# qcumberless (.*)";
+
     public static Map<String, List<StepDefinition>> parseFiles(String[] filenames) {
         return parseFiles(filenames, null);
     }
@@ -115,11 +117,10 @@ public class SimpleRubyStepDefinitionParser {
     }
 
     private static String parseParameters(String line) {
-        String commentPattern = "# qcumberless (.*)";
-        if (!line.matches(commentPattern)) {
+        if (!line.matches(parameterPattern)) {
             return null;
         } else {
-            Matcher matcher = Pattern.compile(commentPattern).matcher(line);
+            Matcher matcher = Pattern.compile(parameterPattern).matcher(line);
             matcher.find();
             return matcher.group(1);
         }
@@ -144,7 +145,7 @@ public class SimpleRubyStepDefinitionParser {
     }
 
     private static StepDefinition parseStepDefinition(String keyword, String definition, String parameters) {
-        StepDefinition stepDefinition = new StepDefinition("(.*) " + convertGroups(definition));
+        StepDefinition stepDefinition = new StepDefinition("(.*) " + convertRegExpsToSimpleGroups(definition));
         stepDefinition.addParameter(orderStepPrefixes(Locale.getString(keyword)));
         if (Util.isEmpty(parameters)) {
             for (String[] parameter : getParametersFromDefinition(definition)) {
@@ -179,6 +180,8 @@ public class SimpleRubyStepDefinitionParser {
     }
 
     private static List<String[]> getParametersFromDefinition(String definition) {
+        System.out.println("-------");
+        System.out.println("> " + definition);
         List<String[]> parameters = new LinkedList<String[]>();
         while (!Util.isEmpty(definition)) {
             int start = definition.indexOf("(");
@@ -186,14 +189,50 @@ public class SimpleRubyStepDefinitionParser {
                 break;
             }
             int end = definition.indexOf(")", start);
-            String group = definition.substring(start + 1, end);
-            parameters.add(new String[] {"*"});
+            String regexp = definition.substring(start + 1, end);
+            parameters.add(comprehensiveRegExp(regexp));
             definition = definition.substring(end + 1);
         }
         return parameters;
     }
 
-    private static String convertGroups(String definition) {
+    private static String[] comprehensiveRegExp(String regexp) {
+        String[] parameterList = extractSimpleParameterList(regexp);
+        if (parameterList != null) {
+            return parameterList;
+        }
+        if (isAnyDigitsRegExp(regexp)) {
+            return new String[] {Constants.PARAMETER_DIGITS};
+        }
+        return new String[] {Constants.PARAMETER_STRING};
+    }
+
+    private static boolean isAnyDigitsRegExp(String regexp) {
+        return regexp.equals("\\d+") || regexp.equals("\\d*");
+    }
+
+    private static String[] extractSimpleParameterList(String regexp) {
+        if (regexp.startsWith("?:")) {
+            regexp = regexp.substring(2);
+        }
+        System.out.println(regexp);
+        Matcher matcher = Pattern.compile("^(\\w+\\|?)+$").matcher(regexp);
+        if (!matcher.find()) {
+            return null;
+        }
+        List<String> parameters = new LinkedList<String>();
+        while (true) {
+            matcher = Pattern.compile("^(\\w+)\\|.*").matcher(regexp);
+            if (!matcher.find()) {
+                parameters.add(regexp);
+                return parameters.toArray(new String[0]);
+            }
+            parameters.add(matcher.group(1));
+            regexp = regexp.substring(matcher.end(1) + 1);
+        }
+    }
+
+    private static String convertRegExpsToSimpleGroups(String definition) {
         return definition
                 .replaceAll("\\([^\\)]*\\)[\\?\\+\\*]?", "§§§")
                 .replaceAll("§§§", "(.*)");

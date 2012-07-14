@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.util;
 
+import com.trollsahead.qcumberless.model.Constants;
 import com.trollsahead.qcumberless.model.Locale;
 
 import java.awt.*;
@@ -136,10 +137,10 @@ public class Util {
         String[] array = list.toArray(new String[0]);
         Arrays.sort(array, new Comparator<String>() {
             public int compare(String s1, String s2) {
-                if ("*".equals(s1)) {
+                if (Constants.TAG_NEW.equals(s1)) {
                     return 1;
                 }
-                if ("*".equals(s2)) {
+                if (Constants.TAG_NEW.equals(s2)) {
                     return -1;
                 }
                 return s1.compareTo(s2);

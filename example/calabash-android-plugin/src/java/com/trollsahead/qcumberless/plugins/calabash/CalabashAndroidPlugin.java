@@ -68,8 +68,8 @@ public class CalabashAndroidPlugin implements Plugin {
         FlashingMessageManager.addMessage(progressBar);
         try {
             final URL[] urls = new URL[] {
-                    //new URL("https://raw.github.com/calabash/calabash-ios/master/calabash-cucumber/features/step_definitions/calabash_steps.rb")
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/additions_manual_steps.rb"),
+                    new URL("https://raw.github.com/calabash/calabash-ios/master/calabash-cucumber/features/step_definitions/calabash_steps.rb"),
+                    /*new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/additions_manual_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/app_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/assert_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/check_box_steps.rb"),
@@ -83,7 +83,7 @@ public class CalabashAndroidPlugin implements Plugin {
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/rotation_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/screenshot_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/spinner_steps.rb"),
-                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/time_picker_steps.rb")
+                    new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/time_picker_steps.rb")*/
             };
             return SimpleRubyStepDefinitionParser.parseFiles(urls, progressBar);
         } catch (Exception e) {
