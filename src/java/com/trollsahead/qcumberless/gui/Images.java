@@ -171,14 +171,8 @@ public class Images {
                 ImageIO.read(Images.class.getResource("/resources/pictures/interactive_designer_pressed.png"))
         });
         imageGraphics = new HashMap<Integer, Graphics2D[]>();
-        for (int key : images.keySet()) {
-            BufferedImage[] imageArray = images.get(key);
-            Graphics2D[] graphicsArray = new Graphics2D[imageArray.length];
-            for (int i = 0; i < imageArray.length; i++) {
-                graphicsArray[i] = imageArray[i].createGraphics();
-                graphicsArray[i].setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 1.0f));
-            }
-            imageGraphics.put(key, graphicsArray);
+        for (int image : images.keySet()) {
+            generateGraphics(image);
         }
     }
 
@@ -188,5 +182,20 @@ public class Images {
 
     public static Graphics2D getImageGraphics(int image, int type) {
         return imageGraphics.get(image)[type];
+    }
+
+    public static void setImages(int image, BufferedImage[] images) {
+        Images.images.put(image, images);
+        generateGraphics(image);
+    }
+
+    private static void generateGraphics(int image) {
+        BufferedImage[] imageArray = Images.images.get(image);
+        Graphics2D[] graphicsArray = new Graphics2D[imageArray.length];
+        for (int i = 0; i < imageArray.length; i++) {
+            graphicsArray[i] = imageArray[i].createGraphics();
+            graphicsArray[i].setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 1.0f));
+        }
+        imageGraphics.put(image, graphicsArray);
     }
 }

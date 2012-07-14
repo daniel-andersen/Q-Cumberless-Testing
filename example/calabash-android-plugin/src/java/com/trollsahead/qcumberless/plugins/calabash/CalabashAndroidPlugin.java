@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.device.calabash.CalabashAndroidDevice;
 import com.trollsahead.qcumberless.device.calabash.StepDefinitionsImporter;
 import com.trollsahead.qcumberless.engine.FlashingMessageManager;
+import com.trollsahead.qcumberless.gui.Images;
 import com.trollsahead.qcumberless.gui.ProgressBar;
 import com.trollsahead.qcumberless.model.StepDefinition;
 import com.trollsahead.qcumberless.plugins.ButtonBarMethodCallback;
@@ -36,6 +37,8 @@ import com.trollsahead.qcumberless.plugins.ElementMethodCallback;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.SimpleRubyStepDefinitionParser;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -45,6 +48,13 @@ public class CalabashAndroidPlugin implements Plugin {
 
     public void initialize() {
         calabashAndroidDevice = new CalabashAndroidDevice();
+        try {
+            Images.setImages(Images.IMAGE_BACKGROUND, new BufferedImage[] {
+                    ImageIO.read(CalabashAndroidPlugin.class.getResource("/resources/pictures/calabash_background.jpg")),
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Set<Device> getDevices() {
@@ -58,6 +68,7 @@ public class CalabashAndroidPlugin implements Plugin {
         FlashingMessageManager.addMessage(progressBar);
         try {
             final URL[] urls = new URL[] {
+                    //new URL("https://raw.github.com/calabash/calabash-ios/master/calabash-cucumber/features/step_definitions/calabash_steps.rb")
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/additions_manual_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/app_steps.rb"),
                     new URL("https://raw.github.com/calabash/calabash-android/master/ruby-gem/lib/calabash-android/steps/assert_steps.rb"),
