@@ -25,9 +25,11 @@
 
 package com.trollsahead.qcumberless.engine;
 
+import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.FileUtil;
 import com.trollsahead.qcumberless.util.Util;
 
+import java.awt.*;
 import java.io.*;
 import java.util.Date;
 import java.util.LinkedList;
@@ -145,7 +147,24 @@ public class ExecutionHelper {
             FileUtil.close(out);
         }
     }
-    
+
+    public static void setElementColorFromConfig(String propertyPrefix, Color[] colors) {
+        String normalColor = ConfigurationManager.get(propertyPrefix + "Normal");
+        if (!Util.isEmpty(normalColor)) {
+            if (normalColor.startsWith("0x")) {
+                normalColor = normalColor.substring(2);
+            }
+            colors[0] = new Color(Integer.parseInt(normalColor, 16));
+        }
+        String highlightColor = ConfigurationManager.get(propertyPrefix + "Highlight");
+        if (!Util.isEmpty(highlightColor)) {
+            if (highlightColor.startsWith("0x")) {
+                highlightColor = highlightColor.substring(2);
+            }
+            colors[1] = new Color(Integer.parseInt(highlightColor, 16));
+        }
+    }
+
     public static class ExecutionStopper {
         private boolean stopped = false;
         private Process process = null;

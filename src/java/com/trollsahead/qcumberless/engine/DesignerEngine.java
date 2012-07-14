@@ -86,6 +86,8 @@ public class DesignerEngine implements CucumberlessEngine {
     public static DesignerEngine instance = null;
 
     public DesignerEngine() {
+        initializeElementColors();
+
         RunHistory.initialize();
 
         buttonBar = new ButtonBar();
@@ -121,6 +123,17 @@ public class DesignerEngine implements CucumberlessEngine {
     }
 
     public void hide() {
+    }
+
+    private void initializeElementColors() {
+        ExecutionHelper.setElementColorFromConfig("backgroundElementColor", BackgroundElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("commentElementColor", CommentElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("examplesElementColor", ExamplesElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("featureElementColor", FeatureElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("groupingElementColor", GroupingElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("scenarioElementColor", ScenarioElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("stepElementColor", StepElement.BG_COLOR_NORMAL);
+        ExecutionHelper.setElementColorFromConfig("stepElementUnrecognizedColor", StepElement.BG_COLOR_UNRECOGNIZED_STEP);
     }
 
     public void update() {
