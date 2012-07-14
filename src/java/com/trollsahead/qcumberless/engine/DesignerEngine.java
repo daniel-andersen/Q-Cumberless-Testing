@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.device.Device;
 import com.trollsahead.qcumberless.gui.*;
 import com.trollsahead.qcumberless.gui.elements.*;
 import com.trollsahead.qcumberless.model.*;
+import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.plugins.Plugin;
 import com.trollsahead.qcumberless.util.ConfigurationManager;
 import com.trollsahead.qcumberless.util.ElementHelper;
@@ -500,12 +501,12 @@ public class DesignerEngine implements CucumberlessEngine {
             cucumberRoot.addChild(stepsRoot, 1);
 
             if (addTemplate) {
-                stepsRoot.addChild(new FeatureElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("feature")));
-                stepsRoot.addChild(new ScenarioElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("scenario")));
-                stepsRoot.addChild(new ScenarioOutlineElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("scenario outline")));
-                stepsRoot.addChild(new BackgroundElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("background")));
-                stepsRoot.addChild(new CommentElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("comment")));
-                BaseBarElement stepElement = new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, com.trollsahead.qcumberless.model.Locale.getString("new step"));
+                stepsRoot.addChild(new FeatureElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("feature")));
+                stepsRoot.addChild(new ScenarioElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario")));
+                stepsRoot.addChild(new ScenarioOutlineElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("scenario outline")));
+                stepsRoot.addChild(new BackgroundElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("background")));
+                stepsRoot.addChild(new CommentElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("comment")));
+                BaseBarElement stepElement = new StepElement(BaseBarElement.ROOT_STEP_DEFINITIONS, Locale.getString("new step"));
                 stepElement.step.setMatchedByStepDefinition(false);
                 stepsRoot.addChild(stepElement);
             }

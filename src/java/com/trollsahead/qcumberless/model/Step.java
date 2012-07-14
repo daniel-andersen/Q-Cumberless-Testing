@@ -117,7 +117,7 @@ public class Step {
     }
 
     public void setMatchedByStepDefinition(boolean b) {
-        isMatched = true;
+        isMatched = b;
     }
 
     public List<CucumberStepPart> getParts() {
