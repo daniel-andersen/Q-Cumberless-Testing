@@ -69,6 +69,8 @@ public abstract class Element {
     public Element groupParent;
     public List<Element> children = new ArrayList<Element>();
 
+    private boolean highlighted = false;
+
     public Element() {
     }
 
@@ -330,8 +332,6 @@ public abstract class Element {
 
     public abstract boolean isDragable();
     protected abstract void applyDrag();
-
-    private boolean highlighted = false;
 
     public boolean isBeingDragged() {
         return isDragged;

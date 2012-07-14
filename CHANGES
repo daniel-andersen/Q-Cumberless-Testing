@@ -2,6 +2,11 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.8
+    - Fixed bug that prevented editing of steps that didn't match any step definition
+    - Background image customizable from plugins
+    - Automatically unfolding of elements when dragged onto
+
 0.2.7
     - Deleting features only deletes on disc when saved
     - Running only filtered tags when filtering

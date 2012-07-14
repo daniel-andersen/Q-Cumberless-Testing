@@ -79,6 +79,10 @@ public class DesignerEngine implements CucumberlessEngine {
 
     public static ColorScheme colorScheme = ColorScheme.DESIGN;
 
+    public static Element lastTouchedGroup = null;
+    public static Element touchedGroup = null;
+    public static long dragHighlightGroupStartTime = 0;
+
     public static DesignerEngine instance = null;
 
     public DesignerEngine() {

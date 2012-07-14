@@ -114,6 +114,8 @@ public abstract class BaseBarElement extends Element {
 
     protected static final int COMMENT_PADDING_LEFT = BUTTON_WIDTH + BUTTON_PADDING_HORIZONTAL + 15;
 
+    protected static final long UNFOLD_GROUP_DELAY = 500L;
+
     public static final float PLAY_ANIMATION_SPEED = 30.0f;
     public static final float PLAY_ANIMATION_DASH_LENGTH = 10.0f;
 
@@ -165,6 +167,7 @@ public abstract class BaseBarElement extends Element {
     protected Button buttonGroupSingleButton = null;
 
     protected Element lastBubbledElement = null;
+
     protected long lastRenderCount = 0;
 
     protected PlayResult playResult;
@@ -789,6 +792,9 @@ public abstract class BaseBarElement extends Element {
         dragFadeAnimation();
         resetDragPositionHistory();
         lastBubbledElement = null;
+        DesignerEngine.touchedGroup = null;
+        DesignerEngine.lastTouchedGroup = null;
+        DesignerEngine.dragHighlightGroupStartTime = 0;
         if (isControlDown && type != TYPE_FEATURE && type != TYPE_BACKGROUND) {
             ElementHelper.deepCopyElement(this);
             applyDrag();
@@ -800,6 +806,9 @@ public abstract class BaseBarElement extends Element {
             return;
         }
         super.endDrag();
+        DesignerEngine.touchedGroup = null;
+        DesignerEngine.lastTouchedGroup = null;
+        DesignerEngine.dragHighlightGroupStartTime = 0;
         dragFadeAnimation();
         if (isThrowingElementToFeaturesGroup()) {
             throwElementToFeaturesGroup();
@@ -813,17 +822,17 @@ public abstract class BaseBarElement extends Element {
 
     protected void applyDrag() {
         updateDragPositionHistory();
-        Element touchedGroup = DesignerEngine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
-        if (type == TYPE_BACKGROUND && touchedGroup != null && touchedGroup.type == TYPE_FEATURE) {
-            BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(touchedGroup);
+        DesignerEngine.touchedGroup = DesignerEngine.cucumberRoot.findGroup(CumberlessMouseListener.mouseX, CumberlessMouseListener.mouseY, type);
+        if (type == TYPE_BACKGROUND && DesignerEngine.touchedGroup != null && DesignerEngine.touchedGroup.type == TYPE_FEATURE) {
+            BaseBarElement backgroundElement = ElementHelper.findBackgroundElement(DesignerEngine.touchedGroup);
             if (backgroundElement != null && backgroundElement != this) {
-                touchedGroup = null;
+                DesignerEngine.touchedGroup = null;
             }
         }
-        if (touchedGroup == null && type == TYPE_FEATURE) {
-            touchedGroup = DesignerEngine.featuresRoot;
+        if (DesignerEngine.touchedGroup == null && type == TYPE_FEATURE) {
+            DesignerEngine.touchedGroup = DesignerEngine.featuresRoot;
         }
-        if (touchedGroup == null || touchedGroup instanceof RootElement) {
+        if (DesignerEngine.touchedGroup == null || DesignerEngine.touchedGroup instanceof RootElement) {
             lastBubbledElement = null;
             return;
         }
@@ -832,8 +841,24 @@ public abstract class BaseBarElement extends Element {
             return;
         }
         lastBubbledElement = touchedElement;
-        int index = calculateIndexInList(touchedGroup);
-        touchedGroup.updateElementIndex(this, index);
+        int index = calculateIndexInList(DesignerEngine.touchedGroup);
+        DesignerEngine.touchedGroup.updateElementIndex(this, index);
+    }
+
+    private void updateUnfoldWhenDraggingState() {
+        if (!isDragged) {
+            return;
+        }
+        if (DesignerEngine.touchedGroup != DesignerEngine.lastTouchedGroup) {
+            DesignerEngine.dragHighlightGroupStartTime = System.currentTimeMillis();
+        }
+        DesignerEngine.lastTouchedGroup = DesignerEngine.touchedGroup;
+        if (DesignerEngine.touchedGroup == null || !(DesignerEngine.touchedGroup instanceof BaseBarElement)) {
+            return;
+        }
+        if (DesignerEngine.touchedGroup.isFolded() && System.currentTimeMillis() > DesignerEngine.dragHighlightGroupStartTime + UNFOLD_GROUP_DELAY) {
+            ((BaseBarElement) DesignerEngine.touchedGroup).foldToggle();
+        }
     }
 
     private void scrollCanvasWhenDragging() {
@@ -1004,6 +1029,7 @@ public abstract class BaseBarElement extends Element {
             animation.moveAnimation.renderX + renderWidth < 0 || animation.moveAnimation.renderY + renderHeight < 0) {
             return;
         }
+        updateUnfoldWhenDraggingState();
         renderElement(g);
     }
 
