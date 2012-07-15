@@ -53,6 +53,10 @@ public class StepElement extends BaseBarElement {
         super(BaseBarElement.TYPE_STEP, rootType, title, step);
     }
 
+    public StepElement(int rootType, int width, String title) {
+        super(BaseBarElement.TYPE_STEP, rootType, title, width);
+    }
+
     public StepElement(int rootType, int width, String title, Step step) {
         super(BaseBarElement.TYPE_STEP, rootType, width, title, step);
     }
@@ -73,7 +77,7 @@ public class StepElement extends BaseBarElement {
     }
 
     public BaseBarElement duplicate() {
-        StepElement element = new StepElement(rootType, calculateRenderWidthFromRoot(rootType), title, step.duplicate());
+        StepElement element = new StepElement(rootType, calculateRenderWidthFromRoot(rootType), title);
         if (table != null) {
             element.table = table.duplicate(element);
         }

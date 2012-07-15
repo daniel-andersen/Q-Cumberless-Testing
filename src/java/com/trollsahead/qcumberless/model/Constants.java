@@ -45,8 +45,8 @@ public class Constants {
 
     static {
         stepPrefixs = new HashMap<Language, String[]>();
-        stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", PARAMETER_STRING});
-        stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", PARAMETER_STRING});
+        stepPrefixs.put(Language.EN, new String[] {"Given", "When", "Then", "And", "But", "*"});
+        stepPrefixs.put(Language.DA, new String[] {"Givet", "Når", "Så", "Og", "Men", "*"});
 
         reservedKeys.add(' ');
         reservedKeys.add('+');
@@ -59,5 +59,9 @@ public class Constants {
     
     public static String[] getStepPrefixsForLocale(Language language) {
         return stepPrefixs.get(language);
+    }
+
+    public static boolean isStringParameter(String s) {
+        return s.equals(PARAMETER_STRING) || s.equals(PARAMETER_DIGITS) || s.equals(PARAMETER_RESOURCE);
     }
 }

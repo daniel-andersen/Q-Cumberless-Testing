@@ -76,6 +76,8 @@ public abstract class BaseBarElement extends Element {
     public static final Color COLOR_BG_CLEAR           = new Color(1.0f, 1.0f, 1.0f, 0.0f);
     public static final Color COLOR_BG_HINT            = new Color(0.0f, 0.0f, 0.0f, 0.8f);
 
+    public static final Color COLOR_PARAM_MISMATCH     = new Color(1.0f, 0.0f, 0.0f);
+
     protected static final Color COLOR_BORDER_SHADOW  = new Color(0.0f, 0.0f, 0.0f, 0.8f);
     protected static final Color COLOR_BORDER_PLAYING = new Color(0.0f, 0.0f, 0.0f, 0.4f);
     protected static final Color COLOR_BORDER_EDITING = new Color(1.0f, 1.0f, 0.5f, 0.8f);
@@ -615,6 +617,11 @@ public abstract class BaseBarElement extends Element {
             doubleClick();
             return;
         }
+        if (!canEdit() && canSelectPart()) {
+            if (clickPart()) {
+                return;
+            }
+        }
         if (!canEdit()) {
             if (stepButton.click()) {
                 return;
@@ -632,27 +639,34 @@ public abstract class BaseBarElement extends Element {
                 return;
             }
         }
+        if (clickPart()) {
+            return;
+        }
+        foldToggle();
+    }
+
+    private boolean clickPart() {
         final CucumberStepPart part = getTouchedPart();
-        if (part != null && part.type == CucumberStepPart.PartType.ARGUMENT) {
-            if (part.validParameters.length == 1 && isEditableParameter(part.validParameters[0])) {
-                EditBox.showEditPart(part);
-            } else {
-                DropDown.show(
-                        (int) animation.moveAnimation.renderX + part.startX + TEXT_PADDING_HORIZONTAL,
-                        (int) animation.moveAnimation.renderY + part.startY + TEXT_PADDING_VERTICAL,
-                        new DropDown.DropDownCallback() {
+        if (part == null || part.type != CucumberStepPart.PartType.ARGUMENT) {
+            return false;
+        }
+        if (part.hook.getValidParameters().length == 1 && isEditableParameter(part.hook.getValidParameters()[0])) {
+            EditBox.showEditPart(part);
+        } else {
+            DropDown.show(
+                    (int) animation.moveAnimation.renderX + part.startX + TEXT_PADDING_HORIZONTAL,
+                    (int) animation.moveAnimation.renderY + part.startY + TEXT_PADDING_VERTICAL,
+                    new DropDown.DropDownCallback() {
                             public void chooseItem(String item) {
                                 part.setText(item);
                                 if (isEditableParameter(part.getText())) {
                                     EditBox.showEditPart(part);
                                 }
                             }
-                        },
-                        Arrays.asList(part.validParameters));
-            }
-        } else {
-            foldToggle();
+                    },
+                    Arrays.asList(part.getValidParameters().getValidParameters()));
         }
+        return true;
     }
 
     private void doubleClick() {
@@ -1056,7 +1070,11 @@ public abstract class BaseBarElement extends Element {
     protected abstract void drawAdditionals(Graphics2D g);
 
     protected void renderHintsInternal(Graphics2D g) {
+        if (rootType != ROOT_FEATURE_EDITOR) {
+            return;
+        }
         if (!isHighlighted() || DesignerEngine.colorScheme == ColorScheme.DESIGN) {
+            drawPartRegExpHint(g);
             return;
         }
         if (playResult.hasScreenshots()) {
@@ -1065,6 +1083,19 @@ public abstract class BaseBarElement extends Element {
         if (playResult.hasErrorMessage()) {
             drawHint(g, playResult.getErrorMessage(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
         }
+    }
+
+    private boolean drawPartRegExpHint(Graphics2D g) {
+        CucumberStepPart touchedPart = getTouchedPart();
+        if (touchedPart == null || touchedPart.type != CucumberStepPart.PartType.ARGUMENT) {
+            return false;
+        }
+        if (touchedPart.matchesRegExp()) {
+            drawHint(g, touchedPart.getRegExp(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
+        } else {
+            drawHint(g, "Text does not match regexp: " + touchedPart.getRegExp(), CumberlessMouseListener.mouseX + 15, CumberlessMouseListener.mouseY, COLOR_TEXT_ERROR_MESSAGE, COLOR_BG_ERROR_MESSAGE);
+        }
+        return true;
     }
 
     public String getTagsString() {
@@ -1251,16 +1282,18 @@ public abstract class BaseBarElement extends Element {
             if (!part.render || part.wrappedText == null) {
                 continue;
             }
-            if (part.type == CucumberStepPart.PartType.TEXT) {
-                g.setColor(getTextColor());
-            } else {
-                g.setColor(getParameterColor());
-            }
             int x = part.startX;
             int y = part.startY;
             for (String text : part.wrappedText) {
                 int drawX = x + getTextPaddingLeft();
                 int drawY = y + TEXT_PADDING_VERTICAL - 3;
+                if (part.type == CucumberStepPart.PartType.ARGUMENT && !part.matchesRegExp() && rootType == ROOT_FEATURE_EDITOR && DesignerEngine.colorScheme == ColorScheme.DESIGN) {
+                    g.setColor(Color.BLACK);
+                    g.fillRect(drawX - 3, drawY + Engine.fontMetrics.getHeight() + 2, Engine.fontMetrics.stringWidth(text) + 6, 3);
+                    g.setColor(COLOR_PARAM_MISMATCH);
+                    g.fillRect(drawX - 2, drawY + Engine.fontMetrics.getHeight() + 3, Engine.fontMetrics.stringWidth(text) + 4, 1);
+                }
+                g.setColor(part.type == CucumberStepPart.PartType.TEXT ? getTextColor() : getParameterColor());
                 g.drawString(text, drawX, drawY + Engine.fontMetrics.getHeight());
                 updatePartTouchState(part, text, (int) animation.moveAnimation.renderX + drawX, (int) animation.moveAnimation.renderY + drawY);
                 x = 0;
@@ -1475,9 +1508,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private static boolean isEditableParameter(String text) {
-        return Constants.PARAMETER_RESOURCE.equals(text) ||
-               Constants.PARAMETER_STRING.equals(text) ||
-               Constants.PARAMETER_DIGITS.equals(text);
+        return text.startsWith("<") && text.endsWith(">");
     }
 
     private void addTags(boolean isNewButton) {
@@ -1541,6 +1572,10 @@ public abstract class BaseBarElement extends Element {
     protected boolean canEdit() {
         return Engine.currentEngine == Engine.designerEngine && DesignerEngine.colorScheme != ColorScheme.PLAY &&
                groupParent != DesignerEngine.stepsRoot && groupParent.rootType != ROOT_STEP_DEFINITIONS;
+    }
+
+    protected boolean canSelectPart() {
+        return groupParent.rootType == ROOT_STEP_DEFINITIONS;
     }
 
     protected boolean canDoubleClick() {

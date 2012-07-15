@@ -29,6 +29,7 @@ import com.trollsahead.qcumberless.gui.ProgressBar;
 import com.trollsahead.qcumberless.model.Constants;
 import com.trollsahead.qcumberless.model.Locale;
 import com.trollsahead.qcumberless.model.StepDefinition;
+import com.trollsahead.qcumberless.model.StepDefinitionHook;
 
 import static com.trollsahead.qcumberless.model.Locale.Language;
 
@@ -42,7 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SimpleRubyStepDefinitionParser {
-    private static final String parameterPattern = "# qcumberless (.*)";
+    private static final String hooksPattern = "# qcumberless (.*)";
 
     public static Map<String, List<StepDefinition>> parseFiles(String[] filenames) {
         return parseFiles(filenames, null);
@@ -94,18 +95,18 @@ public class SimpleRubyStepDefinitionParser {
         try {
             in = new BufferedReader(new InputStreamReader(inputStream, "UTF8"));
             String line;
-            String parameters = null;
+            String hooks = null;
             while ((line = in.readLine()) != null) {
-                String newParameters = parseParameters(line);
-                if (!Util.isEmpty(newParameters)) {
-                    parameters = newParameters;
+                String newHooks = parseHooks(line);
+                if (!Util.isEmpty(newHooks)) {
+                    hooks = newHooks;
                     continue;
                 }
-                StepDefinition stepDefinition = parseLine(line, parameters);
+                StepDefinition stepDefinition = parseLine(line, hooks);
                 if (stepDefinition != null) {
                     stepDefinitions.add(stepDefinition);
                 }
-                parameters = null;
+                hooks = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,17 +117,17 @@ public class SimpleRubyStepDefinitionParser {
         return stepDefinitions;
     }
 
-    private static String parseParameters(String line) {
-        if (!line.matches(parameterPattern)) {
+    private static String parseHooks(String line) {
+        if (!line.matches(hooksPattern)) {
             return null;
         } else {
-            Matcher matcher = Pattern.compile(parameterPattern).matcher(line);
+            Matcher matcher = Pattern.compile(hooksPattern).matcher(line);
             matcher.find();
             return matcher.group(1);
         }
     }
 
-    private static StepDefinition parseLine(String line, String parameters) {
+    private static StepDefinition parseLine(String line, String hooks) {
         if (Util.isEmpty(line)) {
             return null;
         }
@@ -138,22 +139,22 @@ public class SimpleRubyStepDefinitionParser {
             if (line.matches(pattern)) {
                 Matcher matcher = Pattern.compile(pattern).matcher(line);
                 matcher.find();
-                return parseStepDefinition(keyword, matcher.group(1), parameters);
+                return parseStepDefinition(keyword, matcher.group(1), hooks);
             }
         }
         return null;
     }
 
-    private static StepDefinition parseStepDefinition(String keyword, String definition, String parameters) {
+    private static StepDefinition parseStepDefinition(String keyword, String definition, String hooksComment) {
         StepDefinition stepDefinition = new StepDefinition("(.*) " + convertRegExpsToSimpleGroups(definition));
-        stepDefinition.addParameter(orderStepPrefixes(Locale.getString(keyword)));
-        if (Util.isEmpty(parameters)) {
-            for (String[] parameter : getParametersFromDefinition(definition)) {
-                stepDefinition.addParameter(parameter);
+        stepDefinition.addHook(orderStepPrefixes(Locale.getString(keyword)));
+        if (Util.isEmpty(hooksComment)) {
+            for (StepDefinitionHook hook : getHooksFromDefinition(definition)) {
+                stepDefinition.addHook(hook);
             }
         } else {
-            for (String[] parameter : getParametersFromComment(parameters)) {
-                stepDefinition.addParameter(parameter);
+            for (String[] hook : getHooksFromComment(hooksComment)) {
+                stepDefinition.addHook(hook);
             }
         }
         return stepDefinition;
@@ -164,10 +165,10 @@ public class SimpleRubyStepDefinitionParser {
         keywords.addAll(Arrays.asList(Constants.getStepPrefixs()));
         keywords.remove(keyword);
         keywords.add(0, keyword);
-        return keywords.toArray(new String[] {});
+        return keywords.toArray(new String[0]);
     }
 
-    private static List<String[]> getParametersFromComment(String parameters) {
+    private static List<String[]> getHooksFromComment(String parameters) {
         List<String[]> parameterList = new LinkedList<String[]>();
         int start;
         while ((start = parameters.indexOf("(")) != -1) {
@@ -179,10 +180,8 @@ public class SimpleRubyStepDefinitionParser {
         return parameterList;
     }
 
-    private static List<String[]> getParametersFromDefinition(String definition) {
-        System.out.println("-------");
-        System.out.println("> " + definition);
-        List<String[]> parameters = new LinkedList<String[]>();
+    private static List<StepDefinitionHook> getHooksFromDefinition(String definition) {
+        List<StepDefinitionHook> hooks = new LinkedList<StepDefinitionHook>();
         while (!Util.isEmpty(definition)) {
             int start = definition.indexOf("(");
             if (start == -1) {
@@ -190,21 +189,21 @@ public class SimpleRubyStepDefinitionParser {
             }
             int end = definition.indexOf(")", start);
             String regexp = definition.substring(start + 1, end);
-            parameters.add(comprehensiveRegExp(regexp));
+            hooks.add(comprehensiveRegExp(regexp));
             definition = definition.substring(end + 1);
         }
-        return parameters;
+        return hooks;
     }
 
-    private static String[] comprehensiveRegExp(String regexp) {
+    private static StepDefinitionHook comprehensiveRegExp(String regexp) {
         String[] parameterList = extractSimpleParameterList(regexp);
         if (parameterList != null) {
-            return parameterList;
+            return new StepDefinitionHook(parameterList, regexp);
         }
         if (isAnyDigitsRegExp(regexp)) {
-            return new String[] {Constants.PARAMETER_DIGITS};
+            return new StepDefinitionHook(new String[] {Constants.PARAMETER_DIGITS}, regexp);
         }
-        return new String[] {Constants.PARAMETER_STRING};
+        return new StepDefinitionHook(new String[] {Constants.PARAMETER_STRING}, regexp);
     }
 
     private static boolean isAnyDigitsRegExp(String regexp) {
@@ -215,7 +214,6 @@ public class SimpleRubyStepDefinitionParser {
         if (regexp.startsWith("?:")) {
             regexp = regexp.substring(2);
         }
-        System.out.println(regexp);
         Matcher matcher = Pattern.compile("^(\\w+\\|?)+$").matcher(regexp);
         if (!matcher.find()) {
             return null;

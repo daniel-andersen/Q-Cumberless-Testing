@@ -40,9 +40,8 @@ public class Step {
     private String definition;
     private boolean isMatched;
 
-    private List<String[]> validParameters = new ArrayList<String[]>();
-    private String[] actualParameters = new String[0];
-    
+    private List<StepDefinitionHook> hooks = new ArrayList<StepDefinitionHook>();
+
     private List<CucumberStepPart> parts = null;
     private boolean renderKeyword = true;
 
@@ -55,8 +54,8 @@ public class Step {
     
     public Step(StepDefinition stepDefinition) {
         this(stepDefinition.getStepDefinition(), true);
-        for (String[] parameter : stepDefinition.getParameters()) {
-            validParameters.add(parameter);
+        for (StepDefinitionHook parameter : stepDefinition.getHooks()) {
+            hooks.add(parameter);
         }
         resetParametersToDefault();
         parts = null;
@@ -69,8 +68,7 @@ public class Step {
 
     public Step(Step step, String line) {
         this.definition = Util.stripLeadingSpaces(step.definition);
-        this.validParameters = step.validParameters;
-        this.actualParameters = new String[0];
+        this.hooks = step.hooks;
         this.parts = null;
         findParameters(Util.stripLeadingSpaces(line));
         findParts();
@@ -79,12 +77,12 @@ public class Step {
 
     public Step duplicate() {
         Step step = new Step(definition);
-        step.validParameters = new LinkedList<String[]>();
-        step.validParameters.addAll(this.validParameters);
-        step.actualParameters = this.actualParameters.clone();
         step.renderKeyword = this.renderKeyword;
         step.isMatched = this.isMatched;
         step.textDirty = true;
+        for (StepDefinitionHook hook : this.hooks) {
+            step.hooks.add(hook.duplicate());
+        }
         step.parts = new LinkedList<CucumberStepPart>();
         for (CucumberStepPart part : this.parts) {
             step.parts.add(part.duplicate(step));
@@ -104,9 +102,8 @@ public class Step {
         Matcher matcher = Pattern.compile(definition).matcher(Util.stripLeadingSpaces(line));
         matcher.find();
         if (matcher.groupCount() > 0) {
-            actualParameters = new String[matcher.groupCount()];
             for (int i = 0; i < matcher.groupCount(); i++) {
-                actualParameters[i] = matcher.group(i + 1);
+                hooks.get(i).setActualParameter(matcher.group(i + 1));
             }
         }
         textDirty = true;
@@ -128,9 +125,8 @@ public class Step {
     }
 
     private void resetParametersToDefault() {
-        actualParameters = new String[validParameters.size()];
-        for (int i = 0; i < validParameters.size(); i++) {
-            actualParameters[i] = validParameters.get(i)[0];
+        for (StepDefinitionHook hook : hooks) {
+            hook.setActualParameter(hook.getValidParameters()[0]);
         }
         textDirty = true;
         updateRenderKeyword();
@@ -146,11 +142,11 @@ public class Step {
                 parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, str));
                 isLastPartAnArgument = false;
             }
-            if (parameterIdx < validParameters.size()) {
+            if (parameterIdx < hooks.size()) {
                 if (isLastPartAnArgument) {
                     parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.TEXT, " "));
                 }
-                parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.ARGUMENT, actualParameters[parameterIdx], validParameters.get(parameterIdx)));
+                parts.add(new CucumberStepPart(this, CucumberStepPart.PartType.ARGUMENT, hooks.get(parameterIdx)));
                 parameterIdx++;
                 isLastPartAnArgument = true;
             }
@@ -232,7 +228,7 @@ public class Step {
         private Step parentStep;
         public PartType type = PartType.TEXT;
         private String text;
-        public String[] validParameters;
+        public StepDefinitionHook hook = null;
         
         public boolean isTouched = false;
         public boolean isFirstPart = false;
@@ -247,14 +243,21 @@ public class Step {
         public boolean render = true;
 
         public CucumberStepPart(Step parent, PartType type, String text) {
-            this(parent, type, text, null);
-        }
-
-        public CucumberStepPart(Step parent, PartType type, String text, String[] validParameters) {
             parentStep = parent;
             this.type = type;
             this.text = text;
-            this.validParameters = validParameters;
+            this.hook = null;
+        }
+
+        public CucumberStepPart(Step parent, PartType type, StepDefinitionHook hook) {
+            parentStep = parent;
+            this.type = type;
+            this.text = hook.getActualParameter();
+            this.hook = hook;
+        }
+
+        public StepDefinitionHook getValidParameters() {
+            return hook;
         }
 
         public void wrapText(int startX, int startY) {
@@ -314,7 +317,7 @@ public class Step {
         }
 
         public CucumberStepPart duplicate(Step parent) {
-            CucumberStepPart part = new CucumberStepPart(parent, this.type, this.text, this.validParameters != null ? this.validParameters.clone() : null);
+            CucumberStepPart part = this.type == PartType.TEXT ? new CucumberStepPart(parent, this.type, this.text) : new CucumberStepPart(parent, this.type, this.hook.duplicate());
             part.wrappedText = new LinkedList<String>();
             part.wrappedText.addAll(this.wrappedText);
             part.isFirstPart = this.isFirstPart;
@@ -332,7 +335,22 @@ public class Step {
 
         public void setText(String text) {
             this.text = text;
+            if (hook != null) {
+                hook.setActualParameter(text);
+            }
             parentStep.textDirty = true;
+        }
+
+        public boolean matchesRegExp() {
+            try {
+                return type == PartType.ARGUMENT && Pattern.compile("(" + hook.getRegExp() + ")").matcher(text).matches();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        public String getRegExp() {
+            return hook.getRegExp();
         }
     }
 }

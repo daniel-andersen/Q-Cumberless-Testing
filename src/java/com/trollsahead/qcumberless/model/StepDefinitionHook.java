@@ -25,61 +25,40 @@
 
 package com.trollsahead.qcumberless.model;
 
-import java.util.LinkedList;
-import java.util.List;
+public class StepDefinitionHook {
+    private String actualParameter;
+    private String[] validParameters;
+    private String regExp;
 
-public class StepDefinition {
-    private final String stepDefinition;
-    private final List<StepDefinitionHook> hooks = new LinkedList<StepDefinitionHook>();
-
-    public StepDefinition(String stepDefinition) {
-        this.stepDefinition = stepDefinition;
-    }
-    
-    public StepDefinition(String stepDefinition, List<StepDefinitionHook> hooks) {
-        this.stepDefinition = stepDefinition;
-        this.hooks.addAll(hooks);
+    public StepDefinitionHook(String[] validParameters, String regExp) {
+        this.actualParameter = validParameters[0];
+        this.validParameters = validParameters;
+        this.regExp = regExp;
     }
 
-    public StepDefinition(String stepDefinition, String[][] hooks) {
-        this.stepDefinition = stepDefinition;
-        for (String[] param : hooks) {
-            this.hooks.add(new StepDefinitionHook(param[0], param, stringArrayToRegExp(param)));
-        }
+    public StepDefinitionHook(String actualParameter, String[] validParameters, String regExp) {
+        this.actualParameter = actualParameter;
+        this.validParameters = validParameters;
+        this.regExp = regExp;
     }
 
-    private String stringArrayToRegExp(String[] params) {
-        String regExp = "";
-        String delimiter = "";
-        for (String s : params) {
-            regExp += delimiter;
-            if ("*".equals(s)) {
-                regExp += "\\*";
-            } else {
-                regExp += s;
-            }
-            delimiter = "|";
-        }
+    public void setActualParameter(String parameter) {
+        this.actualParameter = parameter;
+    }
+
+    public String getActualParameter() {
+        return actualParameter;
+    }
+
+    public String[] getValidParameters() {
+        return validParameters;
+    }
+
+    public String getRegExp() {
         return regExp;
     }
 
-    public void addParameter(String[] parameter) { // For backwards compatibility!
-        addHook(parameter);
-    }
-    
-    public void addHook(String[] hook) {
-        hooks.add(new StepDefinitionHook(hook[0], hook, stringArrayToRegExp(hook)));
-    }
-
-    public void addHook(StepDefinitionHook hook) {
-        hooks.add(hook);
-    }
-
-    public String getStepDefinition() {
-        return stepDefinition;
-    }
-    
-    public List<StepDefinitionHook> getHooks() {
-        return hooks;
+    public StepDefinitionHook duplicate() {
+        return new StepDefinitionHook(actualParameter, validParameters.clone(), regExp);
     }
 }
