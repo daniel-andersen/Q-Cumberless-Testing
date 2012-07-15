@@ -6,7 +6,7 @@ Q-Cumberless Testing is a graphical user interface for writing and executing [Cu
 Up and Running
 ==============
 
-Fetch a [release](https://github.com/black-knight/Q-Cumberless-Testing/tree/master/release/release_0.2.7) or a [nightly build](https://github.com/black-knight/Q-Cumberless-Testing/tree/master/release/nightly) from github and run the jar-file. This should run Q-Cumberless Testing with the generic device plugin.
+Fetch a [release](https://github.com/black-knight/Q-Cumberless-Testing/tree/master/release/release_0.2.8) or a [nightly build](https://github.com/black-knight/Q-Cumberless-Testing/tree/master/release/nightly) from github and run the jar-file. This should run Q-Cumberless Testing with the generic device plugin.
 
 Look at the wiki for more information, including a custom plugin integrating with [calabash-android](https://github.com/calabash/calabash-android).
 

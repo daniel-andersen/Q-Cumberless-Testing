@@ -6,6 +6,8 @@ Q-Cumberless Testing
     - Fixed bug that prevented editing of steps that didn't match any step definition
     - Background image customizable from plugins
     - Automatically unfolding of elements when dragged onto
+    - Step definitions contain regexps, which is shown when mouse touches hook.
+      A red line under hook indicates regexp is not matched.
 
 0.2.7
     - Deleting features only deletes on disc when saved
