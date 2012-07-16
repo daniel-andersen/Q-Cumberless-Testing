@@ -1356,7 +1356,10 @@ public abstract class BaseBarElement extends Element {
         }
         int x = CumberlessMouseListener.mouseX + 15;
         for (Screenshot screenshot : playResult.getScreenshots()) {
-            int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - playResult.getScreenshots().get(0).getImage().getHeight(null));
+            if (screenshot == null || screenshot.getImage() == null) {
+                continue;
+            }
+            int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - screenshot.getImage().getHeight(null));
         
             g.setColor(Color.BLACK);
         
