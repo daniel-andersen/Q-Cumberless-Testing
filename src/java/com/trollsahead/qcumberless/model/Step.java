@@ -319,7 +319,9 @@ public class Step {
         public CucumberStepPart duplicate(Step parent) {
             CucumberStepPart part = this.type == PartType.TEXT ? new CucumberStepPart(parent, this.type, this.text) : new CucumberStepPart(parent, this.type, this.hook.duplicate());
             part.wrappedText = new LinkedList<String>();
-            part.wrappedText.addAll(this.wrappedText);
+            if (this.wrappedText != null) {
+                part.wrappedText.addAll(this.wrappedText);
+            }
             part.isFirstPart = this.isFirstPart;
             part.startX = this.startX;
             part.startY = this.startY;
