@@ -85,8 +85,12 @@ public class ExecutionHelper {
             stdin = new BufferedReader(new InputStreamReader((process.getInputStream()), "UTF8"));
 
             String line;
-            while ((line = stdin.readLine()) != null && !executionStopper.isStopped()) {
-                logListener.logLine(line);
+            try {
+                while (!executionStopper.isStopped() && (line = stdin.readLine()) != null) {
+                    logListener.logLine(line);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             if (!executionStopper.isStopped()) {
                 int res = 1;
