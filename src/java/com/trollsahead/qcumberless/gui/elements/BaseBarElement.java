@@ -650,7 +650,7 @@ public abstract class BaseBarElement extends Element {
         if (part == null || part.type != CucumberStepPart.PartType.ARGUMENT) {
             return false;
         }
-        if (part.hook.getValidParameters().length == 1 && isEditableParameter(part.hook.getValidParameters()[0])) {
+        if (part.hook.getValidParameters().length == 1 && Constants.isStringParameter(part.hook.getValidParameters()[0])) {
             EditBox.showEditPart(part);
         } else {
             DropDown.show(
@@ -661,7 +661,7 @@ public abstract class BaseBarElement extends Element {
                                 if (!Constants.isStringParameter(item)) {
                                     part.setText(item);
                                 }
-                                if (isEditableParameter(part.getText())) {
+                                if (Constants.isStringParameter(item)) {
                                     EditBox.showEditPart(part);
                                 }
                             }
@@ -1510,10 +1510,6 @@ public abstract class BaseBarElement extends Element {
             FileUtil.close(out);
         }
         return true;
-    }
-
-    private static boolean isEditableParameter(String text) {
-        return text.startsWith("<") && text.endsWith(">");
     }
 
     private void addTags(boolean isNewButton) {
