@@ -25,6 +25,7 @@
 
 package com.trollsahead.qcumberless.gui;
 
+import com.trollsahead.qcumberless.engine.DesignerEngine;
 import com.trollsahead.qcumberless.engine.Engine;
 
 import java.awt.*;
@@ -100,6 +101,11 @@ public class DropDown {
         renderHeight = calculateHeight();
         if (!alignTop) {
             renderY = Math.max(0, renderY - renderHeight);
+        }
+        if (Engine.currentEngine == Engine.designerEngine) {
+            if (renderY + renderHeight > DesignerEngine.canvasHeight - ButtonBar.BUTTONBAR_HEIGHT - PADDING_VERTICAL) {
+                renderY = DesignerEngine.canvasHeight - renderHeight - ButtonBar.BUTTONBAR_HEIGHT - PADDING_VERTICAL;
+            }
         }
         itemHeight = calculateItemHeight();
         drawBackground(g);
