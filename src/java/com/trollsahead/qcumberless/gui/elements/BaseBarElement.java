@@ -658,7 +658,9 @@ public abstract class BaseBarElement extends Element {
                     (int) animation.moveAnimation.renderY + part.startY + TEXT_PADDING_VERTICAL,
                     new DropDown.DropDownCallback() {
                             public void chooseItem(String item) {
-                                part.setText(item);
+                                if (!Constants.isStringParameter(item)) {
+                                    part.setText(item);
+                                }
                                 if (isEditableParameter(part.getText())) {
                                     EditBox.showEditPart(part);
                                 }
