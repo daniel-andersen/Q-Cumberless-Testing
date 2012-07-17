@@ -133,7 +133,7 @@ public abstract class BaseBarElement extends Element {
 
     public Step step;
 
-    public String title;
+    protected String title;
     protected String filename = null;
     public Tag tags;
 
@@ -405,8 +405,8 @@ public abstract class BaseBarElement extends Element {
                 title = ElementHelper.ensureOnlyOneTitleLine(title);
             }
             this.comment = ElementHelper.extractCommentFromTitle(title);
-            commentWrapped = null;
             this.title = ElementHelper.removeCommentFromTitle(title);
+            commentWrapped = null;
         }
         step = FeatureLoader.findMatchingStep(this.title);
     }
@@ -1075,7 +1075,10 @@ public abstract class BaseBarElement extends Element {
         if (rootType != ROOT_FEATURE_EDITOR) {
             return;
         }
-        if (!isHighlighted() || DesignerEngine.colorScheme == ColorScheme.DESIGN) {
+        if (!isHighlighted()) {
+            return;
+        }
+        if (DesignerEngine.colorScheme == ColorScheme.DESIGN) {
             drawPartRegExpHint(g);
             return;
         }

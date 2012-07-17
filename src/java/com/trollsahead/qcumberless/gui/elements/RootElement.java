@@ -99,6 +99,8 @@ public class RootElement extends Element {
         if (offsetY > 0 && deltaY >= 0) {
             return;
         }
+        float oldRenderX = animation.moveAnimation.renderX;
+        float oldRenderY = animation.moveAnimation.renderY;
         if (isScrollbarTouched() || isDraggingScrollbar) {
             dragScrollbar(deltaY);
         } else {
@@ -106,7 +108,9 @@ public class RootElement extends Element {
         }
         offsetY = Math.max(Math.min(0, -(cachedGroupHeight - scrollbarMaxHeight)), Math.min(0, offsetY));
         updatePosition();
-        stickChildrenToParentRenderPosition(true);
+        if (oldRenderX != animation.moveAnimation.renderX || oldRenderY != animation.moveAnimation.renderY) {
+            stickChildrenToParentRenderPosition(true);
+        }
     }
 
     public void startDrag(boolean isControlDown) {
