@@ -2,6 +2,10 @@ Q-Cumberless Testing
 
 ----= CHANGES =----
 
+0.2.9 (WIP)
+    - Stability and bug fixes
+    - New design mode colors
+
 0.2.8
     - Fixed bug that prevented editing of steps that didn't match any step definition
     - Background image customizable from plugins
