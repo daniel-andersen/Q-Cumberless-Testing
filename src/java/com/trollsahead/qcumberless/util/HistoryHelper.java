@@ -254,12 +254,13 @@ public class HistoryHelper {
 
     public static File createHistoryDir(long startTime) {
         File dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)));
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
+        for (int i = 1; i < 100; i++) {
+            if (dir.mkdirs()) {
+                return dir;
             }
+            dir = new File(RUN_HISTORY_DIR + "/" + FileUtil.prettyFilenameDate(new Date(startTime)) + "/" + FileUtil.prettyFilenameTime(new Date(startTime)) + "_" + i);
         }
-        return dir;
+        throw new RuntimeException("Could not create directory for run history at: " + dir.getAbsolutePath());
     }
 
     public static List<FeatureElement> featuresRootToFeatureList() {
