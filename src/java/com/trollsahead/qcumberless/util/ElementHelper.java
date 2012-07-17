@@ -175,10 +175,10 @@ public class ElementHelper {
 
     public static void deepCopyElement(BaseBarElement sourceElement, BaseBarElement destElement) {
         for (Element element : sourceElement.children) {
-            BaseBarElement oldElement = (BaseBarElement) element;
-            BaseBarElement newElement = copyAndUnfoldElement(oldElement);
+            BaseBarElement srcElement = (BaseBarElement) element;
+            BaseBarElement newElement = copyAndUnfoldElement(srcElement);
             destElement.addChild(newElement);
-            deepCopyElement(oldElement, newElement);
+            deepCopyElement(srcElement, newElement);
         }
     }
     
