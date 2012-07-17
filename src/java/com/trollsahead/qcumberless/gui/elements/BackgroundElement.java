@@ -32,7 +32,7 @@ import com.trollsahead.qcumberless.util.ElementHelper;
 import java.awt.*;
 
 public class BackgroundElement extends BaseBarElement {
-    public static Color[] BG_COLOR_NORMAL = {new Color(0x888888), new Color(0xAAAAAA)};
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0.6f, 0.6f, 0.95f), new Color(0.7f, 0.7f, 1.0f)};
 
     public BackgroundElement(int rootType) {
         super(TYPE_BACKGROUND, rootType);

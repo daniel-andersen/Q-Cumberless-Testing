@@ -31,7 +31,7 @@ import com.trollsahead.qcumberless.util.ElementHelper;
 import java.awt.*;
 
 public class CommentElement extends BaseBarElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAAA), new Color(0xBBBBBB)};
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0.6f, 0.6f, 0.6f), new Color(0.7f, 0.7f, 0.7f)};
 
     public CommentElement(int rootType, String title) {
         super(TYPE_COMMENT, rootType, title);

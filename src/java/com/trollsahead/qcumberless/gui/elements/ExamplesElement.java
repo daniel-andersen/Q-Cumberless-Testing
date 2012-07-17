@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.List;
 
 public class ExamplesElement extends StepElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xFF6666), new Color(0xDD9999)};
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0.45f, 0.45f, 0.86f), new Color(0.55f, 0.55f, 0.96f)};
 
     public ExamplesElement() {
         super(ROOT_FEATURE_EDITOR, Locale.getString("Examples") + ":");

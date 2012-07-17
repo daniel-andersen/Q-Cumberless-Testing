@@ -60,11 +60,15 @@ public abstract class BaseBarElement extends Element {
 
     public static final float BAR_TRANSPARENCY = 0.7f;
 
-    public static final Color COLOR_TEXT_NORMAL        = new Color(0x000000);
-    public static final Color COLOR_TEXT_PARAMETER     = new Color(0xDDDD88);
-    public static final Color COLOR_TEXT_ERROR_MESSAGE = new Color(0x000000);
-    public static final Color COLOR_TEXT_TAGS          = new Color(0x000000);
-    public static final Color COLOR_TEXT_COMMENT       = new Color(0.0f, 0.0f, 0.0f, 0.7f);
+    public static final Color[] BG_COLOR_STEP_DEFINITION = {new Color(0.4f, 0.8f, 0.4f, 0.6f), new Color(0.5f, 0.9f, 0.5f, 0.6f)};
+
+    public static final Color[] COLOR_TEXT_PARAMETER = {new Color(0xFFFFAA), new Color(0xFFFFFF)};
+
+    public static final Color COLOR_TEXT_NORMAL          = new Color(0x000000);
+    public static final Color COLOR_TEXT_STEP_DEFINITION = new Color(0x000000);
+    public static final Color COLOR_TEXT_ERROR_MESSAGE   = new Color(0x000000);
+    public static final Color COLOR_TEXT_TAGS            = new Color(0x000000);
+    public static final Color COLOR_TEXT_COMMENT         = new Color(0.0f, 0.0f, 0.0f, 0.7f);
 
     public static final Color BAR_COLOR_NOT_YET_PLAYED  = new Color(0.5f, 0.5f, 0.5f, 0.5f);
     public static final Color BAR_COLOR_SUCCESS         = new Color(0.2f, 0.9f, 0.2f, 0.5f);
@@ -204,7 +208,7 @@ public abstract class BaseBarElement extends Element {
         this.tags = new Tag(tags);
         this.playResult = new PlayResult();
         folded = false;
-        animation.colorAnimation.setColor(getNormalBackgroundColor());
+        animation.colorAnimation.setColor(getBackgroundColor());
         animation.sizeAnimation.currentWidth = this.renderWidth;
         animation.sizeAnimation.currentHeight = this.renderHeight;
         addButtons();
@@ -358,8 +362,8 @@ public abstract class BaseBarElement extends Element {
         if (hasPlayButton()) {
             buttonGroupWidth = addGroupButton(playButton, buttonGroupWidth);
         }
-        if (hasStepButton()) {
-            buttonGroupWidth = addGroupButton(stepButton, buttonGroupWidth);
+        if (hasEditButton()) {
+            buttonGroupWidth = addGroupButton(editButton, buttonGroupWidth);
         }
         if (hasTagsAddButton()) {
             if (tags.hasTags()) {
@@ -369,8 +373,8 @@ public abstract class BaseBarElement extends Element {
                 buttonGroupWidth = addGroupButton(tagsNewButton, buttonGroupWidth);
             }
         }
-        if (hasEditButton()) {
-            buttonGroupWidth = addGroupButton(editButton, buttonGroupWidth);
+        if (hasStepButton()) {
+            buttonGroupWidth = addGroupButton(stepButton, buttonGroupWidth);
         }
         if (hasInteractiveDesignerButton()) {
             buttonGroupWidth = addGroupButton(interactiveDesignerButton, buttonGroupWidth);
@@ -1181,7 +1185,7 @@ public abstract class BaseBarElement extends Element {
 
     private Color getBackgroundColorAccordingToState() {
         if (DesignerEngine.colorScheme == ColorScheme.DESIGN || (groupParent != null && groupParent.rootType == ROOT_STEP_DEFINITIONS)) {
-            return getNormalBackgroundColor();
+            return getBackgroundColor();
         }
         if (this instanceof CommentElement) {
             return BAR_COLOR_PLAYING_COMMENT;
@@ -1194,14 +1198,22 @@ public abstract class BaseBarElement extends Element {
         }
     }
 
-    public abstract Color getNormalBackgroundColor();
-
-    protected Color getTextColor() {
-        return COLOR_TEXT_NORMAL;
+    protected Color getBackgroundColor() {
+        return rootType == ROOT_STEP_DEFINITIONS && type != TYPE_GROUPING ? BG_COLOR_STEP_DEFINITION[highlightToColorIndex()] : getNormalBackgroundColor();
     }
 
-    protected Color getParameterColor() {
-        return COLOR_TEXT_PARAMETER;
+    public abstract Color getNormalBackgroundColor();
+
+    protected Color getStepDefinitionBackgroundColor() {
+        return BG_COLOR_STEP_DEFINITION[highlightToColorIndex()];
+    }
+
+    protected Color getTextColor() {
+        return rootType == ROOT_STEP_DEFINITIONS ? COLOR_TEXT_STEP_DEFINITION : COLOR_TEXT_NORMAL;
+    }
+
+    protected Color getParameterColor(boolean isTouched) {
+        return isTouched ? COLOR_TEXT_PARAMETER[1] : COLOR_TEXT_PARAMETER[0];
     }
 
     protected int highlightToColorIndex() {
@@ -1283,6 +1295,7 @@ public abstract class BaseBarElement extends Element {
     }
 
     private void drawText(Graphics2D g) {
+        CucumberStepPart touchedPart = getTouchedPart();
         for (CucumberStepPart part : step.getParts()) {
             if (!part.render || part.wrappedText == null) {
                 continue;
@@ -1298,7 +1311,7 @@ public abstract class BaseBarElement extends Element {
                     g.setColor(COLOR_PARAM_MISMATCH);
                     g.fillRect(drawX - 2, drawY + Engine.fontMetrics.getHeight() + 3, Engine.fontMetrics.stringWidth(text) + 4, 1);
                 }
-                g.setColor(part.type == CucumberStepPart.PartType.TEXT ? getTextColor() : getParameterColor());
+                g.setColor(part.type == CucumberStepPart.PartType.TEXT ? getTextColor() : getParameterColor(touchedPart == part));
                 g.drawString(text, drawX, drawY + Engine.fontMetrics.getHeight());
                 updatePartTouchState(part, text, (int) animation.moveAnimation.renderX + drawX, (int) animation.moveAnimation.renderY + drawY);
                 x = 0;

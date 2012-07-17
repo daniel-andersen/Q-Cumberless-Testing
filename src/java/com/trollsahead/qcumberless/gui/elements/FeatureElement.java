@@ -33,7 +33,7 @@ import com.trollsahead.qcumberless.util.Util;
 import java.awt.*;
 
 public class FeatureElement extends BaseBarElement {
-    public static final Color[] BG_COLOR_NORMAL = {new Color(0xAAAAFF), new Color(0xBBBBEE)};
+    public static final Color[] BG_COLOR_NORMAL = {new Color(0.6f, 0.6f, 0.95f), new Color(0.7f, 0.7f, 1.0f)};
 
     public FeatureElement(int rootType) {
         super(TYPE_FEATURE, rootType);
