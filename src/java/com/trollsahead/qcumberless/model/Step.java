@@ -54,8 +54,8 @@ public class Step {
     
     public Step(StepDefinition stepDefinition) {
         this(stepDefinition.getStepDefinition(), true);
-        for (StepDefinitionHook parameter : stepDefinition.getHooks()) {
-            hooks.add(parameter);
+        for (StepDefinitionHook hook : stepDefinition.getHooks()) {
+            hooks.add(hook.duplicate());
         }
         resetParametersToDefault();
         parts = null;
@@ -68,7 +68,10 @@ public class Step {
 
     public Step(Step step, String line) {
         this.definition = Util.stripLeadingSpaces(step.definition);
-        this.hooks = step.hooks;
+        this.hooks = new LinkedList<StepDefinitionHook>();
+        for (StepDefinitionHook hook : step.hooks) {
+            this.hooks.add(hook.duplicate());
+        }
         this.parts = null;
         findParameters(Util.stripLeadingSpaces(line));
         findParts();
@@ -181,23 +184,17 @@ public class Step {
         }
         if (!renderKeyword) {
             boolean shouldRender = false;
-            int partCount = 0;
             for (CucumberStepPart part : parts) {
-                part.isFirstPart = partCount < 2;
                 if (part.type == CucumberStepPart.PartType.ARGUMENT) {
                     part.render = shouldRender;
                     shouldRender = true;
                 } else {
                     part.render = true;
                 }
-                partCount++;
             }
         } else {
-            boolean firstPart = true;
             for (CucumberStepPart part : parts) {
                 part.render = true;
-                part.isFirstPart = firstPart;
-                firstPart = false;
             }
         }
         textDirty = true;
@@ -231,7 +228,6 @@ public class Step {
         public StepDefinitionHook hook = null;
         
         public boolean isTouched = false;
-        public boolean isFirstPart = false;
 
         public List<String> wrappedText;
 
@@ -322,7 +318,6 @@ public class Step {
             if (this.wrappedText != null) {
                 part.wrappedText.addAll(this.wrappedText);
             }
-            part.isFirstPart = this.isFirstPart;
             part.startX = this.startX;
             part.startY = this.startY;
             part.endX = this.endX;
@@ -332,7 +327,7 @@ public class Step {
         }
 
         public String getText() {
-            return isFirstPart ? Util.firstCharUpperCase(text) : text;
+            return text;
         }
 
         public void setText(String text) {

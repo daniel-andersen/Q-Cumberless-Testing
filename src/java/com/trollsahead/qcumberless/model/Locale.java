@@ -48,7 +48,7 @@ public class Locale {
         en.put("scenario outline", "Scenario Outline");
         en.put("background", "Background");
         en.put("comment", "Comment");
-        en.put("new step", "New step");
+        en.put("new step", "New undefined step");
         en.put("table", "Table");
         en.put("Given", "Given");
         en.put("When", "When");
@@ -64,7 +64,7 @@ public class Locale {
         da.put("scenario outline", "Abstrakt Scenario");
         da.put("background", "Baggrund");
         da.put("comment", "Kommentar");
-        da.put("new step", "Nyt step");
+        da.put("new step", "Nyt udefineret step");
         da.put("table", "Tabel");
         da.put("Given", "Givet");
         da.put("When", "Når");
