@@ -1373,18 +1373,31 @@ public abstract class BaseBarElement extends Element {
             return;
         }
         int x = CumberlessMouseListener.mouseX + 15;
+        int totalWidth = 5;
+        for (Screenshot screenshot : playResult.getScreenshots()) {
+            if (screenshot != null && screenshot.getImage() != null) {
+                totalWidth += screenshot.getImage().getWidth(null) + 5;
+            }
+        }
+        int maxTotalWidth = Engine.windowWidth * 3 / 4;
+        float scale = totalWidth > maxTotalWidth ? (float) maxTotalWidth / (float) totalWidth : 1.0f;
         for (Screenshot screenshot : playResult.getScreenshots()) {
             if (screenshot == null || screenshot.getImage() == null) {
                 continue;
             }
-            int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - screenshot.getImage().getHeight(null));
-        
-            g.setColor(Color.BLACK);
-        
-            g.fillRect(x - 1, y - 1, screenshot.getImage().getWidth(null) + 2, screenshot.getImage().getHeight(null) + 2);
-            g.drawImage(screenshot.getImage(), x, y, null);
+            int imageWidth = (int) ((float) screenshot.getImage().getWidth(null) * scale);
+            int imageHeight = (int) ((float) screenshot.getImage().getHeight(null) * scale);
+            if (screenshot.getScaledImage(imageWidth, imageHeight) == null) {
+                continue;
+            }
+            int y = Math.min(CumberlessMouseListener.mouseY + 10, DesignerEngine.canvasHeight - imageHeight - ButtonBar.BUTTONBAR_HEIGHT);
 
-            x += screenshot.getImage().getWidth(null) + 5;
+            g.setColor(Color.BLACK);
+
+            g.fillRect(x - 1, y - 1, imageWidth + 2, imageHeight + 2);
+            g.drawImage(screenshot.getScaledImage(imageWidth, imageHeight), x, y, null);
+
+            x += imageWidth + 5;
         }
     }
 

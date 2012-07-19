@@ -25,15 +25,21 @@
 
 package com.trollsahead.qcumberless.model;
 
+import com.trollsahead.qcumberless.gui.RenderOptimizer;
 import com.trollsahead.qcumberless.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class Screenshot {
     private Image image = null;
     private String filename = null;
+
+    private BufferedImage scaledImage = null;
+    private int scaledImageWidth;
+    private int scaledImageHeight;
 
     public Screenshot(String filename) {
         this(null, filename);
@@ -57,6 +63,27 @@ public class Screenshot {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public Image getScaledImage(int width, int height) {
+        if (scaledImage == null || scaledImageWidth != width || scaledImageHeight != height) {
+            scaleImage(width, height);
+        }
+        return scaledImage;
+    }
+
+    private void scaleImage(int width, int height) {
+        Image originalImage = getImage();
+        if (originalImage == null) {
+            return;
+        }
+        Image scaledInstance = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        scaledImage = RenderOptimizer.graphicsConfiguration.createCompatibleImage(width, height);
+        Graphics g = scaledImage.createGraphics();
+        g.drawImage(scaledInstance, 0, 0, null);
+        g.dispose();
+        scaledImageWidth = width;
+        scaledImageHeight = height;
     }
 
     public void setImage(Image image) {
