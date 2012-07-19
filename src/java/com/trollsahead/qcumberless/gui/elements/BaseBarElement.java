@@ -1374,13 +1374,18 @@ public abstract class BaseBarElement extends Element {
         }
         int x = CumberlessMouseListener.mouseX + 15;
         int totalWidth = 5;
+        int totalHeight = 0;
         for (Screenshot screenshot : playResult.getScreenshots()) {
             if (screenshot != null && screenshot.getImage() != null) {
                 totalWidth += screenshot.getImage().getWidth(null) + 5;
+                totalHeight = Math.max(totalHeight, screenshot.getImage().getHeight(null));
             }
         }
         int maxTotalWidth = Engine.windowWidth * 3 / 4;
-        float scale = totalWidth > maxTotalWidth ? (float) maxTotalWidth / (float) totalWidth : 1.0f;
+        int maxTotalHeight = Engine.windowHeight * 3 / 4;
+        float scaleWidth = totalWidth > maxTotalWidth ? (float) maxTotalWidth / (float) totalWidth : 1.0f;
+        float scaleHeight = totalHeight > maxTotalHeight ? (float) maxTotalHeight / (float) totalHeight : 1.0f;
+        float scale = Math.min(scaleWidth, scaleHeight);
         for (Screenshot screenshot : playResult.getScreenshots()) {
             if (screenshot == null || screenshot.getImage() == null) {
                 continue;
